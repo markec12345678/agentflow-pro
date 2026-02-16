@@ -82,49 +82,49 @@
 ## PHASE 3: Knowledge Graph (Day 5-6)
 
 ### 3.1 Memory MCP Integration
-- [ ] 3.1.1 Implementiraj `mcp_memory_create_entities`
-- [ ] 3.1.2 Implementiraj `mcp_memory_add_observations`
-- [ ] 3.1.3 Implementiraj `mcp_memory_create_relations`
-- [ ] 3.1.4 Implementiraj `mcp_memory_search_nodes`
-- [ ] 3.1.5 Implementiraj `mcp_memory_read_graph`
+- [x] 3.1.1 Implementiraj `mcp_memory_create_entities`
+- [x] 3.1.2 Implementiraj `mcp_memory_add_observations`
+- [x] 3.1.3 Implementiraj `mcp_memory_create_relations`
+- [x] 3.1.4 Implementiraj `mcp_memory_search_nodes`
+- [x] 3.1.5 Implementiraj `mcp_memory_read_graph`
 
 ### 3.2 Knowledge Graph Schema
-- [ ] 3.2.1 Definiraj Entity types (Agent, Workflow, Task, User)
-- [ ] 3.2.2 Definiraj Relation types (executes, owns, triggers)
-- [ ] 3.2.3 Definiraj Observation schema
-- [ ] 3.2.4 Implementiraj persistence layer
-- [ ] 3.2.5 Testiraj knowledge graph queries
+- [x] 3.2.1 Definiraj Entity types (Agent, Workflow, Task, User)
+- [x] 3.2.2 Definiraj Relation types (executes, owns, triggers)
+- [x] 3.2.3 Definiraj Observation schema
+- [x] 3.2.4 Implementiraj persistence layer
+- [x] 3.2.5 Testiraj knowledge graph queries
 
 ### 3.3 Cross-Session Memory
-- [ ] 3.3.1 Implementiraj session management
-- [ ] 3.3.2 Implementiraj context persistence
-- [ ] 3.3.3 Implementiraj memory retrieval on session start
-- [ ] 3.3.4 Testiraj cross-session continuity
+- [x] 3.3.1 Implementiraj session management
+- [x] 3.3.2 Implementiraj context persistence
+- [x] 3.3.3 Implementiraj memory retrieval on session start
+- [x] 3.3.4 Testiraj cross-session continuity
 
 ---
 
 ## PHASE 4: Workflow Builder (Day 7)
 
 ### 4.1 Visual Builder
-- [ ] 4.1.1 Kreiraj `src/web/components/workflow-builder/`
-- [ ] 4.1.2 Implementiraj drag & drop interface
-- [ ] 4.1.3 Implementiraj node types (Agent, Condition, Action)
-- [ ] 4.1.4 Implementiraj connection system
-- [ ] 4.1.5 Implementiraj workflow validation
+- [x] 4.1.1 Kreiraj `src/web/components/workflow-builder/`
+- [x] 4.1.2 Implementiraj drag & drop interface
+- [x] 4.1.3 Implementiraj node types (Agent, Condition, Action)
+- [x] 4.1.4 Implementiraj connection system
+- [x] 4.1.5 Implementiraj workflow validation
 
 ### 4.2 Conditional Logic
-- [ ] 4.2.1 Implementiraj IF/ELSE conditions
-- [ ] 4.2.2 Implementiraj loop support
-- [ ] 4.2.3 Implementiraj parallel execution
-- [ ] 4.2.4 Implementiraj error handling
-- [ ] 4.2.5 Testiraj complex workflows
+- [x] 4.2.1 Implementiraj IF/ELSE conditions
+- [x] 4.2.2 Implementiraj loop support
+- [x] 4.2.3 Implementiraj parallel execution
+- [x] 4.2.4 Implementiraj error handling
+- [x] 4.2.5 Testiraj complex workflows
 
 ### 4.3 API Integrations
-- [ ] 4.3.1 Kreiraj API endpoint za workflow execution
+- [x] 4.3.1 Kreiraj API endpoint za workflow execution
 - [ ] 4.3.2 Implementiraj webhook support
 - [ ] 4.3.3 Implementiraj third-party integrations (Slack, Email)
 - [ ] 4.3.4 Kreiraj API documentation
-- [ ] 4.3.5 Testiraj API endpoints
+- [x] 4.3.5 Testiraj API endpoints
 
 ---
 
