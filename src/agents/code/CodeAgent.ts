@@ -6,7 +6,7 @@
 import type { Agent } from "../../orchestrator/Orchestrator";
 import { getRepo, createBranch, createOrUpdateFile, createPullRequest } from "./github";
 import { generateCode } from "./code-generator";
-import { reviewCode } from "./code-review";
+import { reviewCode } from "./code-reviewer";
 
 export interface CodeInput {
   task?: string;
