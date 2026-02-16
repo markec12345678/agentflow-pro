@@ -1,11 +1,15 @@
 /**
  * AgentFlow Pro - Deploy Agent
- * Vercel + Netlify deployment, env management, rollback, status
+ * Vercel + Netlify deployment, env management, rollback via deploy-manager
  */
 
 import type { Agent } from "../../orchestrator/Orchestrator";
-import * as vercel from "./vercel-client";
-import * as netlify from "./netlify-client";
+import {
+  executeDeploy,
+  getDeployStatus,
+  executeRollback,
+  manageEnv,
+} from "./deploy-manager";
 
 export interface DeployInput {
   platform?: "vercel" | "netlify";
@@ -32,6 +36,7 @@ export function createDeployAgent(config?: {
 }): Agent {
   const vercelToken = config?.vercelToken ?? process.env.VERCEL_TOKEN ?? "";
   const netlifyToken = config?.netlifyToken ?? process.env.NETLIFY_TOKEN ?? "";
+  const tokens = { vercelToken, netlifyToken };
 
   return {
     id: "deploy-agent",
@@ -54,47 +59,38 @@ export function createDeployAgent(config?: {
         status: undefined,
         envVars: undefined,
       };
-      const projId = projectId ?? siteId;
+
+      const hasToken =
+        (platform === "vercel" && vercelToken && (projectId ?? siteId)) ||
+        (platform === "netlify" && netlifyToken && siteId);
+      if (!hasToken) return output;
+
+      const params = {
+        siteId,
+        projectId,
+        deployDirectory,
+        deployId,
+        envKey,
+        envValue,
+      };
 
       try {
-        if (platform === "vercel" && vercelToken && projId) {
-          if (action === "deploy") {
-            const r = await vercel.deployProject(projId, deployDirectory, vercelToken);
-            output.deployUrl = r.url;
-            output.status = r.state;
-          } else if (action === "status" && deployId) {
-            const r = await vercel.getDeployStatus(deployId, vercelToken);
-            output.deployUrl = r.url;
-            output.status = r.state;
-          } else if (action === "rollback" && deployId && projId) {
-            await vercel.rollbackToDeploy(projId, deployId, vercelToken);
-            output.previousDeploy = deployId;
-          } else if (action === "env") {
-            output.envVars = await vercel.getEnvVars(projId, vercelToken);
-            if (envKey && envValue) {
-              await vercel.setEnvVar(projId, envKey, envValue, vercelToken);
-              output.envVars = await vercel.getEnvVars(projId, vercelToken);
-            }
-          }
-        } else if (platform === "netlify" && netlifyToken && siteId) {
-          if (action === "deploy") {
-            const r = await netlify.deploySite(siteId, deployDirectory, netlifyToken);
-            output.deployUrl = r.url;
-            output.status = r.state;
-          } else if (action === "status" && deployId) {
-            const r = await netlify.getDeployStatus(siteId, deployId, netlifyToken);
-            output.deployUrl = r.url;
-            output.status = r.state;
-          } else if (action === "rollback" && deployId) {
-            await netlify.rollbackToDeploy(siteId, deployId, netlifyToken);
-            output.previousDeploy = deployId;
-          } else if (action === "env") {
-            output.envVars = await netlify.getEnvVars(siteId, netlifyToken);
-            if (envKey && envValue) {
-              await netlify.setEnvVar(siteId, envKey, envValue, netlifyToken);
-              output.envVars = await netlify.getEnvVars(siteId, netlifyToken);
-            }
-          }
+        if (action === "deploy") {
+          const r = await executeDeploy(platform, params, tokens);
+          output.deployUrl = r.deployUrl;
+          output.status = r.state;
+        } else if (action === "status" && deployId) {
+          const r = await getDeployStatus(platform, params, tokens);
+          output.deployUrl = r.deployUrl;
+          output.status = r.state;
+        } else if (action === "rollback" && deployId) {
+          const r = await executeRollback(platform, params, tokens);
+          output.previousDeploy = r.previousDeploy;
+          output.status = r.state;
+        } else if (action === "env") {
+          const r = await manageEnv(platform, params, tokens);
+          output.envVars = r.envVars;
+          output.status = r.state;
         }
       } catch (err) {
         output.error = err instanceof Error ? err.message : String(err);
