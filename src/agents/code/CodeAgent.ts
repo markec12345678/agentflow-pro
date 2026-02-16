@@ -4,7 +4,12 @@
  */
 
 import type { Agent } from "../../orchestrator/Orchestrator";
-import { getRepo, createBranch, createOrUpdateFile, createPullRequest } from "./github";
+import {
+  getFileContents,
+  getDefaultBranchSha,
+  pushFiles,
+  createPullRequest,
+} from "./github-client";
 import { generateCode } from "./code-generator";
 import { reviewCode } from "./code-reviewer";
 
@@ -13,6 +18,7 @@ export interface CodeInput {
   owner?: string;
   repo?: string;
   createPr?: boolean;
+  contextFilePath?: string;
   context?: { readme?: string; files?: Array<{ path: string; content: string }> };
 }
 
@@ -43,32 +49,36 @@ export function createCodeAgent(config?: {
     type: "code",
     name: "Code Agent",
     execute: async (input: unknown): Promise<CodeOutput> => {
-      const { task = "", owner, repo, createPr = false, context } = (input as CodeInput) ?? {};
+      const { task = "", owner, repo, createPr = false, contextFilePath, context } = (input as CodeInput) ?? {};
       const output: CodeOutput = {};
+      let enrichedContext = { ...context };
+
+      if (token && owner && repo && contextFilePath) {
+        try {
+          const fileContent = await getFileContents(owner, repo, contextFilePath, token);
+          enrichedContext = { ...enrichedContext, readme: enrichedContext?.readme ?? fileContent };
+        } catch {
+          /* ignore */
+        }
+      }
 
       try {
-        const generated = await generateCode(task, context);
+        const generated = await generateCode(task, enrichedContext);
         output.files = generated.files;
         const review = reviewCode(generated.files);
         output.suggestions = review.suggestions;
 
         if (createPr && token && owner && repo && generated.files.length > 0) {
-          const { defaultBranch, defaultBranchSha } = await getRepo(owner, repo, token);
+          const { defaultBranch } = await getDefaultBranchSha(owner, repo, token);
           const branchName = `agentflow/code-${Date.now()}`;
-          await createBranch(owner, repo, branchName, defaultBranchSha, token);
-
-          for (const f of generated.files) {
-            await createOrUpdateFile(
-              owner,
-              repo,
-              f.path,
-              f.content,
-              `feat: ${task.slice(0, 50)}`,
-              token,
-              branchName
-            );
-          }
-
+          await pushFiles(
+            owner,
+            repo,
+            branchName,
+            generated.files,
+            `feat: ${task.slice(0, 50)}`,
+            token
+          );
           const pr = await createPullRequest(
             owner,
             repo,
