@@ -6,7 +6,7 @@
 
 - [x] Phase 2.2: Research Agent (vsi taski)
 - [x] Phase 2.3: Content Agent (vsi taski)
-- [x] Phase 2.4: Code Agent (vsi taski)
+- [x] Phase 2.4: Code Agent (vsi taski) - refactored: github-client (MCP-style), LLM pipeline, code-reviewer
 
 ## Next Steps
 
