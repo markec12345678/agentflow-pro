@@ -2,10 +2,10 @@
  * Code Agent tests
  */
 
-jest.mock("../../src/agents/code/github", () => ({
-  getRepo: jest.fn(),
-  createBranch: jest.fn(),
-  createOrUpdateFile: jest.fn(),
+jest.mock("../../src/agents/code/github-client", () => ({
+  getFileContents: jest.fn(),
+  getDefaultBranchSha: jest.fn(),
+  pushFiles: jest.fn(),
   createPullRequest: jest.fn(),
 }));
 
