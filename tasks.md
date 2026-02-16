@@ -39,11 +39,11 @@
 ## PHASE 2: Core Agent System (Day 3-5)
 
 ### 2.1 Agent Orchestrator
-- [ ] 2.1.1 Kreiraj `src/orchestrator/` mapo
-- [ ] 2.1.2 Implementiraj `Orchestrator` class
-- [ ] 2.1.3 Implementiraj agent registration system
-- [ ] 2.1.4 Implementiraj task queue system
-- [ ] 2.1.5 Implementiraj agent communication protocol
+- [x] 2.1.1 Kreiraj `src/orchestrator/` mapo
+- [x] 2.1.2 Implementiraj `Orchestrator` class
+- [x] 2.1.3 Implementiraj agent registration system
+- [x] 2.1.4 Implementiraj task queue system
+- [x] 2.1.5 Implementiraj agent communication protocol
 
 ### 2.2 Research Agent
 - [ ] 2.2.1 Kreiraj `src/agents/research/` mapo
