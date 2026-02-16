@@ -70,12 +70,12 @@
 - [x] 2.4.6 Testiraj Code Agent
 
 ### 2.5 Deploy Agent
-- [ ] 2.5.1 Kreiraj `src/agents/deploy/` mapo
-- [ ] 2.5.2 Implementiraj Vercel MCP integration
-- [ ] 2.5.3 Implementiraj Netlify MCP integration
-- [ ] 2.5.4 Implementiraj environment management
-- [ ] 2.5.5 Implementiraj rollback system
-- [ ] 2.5.6 Testiraj Deploy Agent
+- [x] 2.5.1 Kreiraj `src/agents/deploy/` mapo
+- [x] 2.5.2 Implementiraj Vercel MCP integration
+- [x] 2.5.3 Implementiraj Netlify MCP integration
+- [x] 2.5.4 Implementiraj environment management
+- [x] 2.5.5 Implementiraj rollback system
+- [x] 2.5.6 Testiraj Deploy Agent
 
 ---
 
