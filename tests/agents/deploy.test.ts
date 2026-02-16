@@ -2,20 +2,11 @@
  * Deploy Agent tests
  */
 
-jest.mock("../../src/agents/deploy/vercel-client", () => ({
-  deployProject: jest.fn(),
+jest.mock("../../src/agents/deploy/deploy-manager", () => ({
+  executeDeploy: jest.fn(),
   getDeployStatus: jest.fn(),
-  rollbackToDeploy: jest.fn(),
-  getEnvVars: jest.fn(),
-  setEnvVar: jest.fn(),
-}));
-
-jest.mock("../../src/agents/deploy/netlify-client", () => ({
-  deploySite: jest.fn(),
-  getDeployStatus: jest.fn(),
-  rollbackToDeploy: jest.fn(),
-  getEnvVars: jest.fn(),
-  setEnvVar: jest.fn(),
+  executeRollback: jest.fn(),
+  manageEnv: jest.fn(),
 }));
 
 import { createDeployAgent } from "../../src/agents/deploy/DeployAgent";
