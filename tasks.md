@@ -21,17 +21,17 @@
 - [x] 1.2.5 Konfiguriraj environment variables
 
 ### 1.3 Memory Bank Setup
-- [ ] 1.3.1 Kreiraj `memory-bank/current/` strukturo
-- [ ] 1.3.2 Inicializiraj `projectbrief.md`
-- [ ] 1.3.3 Inicializiraj `tasks.md`
-- [ ] 1.3.4 Inicializiraj `progress.md`
-- [ ] 1.3.5 Inicializiraj `knowledge-graph.md`
+- [x] 1.3.1 Kreiraj `memory-bank/current/` strukturo
+- [x] 1.3.2 Inicializiraj `projectbrief.md`
+- [x] 1.3.3 Inicializiraj `tasks.md`
+- [x] 1.3.4 Inicializiraj `progress.md`
+- [x] 1.3.5 Inicializiraj `knowledge-graph.md`
 
 ### 1.4 Development Environment
-- [ ] 1.4.1 Namesti Node.js dependencies
-- [ ] 1.4.2 Namesti Python dependencies
+- [x] 1.4.1 Namesti Node.js dependencies
+- [x] 1.4.2 Namesti Python dependencies
 - [ ] 1.4.3 Konfiguriraj PostgreSQL database
-- [ ] 1.4.4 Setup Prisma schema
+- [x] 1.4.4 Setup Prisma schema
 - [ ] 1.4.5 Testiraj database connection
 
 ---
