@@ -46,12 +46,12 @@
 - [x] 2.1.5 Implementiraj agent communication protocol
 
 ### 2.2 Research Agent
-- [ ] 2.2.1 Kreiraj `src/agents/research/` mapo
-- [ ] 2.2.2 Implementiraj Firecrawl MCP integration
-- [ ] 2.2.3 Implementiraj Brave Search MCP integration
-- [ ] 2.2.4 Kreiraj data extraction pipeline
-- [ ] 2.2.5 Implementiraj structured output (JSON)
-- [ ] 2.2.6 Testiraj Research Agent
+- [x] 2.2.1 Kreiraj `src/agents/research/` mapo
+- [x] 2.2.2 Implementiraj Firecrawl MCP integration
+- [x] 2.2.3 Implementiraj Brave Search MCP integration
+- [x] 2.2.4 Kreiraj data extraction pipeline
+- [x] 2.2.5 Implementiraj structured output (JSON)
+- [x] 2.2.6 Testiraj Research Agent
 
 ### 2.3 Content Agent
 - [ ] 2.3.1 Kreiraj `src/agents/content/` mapo
