@@ -12,10 +12,11 @@ const typeColors: Record<string, string> = {
   Trigger: "border-violet-500 bg-violet-50",
 };
 
-export function WorkflowNode(props: NodeProps<{ type: string; label?: string; [k: string]: unknown }>) {
-  const { id, data, type: nodeType } = props;
+export function WorkflowNode(props: NodeProps<{ type?: string; label?: string; [k: string]: unknown }>) {
+  const { data } = props;
+  const nodeType = (data?.type as string) ?? "Action";
   const label = (data?.label as string) ?? nodeType ?? "Node";
-  const typeKey = (nodeType ?? "default") as string;
+  const typeKey = nodeType;
   const style = typeColors[typeKey] ?? "border-gray-400 bg-gray-50";
 
   return (
