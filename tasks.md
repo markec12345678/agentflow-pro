@@ -62,12 +62,12 @@
 - [x] 2.3.6 Testiraj Content Agent
 
 ### 2.4 Code Agent
-- [ ] 2.4.1 Kreiraj `src/agents/code/` mapo
-- [ ] 2.4.2 Implementiraj GitHub MCP integration
-- [ ] 2.4.3 Implementiraj code generation pipeline
-- [ ] 2.4.4 Implementiraj code review system
-- [ ] 2.4.5 Implementiraj PR auto-creation
-- [ ] 2.4.6 Testiraj Code Agent
+- [x] 2.4.1 Kreiraj `src/agents/code/` mapo
+- [x] 2.4.2 Implementiraj GitHub MCP integration
+- [x] 2.4.3 Implementiraj code generation pipeline
+- [x] 2.4.4 Implementiraj code review system
+- [x] 2.4.5 Implementiraj PR auto-creation
+- [x] 2.4.6 Testiraj Code Agent
 
 ### 2.5 Deploy Agent
 - [ ] 2.5.1 Kreiraj `src/agents/deploy/` mapo
