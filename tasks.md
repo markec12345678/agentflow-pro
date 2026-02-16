@@ -7,11 +7,11 @@
 ## PHASE 1: Infrastructure Setup (Day 1-2)
 
 ### 1.1 Project Initialization
-- [ ] 1.1.1 Ustvari project mapo: `C:\Users\admin\projects\fullstack\agentflow-pro`
-- [ ] 1.1.2 Inicializiraj Git repo: `git init`
-- [ ] 1.1.3 Kreiraj `.gitignore` (Node, Python, .env)
-- [ ] 1.1.4 Kreiraj osnovno strukturo map
-- [ ] 1.1.5 Setup `.cursorrules` za projekt
+- [x] 1.1.1 Ustvari project mapo: `C:\Users\admin\projects\fullstack\agentflow-pro`
+- [x] 1.1.2 Inicializiraj Git repo: `git init`
+- [x] 1.1.3 Kreiraj `.gitignore` (Node, Python, .env)
+- [x] 1.1.4 Kreiraj osnovno strukturo map
+- [x] 1.1.5 Setup `.cursorrules` za projekt
 
 ### 1.2 MCP Konfiguracija
 - [ ] 1.2.1 Posodobi `mcp.json` z vsemi zahtevanimi serverji
