@@ -14,11 +14,11 @@
 - [x] 1.1.5 Setup `.cursorrules` za projekt
 
 ### 1.2 MCP Konfiguracija
-- [ ] 1.2.1 Posodobi `mcp.json` z vsemi zahtevanimi serverji
-- [ ] 1.2.2 Testiraj Memory MCP povezavo
-- [ ] 1.2.3 Testiraj GitHub MCP povezavo
-- [ ] 1.2.4 Testiraj Vercel MCP povezavo
-- [ ] 1.2.5 Konfiguriraj environment variables
+- [x] 1.2.1 Posodobi `mcp.json` z vsemi zahtevanimi serverji
+- [x] 1.2.2 Testiraj Memory MCP povezavo
+- [x] 1.2.3 Testiraj GitHub MCP povezavo
+- [x] 1.2.4 Testiraj Vercel MCP povezavo
+- [x] 1.2.5 Konfiguriraj environment variables
 
 ### 1.3 Memory Bank Setup
 - [ ] 1.3.1 Kreiraj `memory-bank/current/` strukturo

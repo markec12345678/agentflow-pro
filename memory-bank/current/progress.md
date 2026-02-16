@@ -7,7 +7,7 @@
 ## Completed Today
 
 - [x] Project initialization (1.1.1-1.1.5)
-- [ ] MCP configuration
+- [x] MCP configuration (1.2.1-1.2.5)
 - [ ] Memory bank setup
 
 ## Blockers
@@ -16,12 +16,11 @@
 
 ## Next Steps
 
-1. Phase 1.2: MCP konfiguracija (mcp.json, test connections)
-2. Phase 1.3: Memory bank setup (verify structure)
-3. Phase 1.4: Development environment
+1. Phase 1.3: Memory bank setup (verify structure)
+2. Phase 1.4: Development environment (Node, Python, PostgreSQL, Prisma)
 
 ## Metrics
 
-- Tasks Complete: 5/155 (3%)
+- Tasks Complete: 10/155 (6%)
 - Days Elapsed: 1/14
 - Budget Used: $0
