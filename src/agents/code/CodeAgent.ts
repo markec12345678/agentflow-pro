@@ -47,7 +47,7 @@ export function createCodeAgent(config?: {
       const output: CodeOutput = {};
 
       try {
-        const generated = generateCode(task, context);
+        const generated = await generateCode(task, context);
         output.files = generated.files;
         const review = reviewCode(generated.files);
         output.suggestions = review.suggestions;
