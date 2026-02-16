@@ -1,7 +1,10 @@
 /**
  * AgentFlow Pro - Code generation pipeline
- * Template-based (placeholder for LLM integration)
+ * LLM-powered when OPENAI_API_KEY set, else template fallback
  */
+
+import { generateText } from "ai";
+import { openai } from "@ai-sdk/openai";
 
 export interface GeneratedFile {
   path: string;
@@ -12,9 +15,49 @@ export interface GenerateCodeResult {
   files: GeneratedFile[];
 }
 
-export function generateCode(
+export interface CodeGeneratorContext {
+  readme?: string;
+  files?: Array<{ path: string; content: string }>;
+}
+
+function parseLlmResponse(text: string): GeneratedFile[] {
+  const files: GeneratedFile[] = [];
+  const blockRegex = /```(\S+)?\s*\n([\s\S]*?)```/g;
+  let m: RegExpExecArray | null;
+  while ((m = blockRegex.exec(text)) !== null) {
+    const maybePath = m[1] ?? "";
+    const content = m[2].trim();
+    const path =
+      maybePath && !maybePath.startsWith("ts") && !maybePath.startsWith("js")
+        ? maybePath
+        : `generated/file-${files.length + 1}.ts`;
+    files.push({ path, content });
+  }
+  if (files.length > 0) return files;
+
+  const lines = text.split("\n");
+  let currentPath = "generated/output.ts";
+  let currentContent: string[] = [];
+  for (const line of lines) {
+    if (line.startsWith("// path:") || line.startsWith("# path:")) {
+      if (currentContent.length > 0) {
+        files.push({ path: currentPath, content: currentContent.join("\n") });
+      }
+      currentPath = line.replace(/^#?\s*path:\s*/, "").trim() || currentPath;
+      currentContent = [];
+    } else {
+      currentContent.push(line);
+    }
+  }
+  if (currentContent.length > 0) {
+    files.push({ path: currentPath, content: currentContent.join("\n") });
+  }
+  return files;
+}
+
+function templateFallback(
   task: string,
-  context?: { readme?: string; files?: Array<{ path: string; content: string }> }
+  context?: CodeGeneratorContext
 ): GenerateCodeResult {
   const fileCount = context?.files?.length ?? 0;
   const ctxSummary =
@@ -37,8 +80,6 @@ export function generateCode(
  * Date: ${timestamp}
  *
  * ${ctxSummary}
- *
- * Add @ai-sdk/openai for full LLM-powered generation.
  */
 
 // Placeholder - implement based on task
@@ -49,4 +90,45 @@ export function placeholder() {
       },
     ],
   };
+}
+
+export async function generateCode(
+  task: string,
+  context?: CodeGeneratorContext
+): Promise<GenerateCodeResult> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey || !task.trim()) {
+    return templateFallback(task, context);
+  }
+
+  const ctxSummary =
+    context?.files && context.files.length > 0
+      ? context.files
+          .map((f) => `--- ${f.path} ---\n${f.content.slice(0, 500)}`)
+          .join("\n\n")
+      : context?.readme
+        ? context.readme.slice(0, 500)
+        : "No additional context.";
+
+  const prompt = `Generate TypeScript/JavaScript code for: ${task}
+
+Context:
+${ctxSummary}
+
+Return each file as a markdown code block with the path in the first line or as \`\`\`path/to/file.ts
+content
+\`\`\`
+Use TypeScript. Keep it concise and production-ready.`;
+
+  try {
+    const { text } = await generateText({
+      model: openai("gpt-4o-mini"),
+      prompt,
+    });
+    const parsed = parseLlmResponse(text);
+    if (parsed.length > 0) return { files: parsed };
+  } catch {
+    // Fall through to template
+  }
+  return templateFallback(task, context);
 }
