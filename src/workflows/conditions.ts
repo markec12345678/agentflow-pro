@@ -33,17 +33,17 @@ export function evaluateCondition(
 
   switch (operator) {
     case "eq":
-      return a === b;
+      return a == b || String(a) === String(b);
     case "ne":
-      return a !== b;
+      return a != b;
     case "gt":
-      return (a as number) > (b as number);
+      return Number(a) > Number(b);
     case "lt":
-      return (a as number) < (b as number);
+      return Number(a) < Number(b);
     case "gte":
-      return (a as number) >= (b as number);
+      return Number(a) >= Number(b);
     case "lte":
-      return (a as number) <= (b as number);
+      return Number(a) <= Number(b);
     case "contains":
       return String(a ?? "").includes(String(b ?? ""));
     case "isEmpty":
