@@ -7,7 +7,7 @@
 - [x] Phase 2.2: Research Agent (vsi taski)
 - [x] Phase 2.3: Content Agent (vsi taski)
 - [x] Phase 2.4: Code Agent (vsi taski)
-- [x] Phase 2.5: Deploy Agent (vsi taski)
+- [x] Phase 2.5: Deploy Agent (vsi taski) - deploy-manager orchestration + status tracking
 
 ## Next Steps
 
