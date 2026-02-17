@@ -97,6 +97,7 @@ function WorkflowCanvasInner({ workflow, onWorkflowChange }: WorkflowCanvasInner
       setNodes(n);
       setEdges(e);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setNodes/setEdges are stable; workflow.id is the sync key
   }, [workflow?.id]);
 
   useEffect(() => {
@@ -108,6 +109,7 @@ function WorkflowCanvasInner({ workflow, onWorkflowChange }: WorkflowCanvasInner
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setEdges is stable
     []
   );
 

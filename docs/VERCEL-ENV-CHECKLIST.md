@@ -2,6 +2,26 @@
 
 **Odpri:** [Vercel Dashboard](https://vercel.com/dashboard) → Izberi projekt **agentflow-pro** → **Settings** → **Environment Variables**
 
+---
+
+## GitHub povezava (avtomatski deploy ob push)
+
+**Preveri:** [agentflow-pro → Settings → Git](https://vercel.com/robertpezdirc-4080s-projects/agentflow-pro/settings/git)
+
+1. Prijavi se na Vercel.
+2. Odpri projekt **agentflow-pro** → **Settings** → **Git**.
+3. Če vidiš **Connected to GitHub** in repo `markec12345678/agentflow-pro` → povezava je OK.
+4. Če **ni** povezan:
+   - Klikni **Connect Git Repository**
+   - Izberi **GitHub**
+   - Izberi **markec12345678/agentflow-pro**
+   - Branch: **master**
+   - Klikni **Connect**
+
+Po povezavi: vsak `git push` na `master` sproži nov deploy.
+
+**Opomba:** To moraš nastaviti ročno v Vercel Dashboard – avtomatsko deploy ne deluje, dokler repo ni povezan.
+
 **Nastavi za Environment:** Production (in Preview če želiš)
 
 ---

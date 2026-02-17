@@ -89,7 +89,6 @@ export function validateWorkflow(workflow: Workflow): ValidationResult {
     errors.push("Workflow contains a cycle (must be a DAG)");
   }
 
-  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   for (const n of nodes) {
     if (n.type === "Agent") {
       const agentType = n.data?.agentType as string | undefined;

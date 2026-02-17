@@ -2,7 +2,7 @@
  * AgentFlow Pro - Workflow execution engine
  */
 
-import type { Workflow, WorkflowNode, WorkflowEdge } from "./types";
+import type { Workflow, WorkflowEdge } from "./types";
 import type { Orchestrator } from "../orchestrator/Orchestrator";
 import type { ConditionOperator } from "./nodes";
 import { validateWorkflow } from "./validator";

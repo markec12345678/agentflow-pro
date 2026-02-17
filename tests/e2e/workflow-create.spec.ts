@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Workflow Create", () => {
-  test("create workflow via visual editor", async ({ page, auth }) => {
+  test("create workflow via visual editor", async ({ page, auth: _auth }) => {
     await page.goto("/workflows");
 
     const sidebar = page.locator("aside").first();

@@ -11,7 +11,7 @@ import {
 jest.mock("@/stripe/config", () => ({
   getStripe: () => ({
     webhooks: {
-      constructEvent: jest.fn((payload: string, sig: string, secret: string) => {
+      constructEvent: jest.fn((payload: string, sig: string, _secret: string) => {
         if (!payload || !sig) throw new Error("Invalid");
         return {
           id: "evt_test",

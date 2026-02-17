@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Billing Checkout", () => {
-  test("Stripe checkout flow", async ({ page, auth }) => {
+  test("Stripe checkout flow", async ({ page, auth: _auth }) => {
     await page.goto("/pricing");
 
     const starterButton = page.getByRole("button", { name: /get started/i }).first();

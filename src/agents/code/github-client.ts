@@ -42,7 +42,7 @@ export async function pushFiles(
   token: string
 ): Promise<void> {
   const octokit = new Octokit({ auth: token });
-  const { defaultBranch, defaultBranchSha } = await getDefaultBranchSha(
+  const { defaultBranchSha } = await getDefaultBranchSha(
     owner,
     repo,
     token

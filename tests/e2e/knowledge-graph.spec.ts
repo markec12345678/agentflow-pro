@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Knowledge Graph", () => {
-  test("memory persistence across sessions", async ({ page, auth }) => {
+  test("memory persistence across sessions", async ({ page, auth: _auth }) => {
     await page.goto("/memory");
 
     await page.getByLabel(/entity name/i).fill("e2e-test-entity");

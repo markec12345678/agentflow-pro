@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Workflow Execute", () => {
-  test("execute workflow with agents", async ({ page, auth, request }) => {
+  test("execute workflow with agents", async ({ page, auth: _auth, request }) => {
     const workflow = {
       id: `wf_exec_${Date.now()}`,
       name: "E2E Execute Test",

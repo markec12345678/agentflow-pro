@@ -15,7 +15,7 @@ test.describe("Auth", () => {
     await expect(page).toHaveURL(/\//);
   });
 
-  test("logout", async ({ page, auth }) => {
+  test("logout", async ({ page, auth: _auth }) => {
     await page.goto("/");
     await page.getByRole("button", { name: /logout/i }).click();
     await expect(page).toHaveURL(/\/login/);
