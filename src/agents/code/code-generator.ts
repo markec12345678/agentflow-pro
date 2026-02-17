@@ -104,8 +104,8 @@ export async function generateCode(
   const ctxSummary =
     context?.files && context.files.length > 0
       ? context.files
-          .map((f) => `--- ${f.path} ---\n${f.content.slice(0, 500)}`)
-          .join("\n\n")
+        .map((f) => `--- ${f.path} ---\n${f.content.slice(0, 500)}`)
+        .join("\n\n")
       : context?.readme
         ? context.readme.slice(0, 500)
         : "No additional context.";

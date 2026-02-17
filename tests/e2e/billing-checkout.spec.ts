@@ -7,7 +7,7 @@ test.describe("Billing Checkout", () => {
     const starterButton = page.getByRole("button", { name: /get started/i }).first();
     await starterButton.click();
 
-    await page.waitForURL(/checkout\.stripe\.com|stripe\.com/, { timeout: 10000 }).catch(() => {});
+    await page.waitForURL(/checkout\.stripe\.com|stripe\.com/, { timeout: 10000 }).catch(() => { });
     const url = page.url();
     const hasStripeUrl = url.includes("stripe.com") || url.includes("checkout");
     if (hasStripeUrl) {

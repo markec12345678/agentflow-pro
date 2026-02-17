@@ -11,12 +11,26 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  workflows Workflow[]
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  workflows    Workflow[]
+  subscription Subscription?
+}
+
+model Subscription {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?
+  planId                String
+  status                String
+  currentPeriodEnd      DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
 
 model Workflow {
@@ -30,6 +44,7 @@ model Workflow {
 
 model AgentRun {
   id         String   @id @default(cuid())
+  userId    String?
   agentType  String
   workflowId String?
   status     String

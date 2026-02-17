@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { WorkflowCanvas } from "@/web/components/workflow/WorkflowCanvas";
 import type { Workflow } from "@/workflows/types";
@@ -12,7 +12,7 @@ const DEFAULT_WORKFLOW: Workflow = {
   edges: [],
 };
 
-export default function WorkflowsPage() {
+function WorkflowsPageInner() {
   const searchParams = useSearchParams();
   const workflowId = searchParams.get("id");
   const [workflow, setWorkflow] = useState<Workflow>(DEFAULT_WORKFLOW);
@@ -29,7 +29,7 @@ export default function WorkflowsPage() {
         const w = list.find((x) => x.id === workflowId);
         if (w) setWorkflow(w);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [workflowId]);
 
   async function handleSave() {
@@ -107,5 +107,13 @@ export default function WorkflowsPage() {
       </div>
       <WorkflowCanvas workflow={workflow} onWorkflowChange={setWorkflow} />
     </main>
+  );
+}
+
+export default function WorkflowsPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen p-8"><p>Loading...</p></main>}>
+      <WorkflowsPageInner />
+    </Suspense>
   );
 }

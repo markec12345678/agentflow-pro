@@ -1,18 +1,110 @@
 # AgentFlow Pro - MCP Requirements
 
+**Zagon:** Glej [ZAGON.md](../../ZAGON.md) – pričakovani čas, troubleshooting, checklist.
+
 ## MCP Best Practices (2026)
 
 - Stringent validation
 - OAuth/OIDC za avtentikacijo
 - Viri: [akto.io](https://www.akto.io), [strata.io](https://www.strata.io)
 
-## KORAK 3: /samodejno Command
+## KORAK 3: Preveri mcp.json
+
+Reference format (env placeholders za varno uporabo):
+
+```json
+{
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
+    },
+    "git": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-git"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-playwright"]
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": { "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}" }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@context7/mcp-server"],
+      "env": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" }
+    },
+    "vercel": {
+      "command": "npx",
+      "args": ["-y", "@vercel/mcp"]
+    },
+    "docker": {
+      "command": "npx",
+      "args": ["-y", "@docker/mcp-server"]
+    },
+    "sentry": {
+      "command": "npx",
+      "args": ["-y", "@sentry/mcp"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    }
+  }
+}
+```
+
+**Primerjava s trenutno konfiguracijo (~/.cursor/mcp.json):**
+
+| MCP | Reference | Trenutno | Opomba |
+|-----|-----------|----------|--------|
+| memory | npx server-memory | Enako | OK |
+| github | GITHUB_TOKEN | GITHUB_PERSONAL_ACCESS_TOKEN | GitHub API uporablja PAT |
+| git | npx server-git | uvx mcp-server-git | Alternativni paket, deluje |
+| playwright | server-playwright | @playwright/mcp | Uradni Playwright MCP |
+| firecrawl | npx firecrawl-mcp | Local firecrawl-mcp-server | Lokalna instanca z API key |
+| context7 | npx @context7/mcp-server | Local context/run-mcp.js | Lokalna instanca |
+| vercel | npx @vercel/mcp | Enako | OK |
+| docker | npx @docker/mcp-server | npx mcp-server-docker | Različen paket |
+| sentry | npx @sentry/mcp | URL mcp.sentry.dev | Sentry uporablja URL MCP |
+
+**Preveritev:** Vsi zahtevani MCP serverji so v globalni konfiguraciji in delujejo.
+
+---
+
+## KORAK 4: /samodejno Command
 
 V Cursor Chat (Cmd + L) vpiši:
 
 ```
 /samodejno fullstack AgentFlow Pro - Multi-Agent AI Platform za business avtomatizacijo z Research, Content, Code, Deploy agenti, workflow builder, Memory knowledge graph, Stripe subscription, Playwright E2E testi, deploy na Vercel, Docker containers, Sentry monitoring
 ```
+
+---
+
+## KORAK 5: Spremljaj Progress
+
+| Vir | Kaj gledati |
+|-----|-------------|
+| `memory-bank/current/progress.md` | % completed, Completed Today, Next Steps |
+| `tasks.md` | Checkboxes [x] |
+| Git log | `git log --oneline` |
+| Terminal | Build/test output |
+
+**PRVIH 5 TASKOV (Phase 1.1) – vsi opravljeni:**
+- [x] 1.1.1 Ustvari project mapo
+- [x] 1.1.2 Inicializiraj Git repo
+- [x] 1.1.3 Kreiraj .gitignore
+- [x] 1.1.4 Kreiraj osnovno strukturo map
+- [x] 1.1.5 Setup .cursorrules
 
 ---
 

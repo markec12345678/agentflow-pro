@@ -1,0 +1,52 @@
+/**
+ * Stripe plans tests
+ */
+
+import {
+  PLANS,
+  getPlanLimits,
+  getStripePriceId,
+  type PlanId,
+} from "@/stripe/plans";
+
+describe("PLANS", () => {
+  it("has starter, pro, enterprise", () => {
+    expect(PLANS.starter).toBeDefined();
+    expect(PLANS.pro).toBeDefined();
+    expect(PLANS.enterprise).toBeDefined();
+  });
+
+  it("starter is $29 with 100 runs", () => {
+    expect(PLANS.starter.priceMonthly).toBe(29);
+    expect(PLANS.starter.agentRunsLimit).toBe(100);
+  });
+
+  it("pro is $99 with 500 runs", () => {
+    expect(PLANS.pro.priceMonthly).toBe(99);
+    expect(PLANS.pro.agentRunsLimit).toBe(500);
+  });
+
+  it("enterprise is $499 with 5000 runs", () => {
+    expect(PLANS.enterprise.priceMonthly).toBe(499);
+    expect(PLANS.enterprise.agentRunsLimit).toBe(5000);
+  });
+});
+
+describe("getPlanLimits", () => {
+  it("returns agentRunsLimit for valid plan", () => {
+    expect(getPlanLimits("starter").agentRunsLimit).toBe(100);
+    expect(getPlanLimits("pro").agentRunsLimit).toBe(500);
+    expect(getPlanLimits("enterprise").agentRunsLimit).toBe(5000);
+  });
+
+  it("returns default 100 for invalid plan", () => {
+    expect(getPlanLimits("invalid" as PlanId).agentRunsLimit).toBe(100);
+  });
+});
+
+describe("getStripePriceId", () => {
+  it("returns env value or undefined", () => {
+    const id = getStripePriceId("starter");
+    expect(typeof id === "string" || id === undefined).toBe(true);
+  });
+});

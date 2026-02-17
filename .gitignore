@@ -44,6 +44,7 @@ Thumbs.db
 coverage/
 .nyc_output/
 *.lcov
+test-results/
 
 # Misc
 *.tgz

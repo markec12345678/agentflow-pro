@@ -12,7 +12,7 @@ const typeColors: Record<string, string> = {
   Trigger: "border-violet-500 bg-violet-50",
 };
 
-export function WorkflowNode(props: NodeProps<{ type?: string; label?: string; [k: string]: unknown }>) {
+export function WorkflowNode(props: NodeProps) {
   const { data } = props;
   const nodeType = (data?.type as string) ?? "Action";
   const label = (data?.label as string) ?? nodeType ?? "Node";
@@ -25,18 +25,18 @@ export function WorkflowNode(props: NodeProps<{ type?: string; label?: string; [
     >
       <Handle type="target" position={Position.Left} id="target" />
       <div className="font-medium">{label}</div>
-      {nodeType === "Agent" && data?.agentType && (
+      {nodeType === "Agent" && data?.agentType ? (
         <div className="mt-1 text-xs text-gray-600">{String(data.agentType)}</div>
-      )}
-      {nodeType === "Condition" && data?.operator && (
+      ) : null}
+      {nodeType === "Condition" && data?.operator ? (
         <div className="mt-1 text-xs text-gray-600">{String(data.operator)}</div>
-      )}
-      {nodeType === "Trigger" && data?.triggerType && (
+      ) : null}
+      {nodeType === "Trigger" && data?.triggerType ? (
         <div className="mt-1 text-xs text-gray-600">{String(data.triggerType)}</div>
-      )}
-      {nodeType === "Action" && data?.action && (
+      ) : null}
+      {nodeType === "Action" && data?.action ? (
         <div className="mt-1 text-xs text-gray-600">{String(data.action)}</div>
-      )}
+      ) : null}
       {nodeType === "Condition" ? (
         <>
           <Handle type="source" position={Position.Right} id="true" />
