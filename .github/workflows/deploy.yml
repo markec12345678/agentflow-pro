@@ -1,8 +1,9 @@
 name: Deploy
 
 on:
-  push:
-    branches: [main, master]
+  workflow_dispatch:  # Samo ročno – ne več ob pushu
+  # push:
+  #   branches: [main, master]
 
 jobs:
   deploy:
