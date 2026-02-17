@@ -18,13 +18,23 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { WorkflowNode } from "@/web/components/workflow/WorkflowNode";
+import { ExecutionProgressModal } from "@/web/components/workflow/ExecutionProgressModal";
 import { StatusIndicator } from "@/web/components";
 import Link from "next/link";
+import type { ExecutionProgress } from "@/workflows/WorkflowExecutor";
 import type { Workflow } from "@/workflows/types";
 
 const nodeTypes = {
   workflowNode: WorkflowNode,
 };
+
+function safeErrorMsg(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  const s = String(e);
+  if (s === "[object Event]" || s === "[object Object]")
+    return "An unexpected error occurred";
+  return s || "Unknown error";
+}
 
 function workflowToFlow(workflow: Workflow): { nodes: Node[]; edges: Edge[] } {
   const nodes: Node[] = workflow.nodes.map((n) => ({
@@ -184,8 +194,14 @@ function WorkflowsPageInner() {
     success?: boolean;
     error?: string;
   } | null>(null);
+  const [executionSteps, setExecutionSteps] = useState<
+    Array<{ nodeId: string; success: boolean; output?: unknown; error?: string }>
+  >([]);
   const [saving, setSaving] = useState(false);
   const [executing, setExecuting] = useState(false);
+  const [executionProgress, setExecutionProgress] =
+    useState<ExecutionProgress | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!workflowIdParam) return;
@@ -237,46 +253,149 @@ function WorkflowsPageInner() {
       setSaveStatus("Saved");
       setWorkflowId(data.id ?? workflowId);
     } catch (e) {
-      setSaveStatus(
-        `Error: ${e instanceof Error ? e.message : "Unknown"}`
-      );
+      setSaveStatus(`Error: ${safeErrorMsg(e)}`);
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleExecute() {
+  const executeWorkflow = useCallback(async () => {
     setExecuteResult(null);
+    setExecutionSteps([]);
+    setExecutionProgress(null);
     setExecuting(true);
     try {
       const workflow = flowToWorkflow(nodes, edges, {
         id: workflowId,
         name: workflowName,
       });
-      const res = await fetch("/api/workflows?execute=true", {
+      const res = await fetch("/api/workflows/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(workflow),
+        body: JSON.stringify({
+          nodes: workflow.nodes,
+          edges: workflow.edges,
+          context: workflow.metadata as Record<string, unknown>,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
         setExecuteResult({ success: false, error: data.error ?? res.statusText });
+        alert(`❌ Execution failed: ${data.error ?? res.statusText}`);
         return;
       }
-      setExecuteResult({
-        success: data.execution?.success ?? false,
-        error:
-          data.execution?.success === false ? "Execution failed" : undefined,
-      });
+      if (data.success && data.progress) {
+        setExecutionProgress(data.progress);
+        setExecutionSteps(
+          data.progress.results.map((r: { nodeId: string; status: string; output?: unknown; error?: string }) => ({
+            nodeId: r.nodeId,
+            success: r.status === "success",
+            output: r.output,
+            error: r.error,
+          }))
+        );
+        setExecuteResult({ success: true });
+      } else {
+        setExecuteResult({
+          success: false,
+          error: data.error ?? "Execution failed",
+        });
+        setExecutionProgress(data.progress ?? null);
+        alert(`❌ Execution failed: ${data.error ?? "Unknown error"}`);
+      }
     } catch (e) {
-      setExecuteResult({
-        success: false,
-        error: e instanceof Error ? e.message : "Unknown",
-      });
+      const msg = safeErrorMsg(e);
+      setExecuteResult({ success: false, error: msg });
+      alert(`❌ Execution error: ${msg}`);
     } finally {
       setExecuting(false);
     }
-  }
+  }, [nodes, edges, workflowId, workflowName]);
+
+  // Export Workflow to JSON
+  const exportWorkflow = useCallback(() => {
+    const workflowData = {
+      nodes: nodes.map((node) => ({
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: node.data,
+      })),
+      edges: edges.map((edge) => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: (edge as Edge & { type?: string }).type,
+      })),
+      metadata: {
+        name: workflowName,
+        version: "1.0",
+        exportedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(workflowData, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `workflow-${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    alert("✅ Workflow exported successfully!");
+  }, [nodes, edges, workflowName]);
+
+  // Import Workflow from JSON
+  const importWorkflow = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(
+            (e.target?.result as string) ?? "{}"
+          ) as {
+            nodes?: Node[];
+            edges?: Edge[];
+            metadata?: { name?: string };
+          };
+
+          if (!data.nodes || !data.edges) {
+            alert("❌ Invalid workflow file!");
+            setImportError("Invalid workflow file!");
+            return;
+          }
+
+          // Ensure nodes have workflowNode type for React Flow
+          const normalizedNodes = data.nodes.map((n) =>
+            n.type === "workflowNode" ? n : { ...n, type: "workflowNode" as const }
+          );
+          setNodes(normalizedNodes);
+          setEdges(data.edges);
+          if (data.metadata?.name) setWorkflowName(data.metadata.name);
+          setImportError(null);
+          alert("✅ Workflow imported successfully!");
+        } catch (error) {
+          alert("❌ Error parsing workflow file!");
+          setImportError(
+            error instanceof Error ? error.message : "Error parsing file"
+          );
+          console.error(error);
+        } finally {
+          event.target.value = "";
+        }
+      };
+      reader.readAsText(file);
+    },
+    [setNodes, setEdges]
+  );
 
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -374,19 +493,34 @@ function WorkflowsPageInner() {
               disabled={saving}
               className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : "💾 Save Workflow"}
             </button>
             <button
-              onClick={handleExecute}
+              onClick={executeWorkflow}
               disabled={executing}
-              className="w-full rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+              className="w-full rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700 disabled:bg-gray-600 disabled:opacity-70"
             >
-              {executing ? "Executing..." : "Run Workflow"}
+              {executing ? "🔄 Running..." : "▶ Run Workflow"}
             </button>
-            <button className="w-full rounded-lg bg-gray-600 px-4 py-2 font-medium text-white transition-colors hover:bg-gray-700">
-              Export JSON
+            <button
+              onClick={exportWorkflow}
+              className="w-full rounded-lg bg-gray-600 px-4 py-2 font-medium text-white transition-colors hover:bg-gray-700"
+            >
+              📥 Export JSON
             </button>
+            <label className="block w-full cursor-pointer rounded-lg bg-gray-600 px-4 py-2 text-center font-medium text-white transition-colors hover:bg-gray-700">
+              📤 Import JSON
+              <input
+                type="file"
+                accept=".json"
+                onChange={importWorkflow}
+                className="hidden"
+              />
+            </label>
           </div>
+          {importError && (
+            <p className="mt-2 text-sm text-red-500">{importError}</p>
+          )}
           {saveStatus && (
             <p className="mt-2 text-sm text-gray-400">
               {saveStatus === "Saved" ? (
@@ -397,13 +531,81 @@ function WorkflowsPageInner() {
             </p>
           )}
           {executeResult && (
-            <p className="mt-2 text-sm">
-              {executeResult.success ? (
-                <span className="text-green-500">Execution complete</span>
-              ) : (
-                <span className="text-red-500">{executeResult.error}</span>
+            <div className="mt-2 space-y-2">
+              <p className="text-sm">
+                {executeResult.success ? (
+                  <span className="text-green-500">Execution complete</span>
+                ) : (
+                  <span className="text-red-500">{executeResult.error}</span>
+                )}
+              </p>
+              {!executeResult.success && (
+                <button
+                  onClick={executeWorkflow}
+                  disabled={executing}
+                  className="w-full rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+                >
+                  Retry
+                </button>
               )}
-            </p>
+            </div>
+          )}
+          {executionSteps.length > 0 && (
+            <div className="mt-4 rounded-lg bg-gray-700 p-4">
+              <h4 className="mb-3 text-sm font-medium text-white">
+                Execution Timeline
+              </h4>
+              <ul className="space-y-2">
+                {executionSteps.map((step, idx) => {
+                  const node = nodes.find((n) => n.id === step.nodeId);
+                  const label =
+                    (node?.data?.label as string) ??
+                    node?.data?.type ??
+                    step.nodeId;
+                  return (
+                    <li
+                      key={`${step.nodeId}-${idx}`}
+                      className={`flex items-start gap-2 rounded px-2 py-1 ${step.success ? "bg-gray-600/50" : "bg-red-900/30"
+                        }`}
+                    >
+                      <span
+                        className={
+                          step.success ? "text-green-500" : "text-red-500"
+                        }
+                      >
+                        {step.success ? "✓" : "✕"}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-sm font-medium text-white">
+                          {label}
+                        </span>
+                        {step.error && (
+                          <p className="mt-0.5 text-xs text-red-400">
+                            {step.error}
+                          </p>
+                        )}
+                        {step.success && step.output != null && (
+                          <details className="mt-1">
+                            <summary className="cursor-pointer text-xs text-gray-400">
+                              View output
+                            </summary>
+                            <pre className="mt-1 max-h-24 overflow-auto rounded bg-gray-800 p-2 text-xs text-gray-300">
+                              {(() => {
+                                const str =
+                                  typeof step.output === "object"
+                                    ? JSON.stringify(step.output, null, 2)
+                                    : String(step.output);
+                                return str.length > 500 ? str.slice(0, 500) + "..." : str;
+                              })()}
+                            </pre>
+                          </details>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           )}
         </div>
       </aside>
@@ -444,12 +646,12 @@ function WorkflowsPageInner() {
             )}
             <span className="text-sm text-gray-400">Auto-saved</span>
             <button
-              onClick={handleExecute}
+              onClick={executeWorkflow}
               disabled={executing}
               className="rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
               aria-label="Execute"
             >
-              {executing ? "Executing..." : "Execute"}
+              {executing ? "🔄 Running..." : "Execute"}
             </button>
             <button className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700">
               Deploy
@@ -482,6 +684,7 @@ function WorkflowsPageInner() {
             <Controls className="border-gray-700 bg-gray-800" />
             <MiniMap
               className="border-gray-700 bg-gray-800"
+              bgColor="#1f2937"
               nodeColor="#3b82f6"
               maskColor="rgba(17, 24, 39, 0.8)"
             />
@@ -608,6 +811,15 @@ function WorkflowsPageInner() {
           />
         </div>
       </aside>
+
+      {executionProgress && (
+        <ExecutionProgressModal
+          executionId={executionProgress.workflowId}
+          progress={executionProgress}
+          onClose={() => setExecutionProgress(null)}
+          nodes={nodes}
+        />
+      )}
     </div>
   );
 }

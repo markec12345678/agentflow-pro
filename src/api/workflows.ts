@@ -3,23 +3,9 @@
  */
 
 import type { Workflow } from "@/workflows/types";
-import { executeWorkflow } from "@/workflows/executor";
-import { Orchestrator } from "@/orchestrator/Orchestrator";
-import { createResearchAgent } from "@/agents/research/ResearchAgent";
-import { createContentAgent } from "@/agents/content/ContentAgent";
-import { createCodeAgent } from "@/agents/code/CodeAgent";
-import { createDeployAgent } from "@/agents/deploy/DeployAgent";
+import { WorkflowExecutor } from "@/workflows/WorkflowExecutor";
 
 const store = new Map<string, Workflow>();
-
-function getOrchestrator(): Orchestrator {
-  const orch = new Orchestrator();
-  orch.registerAgent(createResearchAgent());
-  orch.registerAgent(createContentAgent());
-  orch.registerAgent(createCodeAgent());
-  orch.registerAgent(createDeployAgent());
-  return orch;
-}
 
 export function createWorkflow(w: Workflow): Workflow {
   store.set(w.id, { ...w });
@@ -47,15 +33,33 @@ export function listWorkflows(): Workflow[] {
 
 export async function runWorkflow(
   id: string,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
+  userApiKeys?: Record<string, string>
 ): Promise<{ success: boolean; steps: unknown[]; output: Record<string, unknown> }> {
   const w = store.get(id);
   if (!w) throw new Error(`Workflow ${id} not found`);
-  const orch = getOrchestrator();
-  const result = await executeWorkflow(w, orch, context ?? {});
+  const executor = new WorkflowExecutor(userApiKeys);
+  const progress = await executor.execute(
+    w.nodes,
+    w.edges,
+    (context ?? {}) as Record<string, unknown>
+  );
+
+  const steps = progress.results.map((r) => ({
+    nodeId: r.nodeId,
+    success: r.status === "success",
+    output: r.output,
+    error: r.error,
+  }));
+
+  const output: Record<string, unknown> = {};
+  for (const r of progress.results) {
+    if (r.output != null) output[`${r.nodeId}_output`] = r.output;
+  }
+
   return {
-    success: result.success,
-    steps: result.steps,
-    output: result.output,
+    success: progress.status === "completed",
+    steps,
+    output,
   };
 }
