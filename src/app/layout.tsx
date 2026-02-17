@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Providers } from "./providers";
+import { Nav } from "@/web/components/Nav";
 
 export const metadata: Metadata = {
   title: "AgentFlow Pro",
@@ -12,7 +14,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="sl">
-      <body>{children}</body>
+      <body>
+        <Providers>
+          <Nav />
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

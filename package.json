@@ -16,12 +16,15 @@
   "dependencies": {
     "@ai-sdk/openai": "^3.0.29",
     "@prisma/client": "^6.0.0",
-    "@xyflow/react": "^12.10.0",
+    "@xyflow/react": "^12.0.0",
     "ai": "^6.0.86",
     "next": "^15.0.0",
+    "next-auth": "^4.24.13",
     "octokit": "^4.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "stripe": "^20.3.1",
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
