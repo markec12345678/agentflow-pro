@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -104,7 +104,7 @@ function WorkflowCanvasInner({ workflow, onWorkflowChange }: WorkflowCanvasInner
       const w = flowToWorkflow(nodes, edges, { id: workflow.id, name: workflow.name });
       onWorkflowChange(w);
     }
-  }, [nodes, edges]);
+  }, [workflow, onWorkflowChange, nodes, edges]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -142,8 +142,8 @@ function WorkflowCanvasInner({ workflow, onWorkflowChange }: WorkflowCanvasInner
   };
 
   return (
-    <div className="flex h-full w-full">
-      <div ref={wrapperRef} className="flex-1">
+    <div className="flex h-full w-full" data-testid="workflow-canvas">
+      <div ref={wrapperRef} className="flex-1" data-testid="workflow-drop-zone">
         <ReactFlow
           nodes={nodes}
           edges={edges}
