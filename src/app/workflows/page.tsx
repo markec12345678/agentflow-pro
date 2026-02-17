@@ -1,20 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { WorkflowCanvas } from "@/web/components/workflow/WorkflowCanvas";
 import type { Workflow } from "@/workflows/types";
 
+const DEFAULT_WORKFLOW: Workflow = {
+  id: `wf_${Date.now()}`,
+  name: "New Workflow",
+  nodes: [],
+  edges: [],
+};
+
 export default function WorkflowsPage() {
-  const [workflow, setWorkflow] = useState<Workflow>({
-    id: `wf_${Date.now()}`,
-    name: "New Workflow",
-    nodes: [],
-    edges: [],
-  });
+  const searchParams = useSearchParams();
+  const workflowId = searchParams.get("id");
+  const [workflow, setWorkflow] = useState<Workflow>(DEFAULT_WORKFLOW);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [executeResult, setExecuteResult] = useState<{ success?: boolean; error?: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [executing, setExecuting] = useState(false);
+
+  useEffect(() => {
+    if (!workflowId) return;
+    fetch("/api/workflows")
+      .then((r) => r.json())
+      .then((list: Workflow[]) => {
+        const w = list.find((x) => x.id === workflowId);
+        if (w) setWorkflow(w);
+      })
+      .catch(() => {});
+  }, [workflowId]);
 
   async function handleSave() {
     setSaveStatus(null);
