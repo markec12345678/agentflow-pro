@@ -254,7 +254,7 @@ export default function TourismPropertiesPage() {
                       {p.name}
                     </div>
                     <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                      {[p.location, p.type, p.capacity ? `${p.capacity} oseb`].filter(Boolean).join(" · ")}
+                      {[p.location, p.type, p.capacity ? p.capacity + " oseb" : null].filter(Boolean).join(" · ") || "—"}
                     </div>
                   </div>
                   <div className="flex gap-2">

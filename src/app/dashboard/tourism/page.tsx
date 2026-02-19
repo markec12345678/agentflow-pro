@@ -232,8 +232,7 @@ export default function TourismOverviewPage() {
                   Uporabi
                 </Link>
               </div>
-            ))
-            )}
+            ))}
           </div>
         </div>
       )}
