@@ -2,271 +2,122 @@
 
 import Link from "next/link";
 import { useState } from "react";
-
-// Feature Check Component
-function FeatureCheck({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex items-start gap-3">
-      <span className="flex-shrink-0 text-lg text-green-500">✓</span>
-      <span className="text-gray-700 dark:text-gray-300">{children}</span>
-    </li>
-  );
-}
-
-// Feature X Component (for excluded features)
-function FeatureX({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex items-start gap-3 opacity-50">
-      <span className="flex-shrink-0 text-lg text-gray-400">✕</span>
-      <span className="text-gray-500 dark:text-gray-400">{children}</span>
-    </li>
-  );
-}
-
-// Pricing Card Component
-function PricingCard({
-  plan,
-  price,
-  period,
-  description,
-  features,
-  excludedFeatures,
-  ctaText,
-  ctaLink,
-  highlighted = false,
-  badge,
-}: {
-  plan: string;
-  price: string;
-  period: string;
-  description: string;
-  features: string[];
-  excludedFeatures?: string[];
-  ctaText: string;
-  ctaLink: string;
-  highlighted?: boolean;
-  badge?: string;
-}) {
-  return (
-    <div
-      className={`relative rounded-2xl border bg-white p-8 transition-all dark:bg-gray-800 ${highlighted
-        ? "scale-105 border-2 border-blue-500 shadow-2xl"
-        : "border-gray-200 shadow-lg hover:shadow-xl dark:border-gray-700"
-        }`}
-    >
-      {/* Popular Badge */}
-      {badge && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span className="rounded-full bg-blue-500 px-4 py-1 text-sm font-semibold text-white">
-            {badge}
-          </span>
-        </div>
-      )}
-
-      {/* Plan Header */}
-      <div className="mb-8 text-center">
-        <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
-          {plan}
-        </h3>
-        <div className="flex items-baseline justify-center gap-1">
-          <span className="text-5xl font-bold text-gray-900 dark:text-white">
-            {price}
-          </span>
-          <span className="text-gray-600 dark:text-gray-400">{period}</span>
-        </div>
-        <p className="mt-4 text-gray-600 dark:text-gray-400">{description}</p>
-      </div>
-
-      {/* Features List */}
-      <ul className="mb-8 space-y-4">
-        {features.map((feature, index) => (
-          <FeatureCheck key={index}>{feature}</FeatureCheck>
-        ))}
-        {excludedFeatures?.map((feature, index) => (
-          <FeatureX key={index}>{feature}</FeatureX>
-        ))}
-      </ul>
-
-      {/* CTA Button */}
-      <Link
-        href={ctaLink}
-        className={`block w-full rounded-lg px-6 py-4 text-center font-semibold transition-all ${highlighted
-          ? "bg-blue-600 text-white shadow-lg hover:bg-blue-700 hover:shadow-xl"
-          : "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-          }`}
-      >
-        {ctaText}
-      </Link>
-
-      {/* Money Back Guarantee */}
-      <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
-        🔒 14-day money-back guarantee
-      </p>
-    </div>
-  );
-}
-
-// FAQ Item Component
-function FAQItem({
-  question,
-  answer,
-}: {
-  question: string;
-  answer: string;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="border-b border-gray-200 pb-4 dark:border-gray-700">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between text-left"
-      >
-        <span className="font-semibold text-gray-900 dark:text-white">
-          {question}
-        </span>
-        <span className="text-2xl text-gray-500">{isOpen ? "−" : "+"}</span>
-      </button>
-      {isOpen && (
-        <p className="mt-3 text-gray-600 dark:text-gray-400">{answer}</p>
-      )}
-    </div>
-  );
-}
+import { useSession } from "next-auth/react";
 
 export default function PricingPage() {
+  const [isAnnual, setIsAnnual] = useState(false);
+  const { status } = useSession();
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  const startCheckout = async (planId: string) => {
+    if (checkoutLoading) return;
+    setCheckoutLoading(planId);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.url) window.location.href = data.url;
+      else setCheckoutLoading(null);
+    } catch {
+      setCheckoutLoading(null);
+    }
+  };
+
   const plans = [
     {
-      plan: "Starter",
-      priceMonthly: 29,
-      description: "Perfect for freelancers and solo entrepreneurs",
+      name: "Pro",
+      id: "pro",
+      price: isAnnual ? "$49" : "$59",
+      period: isAnnual ? "month (billed yearly)" : "month/seat",
+      description: "Powerful AI to stay on-brand, even at scale.",
       features: [
-        "100 Agent Runs/month",
-        "3 Active Workflows",
-        "4 AI Agents (Research, Content, Code, Deploy)",
-        "Basic Analytics",
-        "Email Support",
-        "API Access",
+        "1 seat included",
+        "10 Blog Posts/Month",
+        "Canvas platform for accelerated content",
+        "Essential Apps for core workflows",
+        "2 Brand Voices",
+        "5 Knowledge Items",
+        "3 Audiences",
+        "SEO Optimization",
+        "1-Click Publish",
       ],
-      excludedFeatures: [
-        "Custom Integrations",
-        "Priority Support",
-        "Team Collaboration",
-      ],
-      ctaText: "Start Free Trial",
-      ctaLink: "/register?plan=starter",
-      highlighted: false,
-    },
-    {
-      plan: "Pro",
-      priceMonthly: 99,
-      description: "Best for growing teams and businesses",
-      features: [
-        "1,000 Agent Runs/month",
-        "20 Active Workflows",
-        "4 AI Agents + Custom Agents",
-        "Advanced Analytics",
-        "Priority Email Support",
-        "API Access + Webhooks",
-        "Team Collaboration (5 users)",
-        "Custom Integrations",
-      ],
-      excludedFeatures: ["Unlimited Runs", "Dedicated Support"],
-      ctaText: "Start Free Trial",
-      ctaLink: "/register?plan=pro",
+      cta: "Start Free 7-Day Trial",
+      link: "/register?plan=pro",
       highlighted: true,
       badge: "Most Popular",
     },
     {
-      plan: "Enterprise",
-      priceMonthly: 499,
-      description: "For large organizations with custom needs",
+      name: "Business",
+      id: "business",
+      price: "Custom",
+      period: "pricing",
+      description: "The AI platform built to elevate your brand.",
       features: [
-        "Unlimited Agent Runs",
-        "Unlimited Workflows",
-        "All AI Agents + Custom Development",
-        "Custom Analytics & Reporting",
-        "24/7 Dedicated Support",
-        "Full API Access",
-        "Unlimited Team Members",
-        "Custom Integrations",
-        "SLA Guarantee",
-        "On-premise Deployment Option",
+        "Everything in Pro plus:",
+        "Unlimited Blog Posts",
+        "Advanced Apps for complex campaigns",
+        "No-code AI App Builder",
+        "Unlimited Brand Voices",
+        "Unlimited Knowledge Items",
+        "API access",
+        "Dedicated account management",
+        "Priority support",
+        "Custom integrations",
       ],
-      excludedFeatures: [],
-      ctaText: "Contact Sales",
-      ctaLink: "/contact",
+      cta: "Contact Sales",
+      link: "/contact",
       highlighted: false,
+      badge: null as string | null,
     },
   ];
-
-  const faqs = [
-    {
-      question: "Can I change my plan later?",
-      answer:
-        "Yes! You can upgrade or downgrade your plan at any time. Changes will be prorated and applied to your next billing cycle.",
-    },
-    {
-      question: "Is there a free trial?",
-      answer:
-        "Yes! All plans come with a 14-day free trial. No credit card required to start.",
-    },
-    {
-      question: "What happens if I exceed my agent runs?",
-      answer:
-        "You'll receive a notification at 80% usage. You can either upgrade your plan or purchase additional runs at $0.01/run.",
-    },
-    {
-      question: "Do you offer discounts for annual billing?",
-      answer:
-        "Yes! Save 20% when you bill annually. Contact us for enterprise custom pricing.",
-    },
-    {
-      question: "Can I cancel anytime?",
-      answer:
-        "Absolutely. You can cancel your subscription at any time. Your account will remain active until the end of your billing period.",
-    },
-  ];
-
-  const [isAnnual, setIsAnnual] = useState(true);
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 px-4 py-20">
-        <div className="mx-auto max-w-6xl text-center">
-          <h1 className="mb-6 text-5xl font-bold text-white md:text-6xl">
+      <section className="py-20 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+        <div className="max-w-6xl mx-auto text-center">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             Simple, Transparent Pricing
           </h1>
-          <p className="mx-auto mb-8 max-w-3xl text-xl text-gray-300">
-            Choose the plan that fits your needs. All plans include a 14-day
-            free trial.
+          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+            Choose the plan that fits your needs. All plans include a 7-day free
+            trial.
           </p>
 
           {/* Billing Toggle */}
           <div className="flex items-center justify-center gap-4">
             <span
-              className={isAnnual ? "text-gray-300" : "font-semibold text-white"}
+              className={
+                !isAnnual ? "text-white font-semibold" : "text-gray-300"
+              }
             >
               Monthly
             </span>
             <button
               type="button"
               onClick={() => setIsAnnual(!isAnnual)}
-              className="relative h-7 w-14 rounded-full bg-blue-600"
-              aria-label={isAnnual ? "Switch to monthly" : "Switch to annual"}
+              className="relative w-14 h-7 bg-blue-600 rounded-full"
+              aria-label={
+                isAnnual ? "Switch to monthly" : "Switch to annual"
+              }
             >
               <span
-                className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-transform ${isAnnual ? "right-1" : "left-1"
-                  }`}
+                className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${
+                  isAnnual ? "right-1" : "left-1"
+                }`}
               />
             </button>
             <span
-              className={isAnnual ? "font-semibold text-white" : "text-gray-300"}
+              className={
+                isAnnual ? "text-white font-semibold" : "text-gray-300"
+              }
             >
               Annual
             </span>
-            <span className="rounded-full bg-green-500 px-2 py-1 text-xs text-white">
+            <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
               Save 20%
             </span>
           </div>
@@ -274,131 +125,149 @@ export default function PricingPage() {
       </section>
 
       {/* Pricing Cards */}
-      <section className="-mt-10 px-4 py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid gap-8 md:grid-cols-3">
+      <section className="py-20 px-4 -mt-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8">
             {plans.map((plan, index) => (
-              <PricingCard
+              <div
                 key={index}
-                {...plan}
-                price={
-                  isAnnual
-                    ? `$${Math.round(plan.priceMonthly * 0.8)}`
-                    : `$${plan.priceMonthly}`
-                }
-                period={
-                  isAnnual ? "/month (billed yearly)" : "/month"
-                }
-              />
+                className={`relative bg-white dark:bg-gray-800 rounded-2xl p-8 transition-all ${
+                  plan.highlighted
+                    ? "shadow-2xl scale-105 border-2 border-blue-500"
+                    : "shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl"
+                }`}
+              >
+                {plan.badge && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-blue-500 text-white text-sm font-semibold px-4 py-1 rounded-full">
+                      {plan.badge}
+                    </span>
+                  </div>
+                )}
+
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    {plan.name}
+                  </h3>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-5xl font-bold text-gray-900 dark:text-white">
+                      {plan.price}
+                    </span>
+                    <span className="text-gray-600 dark:text-gray-400">
+                      /{plan.period}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mt-4">
+                    {plan.description}
+                  </p>
+                </div>
+
+                <ul className="space-y-4 mb-8">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="text-green-500 text-lg flex-shrink-0">
+                        ✓
+                      </span>
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                {plan.id === "pro" && status === "authenticated" ? (
+                  <button
+                    type="button"
+                    onClick={() => startCheckout("pro")}
+                    disabled={!!checkoutLoading}
+                    data-testid="pro-checkout-cta"
+                    className={`block w-full py-4 px-6 rounded-lg font-semibold text-center transition-all ${
+                      plan.highlighted
+                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl disabled:opacity-70"
+                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
+                    }`}
+                  >
+                    {checkoutLoading === "pro" ? "Redirecting..." : plan.cta}
+                  </button>
+                ) : (
+                  <Link
+                    href={plan.link}
+                    data-testid={plan.id === "pro" ? "pro-checkout-cta" : undefined}
+                    className={`block w-full py-4 px-6 rounded-lg font-semibold text-center transition-all ${
+                      plan.highlighted
+                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
+                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                )}
+
+                <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
+                  🔒 7-day free trial • No credit card required
+                </p>
+              </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Comparison */}
-      <section className="bg-white px-4 py-20 dark:bg-gray-800">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="mb-4 text-center text-4xl font-bold">
-            What&apos;s Included in All Plans
-          </h2>
-          <p className="mx-auto mb-12 max-w-2xl text-center text-gray-600 dark:text-gray-400">
-            Every plan comes with our core features to help you automate your
-            business.
-          </p>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="p-6 text-center">
-              <div className="mb-4 text-4xl">🤖</div>
-              <h3 className="mb-2 text-xl font-bold">4 AI Agents</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Research, Content, Code, and Deploy agents included
-              </p>
-            </div>
-            <div className="p-6 text-center">
-              <div className="mb-4 text-4xl">🎨</div>
-              <h3 className="mb-2 text-xl font-bold">Visual Builder</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Drag & drop workflow builder with conditional logic
-              </p>
-            </div>
-            <div className="p-6 text-center">
-              <div className="mb-4 text-4xl">📊</div>
-              <h3 className="mb-2 text-xl font-bold">Analytics</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Real-time monitoring and performance insights
-              </p>
-            </div>
-            <div className="p-6 text-center">
-              <div className="mb-4 text-4xl">🔒</div>
-              <h3 className="mb-2 text-xl font-bold">Enterprise Security</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                SOC 2 compliant, data encryption, access controls
-              </p>
-            </div>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="px-4 py-20">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="mb-4 text-center text-4xl font-bold">
+      <section className="py-20 px-4">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12">
             Frequently Asked Questions
           </h2>
-          <p className="mb-12 text-center text-gray-600 dark:text-gray-400">
-            Everything you need to know about pricing and billing.
-          </p>
-
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <FAQItem key={index} {...faq} />
-            ))}
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-bold mb-2">
+                Can I change my plan later?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Yes! You can upgrade or downgrade your plan at any time. Changes
+                will be prorated and applied to your next billing cycle.
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-bold mb-2">
+                Is there a free trial?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Yes! All plans come with a 7-day free trial. No credit card
+                required to start.
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-bold mb-2">
+                What happens if I exceed my limits?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                You&apos;ll receive a notification at 80% usage. You can either
+                upgrade your plan or purchase additional posts at $10/post.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-r from-blue-900 to-purple-900 px-4 py-20">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="mb-6 text-4xl font-bold text-white">
+      <section className="py-20 px-4 bg-gradient-to-r from-blue-900 to-purple-900">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">
             Ready to Get Started?
           </h2>
-          <p className="mb-8 text-xl text-gray-300">
-            Join thousands of businesses automating their workflows with AI.
+          <p className="text-xl text-gray-300 mb-8">
+            Join thousands of businesses automating their content with AI.
           </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Link
-              href="/register"
-              className="rounded-lg bg-white px-8 py-4 text-lg font-semibold text-blue-900 shadow-lg transition-all hover:scale-105 hover:bg-gray-100"
-            >
-              Start Free Trial
-            </Link>
-            <Link
-              href="/contact"
-              className="rounded-lg border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-900"
-            >
-              Contact Sales
-            </Link>
-          </div>
-          <p className="mt-6 text-sm text-gray-400">
-            No credit card required • 14-day free trial • Cancel anytime
+          <Link
+            href="/register"
+            className="bg-white text-blue-900 hover:bg-gray-100 text-lg px-8 py-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg inline-block"
+          >
+            Start Free 7-Day Trial
+          </Link>
+          <p className="text-gray-400 mt-6 text-sm">
+            No credit card required • 7-day free trial • Cancel anytime
           </p>
-        </div>
-      </section>
-
-      {/* Trust Badges */}
-      <section className="bg-gray-100 px-4 py-12 dark:bg-gray-800">
-        <div className="mx-auto max-w-6xl text-center">
-          <p className="mb-6 text-gray-600 dark:text-gray-400">
-            Trusted by innovative teams worldwide
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
-            <div className="text-2xl font-bold text-gray-400">Company A</div>
-            <div className="text-2xl font-bold text-gray-400">Company B</div>
-            <div className="text-2xl font-bold text-gray-400">Company C</div>
-            <div className="text-2xl font-bold text-gray-400">Company D</div>
-            <div className="text-2xl font-bold text-gray-400">Company E</div>
-          </div>
         </div>
       </section>
     </main>

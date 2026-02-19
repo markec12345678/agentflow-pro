@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {
+      "id": "a1",
+      "type": "workflowNode",
+      "data": { "type": "Agent", "agentType": "research", "label": "Research" },
+      "position": { "x": 100, "y": 100 }
+    }
+  ],
+  "edges": [],
+  "metadata": {
+    "name": "Invalid - No Trigger",
+    "exportedAt": ""
+  }
+}

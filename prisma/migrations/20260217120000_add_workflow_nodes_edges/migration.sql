@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Workflow" ADD COLUMN "nodes" JSONB NOT NULL DEFAULT '[]';
+ALTER TABLE "Workflow" ADD COLUMN "edges" JSONB NOT NULL DEFAULT '[]';
+ALTER TABLE "Workflow" ADD COLUMN "metadata" JSONB;

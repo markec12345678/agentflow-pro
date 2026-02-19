@@ -11,13 +11,47 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  name         String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  workflows    Workflow[]
-  subscription Subscription?
+  id                 String        @id @default(cuid())
+  email              String        @unique
+  name               String?
+  passwordHash       String?
+  trialEndsAt        DateTime?
+  activeTeamId       String?
+  activePropertyId   String?
+  createdAt          DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  workflows          Workflow[]
+  subscription       Subscription?
+  blogPosts          BlogPost[]
+  ownedTeams         Team[]          @relation("TeamOwner")
+  teamMembers        TeamMember[]
+  campaignBoards     CampaignBoard[]
+  userTemplates      UserTemplate[]
+  landingPages       LandingPage[]
+  seoMetrics         SeoMetric[]
+  translationJobs    TranslationJob[]
+  properties         Property[]
+}
+
+model BlogPost {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title            String?
+  topic            String?
+  fullContent      String?   @db.Text
+  metaTitle        String?
+  metaDescription  String?
+  imageUrl         String?
+  pipelineStage    String?   @default("draft")
+  brief            String?   @db.Text
+  reviewedAt       DateTime?
+  guardrailIssues  Json?
+  approvedBy       String?
+  approvalStatus   String?   @default("pending")
+  createdAt        DateTime  @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model Subscription {
@@ -36,6 +70,9 @@ model Subscription {
 model Workflow {
   id        String   @id @default(cuid())
   name      String
+  nodes     Json     @default("[]")
+  edges     Json     @default("[]")
+  metadata  Json?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -51,4 +88,210 @@ model AgentRun {
   input      Json?
   output     Json?
   createdAt  DateTime @default(now())
+}
+
+model UserApiKey {
+  id        String   @id @default(cuid())
+  userId    String   // session.userId (ali email za in-memory auth)
+  provider  String   // firecrawl, context7, brave, openai, github, vercel, netlify
+  value     String   // encrypted ali plain (za MVP plain, kasneje encrypt)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, provider])
+  @@index([userId])
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  userId    String
+  keyHash   String   // hash of the key for lookup (MVP: store plain in keyHash for simplicity)
+  name      String?
+  createdAt DateTime @default(now())
+
+  @@index([keyHash])
+  @@index([userId])
+}
+
+model Onboarding {
+  id                String   @id @default(cuid())
+  industry          String?
+  companySize       String?
+  workType          String?
+  role              String?
+  workspaceName     String?
+  blogUrl           String?
+  brandVoiceSummary String?  @db.Text
+  styleGuide        String?  @db.Text
+  visualGuidelines  String?  @db.Text
+  audiences         Json?
+  companyKnowledge  Json?
+  userId            String?
+  createdAt         DateTime @default(now())
+}
+
+model Team {
+  id             String          @id @default(cuid())
+  name           String
+  ownerId        String
+  owner          User            @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members        TeamMember[]
+  invites        Invite[]
+  campaignBoards CampaignBoard[]
+  createdAt      DateTime        @default(now())
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String
+  createdAt DateTime @default(now())
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+model Invite {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  email     String
+  role      String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
+  @@index([token])
+}
+
+model CampaignBoard {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId    String?
+  team      Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  name      String
+  nodes     Json     @default("[]")
+  edges     Json     @default("[]")
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([teamId])
+}
+
+model UserTemplate {
+  id          String    @id @default(cuid())
+  userId      String
+  propertyId  String?
+  name        String
+  category    String
+  basePrompt  String
+  customVars  Json?
+  content     String?   @db.Text
+  language    String?
+  isPublic    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([userId, category])
+  @@index([propertyId])
+  @@map("user_templates")
+}
+
+model LandingPage {
+  id             String    @id @default(cuid())
+  userId         String
+  propertyId     String?
+  title          String
+  slug           String?   @unique
+  content        Json
+  template       String    @default("tourism-basic")
+  languages      String[]
+  isPublished    Boolean   @default(false)
+  publishedUrl   String?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([userId, isPublished])
+  @@index([propertyId])
+  @@map("landing_pages")
+}
+
+model Property {
+  id           String        @id @default(cuid())
+  userId       String
+  name         String
+  location     String?
+  type         String?
+  capacity     Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  landingPages LandingPage[]
+  userTemplates UserTemplate[]
+
+  @@index([userId])
+  @@map("properties")
+}
+
+model SeoMetric {
+  id           String    @id @default(cuid())
+  userId       String
+  contentId    String?
+  contentType  String
+  keyword      String
+  position     Int?
+  searchVolume Int?
+  difficulty   Int?
+  lastChecked  DateTime?
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, contentType, keyword])
+  @@map("seo_metrics")
+}
+
+model TranslationJob {
+  id            String    @id @default(cuid())
+  userId        String
+  sourceContent String    @db.Text
+  sourceLang    String    @default("sl")
+  targetLangs   String[]
+  status        String    @default("pending")
+  results       Json?
+  createdAt     DateTime  @default(now())
+  completedAt   DateTime?
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("translation_jobs")
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  plan      String?
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt])
 }

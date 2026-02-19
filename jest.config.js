@@ -3,6 +3,10 @@ module.exports = {
   testEnvironment: "node",
   roots: ["<rootDir>/tests"],
   testMatch: ["**/*.test.ts"],
-  moduleNameMapper: { "^@/(.*)$": "<rootDir>/src/$1" },
+  moduleNameMapper: {
+    "^@/lib/user-keys$": "<rootDir>/tests/__mocks__/user-keys.ts",
+    "^@/config/env$": "<rootDir>/tests/__mocks__/config-env.ts",
+    "^@/(.*)$": "<rootDir>/src/$1",
+  },
   transform: { "^.+\\.tsx?$": "ts-jest" },
 };

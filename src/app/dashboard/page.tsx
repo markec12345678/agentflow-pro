@@ -1,12 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   StatusList,
   CICDStatus,
   DeployStatus,
 } from "@/web/components";
+import { FeatureTour } from "@/web/components/FeatureTour";
+import { PROMPTS } from "@/data/prompts";
+
+interface Workflow {
+  id: string;
+  name: string;
+  nodes?: unknown[];
+  edges?: unknown[];
+}
 
 // Status Indicator Component
 function StatusIndicator({
@@ -144,7 +154,48 @@ function ActivityItem({
   );
 }
 
+const tourismPrompts = PROMPTS.filter((p) => p.category === "tourism").slice(0, 3);
+
 export default function DashboardPage() {
+  const searchParams = useSearchParams();
+  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const [tourForceOpen, setTourForceOpen] = useState(false);
+  const [isTourismUser, setIsTourismUser] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/onboarding")
+      .then((r) => r.json())
+      .then((data: { onboarding?: { industry?: string } }) => {
+        const industry = data.onboarding?.industry;
+        if (industry === "tourism" || industry === "travel-agency") {
+          setIsTourismUser(true);
+        }
+      })
+      .catch(() => { });
+  }, []);
+
+  const handleTakeTour = useCallback(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("agentflow-tour-seen");
+    }
+    setTourForceOpen(true);
+  }, []);
+
+  const tourTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (searchParams.get("tour") === "1" && !tourTriggeredRef.current) {
+      tourTriggeredRef.current = true;
+      handleTakeTour();
+    }
+  }, [searchParams, handleTakeTour]);
+
+  useEffect(() => {
+    fetch("/api/workflows")
+      .then((r) => r.json())
+      .then((list: Workflow[]) => setWorkflows(Array.isArray(list) ? list : []))
+      .catch(() => setWorkflows([]));
+  }, []);
+
   // Mock data - v produkciji bi to prišlo iz API-ja
   const [agents] = useState([
     {
@@ -153,7 +204,7 @@ export default function DashboardPage() {
       color: "border-green-500",
       description:
         "Web scraping, market intelligence, competitor analysis",
-      technologies: ["Firecrawl", "Brave Search"],
+      technologies: ["Firecrawl", "SerpAPI"],
       runsToday: 24,
       status: "online" as const,
     },
@@ -222,6 +273,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+      <FeatureTour
+        forceOpen={tourForceOpen}
+        onComplete={() => setTourForceOpen(false)}
+      />
+
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex items-center justify-between">
@@ -231,14 +287,76 @@ export default function DashboardPage() {
               Monitor and manage your AI agents
             </p>
           </div>
-          <Link
-            href="/workflows"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all"
-          >
-            + New Workflow
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleTakeTour}
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+              aria-label="Take feature tour"
+            >
+              Take Tour
+            </button>
+            <Link
+              href="/workflows"
+              data-feature-tour="dashboard-new-workflow"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all"
+            >
+              + New Workflow
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* Recommended for you (tourism users) */}
+      {isTourismUser && tourismPrompts.length > 0 && (
+        <div className="max-w-7xl mx-auto mb-12">
+          <h2 className="text-2xl font-bold mb-6">Recommended for you</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Tourism prompts tailored to your role
+          </p>
+          <div className="grid md:grid-cols-3 gap-4">
+            {tourismPrompts.map((p) => (
+              <Link
+                key={p.id}
+                href={`/dashboard/chat?prompt=${encodeURIComponent(p.prompt)}`}
+                className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all border-l-4 border-blue-500"
+              >
+                <h3 className="font-semibold text-lg">{p.name}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                  {p.description}
+                </p>
+              </Link>
+            ))}
+          </div>
+          <Link
+            href="/dashboard/tourism"
+            className="inline-block mt-4 text-blue-600 dark:text-blue-400 hover:underline font-medium"
+          >
+            View all Tourism Tools →
+          </Link>
+        </div>
+      )}
+
+      {/* Saved Workflows */}
+      {workflows.length > 0 && (
+        <div className="max-w-7xl mx-auto mb-12">
+          <h2 className="text-2xl font-bold mb-6">Saved Workflows</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {workflows.map((wf) => (
+              <Link
+                key={wf.id}
+                href={`/workflows?id=${wf.id}`}
+                className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all border-l-4 border-blue-500"
+              >
+                <h3 className="font-semibold text-lg">{wf.name}</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {Array.isArray(wf.nodes) ? wf.nodes.length : 0} nodes
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Agent Cards */}
       <div className="max-w-7xl mx-auto mb-12">
@@ -265,8 +383,8 @@ export default function DashboardPage() {
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
               Active Workflows
             </p>
-            <p className="text-4xl font-bold">8</p>
-            <p className="text-gray-500 text-sm mt-2">3 pending</p>
+            <p className="text-4xl font-bold">{workflows.length}</p>
+            <p className="text-gray-500 text-sm mt-2">Saved workflows</p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
@@ -365,7 +483,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="max-w-7xl mx-auto">
+      <div
+        className="max-w-7xl mx-auto"
+        data-feature-tour="dashboard-quick-actions"
+      >
         <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
         <div className="grid md:grid-cols-3 gap-6">
           <Link

@@ -34,6 +34,7 @@ export async function createCheckoutSession(
       planId: params.planId,
     },
     subscription_data: {
+      trial_period_days: 7,
       metadata: {
         userId: params.userId,
         planId: params.planId,

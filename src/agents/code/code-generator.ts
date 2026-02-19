@@ -94,9 +94,10 @@ export function placeholder() {
 
 export async function generateCode(
   task: string,
-  context?: CodeGeneratorContext
+  context?: CodeGeneratorContext,
+  apiKeyOverride?: string
 ): Promise<GenerateCodeResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = apiKeyOverride ?? process.env.OPENAI_API_KEY;
   if (!apiKey || !task.trim()) {
     return templateFallback(task, context);
   }

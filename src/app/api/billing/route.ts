@@ -2,12 +2,14 @@
  * AgentFlow Pro - Billing API route
  */
 
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import {
   createCheckout,
   getSubscription,
   cancelSubscription,
 } from "@/api/billing";
+import { authOptions } from "@/lib/auth-options";
 import type { PlanId } from "@/stripe/plans";
 
 function getUserId(request: NextRequest): string {
@@ -16,8 +18,12 @@ function getUserId(request: NextRequest): string {
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = getUserId(request);
-    const sub = await getSubscription(userId);
+    const session = await getServerSession(authOptions);
+    const userId = session?.user
+      ? (session.user as { userId?: string }).userId ?? session.user.email ?? null
+      : null;
+    const id = userId ?? getUserId(request);
+    const sub = await getSubscription(id);
     return NextResponse.json(sub ?? { subscription: null });
   } catch (err) {
     return NextResponse.json(
@@ -29,24 +35,30 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json().catch(() => ({})) as {
+    const body = (await request.json().catch(() => ({}))) as {
       action?: "checkout" | "cancel";
       planId?: PlanId;
       immediately?: boolean;
     };
-    const userId = getUserId(request);
+    const session = await getServerSession(authOptions);
+    const userId = session?.user
+      ? (session.user as { userId?: string }).userId ?? session.user.email ?? null
+      : null;
 
     if (body.action === "checkout") {
-      const planId = body.planId ?? "starter";
+      if (!userId || !session?.user?.email) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      const planId = body.planId ?? "pro";
       const baseUrl =
         request.headers.get("x-forwarded-host") ||
         request.headers.get("host") ||
-        "http://localhost:3000";
+        "localhost:3000";
       const protocol = request.headers.get("x-forwarded-proto") ?? "http";
-      const origin = `${protocol}://${baseUrl}`;
+      const origin = baseUrl.startsWith("http") ? baseUrl : `${protocol}://${baseUrl}`;
       const { url, sessionId } = await createCheckout(
         userId,
-        "user@example.com",
+        session.user.email,
         planId,
         origin
       );
@@ -54,7 +66,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (body.action === "cancel") {
-      await cancelSubscription(userId, body.immediately ?? false);
+      const id = userId ?? getUserId(request);
+      await cancelSubscription(id, body.immediately ?? false);
       return NextResponse.json({ canceled: true });
     }
 

@@ -1,22 +1,54 @@
 /**
- * In-memory user store for E2E / dev (no DB)
+ * Auth users - Prisma + bcrypt for credentials
  */
 
-const users = new Map<string, { password: string; id: string }>();
+import bcrypt from "bcrypt";
+import { prisma } from "@/database/schema";
 
-// Pre-seed E2E user
-users.set("e2e@test.com", { password: "e2e-secret", id: "e2e-user-1" });
-users.set("test@test.com", { password: "test", id: "test-user-1" });
+const SALT_ROUNDS = 10;
 
-export function registerUser(email: string, password: string): { id: string } | null {
-  if (users.has(email)) return null;
-  const id = `user_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  users.set(email, { password, id });
-  return { id };
+export async function registerUser(
+  email: string,
+  password: string
+): Promise<{ id: string } | null> {
+  const normalizedEmail = email.toLowerCase().trim();
+  const existing = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+    select: { id: true },
+  });
+  if (existing) return null;
+
+  const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+  const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  try {
+    const user = await prisma.user.create({
+      data: {
+        email: normalizedEmail,
+        passwordHash,
+        trialEndsAt,
+      },
+      select: { id: true },
+    });
+    return { id: user.id };
+  } catch (e: unknown) {
+    const code = (e as { code?: string })?.code;
+    if (code === "P2002") return null;
+    throw e;
+  }
 }
 
-export function getUser(email: string, password: string): { id: string } | null {
-  const u = users.get(email);
-  if (!u || u.password !== password) return null;
-  return { id: u.id };
+export async function getUser(
+  email: string,
+  password: string
+): Promise<{ id: string } | null> {
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase() },
+    select: { id: true, passwordHash: true },
+  });
+  if (!user?.passwordHash) return null;
+
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) return null;
+
+  return { id: user.id };
 }

@@ -2,19 +2,29 @@
  * AgentFlow Pro - Usage tracking
  */
 
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/database/schema";
 import { getPlanLimits, type PlanId } from "@/stripe/plans";
+
+export interface RecordAgentRunOptions {
+  workflowId?: string;
+  input?: Record<string, unknown>;
+  output?: Record<string, unknown>;
+}
 
 export async function recordAgentRun(
   userId: string,
   agentType: string,
-  workflowId?: string
+  options?: RecordAgentRunOptions
 ): Promise<void> {
   await prisma.agentRun.create({
     data: {
+      userId,
       agentType,
-      workflowId: workflowId ?? null,
+      workflowId: options?.workflowId ?? null,
       status: "completed",
+      input: (options?.input ?? undefined) as Prisma.InputJsonValue | undefined,
+      output: (options?.output ?? undefined) as Prisma.InputJsonValue | undefined,
     },
   });
 }

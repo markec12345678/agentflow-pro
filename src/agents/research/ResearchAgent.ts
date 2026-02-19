@@ -1,11 +1,12 @@
 /**
  * AgentFlow Pro - Research Agent
- * Firecrawl + Brave Search integration, structured JSON output
+ * Firecrawl + SerpAPI integration, structured JSON output
  */
 
 import type { Agent } from "../../orchestrator/Orchestrator";
+import { mockMode } from "@/lib/mock-mode";
 import { scrapeUrl } from "./firecrawl";
-import { searchWeb } from "./brave";
+import { searchWeb } from "./serpapi";
 
 export interface ResearchInput {
   query?: string;
@@ -20,10 +21,10 @@ export interface ResearchOutput {
 
 export function createResearchAgent(config?: {
   firecrawlKey?: string;
-  braveKey?: string;
+  serpApiKey?: string;
 }): Agent {
   const firecrawlKey = config?.firecrawlKey ?? process.env.FIRECRAWL_API_KEY ?? "";
-  const braveKey = config?.braveKey ?? process.env.BRAVE_API_KEY ?? "";
+  const serpApiKey = config?.serpApiKey ?? process.env.SERPAPI_API_KEY ?? "";
 
   return {
     id: "research-agent",
@@ -37,8 +38,16 @@ export function createResearchAgent(config?: {
         searchResults: [],
       };
 
-      if (query && braveKey) {
-        const { results } = await searchWeb(query, braveKey);
+      if (mockMode) {
+        return {
+          urls: ["https://example.com"],
+          scrapedData: [{ url: "https://example.com", markdown: "Mock Test data" }],
+          searchResults: [{ url: "https://example.com", title: "Mock", description: "Test data" }],
+        };
+      }
+
+      if (query && serpApiKey) {
+        const { results } = await searchWeb(query, serpApiKey);
         output.searchResults = results;
         output.urls = results.map((r) => r.url);
       }

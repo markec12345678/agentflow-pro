@@ -12,10 +12,27 @@ const typeColors: Record<string, string> = {
   Trigger: "border-violet-500 bg-violet-50",
 };
 
+const agentTypeToLabel: Record<string, string> = {
+  research: "Research Agent",
+  content: "Content Agent",
+  code: "Code Agent",
+  deploy: "Deploy Agent",
+};
+
+const getAgentLabel = (data: Record<string, unknown> = {}): string => {
+  const label = data?.label as string;
+  const agentType = String(data?.agentType ?? "").toLowerCase();
+  if (label && label !== "Agent") return label;
+  return agentTypeToLabel[agentType] ?? (agentType || "Agent");
+};
+
 export function WorkflowNode(props: NodeProps) {
   const { data } = props;
   const nodeType = (data?.type as string) ?? "Action";
-  const label = (data?.label as string) ?? nodeType ?? "Node";
+  const label =
+    nodeType === "Agent"
+      ? getAgentLabel(data as Record<string, unknown>)
+      : ((data?.label as string) ?? nodeType ?? "Node");
   const typeKey = nodeType;
   const style = typeColors[typeKey] ?? "border-gray-400 bg-gray-50";
 
@@ -26,7 +43,9 @@ export function WorkflowNode(props: NodeProps) {
       <Handle type="target" position={Position.Left} id="target" />
       <div className="font-medium">{label}</div>
       {nodeType === "Agent" && data?.agentType ? (
-        <div className="mt-1 text-xs text-gray-600">{String(data.agentType)}</div>
+        <div className="mt-1 text-xs text-gray-600 capitalize">
+          {String(data.agentType)}
+        </div>
       ) : null}
       {nodeType === "Condition" && data?.operator ? (
         <div className="mt-1 text-xs text-gray-600">{String(data.operator)}</div>

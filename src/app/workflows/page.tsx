@@ -77,7 +77,7 @@ function flowToWorkflow(
 }
 
 const defaultNodeData: Record<string, Record<string, unknown>> = {
-  Agent: { agentType: "research", label: "Agent" },
+  Agent: { agentType: "research", label: "Research Agent" },
   Condition: { operator: "eq", operandA: "", operandB: "", label: "Condition" },
   Action: { action: "log", label: "Action" },
   Trigger: { triggerType: "manual", label: "Trigger" },
@@ -186,7 +186,19 @@ function WorkflowsPageInner() {
   const { screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
+
+  const onNodeDataChange = useCallback(
+    (nodeId: string, dataUpdate: Record<string, unknown>) => {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === nodeId ? { ...n, data: { ...n.data, ...dataUpdate } } : n
+        )
+      );
+    },
+    [setNodes]
+  );
   const [workflowId, setWorkflowId] = useState<string>(`wf_${Date.now()}`);
   const [workflowName, setWorkflowName] = useState("My Workflow");
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
@@ -205,10 +217,9 @@ function WorkflowsPageInner() {
 
   useEffect(() => {
     if (!workflowIdParam) return;
-    fetch("/api/workflows")
-      .then((r) => r.json())
-      .then((list: Workflow[]) => {
-        const w = list.find((x) => x.id === workflowIdParam);
+    fetch(`/api/workflows/${workflowIdParam}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((w: Workflow | null) => {
         if (w) {
           const { nodes: n, edges: e } = workflowToFlow(w);
           setNodes(n);
@@ -229,8 +240,50 @@ function WorkflowsPageInner() {
   );
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
-    setSelectedNode(node);
+    setSelectedNodeId(node.id);
   }, []);
+
+  const handleNewWorkflow = useCallback(() => {
+    const t1 = getId();
+    const t2 = getId();
+    const newNode1: Node = {
+      id: t1,
+      type: "workflowNode",
+      position: { x: 100, y: 100 },
+      data: {
+        label: "Start Trigger",
+        type: "Trigger",
+        triggerType: "manual",
+      },
+    };
+    const newNode2: Node = {
+      id: t2,
+      type: "workflowNode",
+      position: { x: 400, y: 100 },
+      data: {
+        label: "Research Agent",
+        type: "Agent",
+        agentType: "research",
+      },
+    };
+    setNodes([newNode1, newNode2]);
+    setEdges([
+      {
+        id: `e-${Date.now()}-1`,
+        source: t1,
+        target: t2,
+        animated: true,
+        style: { stroke: "#3b82f6" },
+      },
+    ]);
+    setSelectedNodeId(null);
+    setWorkflowId(`wf_${Date.now()}`);
+    setWorkflowName("My Workflow");
+    setSaveStatus(null);
+    setExecuteResult(null);
+    setExecutionSteps([]);
+    setExecutionProgress(null);
+  }, [setNodes, setEdges]);
 
   async function handleSave() {
     setSaveStatus(null);
@@ -276,6 +329,8 @@ function WorkflowsPageInner() {
           nodes: workflow.nodes,
           edges: workflow.edges,
           context: workflow.metadata as Record<string, unknown>,
+          workflowId,
+          workflowName,
         }),
       });
       const data = await res.json();
@@ -296,12 +351,13 @@ function WorkflowsPageInner() {
         );
         setExecuteResult({ success: true });
       } else {
-        setExecuteResult({
-          success: false,
-          error: data.error ?? "Execution failed",
-        });
+        const errorMsg =
+          data.error ??
+          data.progress?.errors?.[0]?.message ??
+          "Execution failed";
+        setExecuteResult({ success: false, error: errorMsg });
         setExecutionProgress(data.progress ?? null);
-        alert(`❌ Execution failed: ${data.error ?? "Unknown error"}`);
+        alert(`❌ Execution failed: ${errorMsg}`);
       }
     } catch (e) {
       const msg = safeErrorMsg(e);
@@ -430,7 +486,13 @@ function WorkflowsPageInner() {
       <aside className="flex w-72 flex-col border-r border-gray-700 bg-gray-800">
         <div className="border-b border-gray-700 p-4">
           <h2 className="mb-2 text-xl font-bold text-white">Workflow Builder</h2>
-          <p className="text-sm text-gray-400">Drag nodes to canvas</p>
+          <p className="text-sm text-gray-400 mb-3">Drag nodes to canvas</p>
+          <Link
+            href="/apps"
+            className="text-sm text-blue-400 hover:underline"
+          >
+            App Library →
+          </Link>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
@@ -622,7 +684,15 @@ function WorkflowsPageInner() {
               Back to Dashboard
             </Link>
             <div className="h-6 w-px bg-gray-700" />
-            <h1 className="font-semibold text-white">My Workflow</h1>
+            <button
+              onClick={handleNewWorkflow}
+              className="rounded-lg border border-gray-600 bg-gray-700 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-gray-600"
+              aria-label="New Workflow"
+            >
+              New Workflow
+            </button>
+            <div className="h-6 w-px bg-gray-700" />
+            <h1 className="font-semibold text-white">{workflowName}</h1>
           </div>
 
           <div className="flex items-center gap-3">
@@ -671,6 +741,7 @@ function WorkflowsPageInner() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onPaneClick={() => setSelectedNodeId(null)}
             onDrop={onDrop}
             onDragOver={onDragOver}
             nodeTypes={nodeTypes}
@@ -739,7 +810,12 @@ function WorkflowsPageInner() {
                     Agent Type
                   </label>
                   <select
-                    defaultValue={String(selectedNode.data.agentType)}
+                    value={String(selectedNode.data.agentType)}
+                    onChange={(e) =>
+                      onNodeDataChange(selectedNode.id, {
+                        agentType: e.target.value as "research" | "content" | "code" | "deploy",
+                      })
+                    }
                     className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
                   >
                     <option value="research">Research Agent</option>
@@ -748,6 +824,100 @@ function WorkflowsPageInner() {
                     <option value="deploy">Deploy Agent</option>
                   </select>
                 </div>
+              )}
+
+              {selectedNode.data?.agentType === "research" && (
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-400">
+                    Input / Query
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      (selectedNode.data?.input as { query?: string } | undefined)
+                        ?.query ?? ""
+                    }
+                    onChange={(e) =>
+                      onNodeDataChange(selectedNode.id, {
+                        input: {
+                          ...(selectedNode.data?.input as Record<string, unknown> ?? {}),
+                          query: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="e.g. Latest trends in AI"
+                    className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none placeholder:text-gray-500"
+                  />
+                </div>
+              )}
+
+              {selectedNode.data?.type === "Condition" && (
+                <>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-400">
+                      Operator
+                    </label>
+                    <select
+                      value={
+                        (selectedNode.data as { operator?: string }).operator ??
+                        "eq"
+                      }
+                      onChange={(e) =>
+                        onNodeDataChange(selectedNode.id, {
+                          operator: e.target.value,
+                        })
+                      }
+                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                    >
+                      <option value="eq">eq (equals)</option>
+                      <option value="ne">ne (not equals)</option>
+                      <option value="gt">gt (greater than)</option>
+                      <option value="lt">lt (less than)</option>
+                      <option value="gte">gte (≥)</option>
+                      <option value="lte">lte (≤)</option>
+                      <option value="contains">contains</option>
+                      <option value="isEmpty">isEmpty</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-400">
+                      Operand A
+                    </label>
+                    <input
+                      type="text"
+                      value={
+                        (selectedNode.data as { operandA?: string }).operandA ??
+                        ""
+                      }
+                      onChange={(e) =>
+                        onNodeDataChange(selectedNode.id, {
+                          operandA: e.target.value,
+                        })
+                      }
+                      placeholder="{{nodeId_output}} or literal"
+                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none placeholder:text-gray-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-400">
+                      Operand B
+                    </label>
+                    <input
+                      type="text"
+                      value={
+                        (selectedNode.data as { operandB?: string }).operandB ??
+                        ""
+                      }
+                      onChange={(e) =>
+                        onNodeDataChange(selectedNode.id, {
+                          operandB: e.target.value,
+                        })
+                      }
+                      placeholder="literal value"
+                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none placeholder:text-gray-500"
+                    />
+                  </div>
+                </>
               )}
 
               <div className="border-t border-gray-700 pt-4">
@@ -785,7 +955,19 @@ function WorkflowsPageInner() {
               </div>
 
               <div className="pt-4">
-                <button className="w-full rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition-colors hover:bg-red-700">
+                <button
+                  onClick={() => {
+                    setNodes((nds) => nds.filter((n) => n.id !== selectedNode.id));
+                    setEdges((eds) =>
+                      eds.filter(
+                        (e) =>
+                          e.source !== selectedNode.id && e.target !== selectedNode.id
+                      )
+                    );
+                    setSelectedNodeId(null);
+                  }}
+                  className="w-full rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition-colors hover:bg-red-700"
+                >
                   Delete Node
                 </button>
               </div>

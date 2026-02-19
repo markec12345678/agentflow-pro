@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { WorkflowExecutor } from "@/workflows/WorkflowExecutor";
 import { authOptions } from "@/lib/auth-options";
 import { getUserApiKeysForExecution } from "@/lib/user-keys";
+import { getAppBackend } from "@/memory/app-backend";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,8 +11,10 @@ export async function POST(request: NextRequest) {
       nodes: unknown[];
       edges: unknown[];
       context?: Record<string, unknown>;
+      workflowId?: string;
+      workflowName?: string;
     };
-    const { nodes, edges, context } = body;
+    const { nodes, edges, context, workflowId, workflowName } = body;
 
     if (!nodes || !edges) {
       return NextResponse.json(
@@ -44,9 +47,25 @@ export async function POST(request: NextRequest) {
       (context ?? {}) as Record<string, unknown>
     );
 
+    if (progress.status === "completed") {
+      const backend = getAppBackend();
+      const entityName =
+        workflowId ?? progress.workflowId ?? `wf-${Date.now()}`;
+      const obs = [
+        JSON.stringify(progress.results),
+        ...(workflowName ? [`Workflow: ${workflowName}`] : []),
+      ];
+      backend.createEntities([
+        { name: entityName, entityType: "Workflow", observations: obs },
+      ]);
+    }
+
     return NextResponse.json({
       success: progress.status === "completed",
       progress,
+      ...(progress.status === "error" && {
+        error: progress.errors[0]?.message ?? "Execution failed",
+      }),
     });
   } catch (error) {
     return NextResponse.json(

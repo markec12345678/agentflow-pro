@@ -3,7 +3,7 @@
  * Agent coordination, registration, task queue
  */
 
-export type AgentType = "research" | "content" | "code" | "deploy";
+export type AgentType = "research" | "content" | "code" | "deploy" | "personalization" | "image";
 
 export interface Agent {
   id: string;

@@ -7,6 +7,8 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --card-border: 229 231 235;
+  --card-hover: 249 250 251;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,6 +16,8 @@
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
+    --card-border: 55 65 81;
+    --card-hover: 31 41 55;
   }
 }
 
@@ -68,6 +72,7 @@ body {
 
 .react-flow__minimap {
   @apply border border-gray-700;
+  background-color: #1f2937 !important;
 }
 
 /* Mobile Responsive Utilities */
@@ -102,8 +107,10 @@ body {
 
 /* Touch-friendly buttons */
 @media (max-width: 768px) {
+
   button,
   a {
-    min-height: 44px; /* Apple's recommended touch target size */
+    min-height: 44px;
+    /* Apple's recommended touch target size */
   }
 }

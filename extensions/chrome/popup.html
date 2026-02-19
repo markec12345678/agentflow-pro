@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>AgentFlow Pro</title>
+  <style>
+    body {
+      width: 320px;
+      padding: 16px;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+    }
+
+    h1 {
+      font-size: 16px;
+      margin: 0 0 12px 0;
+    }
+
+    input,
+    textarea,
+    button {
+      width: 100%;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      background: #16a34a;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #15803d;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    #output {
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .error {
+      color: #dc2626;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>AgentFlow Pro</h1>
+  <p class="hint">Select text on the page, then use the options below.</p>
+  <label>Topic / prompt</label>
+  <textarea id="topic" rows="2" placeholder="e.g. Turn this into a LinkedIn post"></textarea>
+  <button id="generate">Generate from selection</button>
+  <button id="openApp">Open AgentFlow Pro</button>
+  <div id="output"></div>
+  <script src="popup.js"></script>
+</body>
+
+</html>

@@ -2,6 +2,10 @@
 
 Navodila za lokalni zagon AgentFlow Pro v Cursorju.
 
+**Pred deployem:** Glej [LOCAL-TESTING-BEFORE-DEPLOY.md](./LOCAL-TESTING-BEFORE-DEPLOY.md) za celoten checklist.
+
+**Tourism layer:** Glej [TOURISM-LOCAL-TESTING.md](./TOURISM-LOCAL-TESTING.md) za tourism-specifični checklist.
+
 ---
 
 ## 1. Odpri projekt v Cursorju
@@ -44,9 +48,18 @@ Uredi `.env.local` z ustreznimi keys:
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook – za billing |
 | `GITHUB_TOKEN` | GitHub PAT – za Code Agent |
 | `FIRECRAWL_API_KEY` | Firecrawl – za Research Agent |
-| `CONTEXT7_API_KEY` | Context7 – za Content Agent |
+| `CONTEXT7_API_KEY` | Context7 – za Content Agent (vir: `.env.local`, bere `src/config/env.ts`) |
 
 Minimalni zagon zahteva vsaj: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`.
+
+### Prijava ne deluje – preverjanje okolja
+
+| Preveri | Zahteva |
+|---------|---------|
+| `NEXTAUTH_SECRET` | Nastavljen (npr. `openssl rand -base64 32`) |
+| `NEXTAUTH_URL` | Ujema dejanski URL: `http://localhost:3000` (ne `127.0.0.1`) |
+| `DATABASE_URL` | Pravilen connection string, baza dosegljiva |
+| Migracije | Zagnane: `npm run db:migrate:deploy` ali `npx prisma db push` |
 
 ---
 

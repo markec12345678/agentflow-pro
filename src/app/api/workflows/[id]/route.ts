@@ -12,7 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const w = getWorkflow(id);
+  const w = await getWorkflow(id);
   if (!w) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(w);
 }
@@ -24,7 +24,7 @@ export async function PUT(
   const { id } = await params;
   try {
     const body = (await request.json()) as Workflow;
-    const w = updateWorkflow(id, { ...body, id });
+    const w = await updateWorkflow(id, { ...body, id });
     if (!w) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(w);
   } catch (err) {
@@ -40,7 +40,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const ok = deleteWorkflow(id);
+  const ok = await deleteWorkflow(id);
   if (!ok) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json({ deleted: id });
 }
@@ -51,7 +51,9 @@ export async function POST(
 ) {
   const { id } = await params;
   try {
-    const body = await request.json().catch(() => ({})) as { context?: Record<string, unknown> };
+    const body = await request
+      .json()
+      .catch(() => ({})) as { context?: Record<string, unknown> };
     const result = await runWorkflow(id, body.context);
     return NextResponse.json(result);
   } catch (err) {

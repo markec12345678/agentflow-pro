@@ -32,18 +32,21 @@ Po povezavi: vsak `git push` na `master` sproži nov deploy.
 |----------|------|------------|
 | `DATABASE_URL` | PostgreSQL connection string | Vercel Postgres / Neon / Supabase |
 | `STRIPE_SECRET_KEY` | Live secret key (`sk_live_...`) | [Stripe Dashboard](https://dashboard.stripe.com/apikeys) |
-| `STRIPE_PUBLISHABLE_KEY` | Live publishable key (`pk_live_...`) | Stripe Dashboard |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Enako kot zgoraj | Stripe Dashboard |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Live publishable key (`pk_live_...`) | Stripe Dashboard |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret (`whsec_...`) | Stripe → Developers → Webhooks |
+| `STRIPE_PRICE_PRO` | Price ID za Pro plan | Stripe Dashboard → Products → Pro |
 | `NEXTAUTH_URL` | `https://agentflow-pro-seven.vercel.app` | Production URL |
 | `NEXTAUTH_SECRET` | Random string | `openssl rand -base64 32` |
 | `SENTRY_DSN` | Sentry DSN | [sentry.io](https://sentry.io) → Project Settings |
+| `NEXT_PUBLIC_SENTRY_DSN` | Enako (za client-side error tracking) | Sentry Project Settings |
 | `SENTRY_ORG` | Sentry org slug | Sentry URL |
 | `SENTRY_PROJECT` | Sentry project slug | Sentry URL |
 | `GA_MEASUREMENT_ID` | Google Analytics (G-XXXXXXX) | [GA4](https://analytics.google.com) |
 | `GITHUB_TOKEN` | GitHub PAT za Code Agent | GitHub → Settings → Developer settings |
 | `FIRECRAWL_API_KEY` | Firecrawl API key | [firecrawl.dev](https://firecrawl.dev) |
 | `CONTEXT7_API_KEY` | Context7 API key | context7.com |
+
+**Preveri:** `npm run verify:production-env` (ob vsakem dodajanju env spremenljivk v .env.local)
 
 ---
 
@@ -52,7 +55,6 @@ Po povezavi: vsak `git push` na `master` sproži nov deploy.
 | Variable | Opis |
 |----------|------|
 | `STRIPE_PRICE_STARTER` | Price ID za Starter plan |
-| `STRIPE_PRICE_PRO` | Price ID za Pro plan |
 | `STRIPE_PRICE_ENTERPRISE` | Price ID za Enterprise plan |
 
 ---

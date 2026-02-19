@@ -12,9 +12,15 @@
 - [x] Phase 5: Stripe Monetization (vsi taski)
 - [x] Phase 6: E2E Testing (vsi taski)
 - [x] Phase 7: CI/CD Pipeline
+- [x] Phase 8 deploy prep: predeploy, verify skripti, VERCEL-ENV-CHECKLIST, CI integracija
+- [x] Phase 8: health endpoint (DB check), README, deployment docs
+- [x] Health E2E test
+- [x] Production checklist: GitHub Secrets sekcija
 
 ## Next Steps
-- [ ] Phase 8: MVP Launch
+- [ ] Phase 8: MVP Launch – ročni koraki (database, Stripe, webhooks, Vercel env, GitHub Secrets, redeploy) po [production-launch-checklist.md](../../docs/production-launch-checklist.md)
+
+Phase 8 prep (koda, skripte, docs) je zaključen. Ostanejo samo ročni koraki.
 
 ## Metrics
 - Tasks Complete: 132/155 (85%)

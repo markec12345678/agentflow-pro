@@ -15,7 +15,7 @@ export const test = base.extend<{
     await page.goto("/login");
     await page.getByLabel(/email/i).fill(E2E_USER.email);
     await page.getByLabel(/password/i).fill(E2E_USER.password);
-    await page.getByRole("button", { name: /login|sign in/i }).click();
+    await page.getByRole("button", { name: /^sign in$/i }).click();
     await page.waitForURL("/**");
     await page.context().addInitScript((userId: string) => {
       (window as unknown as { __e2eUserId?: string }).__e2eUserId = userId;

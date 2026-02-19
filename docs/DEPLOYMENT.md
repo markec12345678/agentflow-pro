@@ -3,21 +3,36 @@
 ## Setup
 
 1. Connect the repo to Vercel.
-2. Add environment variables in the Vercel dashboard (see `.env.example` for a list).
+2. Add environment variables in the Vercel dashboard – see [VERCEL-ENV-CHECKLIST.md](./VERCEL-ENV-CHECKLIST.md).
 
-## CI/CD deploy workflow
+## Deploy workflow
 
-The deploy workflow (`.github/workflows/deploy.yml`) runs on push to `main` and deploys to Vercel.
+The deploy workflow (`.github/workflows/deploy.yml`) runs **manually** (workflow_dispatch), not on push.
 
-### Required secrets
+**Koraki:** Verify production env → Build → Deploy to Vercel → Post-deploy health check.
+
+**Pred ročnim deployem (lokalno):** Zaženi `npm run predeploy` (ali `npm run predeploy -- --skip-e2e` za hitrejši prehod). Deploy workflow vključuje korak "Verify production env" – zahteva vse required secrets.
+
+## Required GitHub Secrets
 
 Add these in **Settings → Secrets and variables → Actions**:
 
+**Vercel:**
 - `VERCEL_TOKEN` – From [Vercel Account Settings → Tokens](https://vercel.com/account/tokens)
 - `VERCEL_ORG_ID` – From project settings → General
 - `VERCEL_PROJECT_ID` – From project settings → General
-- `DATABASE_URL`, `STRIPE_*`, `NEXTAUTH_*`, etc. – Same as Vercel env vars
+
+**App:**
+- `DATABASE_URL`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- `STRIPE_PRICE_PRO`
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
 
 ## Post-deploy verification
 
 After deploy, the workflow runs `scripts/post-deploy.sh` against the deployment URL. It checks `/api/health`, which returns `{ ok: true }`.
+
+Za popolno production konfiguracijo glej [production-launch-checklist.md](./production-launch-checklist.md) in [VERCEL-ENV-CHECKLIST.md](./VERCEL-ENV-CHECKLIST.md).

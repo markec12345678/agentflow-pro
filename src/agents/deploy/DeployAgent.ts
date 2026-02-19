@@ -4,6 +4,7 @@
  */
 
 import type { Agent } from "../../orchestrator/Orchestrator";
+import { mockMode } from "@/lib/mock-mode";
 import {
   executeDeploy,
   getDeployStatus,
@@ -59,6 +60,14 @@ export function createDeployAgent(config?: {
         status: undefined,
         envVars: undefined,
       };
+
+      if (mockMode) {
+        return {
+          deployUrl: "https://mock-deploy.vercel.app",
+          status: "ready",
+          envVars: { MOCK: "true" },
+        };
+      }
 
       const hasToken =
         (platform === "vercel" && vercelToken && (projectId ?? siteId)) ||

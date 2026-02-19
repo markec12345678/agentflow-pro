@@ -10,7 +10,7 @@ import { createDeployAgent } from "@/agents/deploy/DeployAgent";
 import {
   getContext7ApiKey,
   getFirecrawlApiKey,
-  getBraveApiKey,
+  getSerpApiKey,
   getOpenAiApiKey,
 } from "@/config/env";
 
@@ -19,7 +19,7 @@ export function getOrchestrator(
 ): Orchestrator {
   const k = userApiKeys ?? {};
   const firecrawlKey = k.firecrawl ?? getFirecrawlApiKey();
-  const braveKey = k.brave ?? getBraveApiKey();
+  const serpApiKey = k.serpapi ?? getSerpApiKey();
   const context7Key = k.context7 ?? getContext7ApiKey();
   const openaiKey = k.openai ?? getOpenAiApiKey();
   const githubToken = k.github ?? (process.env.GITHUB_TOKEN ?? "");
@@ -27,7 +27,7 @@ export function getOrchestrator(
   const netlifyToken = k.netlify ?? (process.env.NETLIFY_TOKEN ?? "");
 
   const orch = new Orchestrator();
-  orch.registerAgent(createResearchAgent({ firecrawlKey, braveKey }));
+  orch.registerAgent(createResearchAgent({ firecrawlKey, serpApiKey }));
   orch.registerAgent(createContentAgent({ context7Key }));
   orch.registerAgent(createCodeAgent({ githubToken, openaiKey }));
   orch.registerAgent(

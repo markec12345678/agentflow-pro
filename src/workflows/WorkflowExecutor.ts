@@ -5,6 +5,7 @@
 import { Orchestrator } from "@/orchestrator/Orchestrator";
 import { getOrchestrator } from "@/lib/orchestrator-factory";
 import { evaluateCondition as evaluateConditionFromLib, getNextBranch } from "./conditions";
+import { retryWithBackoff } from "./error-handler";
 import type { ConditionOperator } from "./nodes";
 
 export interface WorkflowNode {
@@ -181,28 +182,38 @@ export class WorkflowExecutor {
           const agentInput =
             (node.data?.input as Record<string, unknown>) ??
             (input != null && typeof input === "object" ? input : { input });
-          const taskId = await this.orchestrator.queueTask(
-            normalizedAgent,
-            agentInput
-          );
-          const maxWait = 30000;
-          const start = Date.now();
-          while (Date.now() - start < maxWait) {
-            const t = this.orchestrator.getTask(taskId);
-            if (t?.status === "completed") {
-              return {
-                nodeId: node.id,
-                status: "success",
-                output: t.result,
-                timestamp: new Date().toISOString(),
-              };
+
+          const runAgent = async (): Promise<unknown> => {
+            const taskId = await this.orchestrator.queueTask(
+              normalizedAgent,
+              agentInput
+            );
+            const maxWait = 30000;
+            const start = Date.now();
+            while (Date.now() - start < maxWait) {
+              const t = this.orchestrator.getTask(taskId);
+              if (t?.status === "completed") {
+                return t.result;
+              }
+              if (t?.status === "failed") {
+                throw new Error(t.error ?? "Agent failed");
+              }
+              await new Promise((r) => setTimeout(r, 100));
             }
-            if (t?.status === "failed") {
-              throw new Error(t.error ?? "Agent failed");
-            }
-            await new Promise((r) => setTimeout(r, 100));
-          }
-          throw new Error("Agent execution timeout");
+            throw new Error("Agent execution timeout");
+          };
+
+          const output = await retryWithBackoff(runAgent, {
+            maxRetries: 3,
+            initialDelayMs: 1000,
+          });
+
+          return {
+            nodeId: node.id,
+            status: "success",
+            output,
+            timestamp: new Date().toISOString(),
+          };
         }
 
         case "Condition": {

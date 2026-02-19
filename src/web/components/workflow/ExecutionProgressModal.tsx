@@ -21,7 +21,10 @@ export function ExecutionProgressModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      data-testid="execution-modal"
+    >
       <div className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-gray-800 shadow-xl">
         <div className="flex items-center justify-between border-b border-gray-700 px-6 py-4">
           <h2 className="text-lg font-semibold text-white">
@@ -31,20 +34,31 @@ export function ExecutionProgressModal({
             onClick={onClose}
             className="rounded-lg px-3 py-1.5 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
             aria-label="Close"
+            data-testid="close-modal"
           >
             ✕
           </button>
         </div>
         <div className="max-h-[70vh] overflow-y-auto p-6">
+          {/* Progress bar */}
+          <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-gray-700">
+            <div
+              className="h-full bg-blue-600 transition-all duration-300"
+              style={{
+                width: `${progress.totalSteps > 0
+                  ? (progress.currentStep / progress.totalSteps) * 100
+                  : 0}%`,
+              }}
+            />
+          </div>
           <div className="mb-4 flex items-center gap-3">
             <span
-              className={`rounded-full px-3 py-1 text-sm font-medium ${
-                progress.status === "completed"
-                  ? "bg-green-900/50 text-green-400"
-                  : progress.status === "error"
-                    ? "bg-red-900/50 text-red-400"
-                    : "bg-gray-700 text-gray-400"
-              }`}
+              className={`rounded-full px-3 py-1 text-sm font-medium ${progress.status === "completed"
+                ? "bg-green-900/50 text-green-400"
+                : progress.status === "error"
+                  ? "bg-red-900/50 text-red-400"
+                  : "bg-gray-700 text-gray-400"
+                }`}
             >
               {progress.status}
             </span>
@@ -78,9 +92,8 @@ export function ExecutionProgressModal({
             {progress.results.map((r, idx) => (
               <li
                 key={`${r.nodeId}-${idx}`}
-                className={`flex items-start gap-2 rounded-lg px-3 py-2 ${
-                  r.status === "success" ? "bg-gray-700/50" : "bg-red-900/30"
-                }`}
+                className={`flex items-start gap-2 rounded-lg px-3 py-2 ${r.status === "success" ? "bg-gray-700/50" : "bg-red-900/30"
+                  }`}
               >
                 <span
                   className={

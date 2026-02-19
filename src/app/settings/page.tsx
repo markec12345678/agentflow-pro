@@ -1,0 +1,405 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+
+const PROVIDERS = [
+  { key: "firecrawl", label: "Firecrawl", placeholder: "fc_...", href: "https://firecrawl.dev" },
+  { key: "context7", label: "Context7", placeholder: "ctx7sk_...", href: "https://context7.com" },
+  { key: "serpapi", label: "SerpAPI", placeholder: "Get key at serpapi.com/manage-api-key", href: "https://serpapi.com/manage-api-key" },
+  { key: "openai", label: "OpenAI", placeholder: "sk-...", href: "https://platform.openai.com/api-keys" },
+  { key: "github", label: "GitHub", placeholder: "ghp_...", href: "https://github.com/settings/tokens" },
+  { key: "vercel", label: "Vercel", placeholder: "...", href: "https://vercel.com/account/tokens" },
+  { key: "netlify", label: "Netlify", placeholder: "nfp_...", href: "https://app.netlify.com/user/applications#personal-access-tokens" },
+  { key: "mailchimp", label: "Mailchimp", placeholder: "xxx-us19 (API key + datacenter)", href: "https://mailchimp.com/help/about-api-keys" },
+] as const;
+
+export default function SettingsPage() {
+  const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
+  const [keys, setKeys] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [connections, setConnections] = useState<{ linkedin: boolean; twitter: boolean; hubspot: boolean }>({
+    linkedin: false,
+    twitter: false,
+    hubspot: false,
+  });
+  const [companyKnowledge, setCompanyKnowledge] = useState({
+    products: "",
+    competitors: "",
+    keyFacts: "",
+  });
+  const [companyKnowledgeSaving, setCompanyKnowledgeSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const linkedin = searchParams.get("linkedin");
+    const twitter = searchParams.get("twitter");
+    const hubspot = searchParams.get("hubspot");
+    const err = searchParams.get("error");
+    if (linkedin === "ok") setMessage("LinkedIn connected successfully.");
+    if (twitter === "ok") setMessage("Twitter connected successfully.");
+    if (hubspot === "ok") setMessage("HubSpot connected successfully.");
+    if (err) setMessage(`Connection error: ${err}`);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      window.location.href = "/login";
+      return;
+    }
+    if (status !== "authenticated") return;
+
+    Promise.all([
+      fetch("/api/user/keys").then((r) => r.json()),
+      fetch("/api/auth/connections").then((r) => r.json()),
+      fetch("/api/onboarding").then((r) => r.json()),
+    ])
+      .then(([keysData, connData, onboardingData]) => {
+        if (!keysData.error) {
+          setKeys(keysData);
+          setFormData({});
+        }
+        if (!connData.error) setConnections({
+          linkedin: connData.linkedin ?? false,
+          twitter: connData.twitter ?? false,
+          hubspot: connData.hubspot ?? false,
+        });
+        if (!onboardingData.error && onboardingData.onboarding?.company_knowledge) {
+          const ck = onboardingData.onboarding.company_knowledge;
+          setCompanyKnowledge({
+            products: Array.isArray(ck.products) ? ck.products.join("\n") : "",
+            competitors: Array.isArray(ck.competitors) ? ck.competitors.join("\n") : "",
+            keyFacts: Array.isArray(ck.keyFacts) ? ck.keyFacts.join("\n") : "",
+          });
+        }
+      })
+      .catch(() => { })
+      .finally(() => setLoading(false));
+  }, [status]);
+
+  const handleDisconnect = async (provider: "linkedin" | "twitter" | "hubspot") => {
+    const res = await fetch(`/api/auth/connections?provider=${provider}`, { method: "DELETE" });
+    if (res.ok) setConnections((c) => ({ ...c, [provider]: false }));
+  };
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setMessage(null);
+    setSaving(true);
+    try {
+      const body: Record<string, string> = {};
+      for (const p of PROVIDERS) {
+        const v = formData[p.key]?.trim();
+        if (v && !v.includes("*")) body[p.key] = v;
+      }
+      const res = await fetch("/api/user/keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data.error ?? "Failed to save");
+        return;
+      }
+      setMessage("API keys saved. Your workflows will use these keys.");
+      const refetch = await fetch("/api/user/keys");
+      const refreshed = await refetch.json();
+      if (!refreshed.error) setKeys(refreshed);
+    } catch {
+      setMessage("Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (status === "loading" || loading) {
+    return (
+      <div className="min-h-screen bg-gray-900">
+        <div className="flex min-h-[50vh] items-center justify-center">
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-900">
+      <div className="mx-auto max-w-2xl px-4 py-12">
+        <Link
+          href="/dashboard"
+          className="mb-6 inline-block text-gray-400 transition-colors hover:text-white"
+        >
+          ← Back to Dashboard
+        </Link>
+        <h1 className="mb-2 text-3xl font-bold text-white">Settings</h1>
+        <p className="mb-6 text-gray-400">
+          Add your own API keys. Your workflows will use these keys instead of
+          platform defaults. Keys are stored securely and never shared.
+        </p>
+        <div className="mb-8 flex gap-4 flex-wrap">
+          <Link
+            href="/pricing"
+            className="inline-block rounded-lg border border-indigo-500 px-4 py-2 text-indigo-400 transition-colors hover:bg-indigo-500/10"
+            aria-label="Manage billing and subscription"
+          >
+            Billing / Subscription →
+          </Link>
+          <Link
+            href="/settings/api-keys"
+            className="inline-block rounded-lg border border-blue-500 px-4 py-2 text-blue-400 transition-colors hover:bg-blue-500/10"
+          >
+            API Keys (BYOK) – alternate view →
+          </Link>
+          <Link
+            href="/settings/public-api"
+            className="inline-block rounded-lg border border-green-500 px-4 py-2 text-green-400 transition-colors hover:bg-green-500/10"
+          >
+            Public API Keys →
+          </Link>
+          <Link
+            href="/settings/audit"
+            className="inline-block rounded-lg border border-gray-600 px-4 py-2 text-gray-300 transition-colors hover:bg-gray-700"
+          >
+            AI Audit Logs →
+          </Link>
+          <Link
+            href="/settings/teams"
+            className="inline-block rounded-lg border border-purple-500 px-4 py-2 text-purple-400 transition-colors hover:bg-purple-500/10"
+          >
+            Teams →
+          </Link>
+          <Link
+            href="/admin"
+            className="inline-block rounded-lg border border-amber-600 px-4 py-2 text-amber-400 transition-colors hover:bg-amber-600/10"
+          >
+            Admin →
+          </Link>
+        </div>
+
+        <h2 className="mb-4 text-xl font-semibold text-white">Publish Connections</h2>
+        <div className="mb-8 space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-gray-700 bg-gray-800 p-4">
+            <span className="text-white">LinkedIn</span>
+            {connections.linkedin ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-green-400">Connected</span>
+                <button
+                  type="button"
+                  onClick={() => handleDisconnect("linkedin")}
+                  className="text-sm text-red-400 hover:text-red-300"
+                >
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/api/auth/linkedin/connect"
+                className="rounded-lg bg-[#0a66c2] px-4 py-2 text-sm font-medium text-white hover:bg-[#004182]"
+              >
+                Connect LinkedIn
+              </Link>
+            )}
+          </div>
+          <div className="flex items-center justify-between rounded-lg border border-gray-700 bg-gray-800 p-4">
+            <span className="text-white">Twitter/X</span>
+            {connections.twitter ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-green-400">Connected</span>
+                <button
+                  type="button"
+                  onClick={() => handleDisconnect("twitter")}
+                  className="text-sm text-red-400 hover:text-red-300"
+                >
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/api/auth/twitter/connect"
+                className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+              >
+                Connect Twitter
+              </Link>
+            )}
+          </div>
+          <div className="flex items-center justify-between rounded-lg border border-gray-700 bg-gray-800 p-4">
+            <span className="text-white">HubSpot</span>
+            {connections.hubspot ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-green-400">Connected</span>
+                <button
+                  type="button"
+                  onClick={() => handleDisconnect("hubspot")}
+                  className="text-sm text-red-400 hover:text-red-300"
+                >
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/api/auth/hubspot/connect"
+                className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
+              >
+                Connect HubSpot
+              </Link>
+            )}
+          </div>
+        </div>
+
+        <h2 className="mb-4 text-xl font-semibold text-white">Company Knowledge</h2>
+        <p className="mb-4 text-gray-400">
+          Products, competitors, and key facts used when generating content. One item per line or comma-separated.
+        </p>
+        <div className="mb-8 space-y-4 rounded-lg border border-gray-700 bg-gray-800 p-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-white">Products</label>
+            <textarea
+              value={companyKnowledge.products}
+              onChange={(e) =>
+                setCompanyKnowledge((prev) => ({ ...prev, products: e.target.value }))
+              }
+              rows={3}
+              placeholder="Product A, Product B, Product C"
+              className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-white">Competitors</label>
+            <textarea
+              value={companyKnowledge.competitors}
+              onChange={(e) =>
+                setCompanyKnowledge((prev) => ({ ...prev, competitors: e.target.value }))
+              }
+              rows={3}
+              placeholder="Competitor A, Competitor B"
+              className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-white">Key Facts</label>
+            <textarea
+              value={companyKnowledge.keyFacts}
+              onChange={(e) =>
+                setCompanyKnowledge((prev) => ({ ...prev, keyFacts: e.target.value }))
+              }
+              rows={3}
+              placeholder="Founded 2020, HQ in Berlin"
+              className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <button
+            type="button"
+            disabled={companyKnowledgeSaving}
+            onClick={async () => {
+              setMessage(null);
+              setCompanyKnowledgeSaving(true);
+              try {
+                const parse = (s: string) =>
+                  s
+                    .split(/[\n,]+/)
+                    .map((x) => x.trim())
+                    .filter(Boolean);
+                const res = await fetch("/api/onboarding", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    company_knowledge: {
+                      products: parse(companyKnowledge.products),
+                      competitors: parse(companyKnowledge.competitors),
+                      keyFacts: parse(companyKnowledge.keyFacts),
+                    },
+                  }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                  setMessage(data.error ?? "Failed to save company knowledge");
+                  return;
+                }
+                setMessage("Company knowledge saved.");
+              } catch {
+                setMessage("Failed to save company knowledge");
+              } finally {
+                setCompanyKnowledgeSaving(false);
+              }
+            }}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {companyKnowledgeSaving ? "Saving..." : "Save Company Knowledge"}
+          </button>
+        </div>
+
+        <h2 className="mb-4 text-xl font-semibold text-white">All API Keys</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {PROVIDERS.map(({ key, label, placeholder, href }) => (
+            <div
+              key={key}
+              className="rounded-lg border border-gray-700 bg-gray-800 p-4"
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <label
+                  htmlFor={key}
+                  className="block text-sm font-medium text-white"
+                >
+                  {label}
+                </label>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-400 hover:text-blue-300"
+                >
+                  Get key →
+                </a>
+              </div>
+              <input
+                id={key}
+                type="password"
+                value={formData[key] ?? ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, [key]: e.target.value }))
+                }
+                placeholder={keys[key] ? "••••••••" : placeholder}
+                className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                autoComplete="off"
+              />
+              {keys[key] && (
+                <p className="mt-1 text-xs text-gray-500">Current: {keys[key]}</p>
+              )}
+            </div>
+          ))}
+
+          {message && (
+            <p
+              className={
+                message.includes("saved") || message.includes("successfully")
+                  ? "text-green-500"
+                  : "text-red-500"
+              }
+            >
+              {message}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Save API Keys"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

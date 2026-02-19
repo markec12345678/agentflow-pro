@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>AgentFlow Pro - Options</title>
+  <style>
+    body {
+      font-family: system-ui;
+      padding: 24px;
+      max-width: 480px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 8px 16px;
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>AgentFlow Pro Extension</h1>
+  <label>API Base URL</label>
+  <input id="apiBase" placeholder="https://agentflow-pro-seven.vercel.app" />
+  <p class="hint">Your AgentFlow Pro instance URL (no trailing slash)</p>
+  <label>API Key</label>
+  <input id="apiKey" type="password" placeholder="Your API key from Settings → Public API" />
+  <p class="hint">Create an API key in AgentFlow Pro → Settings → Public API</p>
+  <button id="save">Save</button>
+  <script src="options.js"></script>
+</body>
+
+</html>

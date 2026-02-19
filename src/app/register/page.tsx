@@ -34,7 +34,7 @@ export default function RegisterPage() {
         setError("Account created but sign in failed. Please try logging in.");
         return;
       }
-      window.location.href = "/";
+      window.location.href = "/onboarding";
     } catch {
       setError("Registration failed");
     } finally {

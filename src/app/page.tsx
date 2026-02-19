@@ -1,70 +1,241 @@
 "use client";
 
 import Link from "next/link";
+import { CASE_STUDIES } from "@/data/case-studies";
+import { SOLUTIONS, INDUSTRIES } from "@/data/solutions";
 
 export default function HomePage() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl" />
-        </div>
-
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            Automate Your Business with{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-              AI Agents
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 py-24 lg:py-32">
+        <div className="container mx-auto px-4 text-center">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-sm font-medium text-white/90">
+              Specialized for Tourism & Hospitality
             </span>
-          </h1>
-
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Build custom workflows with 4 intelligent agents. Research, Content,
-            Code, and Deploy – all in one platform. Ship in hours, not weeks.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link
-              href="/workflows"
-              className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
-            >
-              Start Building Free
-            </Link>
-            <Link
-              href="/pricing"
-              className="bg-gray-800 hover:bg-gray-700 text-white text-lg px-8 py-4 rounded-lg font-semibold transition-all border border-gray-600"
-            >
-              View Pricing
-            </Link>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-white">4</p>
-              <p className="text-gray-400">AI Agents</p>
+          <h1 className="mb-6 text-4xl font-bold leading-tight text-white md:text-6xl">
+            Generate{" "}
+            <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              booking descriptions
+            </span>
+            , destination guides, and campaigns — in seconds.
+          </h1>
+
+          <p className="mx-auto mb-10 max-w-3xl text-lg text-blue-100 md:text-xl">
+            AI content that drives direct reservations. Multi-language, SEO-optimized, brand-consistent.
+          </p>
+
+          <div className="mb-12 flex flex-col justify-center gap-4 sm:flex-row">
+            <Link
+              href="/onboarding"
+              className="group flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-400 px-8 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+            >
+              Start Free Trial
+              <svg
+                className="h-5 w-5 transition-transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+            <button
+              type="button"
+              onClick={() =>
+                document.getElementById("demo-video")?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="rounded-xl border border-white/30 bg-white/10 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+            >
+              Watch 90-sec Demo
+            </button>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-blue-200">
+            <span className="flex items-center gap-2">
+              <span className="text-emerald-400">✓</span> SL, EN, DE, IT, HR
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-emerald-400">✓</span> SEO-optimized
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-emerald-400">✓</span> No credit card required
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Zakaj AgentFlow Pro? */}
+      <section className="py-12 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+            Zakaj AgentFlow Pro?
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">4</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">AI Agents</div>
             </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-white">100%</p>
-              <p className="text-gray-400">Test Coverage</p>
+            <div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">100%</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Test Coverage</div>
             </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-white">24h</p>
-              <p className="text-gray-400">MVP Build</p>
+            <div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">24h</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">MVP Build</div>
             </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-white">$40K+</p>
-              <p className="text-gray-400">MRR Potential</p>
+            <div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">$40K+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">MRR Potential</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Demo Video Placeholder */}
+      <section id="demo-video" className="py-8 px-4 bg-gray-50 dark:bg-gray-800/50">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-gray-500 dark:text-gray-400">Demo video – Coming soon</p>
+        </div>
+      </section>
+
+      {/* Two Ways Section */}
       <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
+        <h2 className="text-4xl font-bold text-center mb-12">
+          Two Ways to Use AgentFlow Pro
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          {/* Simple Mode */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg border-2 border-green-500">
+            <div className="text-4xl mb-4">🟢</div>
+            <h3 className="text-2xl font-bold mb-4">Simple Mode</h3>
+            <ul className="space-y-3 text-gray-700 dark:text-gray-300">
+              <li className="flex items-start gap-2">
+                <span>✅</span>
+                <span>One-click content generation</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span>✅</span>
+                <span>No configuration needed</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span>✅</span>
+                <span>Perfect for beginners</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span>✅</span>
+                <span>Get results in minutes</span>
+              </li>
+            </ul>
+            <Link
+              href="/generate"
+              className="mt-6 block text-center bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold"
+            >
+              Try Simple Mode →
+            </Link>
+          </div>
+
+          {/* Advanced Mode */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg border-2 border-blue-500">
+            <div className="text-4xl mb-4">🔵</div>
+            <h3 className="text-2xl font-bold mb-4">Advanced Mode</h3>
+            <ul className="space-y-3 text-gray-700 dark:text-gray-300">
+              <li className="flex items-start gap-2">
+                <span>✅</span>
+                <span>Visual workflow builder</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span>✅</span>
+                <span>Custom AI agent configuration</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span>✅</span>
+                <span>Export/Import workflows</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span>✅</span>
+                <span>Full control & flexibility</span>
+              </li>
+            </ul>
+            <Link
+              href="/workflows"
+              className="mt-6 block text-center bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
+            >
+              Try Advanced Mode →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Customer Stories / Case Studies */}
+      <section className="py-20 px-4 bg-white dark:bg-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4">
+            Customer Stories
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+            See how teams use AgentFlow Pro to scale their content without
+            scaling headcount.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {CASE_STUDIES.map((study, i) => {
+              const colorClasses = [
+                "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
+                "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400",
+                "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400",
+              ];
+              const cls = colorClasses[i % 3];
+              return (
+                <div
+                  key={study.id}
+                  className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700"
+                >
+                  <div
+                    className={`w-12 h-12 rounded-lg flex items-center justify-center text-xl font-bold mb-4 ${cls}`}
+                  >
+                    {study.company.charAt(0)}
+                  </div>
+                  <blockquote className="text-gray-700 dark:text-gray-300 mb-4 line-clamp-4">
+                    &quot;{study.quote}&quot;
+                  </blockquote>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {study.company}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {study.role}
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
+                    {study.metric} {study.metricLabel}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Link
+              href="/stories"
+              className="inline-block text-blue-600 hover:underline dark:text-blue-400 font-medium"
+            >
+              Read full case studies →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-4">
             4 AI Agents at Your Service
@@ -87,7 +258,7 @@ export default function HomePage() {
                   Firecrawl
                 </span>
                 <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
-                  Brave Search
+                  SerpAPI
                 </span>
               </div>
             </div>
@@ -188,6 +359,76 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Solutions by Role */}
+      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4">
+            Solutions by Role
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+            AgentFlow Pro tailors to your role. Pick your path.
+          </p>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {SOLUTIONS.map((solution) => (
+              <Link
+                key={solution.id}
+                href={`/solutions/${solution.id}`}
+                className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-200 dark:border-gray-700 block"
+              >
+                {solution.icon && (
+                  <span className="text-2xl mb-2 block">{solution.icon}</span>
+                )}
+                <h3 className="text-xl font-bold dark:text-white mb-2">
+                  {solution.name}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                  {solution.cardDescription ?? solution.description}
+                </p>
+                <span className="text-blue-600 dark:text-blue-400 font-medium">
+                  Learn more →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Solutions by Industry */}
+      <section className="py-20 px-4 bg-white dark:bg-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4">
+            Solutions by Industry
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+            AgentFlow Pro adapts to your industry. Tourism, hotels, DMOs, tech, e-commerce.
+          </p>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {INDUSTRIES.map((industry) => (
+              <Link
+                key={industry.id}
+                href={`/solutions/industry/${industry.id}`}
+                className="rounded-xl bg-gray-50 dark:bg-gray-900 p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-200 dark:border-gray-700 block"
+              >
+                <span className="text-2xl mb-2 block">
+                  {industry.icon ?? "📌"}
+                </span>
+                <h3 className="text-lg font-bold dark:text-white mb-2">
+                  {industry.name}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  {industry.cardDescription ?? industry.description}
+                </p>
+                <span className="text-blue-600 dark:text-blue-400 font-medium text-sm mt-2 inline-block">
+                  Learn more →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-blue-900 to-purple-900">
         <div className="max-w-4xl mx-auto text-center">
@@ -198,7 +439,7 @@ export default function HomePage() {
             Join the future of AI-powered business automation.
           </p>
           <Link
-            href="/register"
+            href="/onboarding"
             className="bg-white text-blue-900 hover:bg-gray-100 text-lg px-8 py-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg inline-block"
           >
             Get Started Free

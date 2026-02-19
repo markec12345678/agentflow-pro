@@ -9,6 +9,7 @@ export interface Plan {
   name: string;
   priceMonthly: number;
   agentRunsLimit: number;
+  blogPostsLimit: number;
 }
 
 const PRICE_ENV_KEYS: Record<PlanId, string> = {
@@ -23,26 +24,35 @@ export const PLANS: Record<PlanId, Plan> = {
     name: "Starter",
     priceMonthly: 29,
     agentRunsLimit: 100,
+    blogPostsLimit: 3,
   },
   pro: {
     id: "pro",
     name: "Pro",
     priceMonthly: 99,
     agentRunsLimit: 500,
+    blogPostsLimit: 10,
   },
   enterprise: {
     id: "enterprise",
     name: "Enterprise",
     priceMonthly: 499,
     agentRunsLimit: 5000,
+    blogPostsLimit: 999,
   },
 };
 
-export function getPlanLimits(planId: PlanId): { agentRunsLimit: number } {
+export function getPlanLimits(planId: PlanId): {
+  agentRunsLimit: number;
+  blogPostsLimit: number;
+} {
   const plan = PLANS[planId];
   return plan
-    ? { agentRunsLimit: plan.agentRunsLimit }
-    : { agentRunsLimit: 100 };
+    ? {
+        agentRunsLimit: plan.agentRunsLimit,
+        blogPostsLimit: plan.blogPostsLimit,
+      }
+    : { agentRunsLimit: 100, blogPostsLimit: 3 };
 }
 
 export function getStripePriceId(planId: PlanId): string | undefined {

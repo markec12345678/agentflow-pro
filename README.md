@@ -1,8 +1,23 @@
 # AgentFlow Pro
 
-Multi-Agent AI Platform za business avtomatizacijo. Zgrajen z 4 AI agenti (Research, Content, Code, Deploy), visual workflow builderjem in Stripe monetizacijo.
+AI Content Platform for Tourism & Hospitality. Generate destination guides, hotel copy, and travel campaigns with multi-agent AI. Built for hotels, DMOs, and tour operators.
 
 **Production:** https://agentflow-pro-seven.vercel.app
+
+---
+
+## Tourism Hub
+
+AI za turizem in gostinstvo – vodiči destinacij, hotelni tekst, kampanje, večjezični prevodi. Namenjeno hotelom, DMO in turističnim agencijam.
+
+**Funkcije:**
+- **Content Generator** – Booking.com, Airbnb, Vodič, Sezonska kampanja, Instagram (prompti + spremenljivke)
+- **Email Workflow** – Welcome, Follow-up, Sezonska emaili za goste
+- **Landing Page** – Generator z predlogami (Standard, Luksuz, Družinski)
+- **Multi-Language** – Batch prevod v SL, EN, DE, IT, HR
+- **SEO Dashboard** – sledenje ključnim besedam, Optimiziraj z AI
+
+→ [Uporabniški vodič](docs/TOURISM-USER-GUIDE.md) · [API dokumentacija](docs/TOURISM-API.md) · [Lokalno testiranje](docs/TOURISM-LOCAL-TESTING.md)
 
 ---
 
@@ -27,6 +42,16 @@ Multi-Agent AI Platform za business avtomatizacijo. Zgrajen z 4 AI agenti (Resea
 - Webhook handling
 - Subscription management
 - Usage tracking & limits
+
+### Content Pipeline & App Library
+- Content Pipeline (Kanban) – Draft → Review → Published with bulk actions
+- App Library – Ready-made workflow templates (Content Pipeline, Research Brief, Full Stack, Conditional)
+- GEO/AEO in Optimize modal – Generative Engine and Answer Engine optimization
+
+### Chrome Extension
+- Manifest v3 extension in `extensions/chrome`
+- Select text on any page, generate content via AgentFlow Pro API
+- See `extensions/chrome/README.md` for setup
 
 ### Testing
 - 58 unit tests (100% passing)
@@ -82,9 +107,13 @@ Open http://localhost:3000
 - [LOCAL-TESTING](docs/LOCAL-TESTING.md) – kako testirati lokalno
 - [CONTRIBUTING](docs/CONTRIBUTING.md) – development setup
 - [DEPLOYMENT](docs/DEPLOYMENT.md) – deployment guide
+- [GO-LIVE](docs/GO-LIVE.md) – hitri pregled launch korakov
+- [PRODUCTION-LAUNCH-CHECKLIST](docs/production-launch-checklist.md) – production konfiguracija
 - [PROJECT-STRUCTURE](docs/PROJECT-STRUCTURE.md) – struktura projekta
 - [STRIPE-SETUP](docs/STRIPE-SETUP.md) – Stripe konfiguracija
 - [VERCEL-ENV-CHECKLIST](docs/VERCEL-ENV-CHECKLIST.md) – Vercel env vars
+- [SUPPORT-CHANNELS](docs/support-channels.md) – support kontakt
+- [JASPER-GAP-ANALYSIS](docs/JASPER-GAP-ANALYSIS.md) – primerjava z Jasper, gap analiza
 
 ---
 

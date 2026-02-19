@@ -28,6 +28,19 @@ export default function DocsPage() {
           </section>
 
           <section className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800">
+            <h2 className="mb-4 text-2xl font-bold">App Library</h2>
+            <p className="mb-4 text-gray-600 dark:text-gray-400">
+              Ready-made workflow templates. Install Content Pipeline, Research Brief, or Full Stack Automation.
+            </p>
+            <Link
+              href="/apps"
+              className="inline-block rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 mb-6"
+            >
+              Browse Apps →
+            </Link>
+          </section>
+
+          <section className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800">
             <h2 className="mb-4 text-2xl font-bold">AI Agents</h2>
             <p className="mb-4 text-gray-600 dark:text-gray-400">
               Research, Content, Code, and Deploy agents. Each specializes in
@@ -38,6 +51,33 @@ export default function DocsPage() {
               className="inline-block rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
             >
               View Dashboard →
+            </Link>
+          </section>
+
+          <section className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800">
+            <h2 className="mb-4 text-2xl font-bold">Customer Stories</h2>
+            <p className="mb-4 text-gray-600 dark:text-gray-400">
+              Real case studies from SaaS, agencies, and tech startups. See how
+              teams scale content with AgentFlow Pro.
+            </p>
+            <Link
+              href="/stories"
+              className="inline-block rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 mb-6"
+            >
+              Case Studies →
+            </Link>
+          </section>
+
+          <section className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800">
+            <h2 className="mb-4 text-2xl font-bold">Public API</h2>
+            <p className="mb-4 text-gray-600 dark:text-gray-400">
+              Generate content from external systems. Use API keys for authentication.
+            </p>
+            <Link
+              href="/docs/api"
+              className="inline-block rounded-lg bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700 mb-6"
+            >
+              API Documentation →
             </Link>
           </section>
 

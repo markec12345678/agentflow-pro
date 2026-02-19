@@ -1,0 +1,94 @@
+/**
+ * Content Export API integration tests
+ */
+import { NextRequest } from "next/server";
+
+const mockGetServerSession = jest.fn();
+const mockBlogPostFindMany = jest.fn();
+
+jest.mock("next-auth", () => ({
+  getServerSession: () => mockGetServerSession(),
+}));
+
+jest.mock("@/database/schema", () => ({
+  prisma: {
+    blogPost: {
+      findMany: (...args: unknown[]) => mockBlogPostFindMany(...args),
+    },
+  },
+}));
+
+async function importHandler() {
+  const mod = await import("@/app/api/content/export/route");
+  return mod.GET;
+}
+
+describe("GET /api/content/export", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockBlogPostFindMany.mockResolvedValue([
+      {
+        id: "post-1",
+        title: "Test Post",
+        topic: "Testing",
+        fullContent: "# Test\n\nContent here.",
+        metaTitle: "Test Post",
+        metaDescription: "A test post",
+        createdAt: new Date("2025-01-01T00:00:00Z"),
+      },
+    ]);
+  });
+
+  it("returns 401 when not authenticated", async () => {
+    mockGetServerSession.mockResolvedValue(null);
+
+    const req = new NextRequest("http://localhost/api/content/export");
+    const handler = await importHandler();
+    const res = await handler(req);
+
+    expect(res.status).toBe(401);
+    const json = await res.json();
+    expect(json.error).toContain("Authentication");
+  });
+
+  it("returns 200 with markdown format, Content-Type text/markdown, .md filename", async () => {
+    mockGetServerSession.mockResolvedValue({
+      user: { userId: "e2e-user-1", email: "e2e@test.com" },
+    });
+
+    const req = new NextRequest(
+      "http://localhost/api/content/export?format=markdown"
+    );
+    const handler = await importHandler();
+    const res = await handler(req);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toMatch(/text\/markdown/i);
+    expect(res.headers.get("Content-Disposition")).toContain(".md");
+    const body = await res.text();
+    expect(body).toContain("# Test Post");
+    expect(body).toContain("Content here.");
+  });
+
+  it("returns 200 with json format, valid JSON { posts: [...] }", async () => {
+    mockGetServerSession.mockResolvedValue({
+      user: { userId: "e2e-user-1", email: "e2e@test.com" },
+    });
+
+    const req = new NextRequest(
+      "http://localhost/api/content/export?format=json"
+    );
+    const handler = await importHandler();
+    const res = await handler(req);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toMatch(/application\/json/i);
+    expect(res.headers.get("Content-Disposition")).toContain(".json");
+    const json = await res.json();
+    expect(json).toHaveProperty("posts");
+    expect(Array.isArray(json.posts)).toBe(true);
+    expect(json.posts.length).toBeGreaterThan(0);
+    expect(json.posts[0]).toHaveProperty("id", "post-1");
+    expect(json.posts[0]).toHaveProperty("title", "Test Post");
+  });
+});
