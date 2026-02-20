@@ -120,7 +120,6 @@ async function main() {
       fullContent: "# 5 nasvetov za počitnice v Beli Krajini\n\nOdkrijte skrivnosti te čudovite regije...",
       metaTitle: "5 nasvetov za počitnice v Beli Krajini",
       metaDescription: "Praktični nasveti za obisk Bele Krajine. Apartmaji, aktivnosti, lokalne specialitete.",
-      pipelineStage: "draft",
     },
   });
   await prisma.blogPost.upsert({
@@ -134,7 +133,6 @@ async function main() {
       fullContent: "# Kolpa – reka za vsa letna časa\n\nReka Kolpa ponuja številne možnosti za aktivnosti...",
       metaTitle: "Kolpa – reka za vsa letna časa",
       metaDescription: "Vodni šport, kopanje in narava ob reki Kolpi.",
-      pipelineStage: "draft",
     },
   });
 
