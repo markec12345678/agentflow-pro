@@ -30,9 +30,9 @@
 ### 1.4 Development Environment
 - [x] 1.4.1 Namesti Node.js dependencies
 - [x] 1.4.2 Namesti Python dependencies
-- [ ] 1.4.3 Konfiguriraj PostgreSQL database
+- [x] 1.4.3 Konfiguriraj PostgreSQL database
 - [x] 1.4.4 Setup Prisma schema
-- [ ] 1.4.5 Testiraj database connection
+- [x] 1.4.5 Testiraj database connection
 
 ---
 
@@ -121,7 +121,7 @@
 
 ### 4.3 API Integrations
 - [x] 4.3.1 Kreiraj API endpoint za workflow execution
-- [ ] 4.3.2 Implementiraj webhook support
+- [x] 4.3.2 Implementiraj webhook support
 - [ ] 4.3.3 Implementiraj third-party integrations (Slack, Email)
 - [ ] 4.3.4 Kreiraj API documentation
 - [x] 4.3.5 Testiraj API endpoints

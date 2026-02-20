@@ -1,6 +1,3 @@
-// AgentFlow Pro - Prisma Schema
-// PostgreSQL + Prisma ORM
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -51,6 +48,7 @@ model BlogPost {
   approvedBy      String?
   approvalStatus  String?   @default("pending")
   createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([userId, createdAt])
 }
@@ -69,15 +67,17 @@ model Subscription {
 }
 
 model Workflow {
-  id        String   @id @default(cuid())
-  name      String
-  nodes     Json     @default("[]")
-  edges     Json     @default("[]")
-  metadata  Json?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  userId          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  nodes           Json     @default("[]")
+  edges           Json     @default("[]")
+  metadata        Json?
+  webhookToken    String?  @unique
+  slackWebhookUrl String?
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AgentRun {
@@ -121,69 +121,13 @@ model Onboarding {
   role              String?
   workspaceName     String?
   blogUrl           String?
-  brandVoiceSummary String?  @db.Text
-  styleGuide        String?  @db.Text
-  visualGuidelines  String?  @db.Text
+  brandVoiceSummary String?
+  styleGuide        String?
+  visualGuidelines  String?
   audiences         Json?
   companyKnowledge  Json?
   userId            String?
   createdAt         DateTime @default(now())
-}
-
-model Team {
-  id             String          @id @default(cuid())
-  name           String
-  ownerId        String
-  owner          User            @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  members        TeamMember[]
-  invites        Invite[]
-  campaignBoards CampaignBoard[]
-  createdAt      DateTime        @default(now())
-}
-
-model TeamMember {
-  id        String   @id @default(cuid())
-  teamId    String
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      String
-  createdAt DateTime @default(now())
-
-  @@unique([teamId, userId])
-  @@index([teamId])
-  @@index([userId])
-}
-
-model Invite {
-  id        String   @id @default(cuid())
-  teamId    String
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  email     String
-  role      String
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@index([teamId])
-  @@index([token])
-}
-
-model CampaignBoard {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  teamId    String?
-  team      Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  name      String
-  nodes     Json     @default("[]")
-  edges     Json     @default("[]")
-  metadata  Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([teamId])
 }
 
 model UserTemplate {
@@ -211,7 +155,6 @@ model UserTemplate {
 model LandingPage {
   id             String   @id @default(cuid())
   userId         String
-  propertyId     String?
   title          String
   slug           String?  @unique
   content        Json
@@ -223,6 +166,7 @@ model LandingPage {
   seoDescription String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  propertyId     String?
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
@@ -288,7 +232,7 @@ model SeoMetric {
 model TranslationJob {
   id            String    @id @default(cuid())
   userId        String
-  sourceContent String    @db.Text
+  sourceContent String
   sourceLang    String    @default("sl")
   targetLangs   String[]
   status        String    @default("pending")
@@ -308,9 +252,54 @@ model ContactSubmission {
   email     String
   company   String?
   plan      String?
-  message   String   @db.Text
+  message   String
   createdAt DateTime @default(now())
 
   @@index([email])
   @@index([createdAt])
+}
+
+model Team {
+  id            String         @id @default(cuid())
+  name          String
+  ownerId       String
+  owner         User           @relation("TeamOwner", fields: [ownerId], references: [id])
+  members       TeamMember[]
+  campaignBoards CampaignBoard[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([ownerId])
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  userId    String
+  teamId    String
+  role      String   @default("member")
+  user      User     @relation(fields: [userId], references: [id])
+  team      Team     @relation(fields: [teamId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, teamId])
+  @@index([teamId])
+  @@map("team_members")
+}
+
+model CampaignBoard {
+  id        String   @id @default(cuid())
+  name      String
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  data      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teamId])
+  @@index([userId])
+  @@map("campaign_boards")
 }
