@@ -11,60 +11,61 @@ datasource db {
 }
 
 model User {
-  id                 String        @id @default(cuid())
-  email              String        @unique
-  name               String?
-  passwordHash       String?
-  trialEndsAt        DateTime?
-  activeTeamId       String?
-  activePropertyId   String?
-  createdAt          DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  workflows          Workflow[]
-  subscription       Subscription?
-  blogPosts          BlogPost[]
-  ownedTeams         Team[]          @relation("TeamOwner")
-  teamMembers        TeamMember[]
-  campaignBoards     CampaignBoard[]
-  userTemplates      UserTemplate[]
-  landingPages       LandingPage[]
-  seoMetrics         SeoMetric[]
-  translationJobs    TranslationJob[]
-  properties         Property[]
+  id               String           @id @default(cuid())
+  email            String           @unique
+  name             String?
+  passwordHash     String?
+  trialEndsAt      DateTime?
+  activeTeamId     String?
+  activePropertyId String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  workflows        Workflow[]
+  subscription     Subscription?
+  blogPosts        BlogPost[]
+  ownedTeams       Team[]           @relation("TeamOwner")
+  teamMembers      TeamMember[]
+  campaignBoards   CampaignBoard[]
+  userTemplates    UserTemplate[]
+  landingPages     LandingPage[]
+  seoMetrics       SeoMetric[]
+  translationJobs  TranslationJob[]
+  properties       Property[]
+  itineraries      Itinerary[]
 }
 
 model BlogPost {
-  id               String    @id @default(cuid())
-  userId           String
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title            String?
-  topic            String?
-  fullContent      String?   @db.Text
-  metaTitle        String?
-  metaDescription  String?
-  imageUrl         String?
-  pipelineStage    String?   @default("draft")
-  brief            String?   @db.Text
-  reviewedAt       DateTime?
-  guardrailIssues  Json?
-  approvedBy       String?
-  approvalStatus   String?   @default("pending")
-  createdAt        DateTime  @default(now())
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String?
+  topic           String?
+  fullContent     String?   @db.Text
+  metaTitle       String?
+  metaDescription String?
+  imageUrl        String?
+  pipelineStage   String?   @default("draft")
+  brief           String?   @db.Text
+  reviewedAt      DateTime?
+  guardrailIssues Json?
+  approvedBy      String?
+  approvalStatus  String?   @default("pending")
+  createdAt       DateTime  @default(now())
 
   @@index([userId, createdAt])
 }
 
 model Subscription {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stripeCustomerId      String?
-  stripeSubscriptionId  String?
-  planId                String
-  status                String
-  currentPeriodEnd      DateTime?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  planId               String
+  status               String
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
 
 model Workflow {
@@ -81,7 +82,7 @@ model Workflow {
 
 model AgentRun {
   id         String   @id @default(cuid())
-  userId    String?
+  userId     String?
   agentType  String
   workflowId String?
   status     String
@@ -92,9 +93,9 @@ model AgentRun {
 
 model UserApiKey {
   id        String   @id @default(cuid())
-  userId    String   // session.userId (ali email za in-memory auth)
-  provider  String   // firecrawl, context7, brave, openai, github, vercel, netlify
-  value     String   // encrypted ali plain (za MVP plain, kasneje encrypt)
+  userId    String // session.userId (ali email za in-memory auth)
+  provider  String // firecrawl, context7, brave, openai, github, vercel, netlify
+  value     String // encrypted ali plain (za MVP plain, kasneje encrypt)
   createdAt DateTime @default(now())
 
   @@unique([userId, provider])
@@ -104,7 +105,7 @@ model UserApiKey {
 model ApiKey {
   id        String   @id @default(cuid())
   userId    String
-  keyHash   String   // hash of the key for lookup (MVP: store plain in keyHash for simplicity)
+  keyHash   String // hash of the key for lookup (MVP: store plain in keyHash for simplicity)
   name      String?
   createdAt DateTime @default(now())
 
@@ -186,18 +187,18 @@ model CampaignBoard {
 }
 
 model UserTemplate {
-  id          String    @id @default(cuid())
-  userId      String
-  propertyId  String?
-  name        String
-  category    String
-  basePrompt  String
-  customVars  Json?
-  content     String?   @db.Text
-  language    String?
-  isPublic    Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String   @id @default(cuid())
+  userId     String
+  propertyId String?
+  name       String
+  category   String
+  basePrompt String
+  customVars Json?
+  content    String?  @db.Text
+  language   String?
+  isPublic   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
@@ -208,20 +209,20 @@ model UserTemplate {
 }
 
 model LandingPage {
-  id             String    @id @default(cuid())
+  id             String   @id @default(cuid())
   userId         String
   propertyId     String?
   title          String
-  slug           String?   @unique
+  slug           String?  @unique
   content        Json
-  template       String    @default("tourism-basic")
+  template       String   @default("tourism-basic")
   languages      String[]
-  isPublished    Boolean   @default(false)
+  isPublished    Boolean  @default(false)
   publishedUrl   String?
   seoTitle       String?
   seoDescription String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
@@ -232,21 +233,39 @@ model LandingPage {
 }
 
 model Property {
-  id           String        @id @default(cuid())
-  userId       String
-  name         String
-  location     String?
-  type         String?
-  capacity     Int?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  location  String?
+  type      String?
+  capacity  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  landingPages LandingPage[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  landingPages  LandingPage[]
   userTemplates UserTemplate[]
+  itineraries   Itinerary[]
 
   @@index([userId])
   @@map("properties")
+}
+
+model Itinerary {
+  id         String   @id @default(cuid())
+  userId     String
+  propertyId String?
+  title      String
+  days       Json // [{ day: 1, date?: string, activities: [{ time?, title, desc, location? }] }]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([propertyId])
+  @@map("itineraries")
 }
 
 model SeoMetric {
@@ -260,7 +279,7 @@ model SeoMetric {
   difficulty   Int?
   lastChecked  DateTime?
 
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, contentType, keyword])
   @@map("seo_metrics")
@@ -277,7 +296,7 @@ model TranslationJob {
   createdAt     DateTime  @default(now())
   completedAt   DateTime?
 
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, status])
   @@map("translation_jobs")

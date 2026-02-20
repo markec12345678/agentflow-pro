@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth-options";
 import { getValidHubSpotToken } from "@/lib/hubspot-token";
 
-function getUserId(session: { user?: { userId?: string; email?: string } } | null): string | null {
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
   return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
 }
@@ -38,14 +38,13 @@ export async function GET() {
     );
   }
 
-  const data = (await res.json()) as { results?: unknown[] };
-  const companies = (data.results ?? []).map(
-    (c: { id?: string; properties?: Record<string, string> }) => ({
-      id: c.id,
-      name: c.properties?.name,
-      domain: c.properties?.domain,
-      industry: c.properties?.industry,
-    })
+  const data = (await res.json()) as { results?: { id?: string; properties?: Record<string, string> }[] };
+  const companies = (data.results ?? []).map((c) => ({
+    id: c.id,
+    name: c.properties?.name,
+    domain: c.properties?.domain,
+    industry: c.properties?.industry,
+  })
   );
 
   return NextResponse.json({ companies });

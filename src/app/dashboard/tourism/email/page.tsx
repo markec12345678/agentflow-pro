@@ -327,7 +327,7 @@ export default function TourismEmailWorkflow() {
                 </div>
               ) : (
                 <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
-                  Izpolni form in klikni "Generiraj" za prikaz emaila.
+                  Izpolni form in klikni &quot;Generiraj&quot; za prikaz emaila.
                 </p>
               )}
             </div>

@@ -7,12 +7,9 @@ import { WorkflowExecutor } from "@/workflows/WorkflowExecutor";
 import { Orchestrator } from "@/orchestrator/Orchestrator";
 import type { Workflow } from "@/workflows/types";
 
-jest.mock("@/lib/orchestrator-factory", () => {
-  const { Orchestrator } = require("@/orchestrator/Orchestrator");
-  return {
-    getOrchestrator: () => new Orchestrator(),
-  };
-});
+jest.mock("@/lib/orchestrator-factory", () => ({
+  getOrchestrator: () => new Orchestrator(),
+}));
 
 describe("executeWorkflow (legacy)", () => {
   it("rejects invalid workflow", async () => {

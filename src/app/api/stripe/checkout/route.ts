@@ -3,14 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { createCheckout } from "@/api/billing";
 import { authOptions } from "@/lib/auth-options";
 import type { PlanId } from "@/stripe/plans";
+import { getUserId } from "@/lib/auth-users";
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const userId = session?.user
-      ? (session.user as { userId?: string }).userId ?? session.user.email ?? null
-      : null;
-    const userEmail = session?.user?.email ?? null;
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = getUserId(session);
+    const userEmail = session.user?.email;
 
     if (!userId || !userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -19,12 +22,8 @@ export async function POST(request: NextRequest) {
     const body = (await request.json().catch(() => ({}))) as { planId?: PlanId };
     const planId = body.planId ?? "pro";
 
-    const baseUrl =
-      request.headers.get("x-forwarded-host") ||
-      request.headers.get("host") ||
-      "localhost:3000";
-    const protocol = request.headers.get("x-forwarded-proto") ?? "http";
-    const origin = baseUrl.startsWith("http") ? baseUrl : `${protocol}://${baseUrl}`;
+    const origin =
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
 
     const { url, sessionId } = await createCheckout(
       userId,
@@ -35,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url, sessionId });
   } catch (err) {
+    console.error("Error in Stripe checkout API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Checkout failed" },
       { status: 500 }

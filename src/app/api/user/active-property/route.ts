@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
 
-function getUserId(session: { user?: { userId?: string; email?: string } } | null): string | null {
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
   return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
 }

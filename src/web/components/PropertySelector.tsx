@@ -74,6 +74,7 @@ export function PropertySelector({ value, onChange, className = "" }: PropertySe
               <button
                 type="button"
                 role="option"
+                aria-selected={!value}
                 onClick={() => handleSelect(null)}
                 className={`block w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 ${!value ? "bg-blue-50 dark:bg-blue-900/30 font-medium" : ""}`}
               >
@@ -85,6 +86,7 @@ export function PropertySelector({ value, onChange, className = "" }: PropertySe
                 <button
                   type="button"
                   role="option"
+                  aria-selected={value === p.id}
                   onClick={() => handleSelect(p.id)}
                   className={`block w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 ${value === p.id ? "bg-blue-50 dark:bg-blue-900/30 font-medium" : ""}`}
                 >

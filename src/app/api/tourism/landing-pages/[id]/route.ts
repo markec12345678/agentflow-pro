@@ -1,11 +1,13 @@
 /**
  * LandingPage API - GET, PATCH, DELETE by id
+ * On PATCH: when seoTitle/seoDescription change, updates SeoMetric entries.
  */
 
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { extractKeywords } from "@/agents/content/seo-optimizer";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
@@ -92,6 +94,31 @@ export async function PATCH(
       data: updateData,
     });
 
+    if (body.seoTitle !== undefined || body.seoDescription !== undefined) {
+      const seoTitle = (updated.seoTitle ?? "") as string;
+      const seoDescription = (updated.seoDescription ?? "") as string;
+      const seoText = [seoTitle, seoDescription].filter(Boolean).join(" ");
+
+      await prisma.seoMetric.deleteMany({
+        where: { userId, contentType: "landing", contentId: id },
+      });
+
+      if (seoText) {
+        const keywords = extractKeywords(seoText, 15);
+        for (const keyword of keywords) {
+          if (!keyword.trim()) continue;
+          await prisma.seoMetric.create({
+            data: {
+              userId,
+              contentType: "landing",
+              contentId: id,
+              keyword: keyword.trim(),
+            },
+          });
+        }
+      }
+    }
+
     return NextResponse.json({ page: updated });
   } catch (err) {
     return NextResponse.json(
@@ -123,6 +150,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Landing page not found" }, { status: 404 });
     }
 
+    await prisma.seoMetric.deleteMany({
+      where: { contentType: "landing", contentId: id },
+    });
     await prisma.landingPage.delete({ where: { id } });
 
     return NextResponse.json({ success: true });

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Skeleton, SkeletonText } from "@/web/components/Skeleton";
 
@@ -94,6 +95,7 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export default function TourismLandingPage() {
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [template, setTemplate] = useState<string>("tourism-basic");
   const [formData, setFormData] = useState({
@@ -108,6 +110,7 @@ export default function TourismLandingPage() {
   const [pages, setPages] = useState<PagesData | null>(null);
   const [loading, setLoading] = useState(false);
   const [savedPages, setSavedPages] = useState<{ id: string; title: string }[]>([]);
+  const [autoSave, setAutoSave] = useState(false);
 
   const loadSavedPages = () => {
     fetch("/api/tourism/landing-pages")
@@ -141,6 +144,11 @@ export default function TourismLandingPage() {
     );
   };
 
+  useEffect(() => {
+    const loadId = searchParams.get("load");
+    if (loadId) handleLoad(loadId);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount when load param present
+
   const handleGenerate = async () => {
     if (!formData.name.trim()) {
       toast.error("Ime nastanitve je obvezno.");
@@ -165,9 +173,14 @@ export default function TourismLandingPage() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setPages(data.pages ?? {});
+      const generatedPages = data.pages ?? {};
+      setPages(generatedPages);
       setStep(3);
       toast.success("Landing stran generirana");
+      if (autoSave) {
+        await handleSave(generatedPages);
+        loadSavedPages();
+      }
     } catch (err) {
       console.error("Landing generation failed:", err);
       toast.error(err instanceof Error ? err.message : "Napaka pri generiranju.");
@@ -213,7 +226,7 @@ export default function TourismLandingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: formData.name,
-          content: pages,
+          content: dataToSave,
           template,
           languages,
           seoTitle: first.seoTitle,
@@ -223,6 +236,7 @@ export default function TourismLandingPage() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       toast.success("Landing stran shranjena");
+      loadSavedPages();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Shranjevanje ni uspelo.");
     }
@@ -274,8 +288,8 @@ export default function TourismLandingPage() {
                 setStep(s as 1 | 2 | 3);
             }}
             className={`min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 ${step === s
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}
           >
             Korak {s}
@@ -296,8 +310,8 @@ export default function TourismLandingPage() {
                 <label
                   key={t.id}
                   className={`flex flex-col gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all min-h-[120px] ${template === t.id
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                    : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
                     }`}
                 >
                   <input
@@ -450,6 +464,17 @@ export default function TourismLandingPage() {
                 ))}
               </div>
             </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={autoSave}
+                onChange={(e) => setAutoSave(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Shrani avtomatsko po generiranju
+              </span>
+            </label>
             <button
               type="button"
               onClick={handleGenerate}

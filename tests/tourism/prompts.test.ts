@@ -38,9 +38,19 @@ describe("PROMPTS tourism category", () => {
     );
   });
 
-  it("seasonal-campaign has ton in variables", () => {
+  it("seasonal-campaign has ton and ponudba in variables", () => {
     const p = tourismPrompts.find((x) => x.id === "seasonal-campaign");
     expect(p?.variables).toContain("ton");
+    expect(p?.variables).toContain("ponudba");
+  });
+
+  it("instagram-travel has ton, lokacija, tip, jezik aligned with prompt", () => {
+    const p = tourismPrompts.find((x) => x.id === "instagram-travel");
+    expect(p?.variables).toEqual(["ton", "lokacija", "tip", "jezik"]);
+    expect(p?.prompt).toContain("{ton}");
+    expect(p?.prompt).toContain("{lokacija}");
+    expect(p?.prompt).toContain("{tip}");
+    expect(p?.prompt).toContain("{jezik}");
   });
 
   it("booking-description uses {ton} not inline type", () => {

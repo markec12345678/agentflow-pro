@@ -1,11 +1,13 @@
 /**
  * LandingPage API - GET (list), POST (create)
+ * On create: extracts keywords from seoTitle/seoDescription and creates SeoMetric entries.
  */
 
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { extractKeywords } from "@/agents/content/seo-optimizer";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
@@ -88,13 +90,29 @@ export async function POST(request: NextRequest) {
         propertyId: propertyId?.trim() || null,
         title: title.trim(),
         slug: finalSlug,
-        content,
+        content: JSON.parse(JSON.stringify(content)),
         template: template?.trim() || "tourism-basic",
         languages: langs,
         seoTitle: seoTitle?.trim() ?? null,
         seoDescription: seoDescription?.trim() ?? null,
       },
     });
+
+    const seoText = [seoTitle?.trim(), seoDescription?.trim()].filter(Boolean).join(" ");
+    if (seoText) {
+      const keywords = extractKeywords(seoText, 15);
+      for (const keyword of keywords) {
+        if (!keyword.trim()) continue;
+        await prisma.seoMetric.create({
+          data: {
+            userId,
+            contentType: "landing",
+            contentId: page.id,
+            keyword: keyword.trim(),
+          },
+        });
+      }
+    }
 
     return NextResponse.json({ page });
   } catch (err) {

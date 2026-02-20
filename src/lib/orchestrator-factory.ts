@@ -14,10 +14,17 @@ import {
   getOpenAiApiKey,
 } from "@/config/env";
 
-export function getOrchestrator(
-  userApiKeys?: Record<string, string>
-): Orchestrator {
+interface GetOrchestratorOptions {
+  userApiKeys?: Record<string, string>;
+  strict?: boolean;
+}
+
+export function getOrchestrator({
+  userApiKeys,
+  strict = false,
+}: GetOrchestratorOptions = {}): Orchestrator {
   const k = userApiKeys ?? {};
+
   const firecrawlKey = k.firecrawl ?? getFirecrawlApiKey();
   const serpApiKey = k.serpapi ?? getSerpApiKey();
   const context7Key = k.context7 ?? getContext7ApiKey();
@@ -27,11 +34,28 @@ export function getOrchestrator(
   const netlifyToken = k.netlify ?? (process.env.NETLIFY_TOKEN ?? "");
 
   const orch = new Orchestrator();
-  orch.registerAgent(createResearchAgent({ firecrawlKey, serpApiKey }));
-  orch.registerAgent(createContentAgent({ context7Key }));
-  orch.registerAgent(createCodeAgent({ githubToken, openaiKey }));
-  orch.registerAgent(
-    createDeployAgent({ vercelToken, netlifyToken })
-  );
+
+  const addAgent = (agentFactory: Function, config: Record<string, string>, agentName: string) => {
+    const missingKeys = Object.entries(config)
+      .filter(([, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingKeys.length > 0) {
+      const errorMessage = `Missing API keys for ${agentName} agent: ${missingKeys.join(", ")}`;
+      if (strict) {
+        throw new Error(errorMessage);
+      } else {
+        console.warn(errorMessage);
+        return;
+      }
+    }
+    orch.registerAgent(agentFactory(config));
+  };
+
+  addAgent(createResearchAgent, { firecrawlKey, serpApiKey }, "Research");
+  addAgent(createContentAgent, { context7Key }, "Content");
+  addAgent(createCodeAgent, { githubToken, openaiKey }, "Code");
+  addAgent(createDeployAgent, { vercelToken, netlifyToken }, "Deploy");
+
   return orch;
 }

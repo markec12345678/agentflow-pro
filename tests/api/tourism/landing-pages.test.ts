@@ -9,6 +9,7 @@ const mockCreate = jest.fn();
 const mockFindFirst = jest.fn();
 const mockUpdate = jest.fn();
 const mockDelete = jest.fn();
+const mockSeoDeleteMany = jest.fn();
 
 jest.mock("next-auth", () => ({
   getServerSession: () => mockGetServerSession(),
@@ -22,6 +23,9 @@ jest.mock("@/database/schema", () => ({
       findFirst: (...args: unknown[]) => mockFindFirst(...args),
       update: (...args: unknown[]) => mockUpdate(...args),
       delete: (...args: unknown[]) => mockDelete(...args),
+    },
+    seoMetric: {
+      deleteMany: (...args: unknown[]) => mockSeoDeleteMany(...args),
     },
   },
 }));
@@ -54,6 +58,7 @@ describe("Tourism LandingPages API", () => {
     mockFindFirst.mockResolvedValue(samplePage);
     mockUpdate.mockResolvedValue({ ...samplePage, title: "Updated" });
     mockDelete.mockResolvedValue({});
+    mockSeoDeleteMany.mockResolvedValue({ count: 0 });
   });
 
   describe("GET /api/tourism/landing-pages", () => {

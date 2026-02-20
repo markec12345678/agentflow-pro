@@ -64,7 +64,7 @@ Checklist za preverjanje tourism implementacije po KORAK 1-7.
 - [x] POST /api/tourism/generate-landing – generira vsebino po template in formData
 - [x] POST /api/tourism/batch-translate – prevod vsebine v več jezikov (OpenAI)
 - [x] POST /api/tourism/generate-email – generira guest emaile
-- [ ] Shranjevanje v LandingPage DB (Phase 3)
+- [x] Shranjevanje v LandingPage DB (Phase 3)
 
 ### Utilities
 
@@ -112,7 +112,7 @@ Checklist za preverjanje tourism implementacije po KORAK 1-7.
 2. Sidebar: klikni "Landing Page" → /dashboard/tourism/landing
 3. Step 1: izberi predlogo (npr. Standard) – avtomatsko prehod na Step 2
 4. Step 2: vnesi Ime nastanitve, Lokacijo, izberi jezike (SL, EN), klikni "Generiraj Zdaj"
-5. Step 3 – preveri placeholder "Live preview coming soon", export gumbi
+5. Step 3 – preveri Predogled, Export JSON/Markdown/HTML, Shrani
 6. Klikni "← Uredi" za vrnitev na Step 2
 
 ### Phase 2 Test Flow (Email)

@@ -91,14 +91,15 @@ Vhodni podatki:
 - Posebnosti: {posebnosti} (bazen, WiFi, parkirišče...)
 - Bližnje atrakcije: {atrakcije} (npr. vinogradništvo, reka Kolpa, termalne vrelce, Planina, Snežnik)
 - Jezik: {jezik}
+- Ton: {ton} (profesionalen, prijazen, luksuzen, družinski)
+- Ključne besede ({kljucne_besede}): 3–5 SEO fraz, ločene z vejico. Primer: apartmaji bela krajina, počitnice kolpa, družinske počitnice slovenija
 
 Uporabi Slovenian tourism izraze kjer primerno: apartma, gostitelj, Bela Krajina, Kolpa, Dolenjska, vinogradi, termalna letovišča, gorske koče, planinski dom.
-- Ton: {ton}
 
 Navodila:
 1. Začni z močnim "hook" stavkom
 2. Poudari edinstvene prednosti lokacije
-3. Vključi SEO ključne besede ({kljucne_besede}): 3–5 fraz, ločene z vejico (npr. "apartmaji bela krajina, počitnice kolpa, družinske počitnice")
+3. Vključi vse ključne besede ({kljucne_besede}) naravno v besedilo
 4. Uporabi kratke, berljive odstavke
 5. Zaključi s pozivom k akciji
 
@@ -135,9 +136,9 @@ Ton: {ton} (prijazen, gostoljuben, avtentičen).
 Dolžina: 150-250 besed.
 Jezik: {jezik}
 Lokacija: {lokacija}
-Tip nastanitve: {tip} (apartma, hiša, vikend...)
+Tip nastanitve: {tip} (apartma, hiša, vikend, glamping...)
 Kapaciteta: {osebe} oseb
-Posebnosti: {posebnosti} (npr. bazen, WiFi, vrt – navedi le pomembne za izkušnjo)`,
+Posebnosti: {posebnosti} – navedi le tiste, ki vplivajo na izkušnjo (npr. bazen, WiFi, vrt, kamin). Brez generičnih list.`,
     description: "Topel, oseben opis v stilu storytellinga za Airbnb",
     variables: ["jezik", "lokacija", "tip", "osebe", "posebnosti", "ton"],
   },
@@ -151,9 +152,8 @@ Jasna struktura odstavkov:
 1. Naslov (privlačen + ključna beseda)
 2. Uvodni odstavek: zakaj je destinacija vredna obiska
 3. Odstavek za vsako sekcijo: Top 5 stvari za početi, Najboljši čas za obisk, Lokalni nasveti (kje jesti, kje parkirati, kateri mesec je najboljši za obisk), Kje ostati, Praktične informacije
-4. Za vsako destinacijo vključi konkretne lokalne atrakcije (muzeji, trgi, naravne znamenitosti, lokalna kuhinja, dogodki). Za Slovenijo: Ljubljana (grad, Tromostovje), Bled, Piran, Postojnska jama, Škocjan, Logarska dolina, Soča
-5. Vsak odstavek ločeno, berljiv, s podnaslovom
-6. Zaključni odstavek s povzetkom in CTA
+4. Za vsako destinacijo vključi konkretne lokalne atrakcije (muzeji, trgi, naravne znamenitosti, lokalna kuhinja, dogodki). Za Slovenijo: Ljubljana (grad, Tromostovje), Bled, Piran, Postojnska jama, Škocjan, Logarska dolina, Soča. Vsak odstavek ločeno, berljiv, s podnaslovom.
+5. Zaključni odstavek s povzetkom in CTA
 
 Dolžina: 800-1000 besed
 Ton: {ton} (profesionalen, prijazen, luksuzen ali družinski).
@@ -174,12 +174,11 @@ Vključi:
 - Email telo (200-300 besed)
 - Social media post (kratek + hashtagi)
 - Poziv k akciji z omejitvijo časa
-- Urgency: omejitev števila sob/nastanitev, datum konca akcije, ekskluzivnost za pretekle goste
-- Scarcity fraze: Zadnja priložnost, omejeno število, do [datum]
+- Urgency: vključi datum konca, omejeno število sob, ekskluzivnost. Uporabi scarcity fraze: "Zadnja priložnost", "omejeno število", "do [datum]"
 
 Sezona/Dogodek: {sezona}
 Destinacija: {destinacija}
-Posebna ponudba: {ponudba} (npr. "15% popust za rezervacije do 31.3.", "2 noči = 1 brezplačna", "Zgodnje buke do 28.2.")
+Posebna ponudba: {ponudba} – konkretni primeri: "15% popust za rezervacije do 31.3.", "2 noči = 1 brezplačna", "Zgodnje buke do 28.2. – prihrani 20%"
 Ton: {ton}
 Jezik: {jezik}`,
     description:
@@ -201,10 +200,10 @@ Struktura:
 Ton: {ton} (profesionalen, prijazen, luksuzen ali družinski).
 Dolžina captiona: 100-150 besed.
 Lokacija: {lokacija}
-Tip/Tema: {tip} (za hashtag primere: apartma, hotel, glamping, vikend, počitnice...)
+Tip/Tema: {tip} (apartma, hotel, glamping, vikend, počitnice...)
 Jezik: {jezik}`,
     description: "Instagram caption za travel fotografijo",
-    variables: ["lokacija", "tip", "jezik", "ton"],
+    variables: ["ton", "lokacija", "tip", "jezik"],
   },
 ];
 

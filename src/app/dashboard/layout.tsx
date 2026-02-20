@@ -24,6 +24,7 @@ const tourismNavItems: { name: string; href: string; disabled?: boolean }[] = [
   { name: "Templates", href: "/dashboard/tourism/templates" },
   { name: "Nastanitve", href: "/dashboard/tourism/properties" },
   { name: "Landing Page", href: "/dashboard/tourism/landing" },
+  { name: "Itinerarji", href: "/dashboard/tourism/itineraries" },
   { name: "Email", href: "/dashboard/tourism/email" },
   { name: "SEO", href: "/dashboard/tourism/seo" },
   { name: "Multi-Language", href: "/dashboard/tourism/translate" },
@@ -77,6 +78,11 @@ const pathToBreadcrumb: Record<string, { label: string; href?: string }[]> = {
     { label: "Dashboard", href: "/dashboard" },
     { label: "Tourism Hub", href: "/dashboard/tourism" },
     { label: "Multi-Language", href: "/dashboard/tourism/translate" },
+  ],
+  "/dashboard/tourism/itineraries": [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Tourism Hub", href: "/dashboard/tourism" },
+    { label: "Itinerarji", href: "/dashboard/tourism/itineraries" },
   ],
   "/dashboard/settings": [
     { label: "Dashboard", href: "/dashboard" },

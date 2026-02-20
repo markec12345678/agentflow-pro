@@ -1,17 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import { Skeleton } from "@/web/components/Skeleton";
+import { SeoKeywordChart } from "@/web/components/tourism/SeoKeywordChart";
 
 type KeywordRow = {
   id?: string;
@@ -59,6 +52,68 @@ export default function TourismSeoPage() {
   const [optimizeLoading, setOptimizeLoading] = useState(false);
   const [optimizeResult, setOptimizeResult] = useState<OptimizeResult | null>(null);
   const [optimizeError, setOptimizeError] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importCsv, setImportCsv] = useState("");
+  const [importFile, setImportFile] = useState<File | null>(null);
+
+  const refetchKeywords = () => {
+    fetch("/api/tourism/seo-metrics")
+      .then((r) => r.json())
+      .then((data: { metrics?: KeywordRow[] }) => {
+        const list = data.metrics ?? [];
+        if (list.length > 0) {
+          setKeywords(
+            list.map((m: { id?: string; keyword: string; position?: number; searchVolume?: number; volume?: number; difficulty?: number; contentType?: string; contentId?: string }) => ({
+              id: m.id,
+              keyword: m.keyword,
+              position: m.position ?? null,
+              volume: m.searchVolume ?? m.volume ?? null,
+              difficulty: m.difficulty ?? null,
+              contentType: m.contentType,
+              contentId: m.contentId,
+            }))
+          );
+        }
+      })
+      .catch(() => toast.error("Napaka pri osvežitvi"));
+  };
+
+  const handleImport = async () => {
+    setImportLoading(true);
+    try {
+      let res: Response;
+      if (importFile) {
+        const fd = new FormData();
+        fd.append("file", importFile);
+        res = await fetch("/api/tourism/seo-metrics/import", {
+          method: "POST",
+          body: fd,
+        });
+      } else if (importCsv.trim()) {
+        res = await fetch("/api/tourism/seo-metrics/import", {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: importCsv.trim(),
+        });
+      } else {
+        toast.error("Naloži CSV datoteko ali prilepi vsebino.");
+        setImportLoading(false);
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Import failed");
+      refetchKeywords();
+      toast.success(`Uvoženo: ${data.imported ?? 0} (${data.created ?? 0} novih, ${data.updated ?? 0} posodobljenih)`);
+      setImportOpen(false);
+      setImportCsv("");
+      setImportFile(null);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Napaka pri uvozu");
+    } finally {
+      setImportLoading(false);
+    }
+  };
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -68,12 +123,14 @@ export default function TourismSeoPage() {
         const list = data.metrics ?? [];
         if (list.length > 0) {
           setKeywords(
-            list.map((m) => ({
+            list.map((m: { id?: string; keyword: string; position?: number; searchVolume?: number; volume?: number; difficulty?: number; contentType?: string; contentId?: string }) => ({
               id: m.id,
               keyword: m.keyword,
               position: m.position ?? null,
               volume: m.searchVolume ?? m.volume ?? null,
               difficulty: m.difficulty ?? null,
+              contentType: m.contentType,
+              contentId: m.contentId,
             }))
           );
         } else {
@@ -192,6 +249,61 @@ export default function TourismSeoPage() {
           <SeoKeywordChart data={chartData} />
         ) : (
           <p className="text-neutral-500 dark:text-neutral-400 text-sm">No data to display.</p>
+        )}
+      </div>
+
+      {/* Import Keywords */}
+      <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
+        <button
+          type="button"
+          onClick={() => setImportOpen(!importOpen)}
+          className="flex items-center justify-between w-full text-left"
+        >
+          <h2 className="text-lg font-medium text-neutral-800 dark:text-neutral-200">
+            Uvozi ključne besede
+          </h2>
+          <span className="text-neutral-500">{importOpen ? "▲" : "▼"}</span>
+        </button>
+        {importOpen && (
+          <div className="mt-4 space-y-3">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              CSV format: keyword, position, volume, difficulty (header optional)
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <label className="cursor-pointer px-4 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-sm font-medium">
+                <input
+                  type="file"
+                  accept=".csv,.txt"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    setImportFile(f ?? null);
+                    if (f) setImportCsv("");
+                  }}
+                />
+                {importFile ? importFile.name : "Izberi datoteko"}
+              </label>
+              <span className="text-neutral-500 text-sm self-center">ali</span>
+              <textarea
+                placeholder="Prilepi CSV (keyword, position, volume, difficulty)"
+                value={importCsv}
+                onChange={(e) => {
+                  setImportCsv(e.target.value);
+                  setImportFile(null);
+                }}
+                rows={2}
+                className="flex-1 min-w-[200px] px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm resize-y"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleImport}
+              disabled={importLoading || (!importFile && !importCsv.trim())}
+              className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {importLoading ? "Uvažam…" : "Uvozi"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -322,11 +434,19 @@ export default function TourismSeoPage() {
                           {prio}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 flex flex-wrap gap-2">
+                        {row.contentType === "landing" && row.contentId && (
+                          <Link
+                            href={`/dashboard/tourism/landing?load=${row.contentId}`}
+                            className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                          >
+                            Ta stran
+                          </Link>
+                        )}
                         <button
                           type="button"
                           onClick={() => handleOptimize(row.keyword)}
-                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium min-h-[44px] min-w-[44px] flex items-center"
+                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium min-h-[44px] min-w-[44px]"
                         >
                           Optimiziraj
                         </button>

@@ -79,6 +79,7 @@ function CanvasInner() {
             ...nd,
             type: (nd.type as NodeTypeName) ?? "topic",
             position: nd.position ?? { x: 0, y: 0 },
+            data: (nd.data ?? {}) as Record<string, unknown>,
           }))
         );
       }

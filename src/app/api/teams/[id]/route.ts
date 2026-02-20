@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
 
-function getUserId(session: { user?: { userId?: string; email?: string } } | null): string | null {
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
   return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
 }
 
-function isAdmin(team: { ownerId: string; members: { userId: string; role: string }[] }, userId: string): boolean {
+function _isAdmin(team: { ownerId: string; members: { userId: string; role: string }[] }, userId: string): boolean {
   if (team.ownerId === userId) return true;
   const member = team.members.find((m) => m.userId === userId);
   return member?.role === "admin" || member?.role === "owner" || false;

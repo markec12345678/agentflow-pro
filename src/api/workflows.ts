@@ -7,8 +7,6 @@ import { prisma } from "@/database/schema";
 import type { Workflow } from "@/workflows/types";
 import { WorkflowExecutor } from "@/workflows/WorkflowExecutor";
 
-const ANONYMOUS_USER_ID = "anonymous-user-id";
-
 function toWorkflow(row: {
   id: string;
   name: string;
@@ -27,7 +25,7 @@ function toWorkflow(row: {
 
 export async function createOrUpdateWorkflow(
   w: Workflow,
-  userId: string = ANONYMOUS_USER_ID
+  userId: string
 ): Promise<Workflow> {
   const row = await prisma.workflow.upsert({
     where: { id: w.id },
@@ -49,20 +47,21 @@ export async function createOrUpdateWorkflow(
   return toWorkflow(row);
 }
 
-export async function getWorkflow(id: string): Promise<Workflow | undefined> {
+export async function getWorkflow(id: string, userId: string): Promise<Workflow | undefined> {
   const row = await prisma.workflow.findUnique({
-    where: { id },
+    where: { id, userId },
   });
   return row ? toWorkflow(row) : undefined;
 }
 
 export async function updateWorkflow(
   id: string,
-  w: Workflow
+  w: Workflow,
+  userId: string
 ): Promise<Workflow | undefined> {
   try {
     const row = await prisma.workflow.update({
-      where: { id },
+      where: { id, userId },
       data: {
         name: w.name,
         nodes: w.nodes as object[],
@@ -71,23 +70,27 @@ export async function updateWorkflow(
       },
     });
     return toWorkflow(row);
-  } catch {
+  } catch (err) {
+    console.error(`Error updating workflow ${id} for user ${userId}:`, err);
     return undefined;
   }
 }
 
-export async function deleteWorkflow(id: string): Promise<boolean> {
-  const result = await prisma.workflow.delete({
-    where: { id },
-  }).catch(() => null);
-  return result != null;
+export async function deleteWorkflow(id: string, userId: string): Promise<boolean> {
+  try {
+    const result = await prisma.workflow.delete({
+      where: { id, userId },
+    });
+    return result != null;
+  } catch (err) {
+    console.error(`Error deleting workflow ${id} for user ${userId}:`, err);
+    return false;
+  }
 }
 
-export async function listWorkflows(
-  userId?: string
-): Promise<Workflow[]> {
+export async function listWorkflows(userId: string): Promise<Workflow[]> {
   const rows = await prisma.workflow.findMany({
-    where: userId ? { userId } : undefined,
+    where: { userId },
     orderBy: { updatedAt: "desc" },
   });
   return rows.map(toWorkflow);
@@ -96,10 +99,20 @@ export async function listWorkflows(
 export async function runWorkflow(
   id: string,
   context?: Record<string, unknown>,
-  userApiKeys?: Record<string, string>
+  userApiKeys?: Record<string, string>,
+  userId?: string // New optional userId parameter
 ): Promise<{ success: boolean; steps: unknown[]; output: Record<string, unknown> }> {
-  const w = await getWorkflow(id);
+  // If userId is provided, ensure the user owns the workflow
+  if (userId) {
+    const ownedWorkflow = await getWorkflow(id, userId);
+    if (!ownedWorkflow) {
+      throw new Error(`Workflow ${id} not found or not owned by user ${userId}`);
+    }
+  }
+
+  const w = await getWorkflow(id, userId || ""); // Use userId for fetching, or empty string if not provided for backward compatibility
   if (!w) throw new Error(`Workflow ${id} not found`);
+
   const executor = new WorkflowExecutor(userApiKeys);
   const progress = await executor.execute(
     w.nodes,

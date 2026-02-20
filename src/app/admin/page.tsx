@@ -24,7 +24,7 @@ interface ContactSubmission {
 }
 
 export default function AdminPage() {
-  const { data: session, status } = useSession();
+  const { data: _session, status } = useSession();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);

@@ -34,7 +34,7 @@ export function PromptSelector({
       ? PROMPTS
       : PROMPTS.filter((p) => p.category === category);
 
-  const categoryLabel = category === "all" ? "All" : CATEGORY_LABELS[category];
+  const _categoryLabel = category === "all" ? "All" : CATEGORY_LABELS[category];
 
   return (
     <div className="relative">

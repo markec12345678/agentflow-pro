@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 export default function InviteAcceptPage() {
   const params = useParams();
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: _session, status } = useSession();
   const token = params.token as string;
   const [statusMsg, setStatusMsg] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState<string>("");

@@ -1,11 +1,17 @@
 /**
  * Tourism Landing Page Generator API
  * POST: generates landing page content by template and form data
+ * Uses ContentAgent/OpenAI when API key available, fallback to mock
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { generateText, Output } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { z } from "zod";
 import { authOptions } from "@/lib/auth-options";
+import { getOpenAiApiKey } from "@/config/env";
+import { getUserApiKeys } from "@/lib/user-keys";
 import { mockMode } from "@/lib/mock-mode";
 
 const VALID_TEMPLATES = ["tourism-basic", "luxury-retreat", "family-friendly"] as const;
@@ -137,7 +143,7 @@ export async function POST(request: NextRequest) {
     };
 
     const template = body.template ?? "tourism-basic";
-    if (!VALID_TEMPLATES.includes(template)) {
+    if (!(VALID_TEMPLATES as readonly string[]).includes(template)) {
       return NextResponse.json(
         { error: `Invalid template. Use one of: ${VALID_TEMPLATES.join(", ")}` },
         { status: 400 }
@@ -177,16 +183,90 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Non-mock: use ContentAgent per language (TODO Phase 3)
-    // For now, fall back to mock-like output
+    const userKeys = await getUserApiKeys(userId!, { masked: false });
+    const apiKey = userKeys.openai?.trim() || getOpenAiApiKey();
+
+    if (!apiKey) {
+      for (const lang of languages) {
+        const sections = buildMockSections(template, formData, lang);
+        const title = formData.name ?? "Landing Page";
+        pages[lang] = {
+          sections,
+          seoTitle: `${title} | ${formData.location ?? "Slovenija"}`,
+          seoDescription: `Odkrijte ${title} v ${formData.location ?? "Sloveniji"}.`,
+        };
+      }
+      return NextResponse.json({ success: true, pages });
+    }
+
+    const langLabels: Record<string, string> = {
+      sl: "Slovenian", en: "English", de: "German", it: "Italian", hr: "Croatian",
+    };
+
+    const sectionSchema = z.object({
+      heading: z.string().optional(),
+      body: z.string().optional(),
+      items: z.array(z.string()).optional(),
+    });
+
+    const landingPageSchema = z.object({
+      sections: z.record(z.string(), sectionSchema),
+      seoTitle: z.string(),
+      seoDescription: z.string(),
+    });
+
+    const openai = createOpenAI({ apiKey });
+
     for (const lang of languages) {
-      const sections = buildMockSections(template, formData, lang);
-      const title = formData.name ?? "Landing Page";
-      pages[lang] = {
-        sections,
-        seoTitle: `${title} | ${formData.location ?? "Slovenija"}`,
-        seoDescription: `Odkrijte ${title} v ${formData.location ?? "Sloveniji"}.`,
-      };
+      try {
+        const langName = langLabels[lang] ?? "Slovenian";
+        const result = await generateText({
+          model: openai("gpt-4o-mini"),
+          temperature: 0.6,
+          output: Output.object({
+            schema: landingPageSchema,
+            name: "LandingPage",
+            description: "Tourism landing page sections and SEO meta",
+          }),
+          prompt: `Generate a tourism accommodation landing page in ${langName}.
+
+Property details:
+- Name: ${formData.name ?? "Accommodation"}
+- Location: ${formData.location ?? "Slovenia"}
+- Type: ${formData.type ?? "apartment"}
+- Capacity: ${formData.capacity ?? "4"}
+- Features: ${formData.features ?? "WiFi, parking"}
+- Price from: ${formData.priceFrom ?? "65"} EUR/night
+
+Template: ${template}. For tourism-basic include: hero, about, rooms, amenities, cta. For luxury-retreat add: story, gallery. For family-friendly add: activities, faq.
+
+Output JSON with:
+- sections: object where each key is a section id (hero, about, rooms, amenities, cta, and template-specific ones). Each section: { heading?, body?, items? }.
+- seoTitle: short SEO title for the page
+- seoDescription: 1-2 sentence meta description
+
+Write all content in ${langName}. Keep headings concise. Body text 1-3 sentences. items: bullet points if relevant.`,
+        });
+
+        const parsed = result.output as z.infer<typeof landingPageSchema>;
+        if (parsed?.sections && parsed?.seoTitle && parsed?.seoDescription) {
+          pages[lang] = {
+            sections: parsed.sections as LandingContent,
+            seoTitle: parsed.seoTitle,
+            seoDescription: parsed.seoDescription,
+          };
+        } else {
+          throw new Error("Invalid AI output structure");
+        }
+      } catch {
+        const sections = buildMockSections(template, formData, lang);
+        const title = formData.name ?? "Landing Page";
+        pages[lang] = {
+          sections,
+          seoTitle: `${title} | ${formData.location ?? "Slovenija"}`,
+          seoDescription: `Odkrijte ${title} v ${formData.location ?? "Sloveniji"}.`,
+        };
+      }
     }
 
     return NextResponse.json({

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserApiKeys } from "@/lib/user-keys";
 
-function getUserId(session: { user?: { userId?: string; email?: string } } | null): string | null {
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
   return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
 }

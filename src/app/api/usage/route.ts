@@ -1,17 +1,16 @@
-/**
- * AgentFlow Pro - Usage API route
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { getUsage, canRunAgent } from "@/api/usage";
-
-function getUserId(request: NextRequest): string {
-  return request.headers.get("x-user-id") ?? "mock-user-1";
-}
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = getUserId(request);
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = getUserId(session);
     const usage = await getUsage(userId);
     const allowed = await canRunAgent(userId);
     return NextResponse.json({
@@ -19,6 +18,7 @@ export async function GET(request: NextRequest) {
       canRunAgent: allowed,
     });
   } catch (err) {
+    console.error("Error in usage API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }

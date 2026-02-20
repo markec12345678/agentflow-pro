@@ -1,8 +1,3 @@
-/**
- * AgentFlow Pro - Billing API route
- */
-
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import {
   createCheckout,
@@ -11,21 +6,20 @@ import {
 } from "@/api/billing";
 import { authOptions } from "@/lib/auth-options";
 import type { PlanId } from "@/stripe/plans";
-
-function getUserId(request: NextRequest): string {
-  return request.headers.get("x-user-id") ?? "mock-user-1";
-}
+import { getServerSession } from "next-auth";
+import { getUserId } from "@/lib/auth-users";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const userId = session?.user
-      ? (session.user as { userId?: string }).userId ?? session.user.email ?? null
-      : null;
-    const id = userId ?? getUserId(request);
-    const sub = await getSubscription(id);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = getUserId(session);
+    const sub = await getSubscription(userId);
     return NextResponse.json(sub ?? { subscription: null });
   } catch (err) {
+    console.error("Error in billing GET API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }
@@ -41,24 +35,26 @@ export async function POST(request: NextRequest) {
       immediately?: boolean;
     };
     const session = await getServerSession(authOptions);
-    const userId = session?.user
-      ? (session.user as { userId?: string }).userId ?? session.user.email ?? null
-      : null;
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = getUserId(session);
+    const userEmail = session.user?.email;
+
+    if (!userEmail) {
+      return NextResponse.json({ error: "User email not found" }, { status: 400 });
+    }
 
     if (body.action === "checkout") {
-      if (!userId || !session?.user?.email) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
       const planId = body.planId ?? "pro";
-      const baseUrl =
-        request.headers.get("x-forwarded-host") ||
-        request.headers.get("host") ||
-        "localhost:3000";
-      const protocol = request.headers.get("x-forwarded-proto") ?? "http";
-      const origin = baseUrl.startsWith("http") ? baseUrl : `${protocol}://${baseUrl}`;
+      const origin =
+        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
+
       const { url, sessionId } = await createCheckout(
         userId,
-        session.user.email,
+        userEmail,
         planId,
         origin
       );
@@ -66,8 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (body.action === "cancel") {
-      const id = userId ?? getUserId(request);
-      await cancelSubscription(id, body.immediately ?? false);
+      await cancelSubscription(userId, body.immediately ?? false);
       return NextResponse.json({ canceled: true });
     }
 
@@ -76,6 +71,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   } catch (err) {
+    console.error("Error in billing POST API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }
