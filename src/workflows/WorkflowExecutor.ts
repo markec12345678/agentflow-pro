@@ -7,6 +7,10 @@ import { getOrchestrator } from "@/lib/orchestrator-factory";
 import { evaluateCondition as evaluateConditionFromLib, getNextBranch } from "./conditions";
 import { retryWithBackoff } from "./error-handler";
 import type { ConditionOperator } from "./nodes";
+import { sendSlackMessage } from "@/lib/publish/slack";
+import { PrismaClient, Workflow } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export interface WorkflowNode {
   id: string;
@@ -72,10 +76,11 @@ export class WorkflowExecutor {
   async execute(
     nodes: WorkflowNode[],
     edges: WorkflowEdge[],
-    initialContext: Record<string, unknown> = {}
+    initialContext: Record<string, unknown> = {},
+    workflowId?: string,
   ): Promise<ExecutionProgress> {
     const progress: ExecutionProgress = {
-      workflowId: `wf-${Date.now()}`,
+      workflowId: workflowId ?? `wf-${Date.now()}`,
       status: "running",
       currentStep: 0,
       totalSteps: nodes.length,
@@ -83,6 +88,11 @@ export class WorkflowExecutor {
       results: [],
       errors: [],
     };
+
+    let workflow: Workflow | null = null;
+    if (workflowId) {
+      workflow = await prisma.workflow.findUnique({ where: { id: workflowId } });
+    }
 
     try {
       const triggerNode = nodes.find(
@@ -155,6 +165,18 @@ export class WorkflowExecutor {
         agent: "Workflow Executor",
         message: error instanceof Error ? error.message : String(error),
       });
+    }
+
+    if (workflow?.slackWebhookUrl) {
+      let message = ``;
+      if (progress.status === "completed") {
+        message = `✅ Workflow \"${workflow.name}\" completed successfully.`
+      } else if (progress.status === "error") {
+        message = `❌ Workflow \"${workflow.name}\" failed. Error: ${progress.errors[progress.errors.length - 1]?.message}`
+      }
+      if(message) {
+        await sendSlackMessage(workflow.slackWebhookUrl, message);
+      }
     }
 
     return progress;
