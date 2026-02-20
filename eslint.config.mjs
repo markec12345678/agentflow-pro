@@ -18,6 +18,18 @@ const eslintConfig = [
     },
   },
   {
+    files: ["**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+  {
+    files: ["tailwind.config.ts"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+  {
     ignores: [
       ".next/**",
       "node_modules/**",
@@ -32,7 +44,8 @@ const eslintConfig = [
     files: ["tests/**/*.ts"],
     rules: {
       "react-hooks/rules-of-hooks": "off",
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "react-hooks/exhaustive-deps": "off",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_req" }],
     },
   },
 ];

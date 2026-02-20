@@ -41,7 +41,7 @@ describe("GET /api/tourism/seo-metrics", () => {
 
   async function getMetrics() {
     const mod = await import("@/app/api/tourism/seo-metrics/route");
-    const req = new NextRequest("http://localhost/api/tourism/seo-metrics");
+    const _req = new NextRequest("http://localhost/api/tourism/seo-metrics");
     return mod.GET();
   }
 

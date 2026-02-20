@@ -9,7 +9,7 @@ import type { PlanId } from "@/stripe/plans";
 import { getServerSession } from "next-auth";
 import { getUserId } from "@/lib/auth-users";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const body = (await request.json().catch(() => ({}))) as {
       action?: "checkout" | "cancel";

@@ -1,1 +1,71 @@
-import { getServerSession } from \"next-auth\";\nimport { NextResponse } from \"next/server\";\nimport {\n  createOrUpdateWorkflow,\n  listWorkflows,\n  runWorkflow,\n} from \"@/api/workflows\";\nimport { authOptions } from \"@/lib/auth-options\";\nimport { getUserApiKeysForExecution } from \"@/lib/user-keys\";\nimport type { Workflow } from \"@/workflows/types\";\nimport { getUserId } from \"@/lib/auth-users\";\n\nexport async function GET() {\n  const session = await getServerSession(authOptions);\n  if (!session) {\n    return NextResponse.json({ error: \"Unauthorized\" }, { status: 401 });\n  }\n  const userId = getUserId(session);\n  const workflows = await listWorkflows(userId);\n  return NextResponse.json(workflows);\n}\n\nexport async function POST(request: Request) {\n  try {\n    const body = (await request.json()) as Workflow;\n    const url = new URL(request.url);\n    const execute = url.searchParams.get(\"execute\") === \"true\";\n\n    if (!body.id || !body.name) {\n      return NextResponse.json(\n        { error: \"Workflow must have id and name\" },\n        { status: 400 }\n      );\n    }\n\n    const session = await getServerSession(authOptions);\n    if (!session) {\n      return NextResponse.json({ error: \"Unauthorized\" }, { status: 401 });\n    }\n    const userId = getUserId(session);\n\n    const w = await createOrUpdateWorkflow(\n      {\n        id: body.id,\n        name: body.name,\n        nodes: body.nodes ?? [],\n        edges: body.edges ?? [],\n        metadata: body.metadata,\n      },\n      userId\n    );\n\n    if (execute) {\n      const userApiKeys = await getUserApiKeysForExecution(userId);\n      const result = await runWorkflow(\n        w.id,\n        body.metadata as Record<string, unknown>,\n        userApiKeys\n      );\n      return NextResponse.json({ workflow: w, execution: result });\n    }\n\n    return NextResponse.json(w);\n  } catch (err) {\n    console.error(\"Error in workflows API (POST):\ சம்பவ\");\n    return NextResponse.json(\n      { error: err instanceof Error ? err.message : String(err) },\n      { status: 500 }\n    );\n  }\n}\n
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+import {
+  createOrUpdateWorkflow,
+  listWorkflows,
+  runWorkflow,
+} from "@/api/workflows";
+import { authOptions } from "@/lib/auth-options";
+import { getUserApiKeysForExecution } from "@/lib/user-keys";
+import type { Workflow } from "@/workflows/types";
+import { getUserId } from "@/lib/auth-users";
+
+export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const userId = getUserId(session);
+  const workflows = await listWorkflows(userId);
+  return NextResponse.json(workflows);
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = (await request.json()) as Workflow;
+    const url = new URL(request.url);
+    const execute = url.searchParams.get("execute") === "true";
+
+    if (!body.id || !body.name) {
+      return NextResponse.json(
+        { error: "Workflow must have id and name" },
+        { status: 400 }
+      );
+    }
+
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = getUserId(session);
+
+    const w = await createOrUpdateWorkflow(
+      {
+        id: body.id,
+        name: body.name,
+        nodes: body.nodes ?? [],
+        edges: body.edges ?? [],
+        metadata: body.metadata,
+      },
+      userId
+    );
+
+    if (execute) {
+      const userApiKeys = await getUserApiKeysForExecution(userId);
+      const result = await runWorkflow(
+        w.id,
+        body.metadata as Record<string, unknown>,
+        userApiKeys
+      );
+      return NextResponse.json({ workflow: w, execution: result });
+    }
+
+    return NextResponse.json(w);
+  } catch (err) {
+    console.error("Error in workflows API (POST):", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : String(err) },
+      { status: 500 }
+    );
+  }
+}

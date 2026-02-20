@@ -6,7 +6,7 @@ import { test, expect } from "@playwright/test";
 import { test as authTest } from "./fixtures";
 
 authTest.describe("Tourism Hub - Authenticated", () => {
-  authTest("Tourism generate page loads with prompts", async ({ page, auth }, testInfo) => {
+  authTest("Tourism generate page loads with prompts", async ({ page, _auth }, testInfo) => {
     testInfo.setTimeout(30000);
     await page.goto("/dashboard/tourism/generate");
     await page.waitForLoadState("networkidle");
@@ -62,7 +62,7 @@ authTest.describe("Tourism Hub - Authenticated", () => {
     expect(true).toBe(true);
   });
 
-  authTest("Email Generator loads", async ({ page, auth }, testInfo) => {
+  authTest("Email Generator loads", async ({ page, _auth }, testInfo) => {
     testInfo.setTimeout(30000);
     await page.goto("/dashboard/tourism/email");
     await page.waitForLoadState("networkidle");
@@ -82,7 +82,7 @@ authTest.describe("Tourism Hub - Authenticated", () => {
     ).toBeVisible({ timeout: 10000 });
   });
 
-  authTest("Multi-Language Translator loads", async ({ page, auth }, testInfo) => {
+  authTest("Multi-Language Translator loads", async ({ page, _auth }, testInfo) => {
     testInfo.setTimeout(30000);
     await page.goto("/dashboard/tourism/translate");
     await page.waitForLoadState("networkidle");

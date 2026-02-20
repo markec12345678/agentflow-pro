@@ -35,7 +35,8 @@ export function getOrchestrator({
 
   const orch = new Orchestrator();
 
-  const addAgent = (agentFactory: Function, config: Record<string, string>, agentName: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const addAgent = (agentFactory: (...args: any[]) => any, config: Record<string, string>, agentName: string) => {
     const missingKeys = Object.entries(config)
       .filter(([, value]) => !value)
       .map(([key]) => key);
