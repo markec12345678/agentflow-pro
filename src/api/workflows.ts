@@ -15,6 +15,7 @@ function toWorkflow(row: {
   nodes: unknown;
   edges: unknown;
   metadata: unknown;
+  slackWebhookUrl: string | null;
 }): Workflow {
   return {
     id: row.id,
@@ -22,6 +23,7 @@ function toWorkflow(row: {
     nodes: Array.isArray(row.nodes) ? row.nodes : [],
     edges: Array.isArray(row.edges) ? row.edges : [],
     metadata: row.metadata as Workflow["metadata"],
+    slackWebhookUrl: row.slackWebhookUrl,
   };
 }
 
@@ -37,6 +39,7 @@ export async function createOrUpdateWorkflow(
       nodes: w.nodes as object[],
       edges: w.edges as object[],
       metadata: (w.metadata ?? undefined) as object | undefined,
+      slackWebhookUrl: w.slackWebhookUrl,
       userId,
     },
     update: {
@@ -44,6 +47,7 @@ export async function createOrUpdateWorkflow(
       nodes: w.nodes as object[],
       edges: w.edges as object[],
       metadata: (w.metadata ?? undefined) as object | undefined,
+      slackWebhookUrl: w.slackWebhookUrl,
     },
   });
   return toWorkflow(row);
@@ -68,6 +72,7 @@ export async function updateWorkflow(
         nodes: w.nodes as object[],
         edges: w.edges as object[],
         metadata: (w.metadata ?? undefined) as object | undefined,
+        slackWebhookUrl: w.slackWebhookUrl,
       },
     });
     return toWorkflow(row);
@@ -104,7 +109,8 @@ export async function runWorkflow(
   const progress = await executor.execute(
     w.nodes,
     w.edges,
-    (context ?? {}) as Record<string, unknown>
+    (context ?? {}) as Record<string, unknown>,
+    id
   );
 
   const steps = progress.results.map((r) => ({

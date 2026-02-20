@@ -41,4 +41,5 @@ export interface Workflow {
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
   metadata?: WorkflowMetadata;
+  slackWebhookUrl?: string | null;
 }
