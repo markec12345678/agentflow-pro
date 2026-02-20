@@ -54,15 +54,16 @@ model Subscription {
 }
 
 model Workflow {
-  id        String   @id @default(cuid())
-  name      String
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  nodes     Json     @default("[]")
-  edges     Json     @default("[]")
-  metadata  Json?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  name         String
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  nodes        Json     @default("[]")
+  edges        Json     @default("[]")
+  metadata     Json?
+  webhookToken String?  @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AgentRun {
