@@ -11,6 +11,9 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const usage = await getUsage(userId);
     const allowed = await canRunAgent(userId);
     return NextResponse.json({

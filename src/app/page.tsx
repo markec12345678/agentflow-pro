@@ -101,10 +101,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Demo Video Placeholder */}
-      <section id="demo-video" className="py-8 px-4 bg-gray-50 dark:bg-gray-800/50">
+      {/* Demo Video Section */}
+      <section id="demo-video" className="py-12 px-4 bg-gray-50 dark:bg-gray-800/50">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-gray-500 dark:text-gray-400">Demo video – Coming soon</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            90-Second Product Demo
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            See how to generate hotel content, destination guides, and campaigns. Demo video coming soon.
+          </p>
+          <Link
+            href="/onboarding"
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+          >
+            Try AgentFlow Pro Now
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </Link>
         </div>
       </section>
 

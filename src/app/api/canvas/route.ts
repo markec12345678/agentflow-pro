@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { withRlsContext } from "@/lib/rls-context";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
@@ -20,15 +21,17 @@ export async function GET() {
     select: { teamId: true },
   }).then((r) => r.map((m) => m.teamId));
 
-  const boards = await prisma.campaignBoard.findMany({
-    where: {
-      OR: [
-        { userId },
-        ...(teamIds.length > 0 ? [{ teamId: { in: teamIds } }] : []),
-      ],
-    },
-    orderBy: { updatedAt: "desc" },
-  });
+  const boards = await withRlsContext(prisma, userId, async (tx) =>
+    tx.campaignBoard.findMany({
+      where: {
+        OR: [
+          { userId },
+          ...(teamIds.length > 0 ? [{ teamId: { in: teamIds } }] : []),
+        ],
+      },
+      orderBy: { updatedAt: "desc" },
+    })
+  );
 
   return NextResponse.json({ boards });
 }
@@ -45,28 +48,39 @@ export async function POST(request: NextRequest) {
     nodes?: unknown[];
     edges?: unknown[];
     teamId?: string;
+    workspaceId?: string;
   };
   const name = body.name?.trim() || "Campaign Board";
-  let teamId: string | undefined;
+  const teamId = body.teamId?.trim();
 
-  if (body.teamId?.trim()) {
+  if (teamId) {
     const membership = await prisma.teamMember.findUnique({
-      where: { teamId_userId: { teamId: body.teamId.trim(), userId } },
+      where: { userId_teamId: { userId, teamId } },
     });
     const role = membership?.role ?? "";
     if (role !== "owner" && role !== "admin") {
       return NextResponse.json({ error: "Must be owner or admin to create team board" }, { status: 403 });
     }
-    teamId = body.teamId.trim();
+  }
+
+  let workspaceId: string | null = null;
+  if (body.workspaceId?.trim()) {
+    const ws = await prisma.workspace.findFirst({
+      where: {
+        id: body.workspaceId.trim(),
+        team: { members: { some: { userId } } },
+      },
+    });
+    if (ws) workspaceId = ws.id;
   }
 
   const board = await prisma.campaignBoard.create({
     data: {
       userId,
       name,
-      teamId: teamId ?? null,
-      nodes: (body.nodes ?? []) as object[],
-      edges: (body.edges ?? []) as object[],
+      teamId: teamId || userId,
+      workspaceId,
+      data: { nodes: body.nodes ?? [], edges: body.edges ?? [] } as object,
     },
   });
 

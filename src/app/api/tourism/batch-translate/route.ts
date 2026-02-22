@@ -10,7 +10,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { prisma } from "@/database/schema";
 import { recordAgentRun } from "@/api/usage";
 import { authOptions } from "@/lib/auth-options";
-import { getOpenAiApiKey } from "@/config/env";
+import { getLlmApiKey } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { mockMode } from "@/lib/mock-mode";
 
@@ -61,7 +61,11 @@ export async function POST(req: NextRequest) {
     }
 
     const userKeys = await getUserApiKeys(userId, { masked: false });
-    const apiKey = userKeys.openai?.trim() || getOpenAiApiKey();
+    const userOpenai = userKeys.openai?.trim();
+    const llm = userOpenai
+      ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
+      : getLlmApiKey();
+    const apiKey = llm.apiKey;
 
     if (!mockMode && !apiKey) {
       return NextResponse.json(
@@ -88,14 +92,17 @@ export async function POST(req: NextRequest) {
         results[lang] = `[MOCK ${lang}] ${truncated}`;
       }
     } else {
-      const openai = createOpenAI({ apiKey });
+      const openai = createOpenAI({
+        apiKey,
+        ...(llm.baseURL && { baseURL: llm.baseURL }),
+      });
       let totalInputTokens = 0;
       let totalOutputTokens = 0;
 
       for (const targetLang of targetLangs) {
         try {
           const { text, usage } = await generateText({
-            model: openai("gpt-4o-mini"),
+            model: openai(llm.model),
             prompt: `Translate the following ${sourceLang} tourism content to ${targetLang}.
 Preserve formatting (paragraphs, line breaks). Keep tourism terminology (e.g. Apartma, Bela Krajina) - translate only where appropriate for the target language.
 Maintain the tone and style. Do not add explanations, just return the translated text.

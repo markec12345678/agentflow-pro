@@ -10,7 +10,7 @@ import { generateText, Output } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth-options";
-import { getOpenAiApiKey } from "@/config/env";
+import { getLlmApiKey } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { mockMode } from "@/lib/mock-mode";
 
@@ -184,9 +184,12 @@ export async function POST(request: NextRequest) {
     }
 
     const userKeys = await getUserApiKeys(userId!, { masked: false });
-    const apiKey = userKeys.openai?.trim() || getOpenAiApiKey();
+    const userOpenai = userKeys.openai?.trim();
+    const llm = userOpenai
+      ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
+      : getLlmApiKey();
 
-    if (!apiKey) {
+    if (!llm.apiKey) {
       for (const lang of languages) {
         const sections = buildMockSections(template, formData, lang);
         const title = formData.name ?? "Landing Page";
@@ -215,13 +218,16 @@ export async function POST(request: NextRequest) {
       seoDescription: z.string(),
     });
 
-    const openai = createOpenAI({ apiKey });
+    const openai = createOpenAI({
+      apiKey: llm.apiKey,
+      ...(llm.baseURL && { baseURL: llm.baseURL }),
+    });
 
     for (const lang of languages) {
       try {
         const langName = langLabels[lang] ?? "Slovenian";
         const result = await generateText({
-          model: openai("gpt-4o-mini"),
+          model: openai(llm.model),
           temperature: 0.6,
           output: Output.object({
             schema: landingPageSchema,

@@ -1,0 +1,27 @@
+---
+description: Bolt.diy workflow - ko delamo v F:\d\bolt-diy, uporabi specifične konvencije
+globs: "bolt-diy/**/*"
+alwaysApply: false
+---
+
+# Bolt.diy Workflow
+
+Uporabi ko delamo v projektu Bolt.diy (open-source Bolt.new alternativa).
+
+## Kontekst
+
+- Bolt.diy uporablja WebContainers, Vite, Cloudflare Workers
+- 19+ LLM providerjev: OpenAI, Anthropic, Ollama, OpenRouter, itd.
+- API ključi: `.env.local` ali UI Settings → Providers
+
+## Konvencije
+
+- Pri generiranju kode uporabi Next.js, React, Tailwind – Bolt izhod je kompatibilen
+- Za lokalno: `OLLAMA_API_BASE_URL=http://127.0.0.1:11434` (ne localhost – IPv6 težave)
+- Zagon: `pnpm run dev` → http://localhost:5173
+- Docker: `pnpm run dockerbuild` in `docker compose --profile development up`
+
+## Reference
+
+- Docs: https://stackblitz-labs.github.io/bolt.diy/
+- Repo: https://github.com/stackblitz-labs/bolt.diy

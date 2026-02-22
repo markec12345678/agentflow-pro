@@ -3,7 +3,6 @@ import { getAppBackend } from "@/memory/app-backend";
 import type { CreateEntityInput } from "@/memory/memory-backend";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { getUserId } from "@/lib/auth-users";
 
 export async function GET() {
   try {
@@ -11,8 +10,7 @@ export async function GET() {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userId = getUserId(session);
-    const backend = getAppBackend(userId);
+    const backend = getAppBackend();
     const graph = backend.readGraph();
     return NextResponse.json(graph);
   } catch (err) {
@@ -30,13 +28,12 @@ export async function POST(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userId = getUserId(session);
     const body = await request.json() as { entities?: CreateEntityInput[] };
     const entities = body.entities ?? [];
     if (!Array.isArray(entities) || entities.length === 0) {
       return NextResponse.json({ error: "entities array required" }, { status: 400 });
     }
-    const backend = getAppBackend(userId);
+    const backend = getAppBackend();
     backend.createEntities(entities);
     return NextResponse.json({ ok: true });
   } catch (err) {

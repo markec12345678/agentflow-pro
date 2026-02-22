@@ -96,3 +96,13 @@ Maps every feature to its UI location. Use for audits and ensuring feature visib
 | /docs/api | API documentation |
 | /admin | Admin panel |
 | /monitoring | Monitoring dashboard |
+
+---
+
+## Raziskave in analize
+
+| Dokument | Vsebina | Uporabi pri |
+|----------|---------|-------------|
+| [JASPER-GAP-ANALYSIS](JASPER-GAP-ANALYSIS.md) | Konkurenčna primerjava, feature parity z Jasper | Product roadmap, features |
+| [AGENTFLOW-ECOSYSTEM-COMPARISON](AGENTFLOW-ECOSYSTEM-COMPARISON.md) | Arhitekturna primerjava z akademsko raziskavo, tehnični roadmap | CTO, arhitektura, dolgoročno |
+| [RESEARCH-INDEX](RESEARCH-INDEX.md) | Pregled vseh raziskav, kdaj katero uporabiti | Quick reference |

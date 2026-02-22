@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
 import { canApproveContent } from "@/lib/team-auth";
+import { indexBlogPost } from "@/lib/vector-indexer";
 
 export async function GET(
   _request: NextRequest,
@@ -118,6 +119,7 @@ export async function PATCH(
         ...(body.pipelineStage === "review" && { reviewedAt: new Date() }),
       },
     });
+    indexBlogPost(updated.id, updated);
 
     return NextResponse.json({
       id: updated.id,

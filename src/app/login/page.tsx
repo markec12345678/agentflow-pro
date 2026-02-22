@@ -14,7 +14,7 @@ function LoginForm() {
   const [googleEnabled, setGoogleEnabled] = useState(false);
 
   useEffect(() => {
-    const err = searchParams.get("error");
+    const err = searchParams?.get("error");
     if (err === "CredentialsSignin") {
       setError("Napačen email ali geslo");
     }
@@ -41,26 +41,37 @@ function LoginForm() {
     setError("");
     setLoading(true);
     try {
+      const callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard";
       const res = await signIn("credentials", {
-        email,
-        password,
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
         redirect: false,
+        callbackUrl,
       });
       if (res?.error) {
         setError("Napačen email ali geslo");
         return;
       }
-      window.location.href = "/dashboard";
-    } catch {
-      setError("Prijava ni uspela");
+      if (res?.ok && (res?.url || callbackUrl)) {
+        window.location.href = res.url ?? callbackUrl;
+        return;
+      }
+      if (!res) {
+        setError("Prijava ni uspela. Poskusite znova.");
+        return;
+      }
+      window.location.href = callbackUrl;
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Prijava ni uspela. Preverite internetno povezavo.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-8">
-      <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800">
+    <main className="flex min-h-screen items-center justify-center p-8 relative z-40">
+      <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800 relative z-50">
         <h1 className="mb-4 text-xl font-bold dark:text-white">Sign in</h1>
         {error && error.includes("Google") && (
           <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
@@ -105,33 +116,39 @@ function LoginForm() {
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email
             </label>
             <input
               id="email"
+              name="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
               required
-              className="w-full rounded border border-gray-300 px-3 py-2"
+              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
             />
           </div>
           <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Password
             </label>
             <input
               id="password"
+              name="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               required
-              className="w-full rounded border border-gray-300 px-3 py-2"
+              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
             />
           </div>
           {error && !error.includes("Google") && (
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+              {error}
+            </p>
           )}
           <button
             type="submit"

@@ -21,10 +21,16 @@ export default function SettingsPage() {
   const searchParams = useSearchParams();
   const [keys, setKeys] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<Record<string, string>>({});
-  const [connections, setConnections] = useState<{ linkedin: boolean; twitter: boolean; hubspot: boolean }>({
+  const [connections, setConnections] = useState<{
+    linkedin: boolean;
+    twitter: boolean;
+    hubspot: boolean;
+    salesforce: boolean;
+  }>({
     linkedin: false,
     twitter: false,
     hubspot: false,
+    salesforce: false,
   });
   const [companyKnowledge, setCompanyKnowledge] = useState({
     products: "",
@@ -40,10 +46,12 @@ export default function SettingsPage() {
     const linkedin = searchParams.get("linkedin");
     const twitter = searchParams.get("twitter");
     const hubspot = searchParams.get("hubspot");
+    const salesforce = searchParams.get("salesforce");
     const err = searchParams.get("error");
     if (linkedin === "ok") setMessage("LinkedIn connected successfully.");
     if (twitter === "ok") setMessage("Twitter connected successfully.");
     if (hubspot === "ok") setMessage("HubSpot connected successfully.");
+    if (salesforce === "connected") setMessage("Salesforce connected successfully.");
     if (err) setMessage(`Connection error: ${err}`);
   }, [searchParams]);
 
@@ -68,6 +76,7 @@ export default function SettingsPage() {
           linkedin: connData.linkedin ?? false,
           twitter: connData.twitter ?? false,
           hubspot: connData.hubspot ?? false,
+          salesforce: connData.salesforce ?? false,
         });
         if (!onboardingData.error && onboardingData.onboarding?.company_knowledge) {
           const ck = onboardingData.onboarding.company_knowledge;
@@ -82,7 +91,7 @@ export default function SettingsPage() {
       .finally(() => setLoading(false));
   }, [status]);
 
-  const handleDisconnect = async (provider: "linkedin" | "twitter" | "hubspot") => {
+  const handleDisconnect = async (provider: "linkedin" | "twitter" | "hubspot" | "salesforce") => {
     const res = await fetch(`/api/auth/connections?provider=${provider}`, { method: "DELETE" });
     if (res.ok) setConnections((c) => ({ ...c, [provider]: false }));
   };
@@ -251,6 +260,28 @@ export default function SettingsPage() {
                 className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
               >
                 Connect HubSpot
+              </Link>
+            )}
+          </div>
+          <div className="flex items-center justify-between rounded-lg border border-gray-700 bg-gray-800 p-4">
+            <span className="text-white">Salesforce</span>
+            {connections.salesforce ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-green-400">Connected</span>
+                <button
+                  type="button"
+                  onClick={() => handleDisconnect("salesforce")}
+                  className="text-sm text-red-400 hover:text-red-300"
+                >
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/api/auth/salesforce/connect"
+                className="rounded-lg bg-[#00a1e0] px-4 py-2 text-sm font-medium text-white hover:bg-[#008ab8]"
+              >
+                Connect Salesforce
               </Link>
             )}
           </div>

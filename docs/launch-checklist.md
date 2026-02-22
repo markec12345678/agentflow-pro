@@ -15,7 +15,9 @@
 | NEXTAUTH_URL                                      | Da                 | `http://localhost:3000`                      |
 | NEXTAUTH_SECRET                                   | Da                 | poljuben secret za JWT                       |
 | STRIPE_*                                          | Ne (za prod)       | `sk_test_...` za testiranje plačil           |
-| GITHUB_TOKEN, FIRECRAWL_API_KEY, CONTEXT7_API_KEY | Ne                 | Samo če MOCK_MODE=false                      |
+| OPENAI_API_KEY / ALIBABA_QWEN_API_KEY              | Ne                 | Samo če MOCK_MODE=false (LLM fallback)        |
+| PUSHER_* / NEXT_PUBLIC_PUSHER_*                    | Ne                 | Real-time Canvas collaboration               |
+| GITHUB_TOKEN, FIRECRAWL_API_KEY, CONTEXT7_API_KEY  | Ne                 | Samo če MOCK_MODE=false                      |
 
 Glej [.env.example](../.env.example) in [database-setup.md](./database-setup.md) za Supabase.
 

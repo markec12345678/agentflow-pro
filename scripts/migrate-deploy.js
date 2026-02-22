@@ -5,8 +5,11 @@
  * Use: node scripts/migrate-deploy.js  or  npm run db:migrate:deploy
  */
 
-require("dotenv").config({ path: ".env.local" });
-require("dotenv").config({ path: ".env" });
+const path = require("path");
+const fs = require("fs");
+const root = path.resolve(__dirname, "..");
+require("dotenv").config({ path: path.join(root, ".env.local") });
+require("dotenv").config({ path: path.join(root, ".env") });
 
 if (!process.env.DATABASE_URL) {
   console.error("\nError: DATABASE_URL not set.");
@@ -14,9 +17,18 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
+// Prisma CLI reads .env - ensure DATABASE_URL for subprocess
+const envPath = path.join(root, ".env");
+if (!fs.existsSync(envPath) || !/^DATABASE_URL=/m.test(fs.readFileSync(envPath, "utf8"))) {
+  const safe = process.env.DATABASE_URL.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  const content = fs.existsSync(envPath) ? fs.readFileSync(envPath, "utf8") : "";
+  fs.writeFileSync(envPath, (content.trimEnd() ? content.trimEnd() + "\n" : "") + `DATABASE_URL="${safe}"\n`);
+}
+
 const { spawnSync } = require("child_process");
 const r = spawnSync("npx", ["prisma", "migrate", "deploy"], {
   stdio: "inherit",
+  cwd: root,
   env: process.env,
 });
 process.exit(r.status ?? 1);

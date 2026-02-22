@@ -1,10 +1,11 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { PromptSelector } from "@/web/components/PromptSelector";
 import { VariableForm } from "@/web/components/VariableForm";
@@ -19,13 +20,73 @@ function getMessageText(message: { parts?: Array<{ type: string; text?: string }
   );
 }
 
+function toStoredMessage(m: { id: string; role: string; parts?: Array<{ type: string; text?: string }> }): { id: string; role: string; content: string } {
+  const content = getMessageText(m);
+  return { id: m.id, role: m.role, content };
+}
+
 export default function ChatPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const threadId = searchParams.get("threadId");
+  const [initialMessages, setInitialMessages] = useState<UIMessage[] | undefined>();
+  const [threadLoaded, setThreadLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!threadId) {
+      setThreadLoaded(true);
+      return;
+    }
+    fetch(`/api/chat/threads/${threadId}`)
+      .then((r) => r.json())
+      .then((data: { messages?: Array<{ id: string; role: string; content: string }> }) => {
+        const msgs = Array.isArray(data.messages) ? data.messages : [];
+        setInitialMessages(
+          msgs.map((m) => {
+            const role = m.role === "user" || m.role === "assistant" || m.role === "system" ? m.role : "user";
+            return {
+              id: m.id,
+              role,
+              parts: [{ type: "text" as const, text: m.content ?? "" }],
+            } as UIMessage;
+          })
+        );
+      })
+      .catch(() => setInitialMessages([]))
+      .finally(() => setThreadLoaded(true));
+  }, [threadId]);
+
   const { messages, sendMessage, status } = useChat({
+    id: threadId ?? "new-chat",
     transport: new DefaultChatTransport({
       api: "/api/chat",
     }),
+    messages: threadLoaded && initialMessages ? initialMessages : undefined,
   });
+
+  const handleCreateBranch = useCallback(
+    (upToMessageIndex: number) => {
+      const slice = messages.slice(0, upToMessageIndex + 1);
+      const stored = slice.map(toStoredMessage);
+      const parent = threadId || null;
+      fetch("/api/chat/threads/branch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: stored, parentThreadId: parent }),
+      })
+        .then((r) => r.json())
+        .then((data: { id?: string }) => {
+          if (data.id) {
+            router.push(`/chat?threadId=${data.id}`);
+            toast.success("Veja ustvarjena");
+          } else {
+            toast.error("Napaka pri ustvarjanju veje");
+          }
+        })
+        .catch(() => toast.error("Napaka pri ustvarjanju veje"));
+    },
+    [messages, threadId, router]
+  );
   const [input, setInput] = useState("");
 
   useEffect(() => {
@@ -37,6 +98,7 @@ export default function ChatPage() {
   const [savedPostIds, setSavedPostIds] = useState<Record<string, string>>({});
   const [savingMessageId, setSavingMessageId] = useState<string | null>(null);
   const [saveErrorForMessage, setSaveErrorForMessage] = useState<Record<string, string>>({});
+  const [planExecute, setPlanExecute] = useState(false);
 
   useEffect(() => {
     fetch("/api/onboarding")
@@ -92,14 +154,18 @@ export default function ChatPage() {
 
         <div className="rounded-xl bg-white dark:bg-gray-800 shadow-lg p-6 min-h-[400px] flex flex-col">
           <div className="flex-1 overflow-y-auto space-y-4 mb-6">
-            {messages.length === 0 ? (
+            {threadId && !threadLoaded ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                Nalagam pogovor...
+              </p>
+            ) : messages.length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400 text-center py-8">
                 Kaj bi rad danes ustvaril? Napiši prompt, npr. &quot;Napiši uvod
                 za blog o AI avtomatizaciji&quot; ali &quot;Razširi ta naslov v
                 kratek odstavek&quot;.
               </p>
             ) : (
-              messages.map((message) => {
+              messages.map((message, idx) => {
                 const text = getMessageText(message);
                 const isAssistant = message.role === "assistant";
                 const postId = savedPostIds[message.id];
@@ -147,6 +213,14 @@ export default function ChatPage() {
                         )}
                         <button
                           type="button"
+                          onClick={() => handleCreateBranch(idx)}
+                          className="text-sm text-purple-600 dark:text-purple-400 hover:underline font-medium"
+                          title="Ustvari vejo od tega odgovora"
+                        >
+                          Create branch
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => {
                             navigator.clipboard.writeText(text);
                             toast.success("Kopirano");
@@ -190,7 +264,10 @@ export default function ChatPage() {
               <VariableForm
                 prompt={selectedPrompt}
                 onSubmit={(filledPrompt) => {
-                  sendMessage({ text: filledPrompt });
+                  sendMessage(
+                    { text: filledPrompt },
+                    planExecute ? { body: { planExecute: true } } : undefined
+                  );
                   setSelectedPrompt(null);
                 }}
                 disabled={status !== "ready"}
@@ -198,11 +275,27 @@ export default function ChatPage() {
             </div>
           )}
 
+          <div className="flex items-center gap-2 mb-3">
+            <input
+              type="checkbox"
+              id="planExecute"
+              checked={planExecute}
+              onChange={(e) => setPlanExecute(e.target.checked)}
+              className="rounded border-gray-600 bg-gray-700 text-purple-500 focus:ring-purple-500"
+            />
+            <label htmlFor="planExecute" className="text-sm text-gray-400">
+              Multi-agent plan (razčleni v sub-goals, izvedi Research/Content/Code/Deploy agente)
+            </label>
+          </div>
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
               if (input.trim()) {
-                sendMessage({ text: input });
+                sendMessage(
+                  { text: input },
+                  planExecute ? { body: { planExecute: true } } : undefined
+                );
                 setInput("");
               }
             }}
@@ -232,6 +325,10 @@ export default function ChatPage() {
         <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
           <Link href="/content" className="text-blue-600 hover:underline">
             ← Nazaj na My Content
+          </Link>
+          {" · "}
+          <Link href="/chat/threads" className="text-blue-600 hover:underline">
+            Conversation threads
           </Link>
         </p>
       </div>

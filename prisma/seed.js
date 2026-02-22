@@ -1,9 +1,9 @@
 /**
  * Prisma seed - E2E user for testing
- * e2e@test.com / e2e-secret (passwordHash from bcrypt)
+ * e2e@test.com / e2e-secret (passwordHash from bcryptjs)
  */
 const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 const ANONYMOUS_USER_ID = "anonymous-user-id";

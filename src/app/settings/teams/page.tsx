@@ -12,6 +12,13 @@ interface Team {
   _count?: { members: number; invites: number };
 }
 
+interface _Workspace {
+  id: string;
+  name: string;
+  type: string;
+  teamId: string;
+}
+
 export default function TeamsSettingsPage() {
   const { data: session, status, update: updateSession } = useSession();
   const [teams, setTeams] = useState<Team[]>([]);
@@ -23,6 +30,9 @@ export default function TeamsSettingsPage() {
   const [inviteRole, setInviteRole] = useState<Record<string, string>>({});
   const [inviting, setInviting] = useState<string | null>(null);
   const [switchingTeam, setSwitchingTeam] = useState(false);
+  const [workspaces, setWorkspaces] = useState<_Workspace[]>([]);
+  const [newWorkspaceName, setNewWorkspaceName] = useState<Record<string, string>>({});
+  const [creatingWorkspace, setCreatingWorkspace] = useState<string | null>(null);
 
   const refetch = () => {
     fetch("/api/teams")
@@ -35,6 +45,31 @@ export default function TeamsSettingsPage() {
       .then((r) => r.json())
       .then((data) => setActiveTeamId(data.activeTeamId ?? null))
       .catch(() => setActiveTeamId(null));
+    fetch("/api/workspaces")
+      .then((r) => r.json())
+      .then((list) => setWorkspaces(Array.isArray(list) ? list : []))
+      .catch(() => setWorkspaces([]));
+  };
+
+  const handleCreateWorkspace = async (teamId: string) => {
+    const name = newWorkspaceName[teamId]?.trim();
+    if (!name) return;
+    setCreatingWorkspace(teamId);
+    try {
+      const res = await fetch("/api/workspaces", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teamId, name, type: "campaign" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed");
+      setNewWorkspaceName((prev) => ({ ...prev, [teamId]: "" }));
+      refetch();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setCreatingWorkspace(null);
+    }
   };
 
   useEffect(() => {
@@ -99,6 +134,14 @@ export default function TeamsSettingsPage() {
   const isOwner = (team: Team) => {
     const uid = (session?.user as { userId?: string })?.userId ?? session?.user?.email;
     return team.owner.id === uid || team.owner.email === uid;
+  };
+
+  const isAdminOrOwner = (team: Team) => {
+    if (isOwner(team)) return true;
+    const uid = (session?.user as { userId?: string })?.userId ?? session?.user?.email;
+    return team.members.some(
+      (m) => (m.user.id === uid || m.user.email === uid) && m.role === "admin"
+    );
   };
 
   const handleSetActiveTeam = async (teamId: string) => {
@@ -205,6 +248,37 @@ export default function TeamsSettingsPage() {
                   ))}
                 </ul>
               </div>
+              {isAdminOrOwner(team) && (
+                <div className="mb-4">
+                  <p className="text-sm text-gray-400 mb-2">Workspaces</p>
+                  <ul className="space-y-1 mb-2">
+                    {workspaces.filter((w) => w.teamId === team.id).map((w) => (
+                      <li key={w.id} className="text-sm text-gray-300">
+                        {w.name} <span className="text-gray-500">({w.type})</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex gap-2 items-end">
+                    <input
+                      type="text"
+                      value={newWorkspaceName[team.id] ?? ""}
+                      onChange={(e) =>
+                        setNewWorkspaceName((prev) => ({ ...prev, [team.id]: e.target.value }))
+                      }
+                      placeholder="Workspace name"
+                      className="rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-500 text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleCreateWorkspace(team.id)}
+                      disabled={creatingWorkspace === team.id || !newWorkspaceName[team.id]?.trim()}
+                      className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+                    >
+                      {creatingWorkspace === team.id ? "Creating..." : "Add Workspace"}
+                    </button>
+                  </div>
+                </div>
+              )}
               {isOwner(team) && (
                 <div className="flex gap-2 flex-wrap items-end">
                   <input

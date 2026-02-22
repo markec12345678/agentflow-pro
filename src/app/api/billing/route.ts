@@ -16,6 +16,9 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const sub = await getSubscription(userId);
     return NextResponse.json(sub ?? { subscription: null });
   } catch (err) {
@@ -27,7 +30,7 @@ export async function GET(_request: NextRequest) {
   }
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const body = (await request.json().catch(() => ({}))) as {
       action?: "checkout" | "cancel";
@@ -41,6 +44,9 @@ export async function POST(_request: NextRequest) {
     }
 
     const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const userEmail = session.user?.email;
 
     if (!userEmail) {

@@ -27,7 +27,7 @@ describe("extractCheckoutMetadata", () => {
   it("returns userId and planId when present", () => {
     const session = {
       metadata: { userId: "u1", planId: "pro" },
-    } as Parameters<typeof extractCheckoutMetadata>[0];
+    } as unknown as Parameters<typeof extractCheckoutMetadata>[0];
     expect(extractCheckoutMetadata(session)).toEqual({
       userId: "u1",
       planId: "pro",
@@ -44,7 +44,7 @@ describe("extractSubscriptionMetadata", () => {
   it("returns userId and planId when present", () => {
     const sub = {
       metadata: { userId: "u1", planId: "enterprise" },
-    } as Parameters<typeof extractSubscriptionMetadata>[0];
+    } as unknown as Parameters<typeof extractSubscriptionMetadata>[0];
     expect(extractSubscriptionMetadata(sub)).toEqual({
       userId: "u1",
       planId: "enterprise",

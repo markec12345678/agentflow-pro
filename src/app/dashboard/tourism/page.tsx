@@ -7,6 +7,9 @@ import { PROMPTS } from "@/data/prompts";
 import { FeatureTour, TOURISM_STEPS } from "@/web/components/FeatureTour";
 import { PropertySelector } from "@/web/components/PropertySelector";
 import { Skeleton } from "@/web/components/Skeleton";
+import { GlobalSearch } from "@/web/components/GlobalSearch";
+import { NotificationBell } from "@/web/components/NotificationBell";
+import { OnboardingWizard } from "@/web/components/OnboardingWizard";
 
 const TOURISM_PROMPTS = PROMPTS.filter((p) => p.category === "tourism").map(
   (p) => ({ id: p.id, name: p.name, desc: p.description })
@@ -85,6 +88,7 @@ export default function TourismOverviewPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8 overflow-x-hidden">
+      <OnboardingWizard />
       <FeatureTour
         steps={TOURISM_STEPS}
         storageKey="agentflow-tourism-tour-seen"
@@ -104,6 +108,8 @@ export default function TourismOverviewPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <GlobalSearch propertyId={activePropertyId} />
+          <NotificationBell propertyId={activePropertyId} />
           <PropertySelector
             value={activePropertyId}
             onChange={async (id) => {
@@ -237,23 +243,61 @@ export default function TourismOverviewPage() {
         </div>
       )}
 
+      {/* New Feature Links */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Link
+          href="/dashboard/tourism/guest-communication"
+          className="p-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-90 transition-opacity"
+        >
+          <div className="text-2xl mb-2">💬</div>
+          <div className="font-semibold">Komunikacija z Gosti</div>
+          <div className="text-sm text-white/80">Pre-arrival, Post-stay, FAQ</div>
+        </Link>
+
+        <Link
+          href="/dashboard/tourism/calendar"
+          className="p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 transition-opacity"
+        >
+          <div className="text-2xl mb-2">📅</div>
+          <div className="font-semibold">Koledar & Zasedenost</div>
+          <div className="text-sm text-white/80">Rezervacije, iCal sync</div>
+        </Link>
+
+        <Link
+          href="/dashboard/tourism/analytics"
+          className="p-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
+        >
+          <div className="text-2xl mb-2">📊</div>
+          <div className="font-semibold">Analitika & Poročila</div>
+          <div className="text-sm text-white/80">Kanali, prihodki, trendi</div>
+        </Link>
+
+        <Link
+          href="/dashboard/tourism/competitors"
+          className="p-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-opacity"
+        >
+          <div className="text-2xl mb-2">🎯</div>
+          <div className="font-semibold">Spremljanje Tekmecev</div>
+          <div className="text-sm text-white/80">Primerjava cen, trg</div>
+        </Link>
+      </div>
+
       <div className="rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 p-6 text-center">
         <div className="text-4xl mb-3" aria-hidden>
-          🚧
+          �
         </div>
         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-          Kmalu: SEO ranking v realnem času
+          iCal Sinhronizacija
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Poveži Google Search Console in spremljaj pozicije ključnih besed v realnem času.
+          Sinhronizirajte koledar z Airbnb, Booking.com in drugimi platformami.
         </p>
-        <button
-          type="button"
-          disabled
-          className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed text-sm font-medium"
+        <Link
+          href="/dashboard/tourism/calendar"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium transition-colors"
         >
-          Obvesti me ko bo pripravljeno
-        </button>
+          Nastavi iCal Sync →
+        </Link>
       </div>
     </div>
   );

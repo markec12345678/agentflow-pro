@@ -47,7 +47,7 @@ export async function POST(
   }
 
   const existing = await prisma.teamMember.findUnique({
-    where: { teamId_userId: { teamId: invite.teamId, userId } },
+    where: { userId_teamId: { userId, teamId: invite.teamId } },
   });
   if (existing) {
     await prisma.invite.delete({ where: { id: invite.id } });

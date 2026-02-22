@@ -9,7 +9,7 @@ import { getServerSession } from "next-auth";
 import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { authOptions } from "@/lib/auth-options";
-import { getOpenAiApiKey } from "@/config/env";
+import { getLlmApiKey } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { mockMode } from "@/lib/mock-mode";
 
@@ -41,7 +41,11 @@ export async function POST(req: NextRequest) {
     }
 
     const userKeys = await getUserApiKeys(userId, { masked: false });
-    const apiKey = userKeys.openai?.trim() || getOpenAiApiKey();
+    const userOpenai = userKeys.openai?.trim();
+    const llm = userOpenai
+      ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
+      : getLlmApiKey();
+    const apiKey = llm.apiKey;
 
     if (mockMode) {
       const mockContent = `[MOCK] Generirana turistična vsebina – ${prompt.slice(0, 80)}...
@@ -62,9 +66,12 @@ AgentFlow Pro Tourism Content Generator.`;
       );
     }
 
-    const openai = createOpenAI({ apiKey });
+    const openai = createOpenAI({
+      apiKey,
+      ...(llm.baseURL && { baseURL: llm.baseURL }),
+    });
     const result = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: openai(llm.model),
       prompt: `You are a tourism hospitality content writer. Follow the instructions exactly. Output only the requested content – no meta commentary, no explanations, no headers like "Here is your..." or "I have generated...".
 
 Instructions:

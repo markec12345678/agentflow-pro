@@ -20,7 +20,7 @@ describe("CodeAgent", () => {
 
   it("returns structured output with files and suggestions", async () => {
     const agent = createCodeAgent();
-    const result = await agent.execute({});
+    const result = (await agent.execute({})) as { files?: unknown[]; suggestions?: unknown[] };
     expect(result).toHaveProperty("files");
     expect(result).toHaveProperty("suggestions");
     expect(Array.isArray(result.files)).toBe(true);

@@ -156,6 +156,95 @@ function ActivityItem({
 
 const tourismPrompts = PROMPTS.filter((p) => p.category === "tourism").slice(0, 3);
 
+interface Checkpoint {
+  id: string;
+  nodeId: string;
+  nodeLabel: string | null;
+  status: string;
+  createdAt: string;
+  workflow: { id: string; name: string };
+}
+
+function ApprovalQueue() {
+  const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCheckpoints = useCallback(() => {
+    fetch("/api/workflows/checkpoint")
+      .then((r) => r.json())
+      .then((list: Checkpoint[]) => setCheckpoints(Array.isArray(list) ? list : []))
+      .catch(() => setCheckpoints([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchCheckpoints();
+  }, [fetchCheckpoints]);
+
+  const handleApprove = (checkpointId: string) => {
+    fetch("/api/workflows/checkpoint/approve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checkpointId }),
+    })
+      .then((r) => r.json())
+      .then(() => fetchCheckpoints());
+  };
+
+  const handleReject = (checkpointId: string) => {
+    fetch("/api/workflows/checkpoint/reject", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checkpointId }),
+    })
+      .then(() => fetchCheckpoints());
+  };
+
+  if (loading || checkpoints.length === 0) return null;
+
+  return (
+    <div className="max-w-7xl mx-auto mb-12">
+      <h2 className="text-2xl font-bold mb-6">Pending Approvals</h2>
+      <p className="text-gray-600 dark:text-gray-400 mb-4">
+        Workflows waiting for your approval before continuing
+      </p>
+      <div className="space-y-3">
+        {checkpoints.map((cp) => (
+          <div
+            key={cp.id}
+            className="flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"
+          >
+            <div>
+              <p className="font-medium">
+                {cp.workflow.name} – {cp.nodeLabel || cp.nodeId}
+              </p>
+              <p className="text-sm text-gray-500">
+                {new Date(cp.createdAt).toLocaleString()}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => handleReject(cp.id)}
+                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                Reject
+              </button>
+              <button
+                type="button"
+                onClick={() => handleApprove(cp.id)}
+                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Approve
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const searchParams = useSearchParams();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
@@ -336,6 +425,9 @@ export default function DashboardPage() {
           </Link>
         </div>
       )}
+
+      {/* Pending Approvals (HITL) */}
+      <ApprovalQueue />
 
       {/* Saved Workflows */}
       {workflows.length > 0 && (

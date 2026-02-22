@@ -4,6 +4,7 @@
  */
 
 import type { Agent } from "../../orchestrator/Orchestrator";
+import { getLlmApiKey } from "@/config/env";
 import { mockMode } from "@/lib/mock-mode";
 import {
   getFileContents,
@@ -43,9 +44,13 @@ function captureSentry(err: unknown): void {
 export function createCodeAgent(config?: {
   githubToken?: string;
   openaiKey?: string;
+  openaiBaseURL?: string;
+  openaiModel?: string;
 }): Agent {
   const token = config?.githubToken ?? process.env.GITHUB_TOKEN ?? "";
-  const openaiKey = config?.openaiKey ?? process.env.OPENAI_API_KEY ?? "";
+  const llm = config?.openaiKey
+    ? { apiKey: config.openaiKey, baseURL: config.openaiBaseURL, model: config.openaiModel ?? "gpt-4o-mini" }
+    : getLlmApiKey();
 
   return {
     id: "code-agent",
@@ -77,7 +82,7 @@ export function createCodeAgent(config?: {
       }
 
       try {
-        const generated = await generateCode(task, enrichedContext, openaiKey);
+        const generated = await generateCode(task, enrichedContext, llm);
         output.files = generated.files;
         const review = reviewCode(generated.files);
         output.suggestions = review.suggestions;

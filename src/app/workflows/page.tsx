@@ -805,25 +805,43 @@ function WorkflowsPageInner() {
               </div>
 
               {selectedNode.data?.agentType != null && (
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-400">
-                    Agent Type
-                  </label>
-                  <select
-                    value={String(selectedNode.data.agentType)}
-                    onChange={(e) =>
-                      onNodeDataChange(selectedNode.id, {
-                        agentType: e.target.value as "research" | "content" | "code" | "deploy",
-                      })
-                    }
-                    className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-                  >
-                    <option value="research">Research Agent</option>
-                    <option value="content">Content Agent</option>
-                    <option value="code">Code Agent</option>
-                    <option value="deploy">Deploy Agent</option>
-                  </select>
-                </div>
+                <>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-400">
+                      Agent Type
+                    </label>
+                    <select
+                      value={String(selectedNode.data.agentType)}
+                      onChange={(e) =>
+                        onNodeDataChange(selectedNode.id, {
+                          agentType: e.target.value as "research" | "content" | "code" | "deploy",
+                        })
+                      }
+                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                    >
+                      <option value="research">Research Agent</option>
+                      <option value="content">Content Agent</option>
+                      <option value="code">Code Agent</option>
+                      <option value="deploy">Deploy Agent</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      type="checkbox"
+                      id="requiresApproval"
+                      checked={Boolean(selectedNode.data?.requiresApproval)}
+                      onChange={(e) =>
+                        onNodeDataChange(selectedNode.id, {
+                          requiresApproval: e.target.checked,
+                        })
+                      }
+                      className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
+                    />
+                    <label htmlFor="requiresApproval" className="text-sm text-gray-400">
+                      Require approval before continuing
+                    </label>
+                  </div>
+                </>
               )}
 
               {selectedNode.data?.agentType === "research" && (

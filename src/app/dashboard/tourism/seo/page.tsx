@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "@/web/components/Skeleton";
@@ -64,14 +63,12 @@ export default function TourismSeoPage() {
         const list = data.metrics ?? [];
         if (list.length > 0) {
           setKeywords(
-            list.map((m: { id?: string; keyword: string; position?: number; searchVolume?: number; volume?: number; difficulty?: number; contentType?: string; contentId?: string }) => ({
+            list.map((m) => ({
               id: m.id,
               keyword: m.keyword,
               position: m.position ?? null,
-              volume: m.searchVolume ?? m.volume ?? null,
+              volume: m.volume ?? null,
               difficulty: m.difficulty ?? null,
-              contentType: m.contentType,
-              contentId: m.contentId,
             }))
           );
         }
@@ -123,14 +120,12 @@ export default function TourismSeoPage() {
         const list = data.metrics ?? [];
         if (list.length > 0) {
           setKeywords(
-            list.map((m: { id?: string; keyword: string; position?: number; searchVolume?: number; volume?: number; difficulty?: number; contentType?: string; contentId?: string }) => ({
+            list.map((m) => ({
               id: m.id,
               keyword: m.keyword,
               position: m.position ?? null,
-              volume: m.searchVolume ?? m.volume ?? null,
+              volume: m.volume ?? null,
               difficulty: m.difficulty ?? null,
-              contentType: m.contentType,
-              contentId: m.contentId,
             }))
           );
         } else {
@@ -435,14 +430,6 @@ export default function TourismSeoPage() {
                         </span>
                       </td>
                       <td className="py-3 px-4 flex flex-wrap gap-2">
-                        {row.contentType === "landing" && row.contentId && (
-                          <Link
-                            href={`/dashboard/tourism/landing?load=${row.contentId}`}
-                            className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                          >
-                            Ta stran
-                          </Link>
-                        )}
                         <button
                           type="button"
                           onClick={() => handleOptimize(row.keyword)}

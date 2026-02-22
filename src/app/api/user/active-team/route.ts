@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   const membership = await prisma.teamMember.findUnique({
-    where: { teamId_userId: { teamId, userId } },
+    where: { userId_teamId: { userId, teamId } },
   });
   if (!membership) {
     return NextResponse.json({ error: "Not a member of this team" }, { status: 403 });

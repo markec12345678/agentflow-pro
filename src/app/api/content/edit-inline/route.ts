@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
-import { getOpenAiApiKey } from "@/config/env";
+import { getLlmApiKey } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 
 export async function POST(request: NextRequest) {
@@ -22,9 +22,12 @@ export async function POST(request: NextRequest) {
     }
 
     const userKeys = await getUserApiKeys(userId, { masked: false });
-    const apiKey = userKeys.openai?.trim() || getOpenAiApiKey();
+    const userOpenai = userKeys.openai?.trim();
+    const llm = userOpenai
+      ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
+      : getLlmApiKey();
 
-    if (!apiKey) {
+    if (!llm.apiKey) {
       return NextResponse.json(
         { error: "Add your OpenAI API key in Settings for inline editing." },
         { status: 503 }
@@ -73,9 +76,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const openai = createOpenAI({ apiKey });
+    const openai = createOpenAI({
+      apiKey: llm.apiKey,
+      ...(llm.baseURL && { baseURL: llm.baseURL }),
+    });
     const result = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: openai(llm.model),
       system: systemParts.join("\n\n"),
       prompt: `${prompt}\n\n---\n\n${text.trim()}`,
     });

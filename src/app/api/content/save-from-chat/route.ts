@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { canGenerateBlogPosts } from "@/lib/blog-limits";
 import { authOptions } from "@/lib/auth-options";
+import { indexBlogPost } from "@/lib/vector-indexer";
 
 function deriveTitle(content: string, explicitTitle?: string): string {
   if (explicitTitle?.trim()) return explicitTitle.trim();
@@ -74,6 +75,7 @@ export async function POST(request: NextRequest) {
         metaDescription: content.length > 160 ? content.slice(0, 157) + "..." : content,
       },
     });
+    indexBlogPost(post.id, { title: post.title, brief: post.brief, fullContent: post.fullContent });
 
     return NextResponse.json({
       id: post.id,

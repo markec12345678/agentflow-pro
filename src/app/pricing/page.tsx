@@ -28,6 +28,24 @@ export default function PricingPage() {
 
   const plans = [
     {
+      name: "Free",
+      id: "free",
+      price: "$0",
+      period: "forever",
+      description: "Try AgentFlow with limited usage. No credit card required.",
+      features: [
+        "20 Agent Runs/Month",
+        "60 Credits/Month",
+        "1 Blog Post",
+        "Workflow Builder",
+        "Chat",
+      ],
+      cta: "Get Started Free",
+      link: "/register?plan=free",
+      highlighted: false,
+      badge: null as string | null,
+    },
+    {
       name: "Pro",
       id: "pro",
       price: isAnnual ? "$49" : "$59",
@@ -175,7 +193,14 @@ export default function PricingPage() {
                   ))}
                 </ul>
 
-                {plan.id === "pro" && status === "authenticated" ? (
+                {plan.id === "free" ? (
+                  <Link
+                    href="/register?plan=free"
+                    className="block w-full py-4 px-6 rounded-lg font-semibold text-center transition-all bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
+                  >
+                    {plan.cta}
+                  </Link>
+                ) : plan.id === "pro" && status === "authenticated" ? (
                   <button
                     type="button"
                     onClick={() => startCheckout("pro")}

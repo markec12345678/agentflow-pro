@@ -256,3 +256,13 @@
 | **P1** | 6.1-6.3 | Testing | High |
 | **P2** | 7.1-7.3 | Deploy | Medium |
 | **P2** | 8.1-8.3 | Launch | Medium |
+
+---
+
+## Hotel Core / Tourism – Backlog
+
+| Element | Status |
+|---------|--------|
+| **TranslationJob** | Implementirano – večjezični rezultati (booking, email) se shranijo v `results` ob save. |
+| **PropertySelector v Hotel Core** | Implementirano – izbiralnik nastanitve v formi pred shranjevanjem. |
+| **Gumb "Generiraj z Core" na landing strani** | Implementirano – gumb v Korak 2 kliče Core API, prikaže prenosi HTML in Shrani v bazo. |

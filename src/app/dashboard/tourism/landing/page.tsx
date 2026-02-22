@@ -111,6 +111,11 @@ export default function TourismLandingPage() {
   const [loading, setLoading] = useState(false);
   const [savedPages, setSavedPages] = useState<{ id: string; title: string }[]>([]);
   const [autoSave, setAutoSave] = useState(false);
+  const [coreLoading, setCoreLoading] = useState(false);
+  const [coreResult, setCoreResult] = useState<{
+    landing?: Record<string, string>;
+    seo?: Record<string, { meta_title?: string; meta_description?: string; keywords?: string[] }>;
+  } | null>(null);
 
   const loadSavedPages = () => {
     fetch("/api/tourism/landing-pages")
@@ -148,6 +153,77 @@ export default function TourismLandingPage() {
     const loadId = searchParams.get("load");
     if (loadId) handleLoad(loadId);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount when load param present
+
+  const handleGenerateWithCore = async () => {
+    if (!formData.name.trim()) {
+      toast.error("Ime nastanitve je obvezno.");
+      return;
+    }
+    const features = formData.features
+      .split(/[,\n]/)
+      .map((f) => f.trim())
+      .filter(Boolean);
+    if (features.length === 0) features.push(formData.type || "apartma");
+
+    setCoreLoading(true);
+    setCoreResult(null);
+    try {
+      const res = await fetch("/api/tourism/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hotel_data: {
+            hotel_name: formData.name.trim(),
+            location: formData.location.trim() || "Slovenija",
+            features,
+            current_offer: formData.priceFrom ? `Od ${formData.priceFrom}€/noč` : undefined,
+          },
+          agents: ["landing", "seo"],
+          languages: ["SL", "EN", "DE", "IT"],
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setCoreResult({ landing: data.landing, seo: data.seo });
+      toast.success("Hotel Core: HTML generiran");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Napaka pri generiranju z Core");
+    } finally {
+      setCoreLoading(false);
+    }
+  };
+
+  const handleCoreSave = async () => {
+    if (!coreResult?.landing || !coreResult?.seo) return;
+    try {
+      const res = await fetch("/api/tourism/generate/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          landing: coreResult.landing,
+          seo: coreResult.seo,
+          title: formData.name.trim() || "Hotel Landing",
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      toast.success("Shranjeno v bazo");
+      loadSavedPages();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Shranjevanje ni uspelo.");
+    }
+  };
+
+  const downloadCoreHtml = (lang: string) => {
+    const html = coreResult?.landing?.[lang];
+    if (!html) return;
+    const blob = new Blob([html], { type: "text/html" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `landing_${lang}.html`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
 
   const handleGenerate = async () => {
     if (!formData.name.trim()) {
@@ -214,10 +290,11 @@ export default function TourismLandingPage() {
     toast.success("Export HTML – shranjeno");
   };
 
-  const handleSave = async () => {
-    if (!pages || !formData.name.trim()) return;
-    const firstLang = Object.keys(pages)[0];
-    const first = pages[firstLang];
+  const handleSave = async (pagesToSave?: typeof pages) => {
+    if (!pagesToSave && !pages || !formData.name.trim()) return;
+    const pagesData = pagesToSave ?? pages;
+    const firstLang = Object.keys(pagesData!)[0];
+    const first = pagesData![firstLang];
     if (!first) return;
 
     try {
@@ -226,7 +303,7 @@ export default function TourismLandingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: formData.name,
-          content: dataToSave,
+          content: pagesData,
           template,
           languages,
           seoTitle: first.seoTitle,
@@ -475,14 +552,49 @@ export default function TourismLandingPage() {
                 Shrani avtomatsko po generiranju
               </span>
             </label>
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={loading}
-              className="min-h-[44px] px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500"
-            >
-              {loading ? "Generiram..." : "Generiraj Zdaj"}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={loading}
+                className="min-h-[44px] px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                {loading ? "Generiram..." : "Generiraj Zdaj"}
+              </button>
+              <button
+                type="button"
+                onClick={handleGenerateWithCore}
+                disabled={coreLoading}
+                className="min-h-[44px] px-4 py-3 rounded-lg border-2 border-amber-500 text-amber-600 dark:text-amber-400 font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-amber-500"
+              >
+                {coreLoading ? "Core..." : "Generiraj z Core"}
+              </button>
+            </div>
+            {coreResult && (
+              <div className="mt-4 p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10 space-y-3">
+                <h3 className="font-semibold text-gray-900 dark:text-white">Rezultat Hotel Core</h3>
+                <div className="flex flex-wrap gap-2">
+                  {coreResult.landing &&
+                    Object.keys(coreResult.landing).map((lang) => (
+                      <button
+                        key={lang}
+                        type="button"
+                        onClick={() => downloadCoreHtml(lang)}
+                        className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Prenesi {lang}.html
+                      </button>
+                    ))}
+                  <button
+                    type="button"
+                    onClick={handleCoreSave}
+                    className="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
+                  >
+                    Shrani v bazo
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -538,7 +650,7 @@ export default function TourismLandingPage() {
               </button>
               <button
                 type="button"
-                onClick={handleSave}
+                onClick={() => handleSave()}
                 aria-label="Shrani v bazo"
                 className="min-h-[44px] px-3 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-500"
               >

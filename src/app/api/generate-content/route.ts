@@ -5,6 +5,7 @@ import { validateAgainstBrandVoice } from "@/agents/content/brand-guardrails";
 import { recordAgentRun } from "@/api/usage";
 import { prisma } from "@/database/schema";
 import { canGenerateBlogPosts } from "@/lib/blog-limits";
+import { indexBlogPost } from "@/lib/vector-indexer";
 import { authOptions } from "@/lib/auth-options";
 
 export async function POST(request: NextRequest) {
@@ -175,6 +176,8 @@ export async function POST(request: NextRequest) {
         });
       })
     );
+
+    for (const r of created) indexBlogPost(r.id, r);
 
     const postsWithId = created.map((r) => ({
       id: r.id,

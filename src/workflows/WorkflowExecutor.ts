@@ -6,6 +6,7 @@ import { Orchestrator } from "@/orchestrator/Orchestrator";
 import { getOrchestrator } from "@/lib/orchestrator-factory";
 import { evaluateCondition as evaluateConditionFromLib, getNextBranch } from "./conditions";
 import { retryWithBackoff } from "./error-handler";
+import { verify } from "@/verifier/VerifierService";
 import type { ConditionOperator } from "./nodes";
 import { sendSlackMessage } from "@/lib/publish/slack";
 import { PrismaClient, Workflow } from "@prisma/client";
@@ -14,8 +15,8 @@ const prisma = new PrismaClient();
 
 export interface WorkflowNode {
   id: string;
-  type: string;
-  data: {
+  type?: string;
+  data?: {
     label?: string;
     type?: string;
     agentType?: string;
@@ -47,12 +48,13 @@ export interface ExecutionResult {
 
 export interface ExecutionProgress {
   workflowId: string;
-  status: "idle" | "running" | "completed" | "error";
+  status: "idle" | "running" | "completed" | "error" | "pending_approval";
   currentStep: number;
   totalSteps: number;
   currentAgent: string | null;
   results: ExecutionResult[];
   errors: Array<{ agent: string; message: string }>;
+  checkpointId?: string;
 }
 
 export class WorkflowExecutor {
@@ -78,6 +80,8 @@ export class WorkflowExecutor {
     edges: WorkflowEdge[],
     initialContext: Record<string, unknown> = {},
     workflowId?: string,
+    userId?: string,
+    options?: { startFromNodeId?: string; initialContext?: Record<string, unknown> },
   ): Promise<ExecutionProgress> {
     const progress: ExecutionProgress = {
       workflowId: workflowId ?? `wf-${Date.now()}`,
@@ -95,23 +99,47 @@ export class WorkflowExecutor {
     }
 
     try {
-      const triggerNode = nodes.find(
-        (n) => getNodeType(n) === "Trigger"
-      );
-      if (!triggerNode) {
-        throw new Error("No trigger node found");
-      }
-
-      let currentNode: WorkflowNode | undefined = triggerNode;
+      const context: Record<string, unknown> = options?.initialContext
+        ? { ...options.initialContext }
+        : { ...initialContext };
       const visited = new Set<string>();
-      const context: Record<string, unknown> = { ...initialContext };
       let lastOutput: unknown = null;
+
+      let currentNode: WorkflowNode | undefined;
+      if (options?.startFromNodeId) {
+        currentNode = nodes.find((n) => n.id === options.startFromNodeId);
+        if (!currentNode) throw new Error(`Start node ${options.startFromNodeId} not found`);
+      } else {
+        const triggerNode = nodes.find(
+          (n) => getNodeType(n) === "Trigger"
+        );
+        if (!triggerNode) throw new Error("No trigger node found");
+        currentNode = triggerNode;
+      }
 
       while (currentNode && !visited.has(currentNode.id)) {
         visited.add(currentNode.id);
         progress.currentStep++;
         progress.currentAgent =
           (currentNode.data?.label as string) ?? currentNode.data?.type ?? currentNode.id;
+
+        const nodeType = getNodeType(currentNode);
+        if (nodeType === "Agent" && currentNode.data?.requiresApproval === true && workflowId && userId) {
+          const edge = edges.find((e) => e.source === currentNode!.id);
+          const _nextNodeId = edge?.target;
+          const checkpoint = await prisma.workflowCheckpoint.create({
+            data: {
+              workflowId,
+              nodeId: currentNode.id,
+              nodeLabel: progress.currentAgent ?? undefined,
+              contextSnapshot: context as object,
+              status: "pending_approval",
+            },
+          });
+          progress.status = "pending_approval";
+          progress.checkpointId = checkpoint.id;
+          return progress;
+        }
 
         const result = await this.executeNode(currentNode, lastOutput, context);
         progress.results.push(result);
@@ -130,7 +158,6 @@ export class WorkflowExecutor {
           context[`${currentNode.id}_output`] = result.output;
         }
 
-        const nodeType = getNodeType(currentNode);
         let nextNodeId: string | undefined;
 
         if (nodeType === "Condition") {
@@ -182,13 +209,55 @@ export class WorkflowExecutor {
     return progress;
   }
 
+  /** Runs a single Agent node; used when resuming from HITL checkpoint. */
+  async executeAgentNode(
+    node: WorkflowNode,
+    context: Record<string, unknown>
+  ): Promise<unknown> {
+    const type = getNodeType(node);
+    if (type !== "Agent") throw new Error("Node is not an Agent");
+    const agentType = node.data?.agentType;
+    const normalizedAgent = String(agentType ?? "")
+      .toLowerCase() as "research" | "content" | "code" | "deploy";
+    if (!["research", "content", "code", "deploy"].includes(normalizedAgent)) {
+      throw new Error(`Unknown agent type: ${agentType}`);
+    }
+    const agentInput =
+      (node.data?.input as Record<string, unknown>) ??
+      context;
+    const runAgent = async (): Promise<unknown> => {
+      const taskId = await this.orchestrator.queueTask(
+        normalizedAgent,
+        agentInput
+      );
+      const maxWait = 30000;
+      const start = Date.now();
+      while (Date.now() - start < maxWait) {
+        const t = this.orchestrator.getTask(taskId);
+        if (t?.status === "completed") return t.result;
+        if (t?.status === "failed") throw new Error(t.error ?? "Agent failed");
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      throw new Error("Agent execution timeout");
+    };
+    const output = await retryWithBackoff(runAgent, {
+      maxRetries: 3,
+      initialDelayMs: 1000,
+    });
+    const verifyResult = verify(normalizedAgent, output);
+    if (!verifyResult.valid && verifyResult.errors?.length) {
+      throw new Error(`Verification failed: ${verifyResult.errors.join("; ")}`);
+    }
+    return output;
+  }
+
   private async executeNode(
     node: WorkflowNode,
     input: unknown,
     context: Record<string, unknown>
   ): Promise<ExecutionResult> {
     const type = getNodeType(node);
-    const { agentType } = node.data;
+    const agentType = node.data?.agentType;
 
     try {
       switch (type) {
@@ -230,6 +299,16 @@ export class WorkflowExecutor {
             initialDelayMs: 1000,
           });
 
+          const verifyResult = verify(normalizedAgent, output);
+          if (!verifyResult.valid && verifyResult.errors?.length) {
+            return {
+              nodeId: node.id,
+              status: "error",
+              error: `Verification failed: ${verifyResult.errors.join("; ")}`,
+              timestamp: new Date().toISOString(),
+            };
+          }
+
           return {
             nodeId: node.id,
             status: "success",
@@ -239,7 +318,7 @@ export class WorkflowExecutor {
         }
 
         case "Condition": {
-          const conditionMet = this.evaluateCondition(node.data, context);
+          const conditionMet = this.evaluateCondition(node.data ?? {}, context);
           return {
             nodeId: node.id,
             status: "success",

@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth-options";
 import { getUserApiKeysForExecution } from "@/lib/user-keys";
 import { getAppBackend } from "@/memory/app-backend";
 import { getUserId } from "@/lib/auth-users";
+import { canRunAgent, recordAgentRun } from "@/api/usage";
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,18 +37,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let userApiKeys: Record<string, string> | undefined;
     const userId = getUserId(session);
+    if (userId) {
+      const allowed = await canRunAgent(userId);
+      if (!allowed) {
+        return NextResponse.json(
+          { error: "Usage limit reached. Upgrade your plan to continue." },
+          { status: 429 }
+        );
+      }
+    }
+
+    let userApiKeys: Record<string, string> | undefined;
     if (userId) {
       userApiKeys = await getUserApiKeysForExecution(userId);
     }
-    
+
     const executor = new WorkflowExecutor(userApiKeys);
     const progress = await executor.execute(
       nodes as Parameters<WorkflowExecutor["execute"]>[0],
       edges as Parameters<WorkflowExecutor["execute"]>[1],
       (context ?? {}) as Record<string, unknown>
     );
+
+    if (progress.status === "completed" && userId) {
+      await recordAgentRun(userId, "workflow", {
+        workflowId: workflowId ?? progress.workflowId,
+        creditsConsumed: 4,
+      });
+    }
 
     if (progress.status === "completed") {
       const backend = getAppBackend();

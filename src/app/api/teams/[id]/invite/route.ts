@@ -54,7 +54,7 @@ export async function POST(
   });
   if (user) {
     const existing = await prisma.teamMember.findUnique({
-      where: { teamId_userId: { teamId, userId: user.id } },
+      where: { userId_teamId: { userId: user.id, teamId } },
     });
     if (existing) {
       return NextResponse.json({ error: "User is already a member" }, { status: 400 });

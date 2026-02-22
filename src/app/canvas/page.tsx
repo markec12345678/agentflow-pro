@@ -75,15 +75,18 @@ function CanvasInner() {
     channel.bind("canvas-update", (data: { nodes?: unknown[]; edges?: unknown[]; name?: string }) => {
       if (Array.isArray(data.nodes)) {
         setNodes(
-          data.nodes.map((nd: { id: string; type?: string; position?: { x: number; y: number }; data?: object }) => ({
-            ...nd,
-            type: (nd.type as NodeTypeName) ?? "topic",
-            position: nd.position ?? { x: 0, y: 0 },
-            data: (nd.data ?? {}) as Record<string, unknown>,
-          }))
+          data.nodes.map((nd) => {
+            const node = nd as { id: string; type?: string; position?: { x: number; y: number }; data?: object };
+            return {
+              ...node,
+              type: (node.type as NodeTypeName) ?? "topic",
+              position: node.position ?? { x: 0, y: 0 },
+              data: (node.data ?? {}) as Record<string, unknown>,
+            };
+          })
         );
       }
-      if (Array.isArray(data.edges)) setEdges(data.edges);
+      if (Array.isArray(data.edges)) setEdges(data.edges as Edge[]);
       if (typeof data.name === "string") setBoardName(data.name);
     });
     return () => {
@@ -272,9 +275,11 @@ function CanvasList() {
   const router = useRouter();
   const { data: session } = useSession();
   const userId = (session?.user as { userId?: string })?.userId ?? session?.user?.email;
-  const [boards, setBoards] = useState<{ id: string; name: string; teamId?: string | null }[]>([]);
+  const [boards, setBoards] = useState<{ id: string; name: string; teamId?: string | null; workspaceId?: string | null }[]>([]);
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
+  const [workspaces, setWorkspaces] = useState<{ id: string; name: string; type: string; teamId: string }[]>([]);
   const [createTeamId, setCreateTeamId] = useState<string>("");
+  const [createWorkspaceId, setCreateWorkspaceId] = useState<string>("");
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
@@ -295,12 +300,17 @@ function CanvasList() {
         setTeams(adminTeams);
       })
       .catch(() => setTeams([]));
+    fetch("/api/workspaces")
+      .then((r) => r.json())
+      .then((list: { id: string; name: string; type: string; teamId: string }[]) => setWorkspaces(Array.isArray(list) ? list : []))
+      .catch(() => setWorkspaces([]));
   }, [userId]);
 
   const createBoard = () => {
     setCreating(true);
-    const body: { name: string; teamId?: string } = { name: "Untitled Board" };
+    const body: { name: string; teamId?: string; workspaceId?: string } = { name: "Untitled Board" };
     if (createTeamId) body.teamId = createTeamId;
+    if (createWorkspaceId) body.workspaceId = createWorkspaceId;
     fetch("/api/canvas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -328,12 +338,33 @@ function CanvasList() {
             <label className="block text-sm text-gray-400 mb-1">Create as team board (optional)</label>
             <select
               value={createTeamId}
-              onChange={(e) => setCreateTeamId(e.target.value)}
+              onChange={(e) => {
+                setCreateTeamId(e.target.value);
+                setCreateWorkspaceId("");
+              }}
               className="rounded-lg border border-gray-600 bg-gray-800 px-3 py-2 text-white"
             >
               <option value="">Personal board</option>
               {teams.map((t) => (
                 <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        {createTeamId && workspaces.filter((w) => {
+          const team = teams.find((t) => t.id === createTeamId);
+          return team && w.teamId === createTeamId;
+        }).length > 0 && (
+          <div className="mb-4">
+            <label className="block text-sm text-gray-400 mb-1">Workspace (optional)</label>
+            <select
+              value={createWorkspaceId}
+              onChange={(e) => setCreateWorkspaceId(e.target.value)}
+              className="rounded-lg border border-gray-600 bg-gray-800 px-3 py-2 text-white"
+            >
+              <option value="">No workspace</option>
+              {workspaces.filter((w) => w.teamId === createTeamId).map((w) => (
+                <option key={w.id} value={w.id}>{w.name} ({w.type})</option>
               ))}
             </select>
           </div>

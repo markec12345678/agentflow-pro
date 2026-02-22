@@ -13,6 +13,15 @@ interface AdminUser {
   status: string | null;
 }
 
+type AdminTab = "submissions" | "users" | "usage" | "features";
+
+interface UsageOverview {
+  periodStart: string;
+  totalAgentRuns: number;
+  totalCreditsUsed: number;
+  byAgentType: Array<{ agentType: string; runs?: number; credits?: number }>;
+}
+
 interface ContactSubmission {
   id: string;
   name: string;
@@ -27,6 +36,8 @@ export default function AdminPage() {
   const { data: _session, status } = useSession();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
+  const [usage, setUsage] = useState<UsageOverview | null>(null);
+  const [activeTab, setActiveTab] = useState<AdminTab>("submissions");
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
 
@@ -40,14 +51,16 @@ export default function AdminPage() {
     Promise.all([
       fetch("/api/admin/users").then((r) => r.json()),
       fetch("/api/admin/contact-submissions").then((r) => r.json()),
+      fetch("/api/admin/usage").then((r) => r.json()),
     ])
-      .then(([usersData, subsData]) => {
+      .then(([usersData, subsData, usageData]) => {
         if (usersData.error && usersData.error.includes("Admin")) {
           setAccessDenied(true);
           return;
         }
         if (!usersData.error) setUsers(usersData.users ?? []);
         if (!subsData.error) setSubmissions(subsData.submissions ?? []);
+        if (!usageData.error) setUsage(usageData);
       })
       .catch(() => setAccessDenied(true))
       .finally(() => setLoading(false));
@@ -89,6 +102,24 @@ export default function AdminPage() {
           <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
         </div>
 
+        <div className="mb-6 flex gap-2 border-b border-gray-700 pb-2">
+          {(["submissions", "users", "usage", "features"] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={`rounded px-4 py-2 text-sm font-medium ${
+                activeTab === tab
+                  ? "bg-gray-700 text-white"
+                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
+              }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === "submissions" && (
         <div className="mb-12">
           <h2 className="mb-4 text-xl font-semibold text-white">Contact Submissions</h2>
           <div className="overflow-hidden rounded-lg border border-gray-700 bg-gray-800">
@@ -128,7 +159,9 @@ export default function AdminPage() {
             )}
           </div>
         </div>
+        )}
 
+        {activeTab === "users" && (
         <div>
           <h2 className="mb-4 text-xl font-semibold text-white">Users</h2>
           <div className="overflow-hidden rounded-lg border border-gray-700 bg-gray-800">
@@ -162,6 +195,91 @@ export default function AdminPage() {
             )}
           </div>
         </div>
+        )}
+
+        {activeTab === "usage" && (
+        <div>
+          <h2 className="mb-4 text-xl font-semibold text-white">Usage Overview</h2>
+          {usage ? (
+            <div className="space-y-4 rounded-lg border border-gray-700 bg-gray-800 p-6">
+              <p className="text-gray-400">
+                Period: {new Date(usage.periodStart).toLocaleDateString()} – today
+              </p>
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div className="rounded bg-gray-700/50 p-4">
+                  <p className="text-sm text-gray-400">Total Agent Runs</p>
+                  <p className="text-2xl font-bold text-white">{usage.totalAgentRuns}</p>
+                </div>
+                <div className="rounded bg-gray-700/50 p-4">
+                  <p className="text-sm text-gray-400">Total Credits Used</p>
+                  <p className="text-2xl font-bold text-white">{usage.totalCreditsUsed}</p>
+                </div>
+              </div>
+              {usage.byAgentType.length > 0 && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-gray-300">By Agent Type</p>
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-gray-400">
+                        <th className="py-1">Agent</th>
+                        <th className="py-1">Runs</th>
+                        <th className="py-1">Credits</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {usage.byAgentType.map((a) => (
+                        <tr key={a.agentType} className="border-t border-gray-700">
+                          <td className="py-2 text-white">{a.agentType}</td>
+                          <td className="py-2 text-gray-400">{a.runs}</td>
+                          <td className="py-2 text-gray-400">{a.credits}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-gray-400">No usage data available.</p>
+          )}
+        </div>
+        )}
+
+        {activeTab === "features" && (
+        <div>
+          <h2 className="mb-4 text-xl font-semibold text-white">Feature Flags & Plan Limits</h2>
+          <p className="mb-6 text-gray-400">
+            Features are controlled by plan. Future: admin toggles for LangGraph, advanced workflows (Enterprise).
+          </p>
+          <div className="overflow-hidden rounded-lg border border-gray-700 bg-gray-800">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-gray-700 bg-gray-700/50">
+                  <th className="px-4 py-3 text-gray-300">Plan</th>
+                  <th className="px-4 py-3 text-gray-300">Agent Runs/mo</th>
+                  <th className="px-4 py-3 text-gray-300">Blog Posts</th>
+                  <th className="px-4 py-3 text-gray-300">Credits/mo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { plan: "Free", runs: 20, posts: 1, credits: 60 },
+                  { plan: "Starter", runs: 100, posts: 3, credits: 300 },
+                  { plan: "Pro", runs: 500, posts: 10, credits: 1500 },
+                  { plan: "Enterprise", runs: 5000, posts: 999, credits: 10000 },
+                ].map((row) => (
+                  <tr key={row.plan} className="border-b border-gray-700/50">
+                    <td className="px-4 py-3 text-white">{row.plan}</td>
+                    <td className="px-4 py-3 text-gray-400">{row.runs}</td>
+                    <td className="px-4 py-3 text-gray-400">{row.posts}</td>
+                    <td className="px-4 py-3 text-gray-400">{row.credits}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        )}
       </div>
     </main>
   );

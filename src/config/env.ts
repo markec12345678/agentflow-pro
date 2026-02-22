@@ -3,7 +3,27 @@
  */
 
 export function getOpenAiApiKey(): string {
-  return process.env.OPENAI_API_KEY ?? "";
+  return process.env.OPENAI_API_KEY?.trim() ?? "";
+}
+
+/** Alibaba Qwen (DashScope) – OpenAI-compatible. Fallback če OPENAI_API_KEY prazen. */
+export function getQwenApiKey(): string {
+  return process.env.ALIBABA_QWEN_API_KEY?.trim() ?? "";
+}
+
+/** Vrne OpenAI ali Qwen API key (prioriteta OpenAI). */
+export function getLlmApiKey(): { apiKey: string; baseURL?: string; model: string } {
+  const openai = getOpenAiApiKey();
+  if (openai) return { apiKey: openai, model: "gpt-4o-mini" };
+  const qwen = getQwenApiKey();
+  if (qwen) {
+    return {
+      apiKey: qwen,
+      baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      model: "qwen-turbo",
+    };
+  }
+  return { apiKey: "", model: "gpt-4o-mini" };
 }
 
 export function getContext7ApiKey(): string {

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
 import { analyzeBlogUrl } from "@/lib/brand-voice";
+import { indexOnboarding } from "@/lib/vector-indexer";
 
 interface AudienceItem {
   id: string;
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
       brandVoiceSummary = await analyzeBlogUrl(body.blog_url, firecrawlKey);
     }
 
-    await prisma.onboarding.create({
+    const row = await prisma.onboarding.create({
       data: {
         industry: body.industry ?? null,
         companySize: body.company_size ?? null,
@@ -104,6 +105,7 @@ export async function POST(request: Request) {
         userId,
       },
     });
+    indexOnboarding(row.id, row);
 
     return NextResponse.json({ ok: true });
   } catch (err) {
@@ -134,16 +136,18 @@ export async function PATCH(request: Request) {
       orderBy: { createdAt: "desc" },
     });
 
+    let row: { id: string; brandVoiceSummary?: string | null; styleGuide?: string | null; companyKnowledge?: unknown };
     if (!latest) {
-      await prisma.onboarding.create({
+      row = await prisma.onboarding.create({
         data: { userId, companyKnowledge },
       });
     } else {
-      await prisma.onboarding.update({
+      row = await prisma.onboarding.update({
         where: { id: latest.id },
         data: { companyKnowledge },
       });
     }
+    indexOnboarding(row.id, row);
 
     return NextResponse.json({ ok: true });
   } catch (err) {

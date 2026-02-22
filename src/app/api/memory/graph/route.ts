@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getAppBackend } from "@/memory/app-backend";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { getUserId } from "@/lib/auth-users";
 
 export async function GET() {
   try {
@@ -10,8 +9,7 @@ export async function GET() {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userId = getUserId(session);
-    const backend = getAppBackend(userId);
+    const backend = getAppBackend();
     const graph = backend.readGraph();
     return NextResponse.json(graph);
   } catch (err) {

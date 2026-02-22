@@ -1,0 +1,29 @@
+---
+description: Vizualni UI builder patterns - shadcn-builder, ui-builder
+globs: "shadcn-builder/**/*"
+alwaysApply: false
+---
+
+# Visual Builder Patterns
+
+Uporabi pri gradnji UI z shadcn-builder ali ui-builder (Builder.io alternative).
+
+## shadcn-builder (iduspara)
+
+- Drag-and-drop form builder za shadcn/ui
+- Eksport produkcijske React + Tailwind kode
+- Zagon: `yarn dev` ali `pnpm dev` v F:\d\shadcn-builder
+- Demo: https://www.shadcn-builder.com
+
+## ui-builder (olliethedev)
+
+- Vizualni UI builder s shadcn komponentami
+- Zod schema validacija, Layer renderer
+- Zagon: `npm run dev` v F:\d\ui-builder
+- Demo: https://www.uibuilder.app
+
+## Priporočila
+
+- Uporabi obstoječe shadcn komponente; ustvari nove le če nujno
+- Eksportiraj kodo in vgradi v Next.js projekt
+- Sledi Tailwind semantičnim tokenom (bg-accent, text-text, border-border)

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { PROMPTS, type PromptTemplate } from "@/data/prompts";
 import { Skeleton, SkeletonCard, SkeletonText } from "@/web/components/Skeleton";
 import { VariableForm } from "@/web/components/VariableForm";
+import { PropertySelector } from "@/web/components/PropertySelector";
 import {
   formatForBooking,
   formatForAirbnb,
@@ -22,10 +23,21 @@ interface GeneratedPost {
   fullContent?: string;
 }
 
+type TabMode = "content" | "hotel-core";
+
+type CoreResult = {
+  success: boolean;
+  booking?: Record<string, string>;
+  email?: Record<string, string>;
+  landing?: Record<string, string>;
+  seo?: Record<string, { meta_title: string; meta_description: string; keywords: string[] }>;
+};
+
 export default function TourismGeneratePage() {
   const searchParams = useSearchParams();
   const templateId = searchParams.get("template");
   const promptId = searchParams.get("prompt");
+  const [tabMode, setTabMode] = useState<TabMode>("content");
   const [selectedPrompt, setSelectedPrompt] = useState<PromptTemplate | null>(null);
   const [templateVars, setTemplateVars] = useState<Record<string, string> | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -35,6 +47,16 @@ export default function TourismGeneratePage() {
   const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
   const [templateLoading, setTemplateLoading] = useState(false);
   const [templateError, setTemplateError] = useState<string | null>(null);
+  const [coreHotelName, setCoreHotelName] = useState("");
+  const [coreLocation, setCoreLocation] = useState("");
+  const [corePropertyId, setCorePropertyId] = useState<string | null>(null);
+  const [coreFeatures, setCoreFeatures] = useState("");
+  const [coreOffer, setCoreOffer] = useState("");
+  const [coreAudience, setCoreAudience] = useState("");
+  const [coreGenerating, setCoreGenerating] = useState(false);
+  const [coreSaving, setCoreSaving] = useState(false);
+  const [coreResult, setCoreResult] = useState<CoreResult | null>(null);
+  const [savedPageId, setSavedPageId] = useState<string | null>(null);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -180,16 +202,244 @@ export default function TourismGeneratePage() {
       .catch((err) => toast.error(err instanceof Error ? err.message : "Save failed"));
   };
 
+  const handleCoreGenerate = () => {
+    const features = coreFeatures.split(/[,\n]/).map((f) => f.trim()).filter(Boolean);
+    if (!coreHotelName.trim() || !coreLocation.trim() || features.length === 0) {
+      toast.error("Vpiši ime hotela, lokacijo in vsaj eno značilnost.");
+      return;
+    }
+    setCoreGenerating(true);
+    setCoreResult(null);
+    setSavedPageId(null);
+    fetch("/api/tourism/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hotel_data: {
+          hotel_name: coreHotelName.trim(),
+          location: coreLocation.trim(),
+          features,
+          current_offer: coreOffer.trim() || undefined,
+          target_audience: coreAudience.trim() || undefined,
+        },
+        agents: ["booking", "email", "landing", "seo"],
+        languages: ["SL", "EN", "DE", "IT"],
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) throw new Error(data.error);
+        setCoreResult(data);
+        toast.success("Vsebina generirana z Hotel Core");
+      })
+      .catch((err) => toast.error(err instanceof Error ? err.message : "Napaka pri generiranju"))
+      .finally(() => setCoreGenerating(false));
+  };
+
+  const handleCoreSave = () => {
+    if (!coreResult?.landing || !coreResult?.seo) return;
+    setCoreSaving(true);
+    setSavedPageId(null);
+    fetch("/api/tourism/generate/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        landing: coreResult.landing,
+        seo: coreResult.seo,
+        booking: coreResult.booking ?? undefined,
+        email: coreResult.email ?? undefined,
+        title: coreHotelName.trim() || "Hotel Landing",
+        propertyId: corePropertyId ?? activePropertyId ?? null,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) throw new Error(data.error);
+        setSavedPageId(data.pageId ?? null);
+        toast.success("Shranjeno v bazo");
+      })
+      .catch((err) => toast.error(err instanceof Error ? err.message : "Shranjevanje ni uspelo"))
+      .finally(() => setCoreSaving(false));
+  };
+
+  const downloadCoreHtml = (lang: string) => {
+    const html = coreResult?.landing?.[lang];
+    if (!html) return;
+    const blob = new Blob([html], { type: "text/html" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `landing_${lang}.html`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold dark:text-white mb-2">
           Generate Tourism Content
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
           Select a template, fill in the variables, and generate. Multi-language support (SL, EN, DE, IT, HR).
         </p>
+        <div className="flex gap-2 mb-8">
+          <button
+            type="button"
+            onClick={() => setTabMode("content")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${tabMode === "content" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"}`}
+          >
+            Content
+          </button>
+          <button
+            type="button"
+            onClick={() => setTabMode("hotel-core")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${tabMode === "hotel-core" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"}`}
+          >
+            Hotel Core
+          </button>
+        </div>
 
+        {tabMode === "hotel-core" ? (
+          <div className="space-y-6 mb-8">
+            <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-lg font-semibold dark:text-white mb-4">Hotel podatki</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ime hotela</label>
+                  <input
+                    type="text"
+                    value={coreHotelName}
+                    onChange={(e) => setCoreHotelName(e.target.value)}
+                    placeholder="Grand Hotel Alpina"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lokacija</label>
+                  <input
+                    type="text"
+                    value={coreLocation}
+                    onChange={(e) => setCoreLocation(e.target.value)}
+                    placeholder="Bled, Slovenija"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Značilnosti (ena na vrstico ali ločene z vejico)</label>
+                  <textarea
+                    value={coreFeatures}
+                    onChange={(e) => setCoreFeatures(e.target.value)}
+                    placeholder="pogled na jezero, wellness & spa, vrhunska restavracija"
+                    rows={4}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Aktualna ponudba (izbirno)</label>
+                  <input
+                    type="text"
+                    value={coreOffer}
+                    onChange={(e) => setCoreOffer(e.target.value)}
+                    placeholder="20% popust za rezervacije v marcu"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ciljna publika (izbirno)</label>
+                  <input
+                    type="text"
+                    value={coreAudience}
+                    onChange={(e) => setCoreAudience(e.target.value)}
+                    placeholder="pari in družine"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nastanitev (za shranjevanje)</label>
+                  <PropertySelector value={corePropertyId} onChange={setCorePropertyId} />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCoreGenerate}
+                  disabled={coreGenerating}
+                  className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50"
+                >
+                  {coreGenerating ? "Generiram..." : "Generiraj (SL, EN, DE, IT)"}
+                </button>
+              </div>
+            </div>
+            {coreResult && (
+              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold dark:text-white">Rezultati</h2>
+                  {coreResult.landing && coreResult.seo && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleCoreSave}
+                        disabled={coreSaving}
+                        className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {coreSaving ? "Shranjujem..." : "Shrani v bazo"}
+                      </button>
+                      {savedPageId && (
+                        <Link
+                          href="/dashboard/tourism/landing"
+                          className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                          Prikaži landing strani
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {coreResult.booking && (
+                  <div>
+                    <h3 className="font-medium dark:text-white mb-2">Booking opisi</h3>
+                    <div className="space-y-2">
+                      {Object.entries(coreResult.booking).map(([lang, text]) => (
+                        <div key={lang} className="text-sm">
+                          <span className="font-medium text-gray-600 dark:text-gray-400">{lang}:</span>
+                          <p className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded">{text}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {coreResult.landing && (
+                  <div>
+                    <h3 className="font-medium dark:text-white mb-2">Landing strani (HTML)</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.keys(coreResult.landing).map((lang) => (
+                        <button
+                          key={lang}
+                          type="button"
+                          onClick={() => downloadCoreHtml(lang)}
+                          className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                          Prenesi {lang}.html
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {coreResult.seo && (
+                  <div>
+                    <h3 className="font-medium dark:text-white mb-2">SEO (meta, keywords)</h3>
+                    <div className="space-y-2 text-sm">
+                      {Object.entries(coreResult.seo).map(([lang, seo]) => (
+                        <div key={lang} className="p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                          <span className="font-medium">{lang}:</span> {seo.meta_title} | {seo.keywords?.slice(0, 4).join(", ")}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+        <>
         <div className="mb-8">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Select prompt
@@ -315,6 +565,8 @@ export default function TourismGeneratePage() {
             </div>
           </div>
         ) : null}
+        </>
+        )}
 
         {saveModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

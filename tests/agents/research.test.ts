@@ -13,7 +13,7 @@ describe("ResearchAgent", () => {
 
   it("returns structured JSON output for empty input", async () => {
     const agent = createResearchAgent();
-    const result = await agent.execute({});
+    const result = (await agent.execute({})) as { urls?: unknown[]; scrapedData?: unknown[]; searchResults?: unknown[] };
     expect(result).toHaveProperty("urls");
     expect(result).toHaveProperty("scrapedData");
     expect(result).toHaveProperty("searchResults");

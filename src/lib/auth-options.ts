@@ -8,7 +8,6 @@ const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
 export const authOptions: NextAuthOptions = {
-  trustHost: true,
   providers: [
     ...(googleClientId && googleClientSecret
       ? [
@@ -26,12 +25,17 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const email = credentials?.email;
-        const password = credentials?.password;
+        const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
+        const password = typeof credentials?.password === "string" ? credentials.password : "";
         if (!email || !password) return null;
-        const u = await getUser(email, password);
-        if (!u) return null;
-        return { id: u.id, email, name: email };
+        try {
+          const u = await getUser(email, password);
+          if (!u) return null;
+          return { id: u.id, email, name: email };
+        } catch (err) {
+          console.error("[auth] authorize error:", err);
+          return null;
+        }
       },
     }),
   ],
@@ -79,7 +83,7 @@ export const authOptions: NextAuthOptions = {
               dbUser.subscription.status !== "canceled";
             if (dbUser.activeTeamId) {
               const membership = await prisma.teamMember.findUnique({
-                where: { teamId_userId: { teamId: dbUser.activeTeamId, userId: dbUser.id } },
+                where: { userId_teamId: { userId: dbUser.id, teamId: dbUser.activeTeamId } },
               });
               if (membership) {
                 token.teamId = membership.teamId;

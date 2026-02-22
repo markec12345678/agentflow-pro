@@ -7,7 +7,7 @@ import crypto from "crypto";
 const prisma = new PrismaClient();
 
 // POST handler to create/reset a webhook token
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -15,7 +15,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     const userId = (session.user as { userId?: string }).userId ?? session.user.email;
-    const workflowId = params.id;
+    if (!userId) {
+      return NextResponse.json({ error: "User ID required" }, { status: 401 });
+    }
+    const { id: workflowId } = await params;
 
     const workflow = await prisma.workflow.findFirst({
       where: { id: workflowId, userId },
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 }
 
 // DELETE handler to remove a webhook token
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -51,7 +54,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     const userId = (session.user as { userId?: string }).userId ?? session.user.email;
-    const workflowId = params.id;
+    if (!userId) {
+      return NextResponse.json({ error: "User ID required" }, { status: 401 });
+    }
+    const { id: workflowId } = await params;
 
     const workflow = await prisma.workflow.findFirst({
       where: { id: workflowId, userId },

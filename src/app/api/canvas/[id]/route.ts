@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
 import { triggerCanvasUpdate } from "@/lib/pusher";
+import { withRlsContext } from "@/lib/rls-context";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
@@ -15,7 +16,7 @@ async function canAccessBoard(userId: string, boardId: string): Promise<boolean>
   if (board.userId === userId) return true;
   if (board.teamId) {
     const membership = await prisma.teamMember.findUnique({
-      where: { teamId_userId: { teamId: board.teamId, userId } },
+      where: { userId_teamId: { userId, teamId: board.teamId } },
     });
     return !!membership;
   }
@@ -61,24 +62,23 @@ export async function PATCH(
 
   const body = (await request.json()) as {
     name?: string;
-    nodes?: unknown[];
-    edges?: unknown[];
-    metadata?: unknown;
+    data?: { nodes?: unknown[]; edges?: unknown[] } | null;
   };
 
-  const updated = await prisma.campaignBoard.update({
-    where: { id },
-    data: {
-      ...(body.name !== undefined && { name: body.name }),
-      ...(body.nodes !== undefined && { nodes: body.nodes as object[] }),
-      ...(body.edges !== undefined && { edges: body.edges as object[] }),
-      ...(body.metadata !== undefined && { metadata: body.metadata as object }),
-    },
-  });
+  const updated = await withRlsContext(prisma, userId, (tx) =>
+    tx.campaignBoard.update({
+      where: { id },
+      data: {
+        ...(body.name !== undefined && { name: body.name }),
+        ...(body.data !== undefined && { data: body.data as object }),
+      },
+    })
+  );
 
+  const data = updated.data as { nodes?: unknown[]; edges?: unknown[] } | null;
   triggerCanvasUpdate(id, {
-    nodes: (updated.nodes as unknown[]) ?? [],
-    edges: (updated.edges as unknown[]) ?? [],
+    nodes: data?.nodes ?? [],
+    edges: data?.edges ?? [],
     name: updated.name,
   });
 
@@ -101,6 +101,8 @@ export async function DELETE(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await prisma.campaignBoard.delete({ where: { id } });
+  await withRlsContext(prisma, userId, (tx) =>
+    tx.campaignBoard.delete({ where: { id } })
+  );
   return NextResponse.json({ success: true });
 }

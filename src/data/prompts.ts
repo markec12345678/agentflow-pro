@@ -205,6 +205,160 @@ Jezik: {jezik}`,
     description: "Instagram caption za travel fotografijo",
     variables: ["ton", "lokacija", "tip", "jezik"],
   },
+  {
+    id: "restaurant-menu",
+    name: "Restavracija / Menu Opis",
+    category: "tourism",
+    prompt: `Napiši prodajni opis hotelske restavracije in menuja.
+
+Vključi:
+1. Uvod o restavraciji (koncept, atmosfera, posebnosti)
+2. Opis kuhinje in kuharske ekipe
+3. 3-4 kategorije jedi z apetitnimi opisi (starterji, glavne jedi, deserti, vinska karta)
+4. Lokalne sestavine in sezonsko ponudbo
+5. Posebne diete (veganski, brez glutena) če so na voljo
+
+Restavracija: {restavracija}
+Tip kuhinje: {tip_kuhinje} (slovenska, mediteranska, fine dining...)
+Lokacija: {lokacija}
+Posebnosti: {posebnosti} (terasa s pogledom, vrt, lokalni dobavitelji...)
+Jezik: {jezik}
+Ton: {ton}
+
+Dolžina: 400-600 besed.`,
+    description: "Opis restavracije in menuja za hotel",
+    variables: ["restavracija", "tip_kuhinje", "lokacija", "posebnosti", "jezik", "ton"],
+  },
+  {
+    id: "activity-experience",
+    name: "Aktivnost / Doživetje",
+    category: "tourism",
+    prompt: `Napiši privlačen opis lokalne aktivnosti ali doživetja za turiste.
+
+Struktura:
+1. Naslov doživetja (privlačen + akcijski)
+2. Kratek opis kaj vključuje
+3. Kdo je primerna ciljna skupina (družine, pare, posamezniki)
+4. Trajanje in zahtevnost
+5. Kaj je vključeno v ceno
+6. Zakaj je to edinstveno/nepozabno
+7. CTA za rezervacijo
+
+Aktivnost: {aktivnost}
+Lokacija: {lokacija}
+Trajanje: {trajanje}
+Ciljna skupina: {ciljna_skupina}
+Jezik: {jezik}
+Ton: {ton}
+
+Dolžina: 250-400 besed.`,
+    description: "Opis aktivnosti ali doživetja za turiste",
+    variables: ["aktivnost", "lokacija", "trajanje", "ciljna_skupina", "jezik", "ton"],
+  },
+  {
+    id: "wedding-event",
+    name: "Poročni Paket / Event",
+    category: "tourism",
+    prompt: `Napiši prodajni opis poročnega paketa ali dogodkovnega prostora v hotelu.
+
+Vključi:
+1. Čarobnost lokacije (zakaj je idealna za poroko)
+2. Prostori (ceremonija, sprejem, večerja, zabava)
+3. Kapaciteta gostov
+4. Vključene storitve (catering, dekoracija, koordinator...)
+5. Paketi (osnovni, premium, all-inclusive)
+6. Sezonska ponudba in cene (če relevantno)
+7. Prepričljiv CTA za ogled
+
+Tip dogodka: {tip_dogodka} (poroka, seminar, team building...)
+Lokacija: {lokacija}
+Kapaciteta: {kapaciteta} število gostov
+Storitve: {storitve}
+Jezik: {jezik}
+Ton: {ton} (romantičen, eleganten, profesionalen)
+
+Dolžina: 400-600 besed.`,
+    description: "Opis poročnega paketa ali dogodkovnega prostora",
+    variables: ["tip_dogodka", "lokacija", "kapaciteta", "storitve", "jezik", "ton"],
+  },
+  {
+    id: "corporate-b2b",
+    name: "Corporate / B2B Ponudba",
+    category: "tourism",
+    prompt: `Napiši profesionalen B2B opis hotelskih storitev za poslovne goste.
+
+Fokus: poslovne potrebe (konference, team building, corporate retreat)
+
+Vključi:
+1. Poslovne zmogljivosti (sejne sobe, AV oprema, WiFi hitrost)
+2. Corporate paketi (dnevni, večdnevni)
+3. Team building aktivnosti
+4. Catering za poslovne dogodke
+5. Convenience (parkirišče, bližina letališča, transport)
+6. Case study ali ugledni gost (če obstaja)
+7. CTA za corporate inquiry
+
+Lokacija: {lokacija}
+Storitve: {storitve}
+Ciljna skupina: {ciljna_skupina} (IT podjetja, finance, farmacija...)
+Jezik: {jezik}
+Ton: profesionalen, zanesljiv
+
+Dolžina: 350-500 besed. Brez pretirane romance, fokus na ROI in efficiency.`,
+    description: "B2B ponudba za poslovne goste in corporate dogodke",
+    variables: ["lokacija", "storitve", "ciljna_skupina", "jezik"],
+  },
+  {
+    id: "pre-arrival-email",
+    name: "Pre-Arrival Email",
+    category: "tourism",
+    prompt: `Napiši pre-arrival email za gosta pred prihodom.
+
+Struktura:
+1. Osebna pozdrav (ime gosta)
+2. Veselje za prihod + kratek uvod o nastanitvi
+3. Navodila za prihod (check-in čas, kje parkirati, kako priti)
+4. Lokalni nasveti (kje jesti, kaj početi v bližini)
+5. Kontakt za vprašanja (WhatsApp, email, telefon)
+6. Weather forecast (opcija)
+7. Poziv za direktno rezervacijo v prihodnje
+
+Ime gosta: {ime_gosta}
+Lokacija: {lokacija}
+Datum prihoda: {datum_prihoda}
+Tip nastanitve: {tip_nastanitve}
+Jezik: {jezik}
+Ton: topel, prijazen, v pomoč
+
+Dolžina: 200-300 besed.`,
+    description: "Email pred prihodom gosta z navodili in nasveti",
+    variables: ["ime_gosta", "lokacija", "datum_prihoda", "tip_nastanitve", "jezik"],
+  },
+  {
+    id: "post-stay-review",
+    name: "Post-Stay Review Request",
+    category: "tourism",
+    prompt: `Napiši prošnjo za oceno/review po odhodu gosta.
+
+Struktura:
+1. Zahvala za bivanje
+2. Osebna nota (kaj je bilo super med njihovim bivanjem)
+3 Blaga prošnja za 5-star oceno na Booking.com/Google/Airbnb
+4. Povezave direktno do ocenjevanja
+5. Ponudba za popust pri naslednjem bivanju
+6. Zaprtje z vabilom za vrnitev
+
+Ime gosta: {ime_gosta}
+Lokacija: {lokacija}
+Datum bivanja: {datum_bivanja}
+Platforma: {platforma} (Booking.com, Airbnb, Google, direktno)
+Jezik: {jezik}
+Ton: hvaležen, prijazen, ne vsiljiv
+
+Dolžina: 150-250 besed.`,
+    description: "Prošnja za oceno po bivanju gosta",
+    variables: ["ime_gosta", "lokacija", "datum_bivanja", "platforma", "jezik"],
+  },
 ];
 
 export const CATEGORY_LABELS: Record<string, string> = {
@@ -227,9 +381,28 @@ export const VARIABLE_LABELS: Record<string, string> = {
   destinacija: "Destinacija",
   sezona: "Sezona/Dogodek",
   ponudba: "Posebna ponudba",
+  // Restavracija
+  restavracija: "Ime restavracije",
+  tip_kuhinje: "Tip kuhinje",
+  // Aktivnosti
+  aktivnost: "Aktivnost/Doživetje",
+  trajanje: "Trajanje",
+  ciljna_skupina: "Ciljna skupina",
+  // Dogodki
+  tip_dogodka: "Tip dogodka",
+  kapaciteta: "Kapaciteta (št. gostov)",
+  storitve: "Vključene storitve",
+  // Guest communication
+  ime_gosta: "Ime gosta",
+  datum_prihoda: "Datum prihoda",
+  datum_bivanja: "Datum bivanja",
+  tip_nastanitve: "Tip nastanitve",
+  platforma: "Platforma za ocene",
 };
 
 export const VARIABLE_OPTIONS: Record<string, string[]> = {
   jezik: ["SL", "EN", "DE", "IT", "HR"],
-  ton: ["profesionalen", "prijazen", "luksuzen", "družinski"],
+  ton: ["profesionalen", "prijazen", "luksuzen", "družinski", "romantičen", "eleganten"],
+  ciljna_skupina: ["družine", "pare", "posamezniki", "poslovni gosti", "skupine", "mladi"],
+  platforma: ["Booking.com", "Airbnb", "Google", "TripAdvisor", "Direktno"],
 };

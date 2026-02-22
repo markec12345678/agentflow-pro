@@ -29,6 +29,12 @@ model User {
   translationJobs  TranslationJob[]
   properties       Property[]
   itineraries      Itinerary[]
+  conversationThreads ConversationThread[]
+  projects         Project[]
+  accounts         Account[]
+  sessions         Session[]
+  emailVerified    DateTime?
+  image            String?
 }
 
 model BlogPost {
@@ -67,28 +73,49 @@ model Subscription {
 }
 
 model Workflow {
-  id              String   @id @default(cuid())
+  id              String              @id @default(cuid())
   name            String
   userId          String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  nodes           Json     @default("[]")
-  edges           Json     @default("[]")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  nodes           Json                @default("[]")
+  edges           Json                @default("[]")
   metadata        Json?
-  webhookToken    String?  @unique
+  webhookToken    String?             @unique
   slackWebhookUrl String?
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkpoints     WorkflowCheckpoint[]
+  agentId         String?
+  agent           Agent?   @relation(fields: [agentId], references: [id])
+}
+
+model WorkflowCheckpoint {
+  id               String   @id @default(cuid())
+  workflowId       String
+  workflow         Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  nodeId           String
+  nodeLabel        String?
+  contextSnapshot  Json     // Full context at pause; used to resume
+  status           String   // pending_approval | approved | rejected
+  approvedAt       DateTime?
+  approvedBy       String?  // userId
+  rejectionReason  String?
+  createdAt        DateTime @default(now())
+
+  @@index([workflowId])
+  @@index([status])
 }
 
 model AgentRun {
-  id         String   @id @default(cuid())
-  userId     String?
-  agentType  String
-  workflowId String?
-  status     String
-  input      Json?
-  output     Json?
-  createdAt  DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String?
+  agentType      String
+  workflowId     String?
+  status         String
+  input          Json?
+  output         Json?
+  creditsConsumed Int     @default(3)
+  createdAt      DateTime @default(now())
 }
 
 model UserApiKey {
@@ -266,11 +293,27 @@ model Team {
   owner         User           @relation("TeamOwner", fields: [ownerId], references: [id])
   members       TeamMember[]
   campaignBoards CampaignBoard[]
+  invites       Invite[]
+  workspaces    Workspace[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
   @@index([ownerId])
   @@map("teams")
+}
+
+model Workspace {
+  id              String         @id @default(cuid())
+  teamId          String
+  team            Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  name            String
+  type            String         // content_pipeline | campaign
+  campaignBoards  CampaignBoard[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([teamId])
+  @@map("workspaces")
 }
 
 model TeamMember {
@@ -289,17 +332,129 @@ model TeamMember {
 }
 
 model CampaignBoard {
-  id        String   @id @default(cuid())
-  name      String
-  teamId    String
-  team      Team     @relation(fields: [teamId], references: [id])
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  data      Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String     @id @default(cuid())
+  name        String
+  teamId      String
+  team        Team       @relation(fields: [teamId], references: [id])
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  data        Json?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@index([teamId])
   @@index([userId])
+  @@index([workspaceId])
   @@map("campaign_boards")
+}
+
+model Invite {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  email     String
+  role      String   @default("member")
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([teamId])
+  @@map("invites")
+}
+
+model Integration {
+  id           String   @id @default(cuid())
+  userId       String
+  provider     String
+  accessToken  String?
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@map("integrations")
+}
+
+model ConversationThread {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentThreadId String?
+  parentThread   ConversationThread?  @relation("ThreadBranches", fields: [parentThreadId], references: [id], onDelete: SetNull)
+  branches       ConversationThread[] @relation("ThreadBranches")
+  messages       Json     @default("[]") // [{ id, role, content }]
+  title          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([parentThreadId])
+  @@map("conversation_threads")
+}
+
+model Agent {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  role        String   @default("assistant")
+  status      String   @default("active")
+  avatar      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  workflows   Workflow[]
+  projects    Project[]
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  html        String
+  css         String?
+  js          String?
+  agentId     String
+  agent       Agent    @relation(fields: [agentId], references: [id])
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

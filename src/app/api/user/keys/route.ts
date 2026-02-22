@@ -72,7 +72,12 @@ export async function POST(request: Request) {
       }
     }
 
-    await setUserApiKeys(userId, keys);
+    // Filter out null values before saving
+    const validKeys: Record<string, string> = {};
+    for (const [k, v] of Object.entries(keys)) {
+      if (v !== null) validKeys[k] = v;
+    }
+    await setUserApiKeys(userId, validKeys);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Error in user keys POST API:", err);
