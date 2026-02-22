@@ -14,5 +14,11 @@ function hasRequiredApiKeys(): boolean {
   return keys.some((k) => k && k.length > 0);
 }
 
-export const mockMode =
-  process.env.MOCK_MODE === "true" || !hasRequiredApiKeys();
+export function isMockMode(): boolean {
+  return process.env.MOCK_MODE === "true" || !hasRequiredApiKeys();
+}
+
+// Backward compatibility - evaluated at call time
+export function mockMode() {
+  return isMockMode();
+}

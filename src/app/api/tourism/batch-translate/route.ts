@@ -12,7 +12,7 @@ import { recordAgentRun } from "@/api/usage";
 import { authOptions } from "@/lib/auth-options";
 import { getLlmApiKey } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
-import { mockMode } from "@/lib/mock-mode";
+import { isMockMode } from "@/lib/mock-mode";
 
 const VALID_LANGS = ["sl", "en", "de", "it", "hr"] as const;
 
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     const results: Record<string, string> = {};
 
-    if (mockMode || !apiKey) {
+    if (isMockMode() || !apiKey) {
       for (const lang of targetLangs) {
         const truncated = content.length > 100 ? `${content.slice(0, 100)}...` : content;
         results[lang] = `[MOCK ${lang}] ${truncated}`;

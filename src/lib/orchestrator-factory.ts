@@ -13,7 +13,7 @@ import {
   getSerpApiKey,
   getLlmApiKey,
 } from "@/config/env";
-import { mockMode } from "@/lib/mock-mode";
+import { isMockMode } from "@/lib/mock-mode";
 
 interface GetOrchestratorOptions {
   userApiKeys?: Record<string, string>;
@@ -45,7 +45,7 @@ export function getOrchestrator({
 
     if (missingKeys.length > 0) {
       const errorMessage = `Missing API keys for ${agentName} agent: ${missingKeys.join(", ")}`;
-      if (strict && !mockMode) {
+      if (strict && !isMockMode()) {
         throw new Error(errorMessage);
       } else {
         console.warn(errorMessage);

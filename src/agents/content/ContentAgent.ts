@@ -5,7 +5,7 @@
 
 import type { Agent } from "../../orchestrator/Orchestrator";
 import { getContext7ApiKey } from "@/config/env";
-import { mockMode } from "@/lib/mock-mode";
+import { isMockMode } from "@/lib/mock-mode";
 import { searchLibrary, getContext } from "./context7";
 import { generateContent } from "./content-generator";
 import { extractKeywords, suggestKeywords, suggestGeoHints, suggestAeoHints } from "./seo-optimizer";
@@ -43,7 +43,7 @@ export function createContentAgent(config?: {
       const { topic = "", libraryName = "react", format, brandVoiceSummary, styleGuide, visualGuidelines, audienceContext, companyKnowledge } = (input as ContentInput) ?? {};
       const output: ContentOutput = {};
 
-      if (mockMode) {
+      if (isMockMode()) {
         const mockBlog = `# Mock Blog: ${topic || "Development"}\n\nTest content for development.`;
         if (format === "blog" || !format) output.blog = mockBlog;
         if (format === "social" || !format) output.social = `Mock post: ${topic || "dev"}`;

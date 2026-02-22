@@ -4,7 +4,7 @@
  */
 
 import type { Agent } from "../../orchestrator/Orchestrator";
-import { mockMode } from "@/lib/mock-mode";
+import { isMockMode } from "@/lib/mock-mode";
 import { scrapeUrl } from "./firecrawl";
 import { searchWeb } from "./serpapi";
 
@@ -38,7 +38,7 @@ export function createResearchAgent(config?: {
         searchResults: [],
       };
 
-      if (mockMode) {
+      if (isMockMode()) {
         return {
           urls: ["https://example.com"],
           scrapedData: [{ url: "https://example.com", markdown: "Mock Test data" }],
