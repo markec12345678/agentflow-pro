@@ -21,27 +21,25 @@ export function NotificationBell({ propertyId }: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch(
+          `/api/tourism/notifications?${propertyId ? `propertyId=${propertyId}&` : ""}limit=10`
+        );
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unreadCount || 0);
+      } catch {
+        // Silent fail
+      }
+    };
+    
     fetchNotifications();
-    // Poll every 30 seconds
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [propertyId]);
-
-  const fetchNotifications = async () => {
-    try {
-      const res = await fetch(
-        `/api/tourism/notifications?${propertyId ? `propertyId=${propertyId}&` : ""}limit=10`
-      );
-      const data = await res.json();
-      setNotifications(data.notifications || []);
-      setUnreadCount(data.unreadCount || 0);
-    } catch {
-      // Silent fail
-    }
-  };
 
   const markAsRead = async (id: string) => {
     try {
