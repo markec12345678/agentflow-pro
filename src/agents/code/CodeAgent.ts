@@ -5,7 +5,7 @@
 
 import type { Agent } from "../../orchestrator/Orchestrator";
 import { getLlmApiKey } from "@/config/env";
-import { mockMode } from "@/lib/mock-mode";
+import { isMockMode } from "@/lib/mock-mode";
 import {
   getFileContents,
   getDefaultBranchSha,
@@ -60,7 +60,7 @@ export function createCodeAgent(config?: {
       const { task = "", owner, repo, createPr = false, contextFilePath, context } = (input as CodeInput) ?? {};
       const output: CodeOutput = {};
 
-      if (mockMode) {
+      if (isMockMode()) {
         return {
           files: [
             { path: "generated/mock-output.ts", content: `// Mock: ${task || "placeholder"}\nexport function mock() { return "dev"; }` },

@@ -12,7 +12,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth-options";
 import { getLlmApiKey } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
-import { mockMode } from "@/lib/mock-mode";
+import { isMockMode } from "@/lib/mock-mode";
 
 const VALID_TEMPLATES = ["tourism-basic", "luxury-retreat", "family-friendly"] as const;
 
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
 
     const pages: Record<string, { sections: LandingContent; seoTitle: string; seoDescription: string }> = {};
 
-    if (mockMode) {
+    if (isMockMode()) {
       for (const lang of languages) {
         const sections = buildMockSections(template, formData, lang);
         const title = formData.name ?? "Landing Page";

@@ -10,7 +10,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { authOptions } from "@/lib/auth-options";
 import { getLlmApiKey } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
-import { mockMode } from "@/lib/mock-mode";
+import { isMockMode } from "@/lib/mock-mode";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       : getLlmApiKey();
     const apiKey = llm.apiKey;
 
-    if (mockMode) {
+    if (isMockMode()) {
       const mockContent = `Subject: Dobrodošlica – ${prompt.slice(0, 30)}...
 
 [MOCK] Pošiljatelj: AgentFlow Pro
