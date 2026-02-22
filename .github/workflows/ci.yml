@@ -29,14 +29,24 @@ jobs:
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
           STRIPE_PRICE_PRO: price_placeholder
+          STRIPE_PRICE_BUSINESS: price_business_placeholder
+          STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
           NEXTAUTH_SECRET: ci-secret-key
           NEXTAUTH_URL: http://localhost:3000
+          FIRECRAWL_API_KEY: fc_test_placeholder
+          SERPAPI_API_KEY: serp_test_placeholder
 
       - name: Lint
         run: npm run lint
 
       - name: Test
         run: npm run test
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NEXTAUTH_SECRET: ci-secret-key
+          NEXTAUTH_URL: http://localhost:3000
+          FIRECRAWL_API_KEY: fc_test_placeholder
+          SERPAPI_API_KEY: serp_test_placeholder
 
       - name: Build
         run: npm run build
@@ -45,5 +55,10 @@ jobs:
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          STRIPE_PRICE_PRO: price_placeholder
+          STRIPE_PRICE_BUSINESS: price_business_placeholder
+          STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
           NEXTAUTH_SECRET: ci-secret-key
           NEXTAUTH_URL: http://localhost:3000
+          FIRECRAWL_API_KEY: fc_test_placeholder
+          SERPAPI_API_KEY: serp_test_placeholder
