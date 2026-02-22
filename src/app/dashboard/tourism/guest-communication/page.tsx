@@ -104,7 +104,7 @@ export default function GuestCommunicationPage() {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as string)}
               className={`pb-3 px-1 font-medium text-sm border-b-2 transition-colors ${
                 activeTab === tab.id
                   ? "border-blue-600 text-blue-600"

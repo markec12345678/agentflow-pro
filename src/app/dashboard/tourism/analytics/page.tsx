@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect } from "react";
 import { TourismErrorBoundary, LoadingState, EmptyState } from "@/web/components/TourismErrorBoundary";
 import { toast } from "sonner";
 import { PropertySelector } from "@/web/components/PropertySelector";
@@ -44,25 +44,25 @@ function AnalyticsPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const fetchAnalytics = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `/api/tourism/analytics?propertyId=${activePropertyId}&period=${period}`
+        );
+        const analyticsData = await res.json();
+        setData(analyticsData);
+      } catch {
+        toast.error("Napaka pri nalaganju analitike");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     if (activePropertyId) {
       fetchAnalytics();
     }
   }, [activePropertyId, period]);
-
-  const fetchAnalytics = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `/api/tourism/analytics?propertyId=${activePropertyId}&period=${period}`
-      );
-      const analyticsData = await res.json();
-      setData(analyticsData);
-    } catch {
-      toast.error("Napaka pri nalaganju analitike");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -188,16 +188,10 @@ function AnalyticsPage() {
                         {month.month}
                       </div>
                       <div className="flex-1">
-                        <div className="h-8 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                        <div className="h-8 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
                           <div
-                            className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all"
-                            style={{
-                              width: `${
-                                data.summary.totalRevenue > 0
-                                  ? (month.revenue / data.summary.totalRevenue) * 100
-                                  : 0
-                              }%`,
-                            }}
+                            className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all absolute left-0 top-0"
+                            style={{ width: `${data.summary.totalRevenue > 0 ? (month.revenue / data.summary.totalRevenue) * 100 : 0}%` }}
                           />
                         </div>
                       </div>
