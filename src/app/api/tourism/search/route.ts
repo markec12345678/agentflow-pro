@@ -29,8 +29,6 @@ export async function GET(request: NextRequest) {
         ...(propertyId ? { propertyId } : {}),
         OR: [
           { notes: { contains: searchTerm, mode: "insensitive" } },
-          { guest: { name: { contains: searchTerm, mode: "insensitive" } } },
-          { guest: { email: { contains: searchTerm, mode: "insensitive" } } },
         ],
       },
       include: { guest: true, property: true },
@@ -41,8 +39,8 @@ export async function GET(request: NextRequest) {
       ...reservations.map((r) => ({
         id: r.id,
         type: "reservation" as const,
-        title: r.guest?.name || "Rezervacija",
-        subtitle: `${r.property?.name || "Nastanitev"} • ${new Date(r.checkIn).toLocaleDateString("sl-SI")}`,
+        title: "Rezervacija",
+        subtitle: `Rezervacija • ${new Date(r.checkIn).toLocaleDateString("sl-SI")}`,
         url: `/dashboard/tourism/calendar?reservation=${r.id}`,
         icon: "📅",
       }))
@@ -78,7 +76,6 @@ export async function GET(request: NextRequest) {
         OR: [
           { name: { contains: searchTerm, mode: "insensitive" } },
           { location: { contains: searchTerm, mode: "insensitive" } },
-          { description: { contains: searchTerm, mode: "insensitive" } },
         ],
       },
       take: limit,
@@ -101,7 +98,6 @@ export async function GET(request: NextRequest) {
         ...(propertyId ? { propertyId } : {}),
         OR: [
           { content: { contains: searchTerm, mode: "insensitive" } },
-          { promptType: { contains: searchTerm, mode: "insensitive" } },
         ],
       },
       take: limit,
@@ -111,7 +107,7 @@ export async function GET(request: NextRequest) {
       ...content.map((c) => ({
         id: c.id,
         type: "content" as const,
-        title: c.promptType.replace(/-/g, " "),
+        title: c.type,
         subtitle: c.content.slice(0, 50) + "...",
         url: `/dashboard/tourism/generate?content=${c.id}`,
         icon: "📝",

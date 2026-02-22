@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from "date-fns";
+import { useState, useEffect, useCallback } from "react";
+import { format, addMonths, subMonths } from "date-fns";
 import { sl } from "date-fns/locale";
 import { toast } from "sonner";
 import { PropertySelector } from "@/web/components/PropertySelector";
@@ -36,15 +36,9 @@ export default function CalendarPage() {
   const [stats, setStats] = useState<CalendarStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<CalendarDay | null>(null);
-  const [showNewReservation, setShowNewReservation] = useState(false);
+  const [_showNewReservation, setShowNewReservation] = useState(false);
 
-  useEffect(() => {
-    if (activePropertyId) {
-      fetchCalendar();
-    }
-  }, [activePropertyId, currentDate]);
-
-  const fetchCalendar = async () => {
+  const fetchCalendar = useCallback(async () => {
     setLoading(true);
     try {
       const year = currentDate.getFullYear();
@@ -60,7 +54,13 @@ export default function CalendarPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activePropertyId, currentDate]);
+
+  useEffect(() => {
+    if (activePropertyId) {
+      fetchCalendar();
+    }
+  }, [activePropertyId, currentDate, fetchCalendar]);
 
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
   const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));

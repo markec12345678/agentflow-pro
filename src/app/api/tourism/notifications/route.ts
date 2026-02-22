@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, read } = body;
+    const { id, _read } = body;
 
     if (id === "all") {
       // Mark all as read

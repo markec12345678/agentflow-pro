@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get property's connected GSC site
-    const gscConnection = await prisma.searchConsoleConnection.findUnique({
+    const gscConnection = await prisma.searchConsoleConnection.findFirst({
       where: { propertyId },
     });
 
@@ -43,21 +43,21 @@ export async function GET(request: NextRequest) {
     });
 
     // Aggregate data
-    const keywordData = aggregateByField(metrics, "query");
-    const pageData = aggregateByField(metrics, "page");
+    const keywordData = aggregateByField(metrics, "keyword");
+    const pageData = aggregateByField(metrics, "contentType");
 
     return NextResponse.json({
       connected: true,
       siteUrl: gscConnection.siteUrl,
       lastSync: gscConnection.lastSync,
       summary: {
-        totalClicks: metrics.reduce((sum, m) => sum + m.clicks, 0),
-        totalImpressions: metrics.reduce((sum, m) => sum + m.impressions, 0),
+        totalClicks: metrics.reduce((sum, m) => sum + (m.clicks || 0), 0),
+        totalImpressions: metrics.reduce((sum, m) => sum + (m.impressions || 0), 0),
         avgCTR: metrics.length > 0
-          ? metrics.reduce((sum, m) => sum + m.ctr, 0) / metrics.length
+          ? metrics.reduce((sum, m) => sum + ((m.clicks || 0) / (m.impressions || 1)) * 100, 0) / metrics.length
           : 0,
         avgPosition: metrics.length > 0
-          ? metrics.reduce((sum, m) => sum + m.position, 0) / metrics.length
+          ? metrics.reduce((sum, m) => sum + (m.position || 0), 0) / metrics.length
           : 0,
       },
       topKeywords: keywordData.slice(0, 10),
@@ -89,14 +89,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Store connection
-      const connection = await prisma.searchConsoleConnection.upsert({
-        where: { propertyId },
-        update: {
-          siteUrl,
-          accessToken,
-          status: "pending_verification",
-        },
-        create: {
+      const connection = await prisma.searchConsoleConnection.create({
+        data: {
           propertyId,
           siteUrl,
           accessToken,
@@ -117,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     if (action === "sync") {
       // Sync data from GSC API
-      const connection = await prisma.searchConsoleConnection.findUnique({
+      const connection = await prisma.searchConsoleConnection.findFirst({
         where: { propertyId },
       });
 
@@ -167,7 +161,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await prisma.searchConsoleConnection.delete({
+    await prisma.searchConsoleConnection.deleteMany({
       where: { propertyId },
     });
 
@@ -183,21 +177,21 @@ export async function DELETE(request: NextRequest) {
 
 // Helper functions
 function aggregateByField(
-  metrics: Array<{ query?: string; page?: string; clicks: number; impressions: number; position: number }>,
-  field: "query" | "page"
+  metrics: Array<{ keyword?: string; contentType?: string; clicks?: number; impressions?: number; position?: number }>,
+  field: "keyword" | "contentType"
 ): Array<{ name: string; clicks: number; impressions: number; position: number; ctr: number }> {
   const grouped: Record<string, { clicks: number; impressions: number; positionSum: number; count: number }> = {};
 
   for (const m of metrics) {
-    const key = field === "query" ? m.query : m.page;
+    const key = field === "keyword" ? m.keyword : m.contentType;
     if (!key) continue;
 
     if (!grouped[key]) {
       grouped[key] = { clicks: 0, impressions: 0, positionSum: 0, count: 0 };
     }
-    grouped[key].clicks += m.clicks;
-    grouped[key].impressions += m.impressions;
-    grouped[key].positionSum += m.position;
+    grouped[key].clicks += m.clicks || 0;
+    grouped[key].impressions += m.impressions || 0;
+    grouped[key].positionSum += m.position || 0;
     grouped[key].count += 1;
   }
 
@@ -213,17 +207,18 @@ function aggregateByField(
 }
 
 function aggregateByDate(
-  metrics: Array<{ date: Date; clicks: number; impressions: number }>
+  metrics: Array<{ date?: Date; clicks?: number; impressions?: number }>
 ): Array<{ date: string; clicks: number; impressions: number }> {
   const grouped: Record<string, { clicks: number; impressions: number }> = {};
 
   for (const m of metrics) {
+    if (!m.date) continue;
     const dateKey = m.date.toISOString().split("T")[0];
     if (!grouped[dateKey]) {
       grouped[dateKey] = { clicks: 0, impressions: 0 };
     }
-    grouped[dateKey].clicks += m.clicks;
-    grouped[dateKey].impressions += m.impressions;
+    grouped[dateKey].clicks += m.clicks || 0;
+    grouped[dateKey].impressions += m.impressions || 0;
   }
 
   return Object.entries(grouped)

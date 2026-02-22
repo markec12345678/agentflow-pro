@@ -18,8 +18,6 @@ export async function GET(request: NextRequest) {
 
     // Verify token (in production, validate against stored tokens)
     // For now, we'll just check if token exists
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _propertyId = propertyId;
     if (!token) {
       return NextResponse.json(
         { error: "Token is required" },

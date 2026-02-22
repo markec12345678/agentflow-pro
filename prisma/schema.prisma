@@ -35,6 +35,11 @@ model User {
   sessions         Session[]
   emailVerified    DateTime?
   image            String?
+  notifications    Notification[]
+  contentHistory   ContentHistory[]
+  searchConsoleConnections SearchConsoleConnection[]
+
+  @@map("users")
 }
 
 model BlogPost {
@@ -204,19 +209,26 @@ model LandingPage {
 }
 
 model Property {
-  id        String   @id @default(cuid())
-  userId    String
-  name      String
-  location  String?
-  type      String?
-  capacity  Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  location    String?
+  type        String?
+  capacity    Int?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   landingPages  LandingPage[]
   userTemplates UserTemplate[]
   itineraries   Itinerary[]
+  reservations  Reservation[]
+  guests        Guest[]
+  competitors   Competitor[]
+  communications GuestCommunication[]
+  seoMetrics    SeoMetric[]
+  blockedDates BlockedDate[]
 
   @@index([userId])
   @@map("properties")
@@ -242,17 +254,23 @@ model Itinerary {
 model SeoMetric {
   id           String    @id @default(cuid())
   userId       String
+  propertyId   String?
   contentId    String?
   contentType  String
   keyword      String
   position     Int?
   searchVolume Int?
   difficulty   Int?
+  clicks       Int?
+  impressions  Int?
+  date         DateTime?
   lastChecked  DateTime?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
 
   @@index([userId, contentType, keyword])
+  @@index([propertyId, date])
   @@map("seo_metrics")
 }
 
@@ -457,4 +475,156 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// Tourism models
+model Reservation {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guestId     String?
+  guest       Guest?   @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  roomId      String?
+  checkIn     DateTime
+  checkOut    DateTime
+  status      String   @default("confirmed") // confirmed, cancelled, pending
+  channel     String?  // direct, booking.com, airbnb, etc.
+  totalPrice  Float?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([propertyId, checkIn])
+  @@index([status])
+  @@map("reservations")
+}
+
+model Guest {
+  id        String   @id @default(cuid())
+  propertyId String?
+  property  Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  name      String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reservations Reservation[]
+  communications GuestCommunication[]
+
+  @@index([propertyId])
+  @@map("guests")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId String?
+  title     String
+  message   String
+  type      String   // info, warning, error, success
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([propertyId])
+  @@map("notifications")
+}
+
+model ContentHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId String?
+  content   String   @db.Text
+  type      String   // blog, landing, social, etc.
+  status    String   // draft, published, archived
+  promptType String? // ai, manual, template
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, propertyId, type])
+  @@map("content_history")
+}
+
+model SearchConsoleConnection {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId String?
+  siteUrl   String
+  accessToken String?
+  refreshToken  String?
+  expiresAt DateTime?
+  lastSync  DateTime?
+  status    String?  // active, inactive, error
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, siteUrl])
+  @@index([propertyId])
+  @@map("search_console_connections")
+}
+
+model Competitor {
+  id        String   @id @default(cuid())
+  propertyId String
+  property  Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name      String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  prices CompetitorPrice[]
+
+  @@index([propertyId])
+  @@map("competitors")
+}
+
+model CompetitorPrice {
+  id          String   @id @default(cuid())
+  competitorId String
+  competitor  Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  date        DateTime
+  price       Float
+  roomType    String?
+  createdAt   DateTime @default(now())
+
+  @@index([competitorId, date])
+  @@map("competitor_prices")
+}
+
+model GuestCommunication {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guestId     String?
+  guest       Guest?   @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  type        String   // pre-arrival, post-stay, inquiry, complaint
+  channel     String   // email, sms, phone
+  subject     String?
+  content     String   @db.Text
+  status      String   @default("pending") // pending, sent, failed
+  variables   Json?    // template variables
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([propertyId, type, status])
+  @@map("guest_communications")
+}
+
+model BlockedDate {
+  id        String   @id @default(cuid())
+  propertyId String
+  property  Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  roomId    String?
+  date      DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([propertyId, date])
+  @@index([roomId, date])
+  @@map("blocked_dates")
 }

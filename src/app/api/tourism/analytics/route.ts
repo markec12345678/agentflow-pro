@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { subDays, startOfMonth, endOfMonth, format, parseISO } from "date-fns";
+import { subDays, format, parseISO } from "date-fns";
 
 // GET /api/tourism/analytics - get analytics data
 export async function GET(request: NextRequest) {
@@ -199,7 +199,24 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateMonthlyReport(data: any): string {
+interface MonthlyReportData {
+  summary: {
+    period: { from: string; to: string };
+    totalBookings: number;
+    totalRevenue: number;
+    avgBookingValue: number;
+    avgStayLength: number;
+    occupancyRate: number;
+  };
+  monthlyTrend: Array<{ month: string; revenue: number }>;
+  channelPerformance: Record<string, {
+    bookings: number;
+    revenue: number;
+    avgStay: number;
+  }>;
+}
+
+function generateMonthlyReport(data: MonthlyReportData): string {
   return `# Mesečni Poročilo - ${data.summary.period.from} do ${data.summary.period.to}
 
 ## Povzetek
@@ -210,35 +227,44 @@ function generateMonthlyReport(data: any): string {
 - Zasedenost: ${data.summary.occupancyRate}%
 
 ## Trend prihodkov
-${data.monthlyTrend.map((t: any) => `- ${t.month}: €${t.revenue}`).join("\n")}
+${data.monthlyTrend.map((t) => `- ${t.month}: €${t.revenue}`).join("\n")}
 
 ## Kanali prodaje
 ${Object.entries(data.channelPerformance)
-  .map(([channel, stats]: [string, any]) => 
-    `- ${channel}: ${stats.bookings} rezervacij, €${stats.revenue}, povp. ${stats.avgStay} noči`
-  ).join("\n")}
+  .map(([channel, stats]) => `- ${channel}: ${stats.bookings} rezervacij, €${stats.revenue}, povp. ${stats.avgStay} noči`)
+  .join("\n")}
 `;
 }
 
-function generateChannelReport(data: any): string {
+interface ChannelReportData {
+  summary: {
+    totalRevenue: number;
+  };
+  channelPerformance: Record<string, {
+    bookings: number;
+    revenue: number;
+    avgStay: number;
+  }>;
+}
+
+function generateChannelReport(data: ChannelReportData): string {
   return `# Poročilo o Kanalih Prodaje
 
 ${Object.entries(data.channelPerformance)
-  .map(([channel, stats]: [string, any]) => `
-## ${channel.toUpperCase()}
+  .map(([channel, stats]) => `## ${channel.toUpperCase()}
 - Rezervacije: ${stats.bookings}
 - Prihodki: €${stats.revenue}
 - Povprečna dolžina: ${stats.avgStay} noči
-- Delež: ${data.summary.totalRevenue > 0 ? Math.round((stats.revenue / data.summary.totalRevenue) * 100) : 0}%
-`).join("\n")}
+- Delež: ${data.summary.totalRevenue > 0 ? Math.round((stats.revenue / data.summary.totalRevenue) * 100) : 0}%`)
+  .join("\n")}
 `;
 }
 
-function generateRevenueReport(data: any): string {
-  return `# Poročilo o Prihodkih
+function generateRevenueReport(data: RevenueReportData): string {
+return `# Poročilo o Prihodkih
 
 ## Trend
-${data.monthlyTrend.map((t: any) => `- ${t.month}: €${t.revenue}`).join("\n")}
+${data.monthlyTrend.map((t) => `- ${t.month}: €${t.revenue}`).join("\n")}
 
 ## Napoved
 Na podlagi trenutnega trenda se pričakuje ${Math.round(data.summary.totalRevenue * 1.1)} € prihodkov v naslednjem obdobju.

@@ -75,7 +75,7 @@ const DEFAULT_FAQS: FAQEntry[] = [
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { question, propertyId, customFaqs } = body;
+    const { question, _propertyId, customFaqs } = body;
 
     if (!question) {
       return NextResponse.json(

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { addDays, format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
+import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 
 // GET /api/tourism/calendar - get availability calendar
 export async function GET(request: NextRequest) {
