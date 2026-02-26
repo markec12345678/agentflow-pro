@@ -8,7 +8,7 @@
 Build custom AI workflows with 4 intelligent agents (Research, Content, Code, Deploy). Visual builder, knowledge graph, and Stripe monetization included. Ship in hours, not weeks.
 
 **Features:**
-- 4 AI Agents with MCP integration
+- 4 AI Agents (MCP v Cursor za razvoj; aplikacija uporablja REST)
 - Visual Workflow Builder (React Flow)
 - Knowledge Graph with Memory
 - Stripe Monetization Built-in
@@ -44,7 +44,7 @@ I'm excited to ship AgentFlow Pro.
 
 Build custom AI workflows with 4 intelligent agents (Research, Content, Code, Deploy). Visual builder, knowledge graph, and Stripe monetization included. Ship in hours, not weeks.
 
-• 4 AI Agents with MCP integration
+• 4 AI Agents (MCP v Cursor za razvoj; aplikacija uporablja REST)
 • Visual Workflow Builder (React Flow)
 • Knowledge Graph with Memory
 • Stripe Monetization Built-in

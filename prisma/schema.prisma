@@ -8,36 +8,40 @@ datasource db {
 }
 
 model User {
-  id               String           @id @default(cuid())
-  email            String           @unique
-  name             String?
-  passwordHash     String?
-  trialEndsAt      DateTime?
-  activeTeamId     String?
-  activePropertyId String?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  workflows        Workflow[]
-  subscription     Subscription?
-  blogPosts        BlogPost[]
-  ownedTeams       Team[]           @relation("TeamOwner")
-  teamMembers      TeamMember[]
-  campaignBoards   CampaignBoard[]
-  userTemplates    UserTemplate[]
-  landingPages     LandingPage[]
-  seoMetrics       SeoMetric[]
-  translationJobs  TranslationJob[]
-  properties       Property[]
-  itineraries      Itinerary[]
-  conversationThreads ConversationThread[]
-  projects         Project[]
-  accounts         Account[]
-  sessions         Session[]
-  emailVerified    DateTime?
-  image            String?
-  notifications    Notification[]
-  contentHistory   ContentHistory[]
+  id                       String                    @id @default(cuid())
+  email                    String                    @unique
+  name                     String?
+  passwordHash             String?
+  trialEndsAt              DateTime?
+  activeTeamId             String?
+  activePropertyId         String?
+  role                     UserRole                  @default(VIEWER)
+  aiQuota                  Int                       @default(100)
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  workflows                Workflow[]
+  subscription             Subscription?
+  blogPosts                BlogPost[]
+  ownedTeams               Team[]                    @relation("TeamOwner")
+  teamMembers              TeamMember[]
+  campaignBoards           CampaignBoard[]
+  userTemplates            UserTemplate[]
+  landingPages             LandingPage[]
+  seoMetrics               SeoMetric[]
+  translationJobs          TranslationJob[]
+  properties               Property[]
+  itineraries              Itinerary[]
+  conversationThreads      ConversationThread[]
+  chatEscalations          ChatEscalation[]
+  projects                 Project[]
+  accounts                 Account[]
+  sessions                 Session[]
+  emailVerified            DateTime?
+  image                    String?
+  notifications            Notification[]
+  contentHistory           ContentHistory[]
   searchConsoleConnections SearchConsoleConnection[]
+  pageDesigns              PageDesign[]
 
   @@map("users")
 }
@@ -78,49 +82,49 @@ model Subscription {
 }
 
 model Workflow {
-  id              String              @id @default(cuid())
+  id              String               @id @default(cuid())
   name            String
   userId          String
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  nodes           Json                @default("[]")
-  edges           Json                @default("[]")
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  nodes           Json                 @default("[]")
+  edges           Json                 @default("[]")
   metadata        Json?
-  webhookToken    String?             @unique
+  webhookToken    String?              @unique
   slackWebhookUrl String?
-  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   checkpoints     WorkflowCheckpoint[]
   agentId         String?
-  agent           Agent?   @relation(fields: [agentId], references: [id])
+  agent           Agent?               @relation(fields: [agentId], references: [id])
 }
 
 model WorkflowCheckpoint {
-  id               String   @id @default(cuid())
-  workflowId       String
-  workflow         Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  nodeId           String
-  nodeLabel        String?
-  contextSnapshot  Json     // Full context at pause; used to resume
-  status           String   // pending_approval | approved | rejected
-  approvedAt       DateTime?
-  approvedBy       String?  // userId
-  rejectionReason  String?
-  createdAt        DateTime @default(now())
+  id              String    @id @default(cuid())
+  workflowId      String
+  workflow        Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  nodeId          String
+  nodeLabel       String?
+  contextSnapshot Json // Full context at pause; used to resume
+  status          String // pending_approval | approved | rejected
+  approvedAt      DateTime?
+  approvedBy      String? // userId
+  rejectionReason String?
+  createdAt       DateTime  @default(now())
 
   @@index([workflowId])
   @@index([status])
 }
 
 model AgentRun {
-  id             String   @id @default(cuid())
-  userId         String?
-  agentType      String
-  workflowId     String?
-  status         String
-  input          Json?
-  output         Json?
-  creditsConsumed Int     @default(3)
-  createdAt      DateTime @default(now())
+  id              String   @id @default(cuid())
+  userId          String?
+  agentType       String
+  workflowId      String?
+  status          String
+  input           Json?
+  output          Json?
+  creditsConsumed Int      @default(3)
+  createdAt       DateTime @default(now())
 }
 
 model UserApiKey {
@@ -209,42 +213,45 @@ model LandingPage {
 }
 
 model Property {
-  id          String   @id @default(cuid())
-  userId      String
-  name        String
-  location    String?
-  type        String?
-  capacity    Int?
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String               @id @default(cuid())
+  userId          String?
+  name            String
+  location        String?
+  type            String?
+  capacity        Int?
+  description     String?
+  basePrice       Float?
+  currency        String?              @default("EUR")
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  landingPages    LandingPage[]
+  userTemplates   UserTemplate[]
+  itineraries     Itinerary[]
+  reservations    Reservation[]
+  guests          Guest[]
+  competitors     Competitor[]
+  faqResponseLogs FaqResponseLog[]
+  amenities       Amenity[]
+  policies        PropertyPolicy[]
+  communications  GuestCommunication[]
+  seoMetrics      SeoMetric[]
+  blockedDates    BlockedDate[]
+  pageDesigns     PageDesign[]         @relation("PageDesignProperties")
+  users           User[]
 
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  landingPages  LandingPage[]
-  userTemplates UserTemplate[]
-  itineraries   Itinerary[]
-  reservations  Reservation[]
-  guests        Guest[]
-  competitors   Competitor[]
-  communications GuestCommunication[]
-  seoMetrics    SeoMetric[]
-  blockedDates BlockedDate[]
-
-  @@index([userId])
   @@map("properties")
 }
 
 model Itinerary {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
   title      String
   days       Json // [{ day: 1, date?: string, activities: [{ time?, title, desc, location? }] }]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([userId])
   @@index([propertyId])
@@ -266,7 +273,7 @@ model SeoMetric {
   date         DateTime?
   lastChecked  DateTime?
 
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
 
   @@index([userId, contentType, keyword])
@@ -305,30 +312,30 @@ model ContactSubmission {
 }
 
 model Team {
-  id            String         @id @default(cuid())
-  name          String
-  ownerId       String
-  owner         User           @relation("TeamOwner", fields: [ownerId], references: [id])
-  members       TeamMember[]
+  id             String          @id @default(cuid())
+  name           String
+  ownerId        String
+  owner          User            @relation("TeamOwner", fields: [ownerId], references: [id])
+  members        TeamMember[]
   campaignBoards CampaignBoard[]
-  invites       Invite[]
-  workspaces    Workspace[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  invites        Invite[]
+  workspaces     Workspace[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   @@index([ownerId])
   @@map("teams")
 }
 
 model Workspace {
-  id              String         @id @default(cuid())
-  teamId          String
-  team            Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  name            String
-  type            String         // content_pipeline | campaign
-  campaignBoards  CampaignBoard[]
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  id             String          @id @default(cuid())
+  teamId         String
+  team           Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  name           String
+  type           String // content_pipeline | campaign
+  campaignBoards CampaignBoard[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   @@index([teamId])
   @@map("workspaces")
@@ -398,31 +405,49 @@ model Integration {
 }
 
 model ConversationThread {
-  id             String   @id @default(cuid())
+  id             String               @id @default(cuid())
   userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   parentThreadId String?
   parentThread   ConversationThread?  @relation("ThreadBranches", fields: [parentThreadId], references: [id], onDelete: SetNull)
   branches       ConversationThread[] @relation("ThreadBranches")
-  messages       Json     @default("[]") // [{ id, role, content }]
+  messages       Json                 @default("[]") // [{ id, role, content }]
   title          String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  escalations    ChatEscalation[]
 
   @@index([userId])
   @@index([parentThreadId])
   @@map("conversation_threads")
 }
 
+model ChatEscalation {
+  id                 String              @id @default(cuid())
+  userId             String
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  threadId           String?
+  thread             ConversationThread? @relation(fields: [threadId], references: [id], onDelete: SetNull)
+  lastMessagePreview String              @db.Text
+  confidence         Float
+  status             String              @default("pending") // pending | acknowledged | resolved
+  createdAt          DateTime            @default(now())
+
+  @@index([userId])
+  @@index([threadId])
+  @@index([status])
+  @@map("chat_escalations")
+}
+
 model Agent {
-  id          String   @id @default(uuid())
+  id          String     @id @default(uuid())
   name        String
   description String?
-  role        String   @default("assistant")
-  status      String   @default("active")
+  role        String     @default("assistant")
+  status      String     @default("active")
   avatar      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   workflows   Workflow[]
   projects    Project[]
 }
@@ -443,18 +468,18 @@ model Project {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -479,20 +504,20 @@ model VerificationToken {
 
 // Tourism models
 model Reservation {
-  id          String   @id @default(cuid())
-  propertyId  String
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  guestId     String?
-  guest       Guest?   @relation(fields: [guestId], references: [id], onDelete: SetNull)
-  roomId      String?
-  checkIn     DateTime
-  checkOut    DateTime
-  status      String   @default("confirmed") // confirmed, cancelled, pending
-  channel     String?  // direct, booking.com, airbnb, etc.
-  totalPrice  Float?
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guestId    String?
+  guest      Guest?   @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  roomId     String?
+  checkIn    DateTime
+  checkOut   DateTime
+  status     String   @default("confirmed") // confirmed, cancelled, pending
+  channel    String? // direct, booking.com, airbnb, etc.
+  totalPrice Float?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([propertyId, checkIn])
   @@index([status])
@@ -500,16 +525,16 @@ model Reservation {
 }
 
 model Guest {
-  id        String   @id @default(cuid())
+  id         String    @id @default(cuid())
   propertyId String?
-  property  Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
-  name      String
-  email     String?
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  name       String
+  email      String?
+  phone      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-  reservations Reservation[]
+  reservations   Reservation[]
   communications GuestCommunication[]
 
   @@index([propertyId])
@@ -517,15 +542,15 @@ model Guest {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   propertyId String?
-  title     String
-  message   String
-  type      String   // info, warning, error, success
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  title      String
+  message    String
+  type       String // info, warning, error, success
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   @@index([userId, read])
   @@index([propertyId])
@@ -533,34 +558,34 @@ model Notification {
 }
 
 model ContentHistory {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   propertyId String?
-  content   String   @db.Text
-  type      String   // blog, landing, social, etc.
-  status    String   // draft, published, archived
+  content    String   @db.Text
+  type       String // blog, landing, social, etc.
+  status     String // draft, published, archived
   promptType String? // ai, manual, template
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([userId, propertyId, type])
   @@map("content_history")
 }
 
 model SearchConsoleConnection {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  propertyId String?
-  siteUrl   String
-  accessToken String?
-  refreshToken  String?
-  expiresAt DateTime?
-  lastSync  DateTime?
-  status    String?  // active, inactive, error
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId   String?
+  siteUrl      String
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  lastSync     DateTime?
+  status       String? // active, inactive, error
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@unique([userId, siteUrl])
   @@index([propertyId])
@@ -568,13 +593,13 @@ model SearchConsoleConnection {
 }
 
 model Competitor {
-  id        String   @id @default(cuid())
+  id         String   @id @default(cuid())
   propertyId String
-  property  Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  name      String
-  url       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name       String
+  url        String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   prices CompetitorPrice[]
 
@@ -583,48 +608,110 @@ model Competitor {
 }
 
 model CompetitorPrice {
-  id          String   @id @default(cuid())
+  id           String     @id @default(cuid())
   competitorId String
-  competitor  Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
-  date        DateTime
-  price       Float
-  roomType    String?
-  createdAt   DateTime @default(now())
+  competitor   Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  date         DateTime
+  price        Float
+  roomType     String?
+  createdAt    DateTime   @default(now())
 
   @@index([competitorId, date])
   @@map("competitor_prices")
 }
 
+model FaqResponseLog {
+  id             String    @id @default(cuid())
+  question       String    @db.Text
+  responseTimeMs Int
+  confidence     Float
+  propertyId     String?
+  property       Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  createdAt      DateTime  @default(now())
+
+  @@index([propertyId, createdAt])
+  @@map("faq_response_logs")
+}
+
 model GuestCommunication {
-  id          String   @id @default(cuid())
-  propertyId  String
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  guestId     String?
-  guest       Guest?   @relation(fields: [guestId], references: [id], onDelete: SetNull)
-  type        String   // pre-arrival, post-stay, inquiry, complaint
-  channel     String   // email, sms, phone
-  subject     String?
-  content     String   @db.Text
-  status      String   @default("pending") // pending, sent, failed
-  variables   Json?    // template variables
-  sentAt      DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String    @id @default(cuid())
+  propertyId String
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guestId    String?
+  guest      Guest?    @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  type       String // pre-arrival, post-stay, inquiry, complaint
+  channel    String // email, sms, phone
+  subject    String?
+  content    String    @db.Text
+  status     String    @default("pending") // pending, sent, failed
+  variables  Json? // template variables
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([propertyId, type, status])
   @@map("guest_communications")
 }
 
-model BlockedDate {
-  id        String   @id @default(cuid())
+model Amenity {
+  id         String   @id @default(cuid())
   propertyId String
-  property  Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  roomId    String?
-  date      DateTime
-  reason    String?
-  createdAt DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name       String // WiFi, Parkirišče, Bazen, ...
+  category   String? // connectivity, parking, facilities
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId])
+  @@map("amenities")
+}
+
+model PropertyPolicy {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  policyType String // cancellation, check-in, pets, ...
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId])
+  @@map("property_policies")
+}
+
+model BlockedDate {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  roomId     String?
+  date       DateTime
+  reason     String?
+  createdAt  DateTime @default(now())
 
   @@index([propertyId, date])
   @@index([roomId, date])
   @@map("blocked_dates")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model PageDesign {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  properties Property[] @relation("PageDesignProperties")
+  title      String
+  blocks     Json // Aura block structure with versioning
+  rawHtml    String? // GrapesJS fallback
+  rawCss     String?
+  version    Int        @default(1)
+  published  Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([userId, published])
+  @@index([version])
+  @@map("page_designs")
 }

@@ -14,7 +14,7 @@ Priročnik za hotelirje, DMO-je in turistične operaterje. Kako uporabiti AgentF
 
 ## Content Generator
 
-Generiraj opis nastanitve, vodič po destinaciji ali social media vsebino.
+En generator z platform-specifičnimi predlogami (Booking.com, Airbnb, landing, SEO) – ne ločeni agenti. Generiraj opis nastanitve, vodič po destinaciji ali social media vsebino.
 
 1. Pojdi na **Generate** (ali Overview → Hitri Začetek).
 2. Izberi prompt:

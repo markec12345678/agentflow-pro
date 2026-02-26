@@ -53,8 +53,17 @@ describe("getPlanLimits", () => {
 });
 
 describe("getStripePriceId", () => {
-  it("returns env value or undefined", () => {
+  it("returns undefined for free plan", () => {
+    expect(getStripePriceId("free")).toBeUndefined();
+  });
+
+  it("returns env value or undefined for paid plans", () => {
     const id = getStripePriceId("starter");
     expect(typeof id === "string" || id === undefined).toBe(true);
+  });
+
+  it("getPlanLimits includes blogPostsLimit", () => {
+    expect(getPlanLimits("starter").blogPostsLimit).toBe(3);
+    expect(getPlanLimits("pro").blogPostsLimit).toBe(10);
   });
 });

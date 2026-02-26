@@ -32,3 +32,8 @@ AI Content Platform specializiran za turizem – destination guides, hotel copy,
 - First customer v 30 dneh
 - $1,000 MRR v 60 dneh
 - $10,000 MRR v 180 dneh
+
+## Ključni dokumenti
+
+- Raziskava vs. implementacija, roadmap: [docs/RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP.md](../../docs/RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP.md)
+- Indeks vseh raziskav: [docs/RESEARCH-INDEX.md](../../docs/RESEARCH-INDEX.md)

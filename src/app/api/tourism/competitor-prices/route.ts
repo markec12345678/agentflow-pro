@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
+
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
+  if (!session?.user) return null;
+  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
+}
 
 // GET /api/tourism/competitor-prices - get competitor price data
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
     const location = searchParams.get("location");
@@ -15,29 +29,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
+    }
+
     // Fetch tracked competitors
     const competitors = await prisma.competitor.findMany({
       where: { propertyId },
       include: {
-        priceHistory: {
+        prices: {
           orderBy: { date: "desc" },
           take: 30,
         },
       },
     });
 
-    // Get user's property data
-    const property = await prisma.property.findUnique({
-      where: { id: propertyId },
-      select: {
-        id: true,
-        name: true,
-        basePrice: true,
-        currency: true,
-      },
-    });
-
-    // Market analysis
+    // Market analysis (property from getPropertyForUser includes basePrice, currency)
     const marketData = {
       avgPrice: 0,
       minPrice: 0,
@@ -47,7 +55,7 @@ export async function GET(request: NextRequest) {
     };
 
     if (competitors.length > 0) {
-      const prices = competitors.flatMap(c => 
+      const prices = competitors.flatMap(c =>
         c.priceHistory.map(p => p.price)
       ).filter(p => p > 0);
 
@@ -76,14 +84,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       property,
-      competitors: competitors.map(c => ({
+      competitors: competitors.map((c) => ({
         id: c.id,
         name: c.name,
-        platform: c.platform,
+        platform: c.name,
         url: c.url,
-        currentPrice: c.priceHistory[0]?.price || null,
-        lastUpdated: c.priceHistory[0]?.date || null,
-        priceTrend: calculateTrend(c.priceHistory.slice(0, 7)),
+        currentPrice: c.prices[0]?.price ?? null,
+        lastUpdated: c.prices[0]?.date ?? null,
+        priceTrend: calculateTrend(c.prices.slice(0, 7)),
       })),
       marketAnalysis: marketData,
       lastUpdated: new Date().toISOString(),
@@ -100,8 +108,23 @@ export async function GET(request: NextRequest) {
 // POST /api/tourism/competitor-prices - add competitor or refresh prices
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { action, propertyId, competitorData } = body;
+
+    if (!propertyId) {
+      return NextResponse.json({ error: "propertyId is required" }, { status: 400 });
+    }
+
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
+    }
 
     if (action === "add-competitor") {
       const { name, platform, url, roomType } = competitorData;
@@ -147,9 +170,7 @@ export async function POST(request: NextRequest) {
             data: {
               competitorId: competitor.id,
               price: scrapedPrice.price,
-              currency: scrapedPrice.currency || "EUR",
               date: new Date(),
-              availability: scrapedPrice.availability,
             },
           });
           results.push({ competitorId: competitor.id, price: scrapedPrice.price });
@@ -172,6 +193,12 @@ export async function POST(request: NextRequest) {
 // DELETE /api/tourism/competitor-prices - remove competitor
 export async function DELETE(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -180,6 +207,19 @@ export async function DELETE(request: NextRequest) {
         { error: "Competitor ID is required" },
         { status: 400 }
       );
+    }
+
+    const competitor = await prisma.competitor.findUnique({
+      where: { id },
+      select: { propertyId: true },
+    });
+    if (!competitor) {
+      return NextResponse.json({ error: "Competitor not found" }, { status: 404 });
+    }
+
+    const property = await getPropertyForUser(competitor.propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
     await prisma.competitor.delete({
@@ -199,12 +239,12 @@ export async function DELETE(request: NextRequest) {
 // Helper functions
 function calculateTrend(prices: Array<{ price: number; date: Date }>): "up" | "down" | "stable" {
   if (prices.length < 2) return "stable";
-  
+
   const first = prices[prices.length - 1]?.price || 0;
   const last = prices[0]?.price || 0;
-  
+
   const change = ((last - first) / first) * 100;
-  
+
   if (change > 5) return "up";
   if (change < -5) return "down";
   return "stable";
@@ -213,7 +253,7 @@ function calculateTrend(prices: Array<{ price: number; date: Date }>): "up" | "d
 async function scrapeCompetitorPrice(url: string): Promise<{ price: number; currency: string; availability?: boolean } | null> {
   // In production, this would use Firecrawl MCP or similar
   // For now, return a mock or call an external scraper
-  
+
   try {
     // Simulate price scraping
     // In real implementation, use Firecrawl MCP

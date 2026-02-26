@@ -1,5 +1,11 @@
 # Stripe Setup – Korak 3
 
+## Production webhook
+
+Glej [STRIPE-PRODUCTION-WEBHOOK.md](./STRIPE-PRODUCTION-WEBHOOK.md) za nastavitev webhooka v Production.
+
+---
+
 ## 1. Odpri Stripe Dashboard
 
 [Stripe Dashboard – Products](https://dashboard.stripe.com/products)

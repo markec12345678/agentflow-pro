@@ -7,16 +7,11 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
   return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
-
-async function getPropertyForUser(propertyId: string, userId: string) {
-  return prisma.property.findFirst({
-    where: { id: propertyId, userId },
-  });
 }
 
 export async function GET(
@@ -59,13 +54,25 @@ export async function PATCH(
     location?: string;
     type?: string;
     capacity?: number;
+    basePrice?: number;
+    currency?: string;
   };
 
-  const data: { name?: string; location?: string | null; type?: string | null; capacity?: number | null } = {};
+  const data: {
+    name?: string;
+    location?: string | null;
+    type?: string | null;
+    capacity?: number | null;
+    basePrice?: number | null;
+    currency?: string | null;
+  } = {};
   if (body.name !== undefined) data.name = body.name?.trim() || existing.name;
   if (body.location !== undefined) data.location = body.location?.trim() || null;
   if (body.type !== undefined) data.type = body.type?.trim() || null;
   if (body.capacity !== undefined) data.capacity = typeof body.capacity === "number" ? body.capacity : null;
+  if (body.basePrice !== undefined)
+    data.basePrice = typeof body.basePrice === "number" ? body.basePrice : null;
+  if (body.currency !== undefined) data.currency = body.currency?.trim() || null;
 
   const property = await prisma.property.update({
     where: { id },

@@ -143,6 +143,7 @@ export function GlobalSearch({ propertyId }: GlobalSearchProps) {
                   <QuickLink href="/dashboard/tourism/calendar" icon="📅" label="Koledar" />
                   <QuickLink href="/dashboard/tourism/guest-communication" icon="💬" label="Komunikacija" />
                   <QuickLink href="/dashboard/tourism/analytics" icon="📊" label="Analitika" />
+                  <QuickLink href="/dashboard/tourism/data-cleanup" icon="🧹" label="Čiščenje podatkov" />
                   <QuickLink href="/dashboard/tourism/generate" icon="✍️" label="Generiraj vsebino" />
                 </div>
               </div>
@@ -153,9 +154,8 @@ export function GlobalSearch({ propertyId }: GlobalSearchProps) {
                 <button
                   key={`${result.type}-${result.id}`}
                   onClick={() => handleSelect(result)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-                    index === selectedIndex ? "bg-blue-50 dark:bg-blue-900/30" : ""
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${index === selectedIndex ? "bg-blue-50 dark:bg-blue-900/30" : ""
+                    }`}
                 >
                   <span className="text-2xl">{result.icon}</span>
                   <div className="flex-1 min-w-0">

@@ -3,6 +3,7 @@ import { createContentAgent } from "@/agents/content/ContentAgent";
 import { prisma } from "@/database/schema";
 import { validateApiKey } from "@/lib/api-key-auth";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { retryWithBackoff } from "@/workflows/error-handler";
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,14 +53,18 @@ export async function POST(request: NextRequest) {
       | undefined;
 
     const agent = createContentAgent();
-    const result = await agent.execute({
-      topic,
-      format: "blog",
-      brandVoiceSummary: onboarding?.brandVoiceSummary ?? null,
-      styleGuide: onboarding?.styleGuide ?? null,
-      visualGuidelines: onboarding?.visualGuidelines ?? null,
-      companyKnowledge: companyKnowledge ?? null,
-    });
+    const result = await retryWithBackoff(
+      () =>
+        agent.execute({
+          topic,
+          format: "blog",
+          brandVoiceSummary: onboarding?.brandVoiceSummary ?? null,
+          styleGuide: onboarding?.styleGuide ?? null,
+          visualGuidelines: onboarding?.visualGuidelines ?? null,
+          companyKnowledge: companyKnowledge ?? null,
+        }),
+      { maxRetries: 2 }
+    );
 
     const blog = (result as { blog?: string }).blog ?? "";
     const titleMatch = blog.match(/^#\s+(.+)/m);

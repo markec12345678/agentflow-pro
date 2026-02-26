@@ -1,5 +1,7 @@
 # Production Launch Checklist
 
+Za celovit pregled glej tudi [PRODUCTION-DEPLOY-STEPS.md](./PRODUCTION-DEPLOY-STEPS.md).
+
 ## P0 – Kritično (brez tega ne launchaj)
 
 ### 1. Production Database (1h)
@@ -17,6 +19,8 @@ Glej [database-setup.md](./database-setup.md).
 
 ### 2. Stripe Live Keys (30 min)
 
+Glej [STRIPE-PRODUCTION-WEBHOOK.md](./STRIPE-PRODUCTION-WEBHOOK.md).
+
 - [ ] Stripe Dashboard → [API Keys](https://dashboard.stripe.com/apikeys) (Production mode)
 - [ ] Skopiraj `sk_live_...` in `pk_live_...`
 - [ ] Vercel: `STRIPE_SECRET_KEY` = `sk_live_...`
@@ -29,8 +33,10 @@ Glej [database-setup.md](./database-setup.md).
 
 ### 3. Stripe Webhooks – Production (30 min)
 
+Glej [STRIPE-PRODUCTION-WEBHOOK.md](./STRIPE-PRODUCTION-WEBHOOK.md).
+
 - [ ] Stripe Dashboard → Developers → Webhooks → Add endpoint
-- [ ] URL: `https://<production-domain>/api/webhooks/stripe`
+- [ ] URL: `https://agentflow-pro-seven.vercel.app/api/webhooks/stripe`
 - [ ] Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
 - [ ] Skopiraj Signing Secret (`whsec_...`)
 - [ ] Vercel: `STRIPE_WEBHOOK_SECRET` = ta secret (Production)
@@ -68,9 +74,37 @@ Glej [deployment.md](./deployment.md) za podrobnosti.
 
 ---
 
+## Phase 8.3 – MVP Launch (pred LAUNCH)
+
+### 8.3.1 Security audit
+- [x] Preglej [SECURITY-AUDIT-CHECKLIST.md](./SECURITY-AUDIT-CHECKLIST.md)
+- [x] Env vars: ni secrets v kodi, .env v .gitignore
+- [ ] Auth: next-auth secret, HTTPS only (verify in prod deploy)
+
+### 8.3.2 Documentation review
+- [x] README: quick start, env setup
+- [x] [DOCS-REVIEW-CHECKLIST.md](./DOCS-REVIEW-CHECKLIST.md)
+- [ ] Internal links valid (manual verification)
+
+### 8.3.3 Landing page
+- [x] Landing page live na production URL (src/app/page.tsx – Hero, CTA)
+- [x] CTA (pricing, signup) deluje – /onboarding, /generate, /workflows, /pricing
+
+### 8.3.4 Support channels
+- [x] [support-channels.md](./support-channels.md) – email, sales
+- [x] Contact / feedback forma (src/app/contact, api/contact)
+
+### 8.3.5 LAUNCH
+- [ ] Vsi P0 checklisti opravljeni
+- [ ] E2E smoke: `npm run test:e2e:smoke` (ali `npm run predeploy` – vključuje smoke)
+- [ ] Monitoring: Sentry DSN, error rate
+
+---
+
 ## Po konfiguraciji
 
-1. Pred redeployem: `npm run predeploy` (ali `npm run predeploy -- --skip-e2e` za hitrejši prehod)
+1. **Pred redeployem:** `npm run predeploy` (avtomatsko: verify env + E2E smoke)
+   - Za hitrejši prehod: `npm run predeploy -- --skip-e2e` (po tem ročno zaženi `npm run test:e2e:smoke`)
 2. Redeploy
 3. Test flow: Register → Trial → Subscribe (Pro) → Generate (preveri limit)
-4. Preveri `/api/health`
+4. Preveri `https://agentflow-pro-seven.vercel.app/api/health`

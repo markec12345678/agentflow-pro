@@ -14,6 +14,7 @@ jest.mock("@/lib/mock-mode", () => ({
   get mockMode() {
     return mockModeValue;
   },
+  isMockMode: () => mockModeValue,
 }));
 
 async function importHandler() {

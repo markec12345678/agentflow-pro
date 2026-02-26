@@ -273,6 +273,15 @@ export default function TourismOverviewPage() {
         </Link>
 
         <Link
+          href="/dashboard/tourism/data-cleanup"
+          className="p-4 rounded-xl bg-gradient-to-r from-slate-500 to-gray-600 text-white hover:opacity-90 transition-opacity"
+        >
+          <div className="text-2xl mb-2">🧹</div>
+          <div className="font-semibold">Čiščenje podatkov</div>
+          <div className="text-sm text-white/80">Deduplikacija, anomalije</div>
+        </Link>
+
+        <Link
           href="/dashboard/tourism/competitors"
           className="p-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-opacity"
         >
@@ -280,11 +289,20 @@ export default function TourismOverviewPage() {
           <div className="font-semibold">Spremljanje Tekmecev</div>
           <div className="text-sm text-white/80">Primerjava cen, trg</div>
         </Link>
+
+        <Link
+          href="/dashboard/tourism/booking-com"
+          className="p-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-white hover:opacity-90 transition-opacity"
+        >
+          <div className="text-2xl mb-2">🏨</div>
+          <div className="font-semibold">Booking.com Partner</div>
+          <div className="text-sm text-white/80">Connectivity / Affiliate prijava</div>
+        </Link>
       </div>
 
       <div className="rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 p-6 text-center">
         <div className="text-4xl mb-3" aria-hidden>
-          �
+          📅
         </div>
         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
           iCal Sinhronizacija

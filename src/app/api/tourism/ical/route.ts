@@ -1,13 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { format } from "date-fns";
+import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
+
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
+  if (!session?.user) return null;
+  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
+}
 
 // GET /api/tourism/ical/export - export calendar as iCal
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
     const roomId = searchParams.get("roomId");
-    const token = searchParams.get("token"); // For public iCal feeds
 
     if (!propertyId) {
       return NextResponse.json(
@@ -16,13 +29,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Verify token (in production, validate against stored tokens)
-    // For now, we'll just check if token exists
-    if (!token) {
-      return NextResponse.json(
-        { error: "Token is required" },
-        { status: 401 }
-      );
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
     // Fetch reservations from calendar API
@@ -82,6 +91,12 @@ END:VCALENDAR`;
 // POST /api/tourism/ical/import - import iCal from external sources
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { propertyId, icalUrl, source, roomId } = body;
 
@@ -90,6 +105,11 @@ export async function POST(request: NextRequest) {
         { error: "Property ID and iCal URL are required" },
         { status: 400 }
       );
+    }
+
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
     // Fetch external iCal feed
@@ -168,10 +188,24 @@ export async function POST(request: NextRequest) {
 // Generate sync token for external calendar services
 export async function PATCH(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { propertyId, roomId, action } = body;
 
     if (action === "generate-token") {
+      if (!propertyId) {
+        return NextResponse.json({ error: "propertyId is required" }, { status: 400 });
+      }
+
+      const property = await getPropertyForUser(propertyId, userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      }
       // Generate a unique token for the property
       const token = Buffer.from(`${propertyId}:${roomId || "all"}:${Date.now()}`).toString("base64");
       

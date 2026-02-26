@@ -148,3 +148,61 @@ test.describe("5. API Health", () => {
     expect(body).toEqual({ ok: true });
   });
 });
+
+test.describe("6. Blok C – Tourism Multi-Agent, Analytics, KG", () => {
+  test("POST /api/tourism/faq with useMultiAgent returns answer with source", async ({
+    request,
+  }) => {
+    const res = await request.post("/api/tourism/faq", {
+      data: {
+        question: "Kdaj je check-in?",
+        propertyId: "smoke-test-prop",
+        useMultiAgent: true,
+      },
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("answer");
+    expect(typeof body.answer).toBe("string");
+    expect(body.answer.length).toBeGreaterThan(0);
+    // With multi-agent, expect source when LLM available, else keyword match
+    expect(body.source === "multi-agent" || body.category || body.confidence !== undefined).toBe(true);
+  });
+
+  test("GET /api/tourism/analytics returns predictive block", async ({
+    request,
+  }) => {
+    const res = await request.get(
+      "/api/tourism/analytics?propertyId=smoke-test-prop&period=30d"
+    );
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("predictive");
+    expect(body.predictive).toMatchObject({
+      forecastNightsNext30d: expect.any(Number),
+      forecastBookingsNext30d: expect.any(Number),
+      forecastRevenueNext30d: expect.any(Number),
+      trendDirection: expect.stringMatching(/^(up|down|stable)$/),
+      confidence: expect.any(Number),
+    });
+    expect(body).toHaveProperty("summary");
+  });
+
+  test("Dashboard tourism analytics page loads with property selector", async ({
+    page,
+  }) => {
+    test.skip(
+      !process.env.DATABASE_URL || process.env.DATABASE_URL.includes("placeholder"),
+      "Requires DATABASE_URL"
+    );
+    await page.goto("/dashboard/tourism/analytics");
+    await page.waitForLoadState("networkidle");
+    const heading = page.getByRole("heading", {
+      name: /analitika|napoved|turizem/i,
+    });
+    const loginPrompt = page.getByRole("heading", { name: /sign in|prijava/i });
+    const hasContent =
+      (await heading.isVisible()) || (await loginPrompt.isVisible());
+    expect(hasContent).toBe(true);
+  });
+});

@@ -1,0 +1,252 @@
+# Tourism Content Templates for AgentFlow Pro
+
+# Hotel/Accommodation Description Templates
+hotel_description:
+  sections:
+    - overview
+    - amenities  
+    - location
+    - rooms
+    - dining
+  variables:
+    - property_name
+    - location
+    - rating
+    - price_range
+    - room_types
+    - facilities
+  template_en: |
+    # {property_name}
+    
+    Located in the heart of {location}, {property_name} offers an exceptional stay experience with a {rating}-star rating. Our {room_types} provide comfort and elegance for every traveler.
+    
+    ## Property Overview
+    Experience the perfect blend of luxury and convenience at our property, where modern amenities meet traditional hospitality.
+    
+    ## Amenities
+    {facilities}
+    
+    ## Location
+    Ideally situated in {location}, guests can easily explore nearby attractions, restaurants, and cultural sites.
+    
+    ## Accommodation
+    Our rooms feature modern design, comfortable bedding, and stunning views to ensure a restful stay.
+    
+    ## Dining
+    Enjoy exquisite cuisine at our on-site restaurant, serving local and international dishes.
+  template_sl: |
+    # {property_name}
+    
+    V središču {location} ponuja {property_name} izjemno doživetje bivanja z {rating}-zvezdično oceno. Naše {room_types} nudijo udobje in eleganco za vsakega popotnika.
+    
+    ## Pregled Nastanitve
+    Doživite popolno združitev luksuza in priročnosti v naši nastanitvi, kjer se moderni dodatki srečujejo s tradicionalno gostoljubnostjo.
+    
+    ## Storitve
+    {facilities}
+    
+    ## Lokacija
+    Idealno položena v {location}, lahko gostje enostavno raziskujejo bližnje znamenitosti, restavracije in kulturne lokacije.
+    
+    ## Namestitev
+    Naše sobe se ponašajo z modernim dizajnom, udobnimi ležišči in čudovitim razgledom za počitek bivanja.
+    
+    ## Prehrana
+    Uživajte odlično kuhinjo v naši restavraciji, ki streže lokalne in mednarodne jedi.
+
+# Tour Package Description Templates  
+tour_package:
+  sections:
+    - highlights
+    - itinerary
+    - inclusions
+    - pricing
+  variables:
+    - destination
+    - duration
+    - activities
+    - accommodation
+    - transportation
+    - meals
+    - guide
+  template_en: |
+    # {destination} Adventure Package - {duration} Days
+    
+    ## Package Highlights
+    Discover the magic of {destination} with our carefully curated {duration}-day adventure package.
+    
+    ## What's Included
+    - {accommodation}
+    - {transportation}
+    - {meals}
+    - Professional {guide}
+    - All {activities}
+    
+    ## Daily Itinerary
+    Experience the perfect balance of adventure, culture, and relaxation in beautiful {destination}.
+    
+    ## Pricing
+    Contact us for competitive pricing and seasonal discounts.
+  template_sl: |
+    # Paket Pustolovščine {destination} - {duration} dni
+    
+    ## Poudarki Paketa
+    Odkrijite čarobnost {destination} z našim skrbno pripravljenim {duration}-dnevnim paketom pustolovščine.
+    
+    ## Kaj je Vključeno
+    - {accommodation}
+    - {transportation}  
+    - {meals}
+    - Profesionalni {guide}
+    - Vse {activities}
+    
+    ## Dnevni Itinerar
+    Doživite popolno ravnotežje med pustolovščino, kulturo in sprostitvijo v lepem {destination}.
+    
+    ## Cene
+    Kontaktirajte nas za konkurenčne cene in sezonske popuste.
+
+# Travel Itinerary Templates
+travel_itinerary:
+  sections:
+    - day_plans
+    - activities
+    - accommodation
+    - transport
+  variables:
+    - destination
+    - days
+    - interests
+    - budget
+    - travel_style
+  template_en: |
+    # {destination} Travel Itinerary - {days} Days
+    
+    ## Trip Overview
+    Your personalized {days}-day journey through {destination} tailored for {interests} enthusiasts with a {travel_style} approach.
+    
+    ## Daily Plans
+    {day_plans}
+    
+    ## Recommended Activities
+    Based on your interests in {interests}, we recommend:
+    - Cultural experiences and local tours
+    - Adventure activities and outdoor exploration  
+    - Culinary experiences and local cuisine
+    - Relaxation and leisure time
+    
+    ## Accommodation Suggestions
+    {accommodation}
+    
+    ## Transportation
+    {transport}
+  template_sl: |
+    # Potopis {destination} - {days} dni
+    
+    ## Pregled Potovanja
+    Vaš personaliziran {days}-dnevni potopis skozi {destination}, prilagojen za ljubitelje {interests} z {travel_style} pristopom.
+    
+    ## Dnevni Načrti
+    {day_plans}
+    
+    ## Priporočene Aktivnosti
+    Na podlagi vaših interesov v {interests} priporočamo:
+    - Kulturne doživetja in lokalne ture
+    - Pustolovščine in raziskovanje na prostem
+    - Kulinarične doživetja in lokalna kuhinja
+    - Sprostitev in prosti čas
+    
+    ## Predlogi Namestitve
+    {accommodation}
+    
+    ## Transport
+    {transport}
+
+# Seasonal Promotion Templates
+seasonal_promotion:
+  sections:
+    - offer_title
+    - discount
+    - validity
+    - terms
+  variables:
+    - season
+    - discount_percentage
+    - offer_description
+    - booking_period
+    - travel_period
+  template_en: |
+    # {season} Special Offer - {discount_percentage}% OFF!
+    
+    ## Limited Time Offer
+    {offer_description}
+    
+    ## Discount Details
+    Save {discount_percentage}% on your {season} getaway when you book between {booking_period}.
+    
+    ## Travel Period
+    Valid for travel between {travel_period}.
+    
+    ## Terms & Conditions
+    - Subject to availability
+    - Cannot be combined with other offers
+    - Full payment required at booking
+  template_sl: |
+    # Posebna Ponudba {season} - {discount_percentage}% POPUSTA!
+    
+    ## Ponudba Omejenega Časa
+    {offer_description}
+    
+    ## Podrobnosti Popusta
+    Prihranite {discount_percentage}% na vašem {season} pobegu, če rezervirate med {booking_period}.
+    
+    ## Obdobje Potovanja
+    Veljavno za potovanja med {travel_period}.
+    
+    ## Pogoji in Določila
+    - Odvisno od razpoložljivosti
+    - Ne se lahko združuje z drugimi ponudbami
+    - Polno plačilo zahtevano ob rezervaciji
+
+# Guest Review Response Templates
+review_response:
+  sections:
+    - greeting
+    - acknowledgment
+    - response
+    - closing
+  variables:
+    - guest_name
+    - rating
+    - specific_points
+    - action_items
+  template_en: |
+    Dear {guest_name},
+    
+    Thank you for taking the time to share your {rating}-star review with us.
+    
+    {acknowledgment}
+    
+    {response}
+    
+    {action_items}
+    
+    We hope to have the pleasure of welcoming you back to our property in the future.
+    
+    Best regards,
+    The Management Team
+  template_sl: |
+    Spoštovani {guest_name},
+    
+    Hvala, ker ste si vzeli čas za deljenje vaše {rating}-zvezdične ocene z nami.
+    
+    {acknowledgment}
+    
+    {response}
+    
+    {action_items}
+    
+    Upamo, da bomo imeli čast vas v prihodnosti spet prijetno v naši nastanitvi.
+    
+    S spoštovanjem,
+    Ekipa vodstva

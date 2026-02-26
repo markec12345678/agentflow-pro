@@ -57,6 +57,14 @@ Po povezavi: vsak `git push` na `master` sproži nov deploy.
 | `STRIPE_PRICE_STARTER` | Price ID za Starter plan |
 | `STRIPE_PRICE_ENTERPRISE` | Price ID za Enterprise plan |
 
+## Opcijsko (LangSmith – Blok C #11)
+
+| Variable | Opis |
+|----------|------|
+| `LANGSMITH_TRACING` | `true` za trace agentov |
+| `LANGSMITH_API_KEY` | API ključ iz smith.langchain.com |
+| `LANGSMITH_PROJECT` | Ime projekta (npr. agentflow-pro) |
+
 ---
 
 ## Po dodajanju

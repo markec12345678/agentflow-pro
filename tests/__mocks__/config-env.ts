@@ -1,6 +1,10 @@
 /**
  * Mock for @/config/env - used by batch-translate tests
  */
+export function getLlmApiKey(): { apiKey: string; baseURL?: string; model: string } {
+  return { apiKey: "", model: "gpt-4o-mini" };
+}
+
 export function getOpenAiApiKey(): string {
   return process.env.OPENAI_API_KEY ?? "";
 }

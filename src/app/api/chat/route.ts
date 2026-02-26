@@ -11,12 +11,15 @@ import { NextResponse } from "next/server";
 import { recordAgentRun } from "@/api/usage";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { requiresEscalationForType, estimateConfidence } from "@/lib/hitl";
+import { notifyEscalationCreated } from "@/lib/escalation-notify";
 import { getLlmApiKey } from "@/config/env";
 import { getUserApiKeys, getUserApiKeysForExecution } from "@/lib/user-keys";
 import { getCachedContext, setCachedContext } from "@/lib/redis";
 import { plan } from "@/planner/PlannerService";
 import { getOrchestrator } from "@/lib/orchestrator-factory";
 import { search as vectorSearch } from "@/vector/QdrantService";
+import { retryWithBackoff } from "@/workflows/error-handler";
 
 export const maxDuration = 90; // Plan-execute can run multiple agents
 
@@ -53,8 +56,9 @@ export async function POST(req: Request) {
     const body = (await req.json()) as {
       messages: UIMessage[];
       planExecute?: boolean;
+      threadId?: string;
     };
-    const { messages, planExecute } = body;
+    const { messages, planExecute, threadId } = body;
 
     if (MOCK_MODE || !apiKey) {
       const mockText =
@@ -88,9 +92,9 @@ export async function POST(req: Request) {
       });
       onboarding = row
         ? {
-            brandVoiceSummary: row.brandVoiceSummary ?? undefined,
-            styleGuide: row.styleGuide ?? undefined,
-          }
+          brandVoiceSummary: row.brandVoiceSummary ?? undefined,
+          styleGuide: row.styleGuide ?? undefined,
+        }
         : null;
       if (onboarding) {
         await setCachedContext(cacheKey, onboarding, 300);
@@ -119,12 +123,15 @@ export async function POST(req: Request) {
           ? lastUser.content
           : Array.isArray(lastUser?.parts)
             ? (lastUser.parts as { text?: string }[])
-                .map((p) => p.text ?? "")
-                .join("")
+              .map((p) => p.text ?? "")
+              .join("")
             : "";
       if (query.trim()) {
         try {
-          const results = await vectorSearch(query.trim(), apiKey, 3);
+          const results = await retryWithBackoff(
+            () => vectorSearch(query.trim(), apiKey, 3),
+            { maxRetries: 2 }
+          );
           if (results.length > 0) {
             vectorContext =
               "\n\nRelevant content from user's documents (reference when helpful):\n" +
@@ -146,12 +153,15 @@ export async function POST(req: Request) {
           ? lastUser.content
           : Array.isArray(lastUser?.parts)
             ? (lastUser.parts as { text?: string }[])
-                .map((p) => p.text ?? "")
-                .join("")
+              .map((p) => p.text ?? "")
+              .join("")
             : "";
       if (query.trim()) {
         try {
-          const planResult = await plan(query.trim(), llm);
+          const planResult = await retryWithBackoff(
+            () => plan(query.trim(), llm),
+            { maxRetries: 2 }
+          );
           if (
             planResult.subGoals &&
             planResult.subGoals.length > 0
@@ -214,7 +224,7 @@ export async function POST(req: Request) {
       model: openai(llm.model),
       system,
       messages: await convertToModelMessages(messages),
-      onFinish: ({ text, usage }) => {
+      onFinish: async ({ text, usage }) => {
         recordAgentRun(userId, "chat", {
           input: { messageCount: messages.length },
           output: {
@@ -222,6 +232,30 @@ export async function POST(req: Request) {
             usage: usage ? { ...usage } : undefined,
           },
         }).catch(() => { });
+
+        if (text && requiresEscalationForType(text, "inquiry_response")) {
+          try {
+            const confidence = estimateConfidence(text);
+            const created = await prisma.chatEscalation.create({
+              data: {
+                userId,
+                threadId: threadId || null,
+                lastMessagePreview: text.slice(0, 500),
+                confidence,
+                status: "pending",
+              },
+            });
+            notifyEscalationCreated({
+              escalationId: created.id,
+              userId,
+              threadId: threadId || null,
+              lastMessagePreview: created.lastMessagePreview,
+              confidence,
+            }).catch((e) => console.error("Escalation notify failed:", e));
+          } catch (e) {
+            console.error("HITL escalation create failed:", e);
+          }
+        }
       },
     });
 

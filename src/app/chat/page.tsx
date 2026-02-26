@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -56,11 +56,18 @@ export default function ChatPage() {
       .finally(() => setThreadLoaded(true));
   }, [threadId]);
 
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        body: { threadId: threadId ?? undefined },
+      }),
+    [threadId]
+  );
+
   const { messages, sendMessage, status } = useChat({
     id: threadId ?? "new-chat",
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-    }),
+    transport,
     messages: threadLoaded && initialMessages ? initialMessages : undefined,
   });
 
@@ -99,6 +106,39 @@ export default function ChatPage() {
   const [savingMessageId, setSavingMessageId] = useState<string | null>(null);
   const [saveErrorForMessage, setSaveErrorForMessage] = useState<Record<string, string>>({});
   const [planExecute, setPlanExecute] = useState(false);
+  const [hasRecentEscalation, setHasRecentEscalation] = useState(false);
+  const prevStatusRef = useRef<string>(status);
+
+  const refetchEscalations = useCallback(() => {
+    const url = threadId
+      ? `/api/chat/escalations?threadId=${encodeURIComponent(threadId)}`
+      : "/api/chat/escalations";
+    fetch(url)
+      .then((r) => r.json())
+      .then((data: { escalations?: Array<{ createdAt: string }> }) => {
+        const recent = (data.escalations ?? []).some(
+          (e) => Date.now() - new Date(e.createdAt).getTime() < 120_000
+        );
+        setHasRecentEscalation(recent);
+      })
+      .catch(() => { });
+  }, [threadId]);
+
+  useEffect(() => {
+    if (status === "ready" && messages.length > 0) {
+      refetchEscalations();
+    }
+  }, [status, messages.length, threadId, refetchEscalations]);
+
+  // Delayed refetch when stream finishes (server onFinish may lag)
+  useEffect(() => {
+    const wasStreaming = prevStatusRef.current === "streaming";
+    prevStatusRef.current = status;
+    if (wasStreaming && status === "ready") {
+      const t = setTimeout(refetchEscalations, 600);
+      return () => clearTimeout(t);
+    }
+  }, [status, refetchEscalations]);
 
   useEffect(() => {
     fetch("/api/onboarding")
@@ -266,7 +306,7 @@ export default function ChatPage() {
                 onSubmit={(filledPrompt) => {
                   sendMessage(
                     { text: filledPrompt },
-                    planExecute ? { body: { planExecute: true } } : undefined
+                    { body: { planExecute: !!planExecute, threadId: threadId ?? undefined } }
                   );
                   setSelectedPrompt(null);
                 }}
@@ -288,13 +328,19 @@ export default function ChatPage() {
             </label>
           </div>
 
+          {hasRecentEscalation && (
+            <div className="mb-4 rounded-lg border border-amber-400 bg-amber-50 dark:border-amber-600 dark:bg-amber-900/20 px-4 py-3 text-amber-800 dark:text-amber-200 text-sm">
+              Pogovor bo prešel na človeka z vami. Nekdo vas bo kmalu kontaktiral.
+            </div>
+          )}
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
               if (input.trim()) {
                 sendMessage(
                   { text: input },
-                  planExecute ? { body: { planExecute: true } } : undefined
+                  { body: { planExecute: !!planExecute, threadId: threadId ?? undefined } }
                 );
                 setInput("");
               }

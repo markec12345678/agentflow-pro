@@ -1,13 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth-options";
+import {
+  getPropertyForUser,
+  getPropertyIdsForUser,
+} from "@/lib/tourism/property-access";
+
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
+  if (!session?.user) return null;
+  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
+}
 
 // GET /api/tourism/search - global search across all tourism data
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("q");
     const propertyId = searchParams.get("propertyId");
     const limit = parseInt(searchParams.get("limit") || "20");
+
+    let allowedPropertyIds: string[];
+    if (propertyId) {
+      const property = await getPropertyForUser(propertyId, userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      }
+      allowedPropertyIds = [propertyId];
+    } else {
+      allowedPropertyIds = await getPropertyIdsForUser(userId);
+    }
 
     if (!query || query.trim().length < 2) {
       return NextResponse.json({ results: [] });
@@ -49,7 +77,7 @@ export async function GET(request: NextRequest) {
     // Search Guests
     const guests = await prisma.guest.findMany({
       where: {
-        ...(propertyId ? { propertyId } : {}),
+        propertyId: { in: allowedPropertyIds },
         OR: [
           { name: { contains: searchTerm, mode: "insensitive" } },
           { email: { contains: searchTerm, mode: "insensitive" } },
@@ -95,10 +123,16 @@ export async function GET(request: NextRequest) {
     // Search Content History
     const content = await prisma.contentHistory.findMany({
       where: {
-        ...(propertyId ? { propertyId } : {}),
-        OR: [
-          { content: { contains: searchTerm, mode: "insensitive" } },
-        ],
+        userId,
+        content: { contains: searchTerm, mode: "insensitive" },
+        ...(allowedPropertyIds.length > 0
+          ? {
+              OR: [
+                { propertyId: { in: allowedPropertyIds } },
+                { propertyId: null },
+              ],
+            }
+          : { propertyId: null }),
       },
       take: limit,
     });
@@ -117,7 +151,15 @@ export async function GET(request: NextRequest) {
     // Search Templates
     const templates = await prisma.userTemplate.findMany({
       where: {
-        ...(propertyId ? { propertyId } : {}),
+        userId,
+        ...(allowedPropertyIds.length > 0
+          ? {
+              OR: [
+                { propertyId: { in: allowedPropertyIds } },
+                { propertyId: null },
+              ],
+            }
+          : { propertyId: null }),
         OR: [
           { name: { contains: searchTerm, mode: "insensitive" } },
           { basePrompt: { contains: searchTerm, mode: "insensitive" } },

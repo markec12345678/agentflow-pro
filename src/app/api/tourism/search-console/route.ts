@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
+
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
+  if (!session?.user) return null;
+  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
+}
 
 // GET /api/tourism/search-console - fetch GSC data
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
     const days = parseInt(searchParams.get("days") || "30");
@@ -15,14 +29,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
+    }
+
     // Get property's connected GSC site
     const gscConnection = await prisma.searchConsoleConnection.findFirst({
-      where: { propertyId },
+      where: { propertyId, userId },
     });
 
     if (!gscConnection) {
       return NextResponse.json(
-        { 
+        {
           error: "Google Search Console not connected",
           setupRequired: true,
           setupUrl: "/dashboard/tourism/seo/search-console-setup",
@@ -76,21 +95,32 @@ export async function GET(request: NextRequest) {
 // POST /api/tourism/search-console - setup or sync
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { action, propertyId, siteUrl, accessToken } = body;
 
     if (action === "connect") {
-      // Validate site URL format
-      if (!siteUrl || !siteUrl.match(/^https?:\/\/.+/)) {
+      if (!propertyId || !siteUrl || !siteUrl.match(/^https?:\/\/.+/)) {
         return NextResponse.json(
-          { error: "Invalid site URL" },
+          { error: "Property ID and valid site URL are required" },
           { status: 400 }
         );
+      }
+
+      const property = await getPropertyForUser(propertyId, userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
       }
 
       // Store connection
       const connection = await prisma.searchConsoleConnection.create({
         data: {
+          userId,
           propertyId,
           siteUrl,
           accessToken,
@@ -110,9 +140,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "sync") {
-      // Sync data from GSC API
+      if (!propertyId) {
+        return NextResponse.json({ error: "propertyId is required for sync" }, { status: 400 });
+      }
+
+      const property = await getPropertyForUser(propertyId, userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      }
+
       const connection = await prisma.searchConsoleConnection.findFirst({
-        where: { propertyId },
+        where: { propertyId, userId },
       });
 
       if (!connection) {
@@ -122,12 +160,10 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // In production, call Google Search Console API
-      // For now, simulate sync
       const syncedData = await syncSearchConsoleData(connection);
 
       await prisma.searchConsoleConnection.update({
-        where: { propertyId },
+        where: { id: connection.id },
         data: { lastSync: new Date() },
       });
 
@@ -151,6 +187,12 @@ export async function POST(request: NextRequest) {
 // DELETE /api/tourism/search-console - disconnect
 export async function DELETE(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
 
@@ -161,8 +203,13 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
+    }
+
     await prisma.searchConsoleConnection.deleteMany({
-      where: { propertyId },
+      where: { propertyId, userId },
     });
 
     return NextResponse.json({ success: true });
@@ -229,7 +276,7 @@ function aggregateByDate(
 async function syncSearchConsoleData(connection: { siteUrl: string; accessToken: string }): Promise<Array<unknown>> {
   // In production, call Google Search Console API
   // https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query
-  
+
   // For now, return mock data structure
   const mockData = [
     {

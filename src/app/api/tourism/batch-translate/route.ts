@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       : getLlmApiKey();
     const apiKey = llm.apiKey;
 
-    if (!mockMode && !apiKey) {
+    if (!isMockMode() && !apiKey) {
       return NextResponse.json(
         { error: "Add your OpenAI API key in Settings for translation." },
         { status: 503 }

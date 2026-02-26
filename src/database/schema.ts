@@ -5,16 +5,19 @@
 import { PrismaClient } from "@prisma/client";
 import { getPlanLimits, type PlanId } from "@/stripe/plans";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+declare global {
+  var prisma: PrismaClient | undefined;
+}
 
 export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-  });
+  process.env.NODE_ENV !== "production"
+    ? global.prisma ?? new PrismaClient({
+        log: ["error", "warn"],
+      })
+    : global.prisma ?? new PrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+  global.prisma = prisma;
 }
 
 export type { PlanId };

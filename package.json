@@ -32,7 +32,10 @@
     "test:helpers": "npx tsx scripts/test-publish-helpers.ts",
     "audit:features": "npx tsx scripts/audit-features.ts",
     "playwright:install": "playwright install --with-deps chromium",
-    "precommit": "bash scripts/pre-commit.sh"
+    "precommit": "bash scripts/pre-commit.sh",
+    "load:smoke": "k6 run load-tests/smoke.js",
+    "load:test": "k6 run load-tests/load.js",
+    "load:100": "k6 run --vus 100 --duration 2m load-tests/load.js"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.29",
@@ -51,6 +54,7 @@
     "date-fns": "^4.1.0",
     "googleapis": "^171.4.0",
     "ioredis": "^5.9.3",
+    "jsonwebtoken": "^9.0.3",
     "next": "^15.0.0",
     "next-auth": "^4.24.13",
     "octokit": "^4.0.0",
@@ -70,6 +74,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^3.0.0",
     "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

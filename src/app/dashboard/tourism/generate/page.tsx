@@ -371,7 +371,12 @@ export default function TourismGeneratePage() {
             {coreResult && (
               <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold dark:text-white">Rezultati</h2>
+                  <div>
+                    <h2 className="text-lg font-semibold dark:text-white">Rezultati</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                      Platform-specifične predloge (Booking.com, Airbnb, landing, SEO)
+                    </p>
+                  </div>
                   {coreResult.landing && coreResult.seo && (
                     <div className="flex items-center gap-2">
                       <button
@@ -395,7 +400,7 @@ export default function TourismGeneratePage() {
                 </div>
                 {coreResult.booking && (
                   <div>
-                    <h3 className="font-medium dark:text-white mb-2">Booking opisi</h3>
+                    <h3 className="font-medium dark:text-white mb-2">Predloge za Booking.com</h3>
                     <div className="space-y-2">
                       {Object.entries(coreResult.booking).map(([lang, text]) => (
                         <div key={lang} className="text-sm">
@@ -439,133 +444,133 @@ export default function TourismGeneratePage() {
             )}
           </div>
         ) : (
-        <>
-        <div className="mb-8">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Select prompt
-          </label>
-          <div className="flex flex-wrap gap-2 min-w-0">
-            {tourismPrompts.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => {
-                  setSelectedPrompt(p);
-                  setTemplateVars(null);
-                  setResult(null);
-                }}
-                className={`min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${selectedPrompt?.id === p.id
-                  ? "bg-blue-600 text-white"
-                  : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  }`}
-              >
-                {p.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {templateError && templateId ? (
-          <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 sm:p-6 mb-8">
-            <p className="text-red-700 dark:text-red-300 mb-4">{templateError}</p>
-            <button
-              type="button"
-              onClick={retryLoadTemplate}
-              className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-            >
-              Poskusi znova
-            </button>
-          </div>
-        ) : templateLoading ? (
-          <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-8">
-            <Skeleton className="h-6 w-48 mb-4" />
-            <SkeletonText lines={2} className="mb-6" />
-            <SkeletonCard />
-          </div>
-        ) : selectedPrompt ? (
-          <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-8">
-            <h2 className="text-lg font-semibold dark:text-white mb-4">
-              {selectedPrompt.name}
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              {selectedPrompt.description}
-            </p>
-            <VariableForm
-              key={selectedPrompt.id + (templateVars ? "loaded" : "fresh")}
-              prompt={selectedPrompt}
-              initialValues={templateVars ?? undefined}
-              disabled={isGenerating}
-              submitLabel={isGenerating ? "Generiram..." : "Generate"}
-              onSubmit={(filled, vars) => {
-                setTemplateVars(vars);
-                handleGenerate(filled, vars);
-              }}
-            />
-          </div>
-        ) : null}
-
-        {isGenerating && !result ? (
-          <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 mb-8">
-            <Skeleton className="h-6 w-32 mb-4" />
-            <SkeletonText lines={4} className="mb-4" />
-            <div className="flex flex-wrap gap-2">
-              <Skeleton className="h-10 w-24" />
-              <Skeleton className="h-10 w-28" />
+          <>
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Select prompt
+              </label>
+              <div className="flex flex-wrap gap-2 min-w-0">
+                {tourismPrompts.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedPrompt(p);
+                      setTemplateVars(null);
+                      setResult(null);
+                    }}
+                    className={`min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ${selectedPrompt?.id === p.id
+                      ? "bg-blue-600 text-white"
+                      : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      }`}
+                  >
+                    {p.name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : result ? (
-          <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold dark:text-white mb-2">Generated</h2>
-            <h3 className="font-medium dark:text-white mb-2">{result.title}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-              {result.excerpt}
-            </p>
-            <div className="flex flex-wrap gap-2 min-w-0">
-              {result.id && (
-                <>
-                  <Link
-                    href={`/content/${result.id}`}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 min-h-[44px] inline-flex items-center"
-                  >
-                    View Full
-                  </Link>
-                  <Link
-                    href={`/content/${result.id}?publish=1`}
-                    className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 min-h-[44px] inline-flex items-center"
-                  >
-                    Publish
-                  </Link>
-                </>
-              )}
-              {contentToCopy && (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleCopyForBooking}
-                    className="px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium min-h-[44px] transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
-                  >
-                    Kopiraj za Booking.com
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCopyForAirbnb}
-                    className="px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium min-h-[44px]"
-                  >
-                    Kopiraj za Airbnb
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCopyHashtags}
-                    className="px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium min-h-[44px] transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
-                  >
-                    Kopiraj hashtags
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        ) : null}
-        </>
+
+            {templateError && templateId ? (
+              <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 sm:p-6 mb-8">
+                <p className="text-red-700 dark:text-red-300 mb-4">{templateError}</p>
+                <button
+                  type="button"
+                  onClick={retryLoadTemplate}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                >
+                  Poskusi znova
+                </button>
+              </div>
+            ) : templateLoading ? (
+              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-8">
+                <Skeleton className="h-6 w-48 mb-4" />
+                <SkeletonText lines={2} className="mb-6" />
+                <SkeletonCard />
+              </div>
+            ) : selectedPrompt ? (
+              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-8">
+                <h2 className="text-lg font-semibold dark:text-white mb-4">
+                  {selectedPrompt.name}
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  {selectedPrompt.description}
+                </p>
+                <VariableForm
+                  key={selectedPrompt.id + (templateVars ? "loaded" : "fresh")}
+                  prompt={selectedPrompt}
+                  initialValues={templateVars ?? undefined}
+                  disabled={isGenerating}
+                  submitLabel={isGenerating ? "Generiram..." : "Generate"}
+                  onSubmit={(filled, vars) => {
+                    setTemplateVars(vars);
+                    handleGenerate(filled, vars);
+                  }}
+                />
+              </div>
+            ) : null}
+
+            {isGenerating && !result ? (
+              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 mb-8">
+                <Skeleton className="h-6 w-32 mb-4" />
+                <SkeletonText lines={4} className="mb-4" />
+                <div className="flex flex-wrap gap-2">
+                  <Skeleton className="h-10 w-24" />
+                  <Skeleton className="h-10 w-28" />
+                </div>
+              </div>
+            ) : result ? (
+              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6">
+                <h2 className="text-lg font-semibold dark:text-white mb-2">Generated</h2>
+                <h3 className="font-medium dark:text-white mb-2">{result.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                  {result.excerpt}
+                </p>
+                <div className="flex flex-wrap gap-2 min-w-0">
+                  {result.id && (
+                    <>
+                      <Link
+                        href={`/content/${result.id}`}
+                        className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 min-h-[44px] inline-flex items-center"
+                      >
+                        View Full
+                      </Link>
+                      <Link
+                        href={`/content/${result.id}?publish=1`}
+                        className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 min-h-[44px] inline-flex items-center"
+                      >
+                        Publish
+                      </Link>
+                    </>
+                  )}
+                  {contentToCopy && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleCopyForBooking}
+                        className="px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium min-h-[44px] transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                      >
+                        Kopiraj za Booking.com
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCopyForAirbnb}
+                        className="px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium min-h-[44px]"
+                      >
+                        Kopiraj za Airbnb
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCopyHashtags}
+                        className="px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium min-h-[44px] transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                      >
+                        Kopiraj hashtags
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </>
         )}
 
         {saveModalOpen && (

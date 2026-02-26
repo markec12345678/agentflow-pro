@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
+
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
+  if (!session?.user) return null;
+  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
+}
 
 // GET /api/tourism/calendar - get availability calendar
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
     const roomId = searchParams.get("roomId");
@@ -16,6 +30,11 @@ export async function GET(request: NextRequest) {
         { error: "Property ID is required" },
         { status: 400 }
       );
+    }
+
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
     // Get date range for the requested month
@@ -60,9 +79,9 @@ export async function GET(request: NextRequest) {
         (r) => day >= r.checkIn && day < r.checkOut
       );
       const isBlocked = blockedDates.some((b) => isSameDay(b.date, day));
-      
+
       let status: "available" | "booked" | "blocked" | "check-in" | "check-out" = "available";
-      
+
       if (isBlocked) {
         status = "blocked";
       } else if (dayReservations.length > 0) {
@@ -143,6 +162,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
+    }
+
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
 
@@ -188,11 +212,18 @@ export async function POST(request: NextRequest) {
           checkIn: checkInDate,
           checkOut: checkOutDate,
           channel: channel || "direct",
-          totalAmount,
+          totalPrice: totalAmount,
           notes,
           status: "confirmed",
         },
       });
+
+      const { triggerBookingConfirmation } = await import("@/lib/tourism/email-triggers");
+      triggerBookingConfirmation(
+        reservation.id,
+        propertyId,
+        guest.id
+      ).catch((err) => console.error("Booking confirmation trigger:", err));
 
       return NextResponse.json({ reservation, guest });
     } else {
@@ -225,8 +256,31 @@ export async function POST(request: NextRequest) {
 // PATCH /api/tourism/calendar - update reservation
 export async function PATCH(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { id, status, notes, totalAmount } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "id is required" }, { status: 400 });
+    }
+
+    const existing = await prisma.reservation.findUnique({
+      where: { id },
+      select: { propertyId: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
+    }
+
+    const property = await getPropertyForUser(existing.propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
+    }
 
     const reservation = await prisma.reservation.update({
       where: { id },
@@ -250,6 +304,12 @@ export async function PATCH(request: NextRequest) {
 // DELETE /api/tourism/calendar - cancel reservation
 export async function DELETE(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     const type = searchParams.get("type") || "reservation"; // 'reservation' | 'blocked'
@@ -259,6 +319,30 @@ export async function DELETE(request: NextRequest) {
         { error: "ID is required" },
         { status: 400 }
       );
+    }
+
+    let propertyId: string | null = null;
+    if (type === "reservation") {
+      const res = await prisma.reservation.findUnique({
+        where: { id },
+        select: { propertyId: true },
+      });
+      propertyId = res?.propertyId ?? null;
+    } else {
+      const blocked = await prisma.blockedDate.findUnique({
+        where: { id },
+        select: { propertyId: true },
+      });
+      propertyId = blocked?.propertyId ?? null;
+    }
+
+    if (!propertyId) {
+      return NextResponse.json({ error: type === "reservation" ? "Reservation not found" : "Blocked date not found" }, { status: 404 });
+    }
+
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
     if (type === "reservation") {

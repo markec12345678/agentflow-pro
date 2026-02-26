@@ -1,10 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
 import { subDays, format, parseISO } from "date-fns";
+import {
+  computePredictive,
+  type HistoricalPoint,
+} from "@/lib/tourism/predictive-analytics";
+
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
+  if (!session?.user) return null;
+  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
+}
 
 // GET /api/tourism/analytics - get analytics data
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
     const period = searchParams.get("period") || "30d"; // '7d', '30d', '90d', '1y'
@@ -16,6 +34,11 @@ export async function GET(request: NextRequest) {
         { error: "Property ID is required" },
         { status: 400 }
       );
+    }
+
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
     // Calculate date range
@@ -61,14 +84,14 @@ export async function GET(request: NextRequest) {
       const channel = reservation.channel || "direct";
       const channelKey = channel.toLowerCase().replace(/[^a-z]/g, "");
       const key = channelKey in channelStats ? channelKey : "other";
-      
+
       const nights = Math.ceil(
         (new Date(reservation.checkOut).getTime() - new Date(reservation.checkIn).getTime()) /
-          (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24)
       );
-      
+
       channelStats[key as keyof typeof channelStats].bookings += 1;
-      channelStats[key as keyof typeof channelStats].revenue += reservation.totalAmount || 0;
+      channelStats[key as keyof typeof channelStats].revenue += reservation.totalPrice ?? 0;
       channelStayNights[key] = (channelStayNights[key] || 0) + nights;
       totalNights += nights;
     }
@@ -82,16 +105,24 @@ export async function GET(request: NextRequest) {
     }
 
     // Revenue metrics
-    const totalRevenue = reservations.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+    const totalRevenue = reservations.reduce((sum, r) => sum + (r.totalPrice ?? 0), 0);
     const totalBookings = reservations.length;
     const avgBookingValue = totalBookings > 0 ? totalRevenue / totalBookings : 0;
     const avgStayLength = totalBookings > 0 ? totalNights / totalBookings : 0;
 
-    // Monthly trend
+    // Monthly trend + predictive input
     const monthlyRevenue: Record<string, number> = {};
+    const monthlyBookings: Record<string, number> = {};
+    const monthlyNights: Record<string, number> = {};
     for (const r of reservations) {
       const monthKey = format(new Date(r.checkIn), "yyyy-MM");
-      monthlyRevenue[monthKey] = (monthlyRevenue[monthKey] || 0) + (r.totalAmount || 0);
+      const nights = Math.ceil(
+        (new Date(r.checkOut).getTime() - new Date(r.checkIn).getTime()) /
+        (1000 * 60 * 60 * 24)
+      );
+      monthlyRevenue[monthKey] = (monthlyRevenue[monthKey] || 0) + (r.totalPrice ?? 0);
+      monthlyBookings[monthKey] = (monthlyBookings[monthKey] || 0) + 1;
+      monthlyNights[monthKey] = (monthlyNights[monthKey] || 0) + nights;
     }
 
     // Occupancy rate (approximate based on reservations in period)
@@ -116,6 +147,31 @@ export async function GET(request: NextRequest) {
       contentByType[type] = (contentByType[type] || 0) + 1;
     }
 
+    // Predictive analytics block
+    const monthlyData: HistoricalPoint[] = Object.keys(monthlyRevenue).map((month) => ({
+      month,
+      revenue: monthlyRevenue[month] ?? 0,
+      bookings: monthlyBookings[month] ?? 0,
+      nights: monthlyNights[month] ?? 0,
+    })).sort((a, b) => a.month.localeCompare(b.month));
+    const predictive = computePredictive(monthlyData, avgStayLength);
+
+    // FAQ response metrics
+    const faqLogs = await prisma.faqResponseLog.findMany({
+      where: {
+        propertyId,
+        createdAt: { gte: dateFrom, lte: dateTo },
+      },
+    });
+    const avgResponseTimeMs =
+      faqLogs.length > 0
+        ? Math.round(
+          faqLogs.reduce((s, l) => s + l.responseTimeMs, 0) / faqLogs.length
+        )
+        : 0;
+    const autoAnsweredCount = faqLogs.filter((l) => l.confidence >= 0.9).length;
+    const lowConfidenceCount = faqLogs.filter((l) => l.confidence < 0.9).length;
+
     return NextResponse.json({
       summary: {
         totalBookings,
@@ -138,13 +194,22 @@ export async function GET(request: NextRequest) {
         byType: contentByType,
       },
       topGuests: reservations
-        .filter(r => r.guest)
+        .filter((r) => r.guest)
         .slice(0, 5)
-        .map(r => ({
+        .map((r) => ({
           name: r.guest?.name,
           bookings: 1,
-          totalSpent: r.totalAmount,
+          totalSpent: r.totalPrice ?? 0,
         })),
+      predictive,
+      successMetrics: {
+        avgResponseTimeMs,
+        autoAnsweredCount,
+        totalFaqResponses: faqLogs.length,
+        lowConfidenceCount,
+        revParPlaceholder: null,
+        revParNote: "Placeholder za prihodnji RevPAR – podatek bo na voljo z integracijo PMS.",
+      },
     });
   } catch (error) {
     console.error("Analytics error:", error);
@@ -158,8 +223,23 @@ export async function GET(request: NextRequest) {
 // POST /api/tourism/analytics - generate report
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { propertyId, reportType, period } = body;
+
+    if (!propertyId) {
+      return NextResponse.json({ error: "propertyId is required" }, { status: 400 });
+    }
+
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
+    }
 
     // Fetch analytics data
     const analyticsRes = await fetch(
@@ -175,7 +255,7 @@ export async function POST(request: NextRequest) {
 
     // Generate report content based on type
     let reportContent = "";
-    
+
     if (reportType === "monthly") {
       reportContent = generateMonthlyReport(data);
     } else if (reportType === "channel") {
@@ -231,9 +311,14 @@ ${data.monthlyTrend.map((t) => `- ${t.month}: €${t.revenue}`).join("\n")}
 
 ## Kanali prodaje
 ${Object.entries(data.channelPerformance)
-  .map(([channel, stats]) => `- ${channel}: ${stats.bookings} rezervacij, €${stats.revenue}, povp. ${stats.avgStay} noči`)
-  .join("\n")}
+      .map(([channel, stats]) => `- ${channel}: ${stats.bookings} rezervacij, €${stats.revenue}, povp. ${stats.avgStay} noči`)
+      .join("\n")}
 `;
+}
+
+interface RevenueReportData {
+  summary: { totalRevenue: number };
+  monthlyTrend: Array<{ month: string; revenue: number }>;
 }
 
 interface ChannelReportData {
@@ -251,17 +336,17 @@ function generateChannelReport(data: ChannelReportData): string {
   return `# Poročilo o Kanalih Prodaje
 
 ${Object.entries(data.channelPerformance)
-  .map(([channel, stats]) => `## ${channel.toUpperCase()}
+      .map(([channel, stats]) => `## ${channel.toUpperCase()}
 - Rezervacije: ${stats.bookings}
 - Prihodki: €${stats.revenue}
 - Povprečna dolžina: ${stats.avgStay} noči
 - Delež: ${data.summary.totalRevenue > 0 ? Math.round((stats.revenue / data.summary.totalRevenue) * 100) : 0}%`)
-  .join("\n")}
+      .join("\n")}
 `;
 }
 
 function generateRevenueReport(data: RevenueReportData): string {
-return `# Poročilo o Prihodkih
+  return `# Poročilo o Prihodkih
 
 ## Trend
 ${data.monthlyTrend.map((t) => `- ${t.month}: €${t.revenue}`).join("\n")}

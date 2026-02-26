@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
@@ -65,6 +66,13 @@ export async function POST(request: NextRequest) {
         { error: "title is required" },
         { status: 400 }
       );
+    }
+
+    if (propertyId?.trim()) {
+      const property = await getPropertyForUser(propertyId.trim(), userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      }
     }
 
     const daysData = Array.isArray(days) ? days : [{ day: 1, activities: [] }];

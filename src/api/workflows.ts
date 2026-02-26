@@ -13,6 +13,7 @@ function toWorkflow(row: {
   nodes: unknown;
   edges: unknown;
   metadata: unknown;
+  slackWebhookUrl?: string | null;
 }): Workflow {
   return {
     id: row.id,
@@ -20,6 +21,7 @@ function toWorkflow(row: {
     nodes: Array.isArray(row.nodes) ? row.nodes : [],
     edges: Array.isArray(row.edges) ? row.edges : [],
     metadata: row.metadata as Workflow["metadata"],
+    slackWebhookUrl: row.slackWebhookUrl ?? undefined,
   };
 }
 
@@ -27,6 +29,7 @@ export async function createOrUpdateWorkflow(
   w: Workflow,
   userId: string
 ): Promise<Workflow> {
+  const ext = w as Workflow & { slackWebhookUrl?: string | null };
   const row = await prisma.workflow.upsert({
     where: { id: w.id },
     create: {
@@ -36,12 +39,14 @@ export async function createOrUpdateWorkflow(
       edges: w.edges as object[],
       metadata: (w.metadata ?? undefined) as object | undefined,
       userId,
+      slackWebhookUrl: ext.slackWebhookUrl ?? undefined,
     },
     update: {
       name: w.name,
       nodes: w.nodes as object[],
       edges: w.edges as object[],
       metadata: (w.metadata ?? undefined) as object | undefined,
+      slackWebhookUrl: ext.slackWebhookUrl ?? undefined,
     },
   });
   return toWorkflow(row);

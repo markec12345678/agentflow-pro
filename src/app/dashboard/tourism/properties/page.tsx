@@ -11,10 +11,32 @@ interface Property {
   location: string | null;
   type: string | null;
   capacity: number | null;
+  basePrice?: number | null;
+  currency?: string | null;
   createdAt: string;
 }
 
 const TYPES = ["apartma", "hisa", "hostel", "hotel", "kampa", "drugo"];
+
+const AMENITY_PRESETS = ["WiFi", "Parkirišče", "Bazen", "Kuhinja", "TV", "Klima", "Hišni ljubljenčki"];
+const POLICY_PRESETS: { type: string; label: string }[] = [
+  { type: "check-in", label: "Check-in čas" },
+  { type: "check-out", label: "Check-out čas" },
+  { type: "cancellation", label: "Odpovedi" },
+  { type: "pets", label: "Hišni ljubljenčki" },
+];
+
+interface Amenity {
+  id: string;
+  name: string;
+  category: string | null;
+}
+
+interface PropertyPolicy {
+  id: string;
+  policyType: string;
+  content: string;
+}
 
 export default function TourismPropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -23,6 +45,10 @@ export default function TourismPropertiesPage() {
   const [form, setForm] = useState({ name: "", location: "", type: "", capacity: "" });
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [amenities, setAmenities] = useState<Amenity[]>([]);
+  const [policies, setPolicies] = useState<PropertyPolicy[]>([]);
+  const [newAmenity, setNewAmenity] = useState("");
+  const [newPolicy, setNewPolicy] = useState({ type: "", content: "" });
 
   const fetchProperties = (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -40,6 +66,30 @@ export default function TourismPropertiesPage() {
     fetchProperties();
   }, []);
 
+  useEffect(() => {
+    if (!editing) {
+      setAmenities([]);
+      setPolicies([]);
+      return;
+    }
+    const load = async () => {
+      try {
+        const [aRes, pRes] = await Promise.all([
+          fetch(`/api/tourism/properties/${editing}/amenities`),
+          fetch(`/api/tourism/properties/${editing}/policies`),
+        ]);
+        const aData = await aRes.json();
+        const pData = await pRes.json();
+        setAmenities(aData.amenities ?? []);
+        setPolicies(pData.policies ?? []);
+      } catch {
+        setAmenities([]);
+        setPolicies([]);
+      }
+    };
+    load();
+  }, [editing]);
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
@@ -53,11 +103,13 @@ export default function TourismPropertiesPage() {
           location: form.location.trim() || null,
           type: form.type.trim() || null,
           capacity: form.capacity ? parseInt(form.capacity, 10) : null,
+          basePrice: form.basePrice ? parseFloat(form.basePrice) : null,
+          currency: form.currency.trim() || null,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Napaka");
-      setForm({ name: "", location: "", type: "", capacity: "" });
+      setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR" });
       fetchProperties(false);
       toast.success("Nastanitev dodana");
     } catch (err) {
@@ -116,12 +168,90 @@ export default function TourismPropertiesPage() {
       location: p.location ?? "",
       type: p.type ?? "",
       capacity: p.capacity != null ? String(p.capacity) : "",
+      basePrice: p.basePrice != null ? String(p.basePrice) : "",
+      currency: p.currency ?? "EUR",
     });
   };
 
   const cancelEdit = () => {
     setEditing(null);
-    setForm({ name: "", location: "", type: "", capacity: "" });
+    setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR" });
+    setAmenities([]);
+    setPolicies([]);
+  };
+
+  const addAmenity = async () => {
+    const name = newAmenity.trim() || undefined;
+    if (!editing || !name) return;
+    try {
+      const res = await fetch(`/api/tourism/properties/${editing}/amenities`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Napaka");
+      setAmenities((prev) => [...prev, data]);
+      setNewAmenity("");
+      toast.success("Oprema dodana");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Napaka");
+    }
+  };
+
+  const removeAmenity = async (amenityId: string) => {
+    if (!editing) return;
+    try {
+      const res = await fetch(
+        `/api/tourism/properties/${editing}/amenities?amenityId=${amenityId}`,
+        { method: "DELETE" }
+      );
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Napaka");
+      }
+      setAmenities((prev) => prev.filter((a) => a.id !== amenityId));
+      toast.success("Oprema odstranjena");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Napaka");
+    }
+  };
+
+  const addPolicy = async () => {
+    const { type, content } = newPolicy;
+    if (!editing || !type.trim() || !content.trim()) return;
+    try {
+      const res = await fetch(`/api/tourism/properties/${editing}/policies`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ policyType: type, content }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Napaka");
+      setPolicies((prev) => [...prev, data]);
+      setNewPolicy({ type: "", content: "" });
+      toast.success("Pravilo dodano");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Napaka");
+    }
+  };
+
+  const removePolicy = async (policyId: string) => {
+    if (!editing) return;
+    try {
+      const res = await fetch(
+        `/api/tourism/properties/${editing}/policies?policyId=${policyId}`,
+        { method: "DELETE" }
+      );
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Napaka");
+      }
+      setPolicies((prev) => prev.filter((p) => p.id !== policyId));
+      toast.success("Pravilo odstranjeno");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Napaka");
+    }
   };
 
   return (
@@ -177,6 +307,22 @@ export default function TourismPropertiesPage() {
           min={1}
           className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 w-24"
         />
+        <input
+          type="number"
+          placeholder="Osnovna cena (€)"
+          value={form.basePrice}
+          onChange={(e) => setForm((f) => ({ ...f, basePrice: e.target.value }))}
+          min={0}
+          step={1}
+          className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 w-28"
+        />
+        <input
+          type="text"
+          placeholder="Valuta"
+          value={form.currency}
+          onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))}
+          className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 w-16"
+        />
         <button
           type="submit"
           disabled={creating || !form.name.trim()}
@@ -200,53 +346,178 @@ export default function TourismPropertiesPage() {
               className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4"
             >
               {editing === p.id ? (
-                <div className="flex flex-wrap gap-2 items-end min-w-0">
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    placeholder="Ime"
-                    className="min-w-[100px] flex-1 sm:flex-initial rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
-                  />
-                  <input
-                    type="text"
-                    value={form.location}
-                    onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
-                    placeholder="Lokacija"
-                    className="min-w-[100px] flex-1 sm:flex-initial rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
-                  />
-                  <select
-                    value={form.type}
-                    onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-                    className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100"
-                  >
-                    <option value="">Tip</option>
-                    {TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                  <input
-                    type="number"
-                    value={form.capacity}
-                    onChange={(e) => setForm((f) => ({ ...f, capacity: e.target.value }))}
-                    placeholder="Kap."
-                    className="w-16 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleUpdate(p.id)}
-                    disabled={saving}
-                    className="min-h-[44px] px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500"
-                  >
-                    Shrani
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="min-h-[44px] px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 focus-visible:ring-2 focus-visible:ring-blue-500"
-                  >
-                    Prekliči
-                  </button>
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-2 items-end min-w-0">
+                    <input
+                      type="text"
+                      value={form.name}
+                      onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                      placeholder="Ime"
+                      className="min-w-[100px] flex-1 sm:flex-initial rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
+                    />
+                    <input
+                      type="text"
+                      value={form.location}
+                      onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+                      placeholder="Lokacija"
+                      className="min-w-[100px] flex-1 sm:flex-initial rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
+                    />
+                    <select
+                      value={form.type}
+                      onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
+                      className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100"
+                    >
+                      <option value="">Tip</option>
+                      {TYPES.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      value={form.capacity}
+                      onChange={(e) => setForm((f) => ({ ...f, capacity: e.target.value }))}
+                      placeholder="Kap."
+                      className="w-16 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100"
+                    />
+                    <input
+                      type="number"
+                      value={form.basePrice}
+                      onChange={(e) => setForm((f) => ({ ...f, basePrice: e.target.value }))}
+                      placeholder="Cena"
+                      min={0}
+                      step={1}
+                      className="w-20 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100"
+                    />
+                    <input
+                      type="text"
+                      value={form.currency}
+                      onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))}
+                      placeholder="EUR"
+                      className="w-14 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleUpdate(p.id)}
+                      disabled={saving}
+                      className="min-h-[44px] px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500"
+                    >
+                      Shrani
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      className="min-h-[44px] px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 focus-visible:ring-2 focus-visible:ring-blue-500"
+                    >
+                      Prekliči
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                    <div>
+                      <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Oprema</h4>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={newAmenity}
+                          onChange={(e) => setNewAmenity(e.target.value)}
+                          placeholder="Dodaj (npr. WiFi)"
+                          className="flex-1 min-w-[120px] rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={addAmenity}
+                          className="px-2 py-1.5 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
+                        >
+                          Dodaj
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {AMENITY_PRESETS.map((a) => (
+                          <button
+                            key={a}
+                            type="button"
+                            onClick={async () => {
+                              if (!editing) return;
+                              try {
+                                const res = await fetch(`/api/tourism/properties/${editing}/amenities`, {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ name: a }),
+                                });
+                                const data = await res.json();
+                                if (!res.ok) throw new Error(data.error ?? "Napaka");
+                                setAmenities((prev) => [...prev, data]);
+                                toast.success("Oprema dodana");
+                              } catch (err) {
+                                toast.error(err instanceof Error ? err.message : "Napaka");
+                              }
+                            }}
+                            className="text-xs px-2 py-1 rounded bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                          >
+                            +{a}
+                          </button>
+                        ))}
+                      </div>
+                      <ul className="mt-2 space-y-1">
+                        {amenities.map((a) => (
+                          <li key={a.id} className="flex items-center gap-2 text-sm">
+                            <span>{a.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeAmenity(a.id)}
+                              className="text-red-600 hover:underline text-xs"
+                            >
+                              Izbriši
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Pravila</h4>
+                      <div className="space-y-2 mb-2">
+                        <select
+                          value={newPolicy.type}
+                          onChange={(e) => setNewPolicy((p) => ({ ...p, type: e.target.value }))}
+                          className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+                        >
+                          <option value="">Tip pravila</option>
+                          {POLICY_PRESETS.map((pr) => (
+                            <option key={pr.type} value={pr.type}>{pr.label}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          value={newPolicy.content}
+                          onChange={(e) => setNewPolicy((p) => ({ ...p, content: e.target.value }))}
+                          placeholder="Vsebina (npr. 15:00–18:00)"
+                          className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={addPolicy}
+                          disabled={!newPolicy.type.trim() || !newPolicy.content.trim()}
+                          className="px-2 py-1.5 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 disabled:opacity-50"
+                        >
+                          Dodaj pravilo
+                        </button>
+                      </div>
+                      <ul className="mt-2 space-y-1">
+                        {policies.map((pol) => (
+                          <li key={pol.id} className="text-sm">
+                            <span className="font-medium">{pol.policyType}:</span> {pol.content.slice(0, 40)}{pol.content.length > 40 ? "…" : ""}
+                            <button
+                              type="button"
+                              onClick={() => removePolicy(pol.id)}
+                              className="ml-2 text-red-600 hover:underline text-xs"
+                            >
+                              Izbriši
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
@@ -255,7 +526,7 @@ export default function TourismPropertiesPage() {
                       {p.name}
                     </div>
                     <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                      {[p.location, p.type, p.capacity ? p.capacity + " oseb" : null].filter(Boolean).join(" · ") || "—"}
+                      {[p.location, p.type, p.capacity ? p.capacity + " oseb" : null, p.basePrice != null ? (p.basePrice + " " + (p.currency || "EUR") + "/noč") : null].filter(Boolean).join(" · ") || "—"}
                     </div>
                   </div>
                   <div className="flex gap-2">

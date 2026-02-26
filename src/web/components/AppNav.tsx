@@ -1,469 +1,301 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
-const NAV_GROUPS = {
-  create: {
-    label: "Create",
-    items: [
-      { name: "Generate", href: "/generate", desc: "AI content generation" },
-      { name: "Prompt Library", href: "/prompts", desc: "Tourism & templates" },
-      {
-        name: "Personalize",
-        href: "/personalize",
-        desc: "Brand voice & targeting",
-      },
-      {
-        name: "Canvas",
-        href: "/canvas",
-        desc: "Visual campaign builder",
-      },
-      {
-        name: "App Library",
-        href: "/apps",
-        desc: "Workflow templates",
-      },
-    ],
-  },
-  content: {
-    label: "Content",
-    items: [
-      {
-        name: "My Content",
-        href: "/content",
-        desc: "All generated content",
-      },
-      {
-        name: "Grid",
-        href: "/content/grid",
-        desc: "Bulk generate & manage",
-      },
-      {
-        name: "Pipeline",
-        href: "/content/pipeline",
-        desc: "Draft → Published",
-      },
-      {
-        name: "Memory",
-        href: "/memory",
-        desc: "Knowledge graph",
-      },
-    ],
-  },
-} as const;
-
-const TOURISM_CREATE_GROUP = {
-  label: "Tourism Tools",
-  items: [
-    {
-      name: "Booking.com Opis",
-      href: "/generate?template=booking-description",
-      desc: "Prodajni opis nastanitve",
-    },
-    {
-      name: "Airbnb Story",
-      href: "/generate?template=airbnb-story",
-      desc: "Storytelling opis",
-    },
-    {
-      name: "Vodič po Destinaciji",
-      href: "/generate?template=destination-guide",
-      desc: "SEO vodič 800–1000 besed",
-    },
-    {
-      name: "Sezonska Kampanja",
-      href: "/generate?template=seasonal-campaign",
-      desc: "Email + social post",
-    },
-    {
-      name: "Instagram Travel Caption",
-      href: "/generate?template=instagram-travel",
-      desc: "Travel caption + hashtagi",
-    },
-  ],
-} as const;
-
-const NAV_DIRECT = [
-  { name: "Workflows", href: "/workflows" },
-  { name: "Chat", href: "/chat" },
-  { name: "Pricing", href: "/pricing" },
+// ─── Navigacijske točke (max 5) ───────────────────────────────────────────────
+const MAIN_NAV = [
+  { href: "/dashboard", label: "Domov",    icon: "🏠" },
+  { href: "/generate",  label: "Ustvari",  icon: "✍️" },
+  { href: "/content",   label: "Vsebina",  icon: "📁" },
+  { href: "/pricing",   label: "Cenik",    icon: "💳" },
 ];
 
-const USER_LINKS = [
-  { name: "Dashboard", href: "/dashboard" },
-  { name: "Take Tour", href: "/dashboard?tour=1", sessionOnly: true },
-  { name: "Solutions", href: "/solutions" },
-  { name: "Profile", href: "/profile", sessionOnly: true },
-  { name: "Settings", href: "/settings", sessionOnly: true },
-  { name: "Monitoring", href: "/monitoring" },
-  { name: "Contact", href: "/contact" },
+// ─── Meni "Ustvari" za turizem ────────────────────────────────────────────────
+const CREATE_ITEMS = [
+  { href: "/generate",                             icon: "✨", label: "Splošno ustvarjanje" },
+  { href: "/generate?template=booking-description",icon: "📋", label: "Booking.com opis" },
+  { href: "/generate?template=airbnb-story",       icon: "🏠", label: "Airbnb story" },
+  { href: "/generate?template=guest-welcome-email",icon: "📧", label: "Email za goste" },
+  { href: "/generate?template=destination-guide",  icon: "📍", label: "Vodič destinacije" },
+  { href: "/generate?template=instagram-travel",   icon: "📱", label: "Instagram caption" },
+  { href: "/generate?template=seasonal-campaign",  icon: "🎄", label: "Sezonska kampanja" },
 ];
 
 export function AppNav() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [userIndustry, setUserIndustry] = useState<string | null>(null);
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const createRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
 
+  const firstName = session?.user?.name?.split(" ")[0] ?? session?.user?.email?.split("@")[0] ?? "";
+
+  // Zapri ob kliku zunaj
   useEffect(() => {
-    if (session) {
-      fetch("/api/onboarding")
-        .then((r) => r.json())
-        .then((data: { onboarding?: { industry?: string } }) => {
-          setUserIndustry(data.onboarding?.industry ?? null);
-        })
-        .catch(() => setUserIndustry(null));
-    } else {
-      setUserIndustry(null);
+    function onClick(e: MouseEvent) {
+      if (createRef.current && !createRef.current.contains(e.target as Node)) setCreateOpen(false);
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserOpen(false);
     }
-  }, [session]);
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
 
-  const getCreateGroup = () => {
-    if (
-      userIndustry === "tourism" ||
-      userIndustry === "travel-agency"
-    ) {
-      return TOURISM_CREATE_GROUP;
-    }
-    return NAV_GROUPS.create;
-  };
+  // Zapri ob navigaciji
+  useEffect(() => {
+    setCreateOpen(false);
+    setUserOpen(false);
+    setMobileOpen(false);
+  }, [pathname]);
 
-  const createGroup = getCreateGroup();
+  const isActive = (href: string) =>
+    href === "/dashboard" ? pathname === href : pathname.startsWith(href.split("?")[0]);
 
-  const linkClass = (href: string) =>
-    pathname === href
-      ? "bg-blue-600/20 text-blue-400"
-      : "text-gray-300 transition-colors hover:text-white";
-
-  const userLinksFiltered = USER_LINKS.filter(
-    (l) => !l.sessionOnly || session
-  );
+  const navLinkClass = (href: string) =>
+    `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+      isActive(href)
+        ? "bg-blue-600/20 text-blue-400"
+        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+    }`;
 
   return (
-    <nav className="relative border-b border-gray-800 bg-gray-900">
+    <nav className="sticky top-0 z-40 border-b border-gray-800 bg-gray-900/95 backdrop-blur">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
+
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold text-white">
-            AgentFlow Pro
+          <Link href="/dashboard" className="flex items-center gap-2 text-white font-bold text-lg flex-shrink-0">
+            <span className="text-xl">🤖</span>
+            <span className="hidden sm:inline">AgentFlow</span>
+            <span className="text-blue-400">Pro</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden items-center gap-1 md:flex">
-            {/* Dropdown: Create */}
-            <div
-              className="relative"
-              onMouseEnter={() => setOpenDropdown("create")}
-              onMouseLeave={() => setOpenDropdown(null)}
-            >
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-1">
+
+            {/* Domov */}
+            <Link href="/dashboard" className={navLinkClass("/dashboard")}>
+              <span>🏠</span>
+              <span>Domov</span>
+            </Link>
+
+            {/* Ustvari – z dropdown-om */}
+            <div className="relative" ref={createRef}>
               <button
-                className={`px-4 py-2 rounded-lg transition-colors font-medium ${openDropdown === "create"
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                  }`}
+                type="button"
+                onClick={() => setCreateOpen(v => !v)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  createOpen || isActive("/generate")
+                    ? "bg-blue-600/20 text-blue-400"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
               >
-                {createGroup.label} ▼
+                <span>✍️</span>
+                <span>Ustvari</span>
+                <span className="text-xs opacity-60">{createOpen ? "▲" : "▼"}</span>
               </button>
-              {openDropdown === "create" && (
-                <div className="absolute top-full left-0 z-50 mt-2 w-72 rounded-xl border border-gray-700 bg-gray-800 p-4 shadow-xl">
-                  <div className="space-y-1">
-                    {createGroup.items.map((item) => (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className={`block rounded-lg px-4 py-3 transition-colors ${pathname === item.href
-                          ? "bg-blue-600/20 text-blue-400"
-                          : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                          }`}
-                        onClick={() => setOpenDropdown(null)}
-                      >
-                        <div className="font-medium text-white">
-                          {item.name}
-                        </div>
-                        <div className="text-sm text-gray-400">
-                          {item.desc}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+
+              {createOpen && (
+                <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-2 z-50">
+                  {CREATE_ITEMS.map(item => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                    >
+                      <span>{item.icon}</span>
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Dropdown: Content */}
-            <div
-              className="relative"
-              onMouseEnter={() => setOpenDropdown("content")}
-              onMouseLeave={() => setOpenDropdown(null)}
-            >
-              <button
-                className={`px-4 py-2 rounded-lg transition-colors font-medium ${openDropdown === "content"
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                  }`}
-              >
-                Content ▼
-              </button>
-              {openDropdown === "content" && (
-                <div className="absolute top-full left-0 z-50 mt-2 w-72 rounded-xl border border-gray-700 bg-gray-800 p-4 shadow-xl">
-                  <div className="space-y-1">
-                    {NAV_GROUPS.content.items.map((item) => (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className={`block rounded-lg px-4 py-3 transition-colors ${pathname === item.href
-                          ? "bg-blue-600/20 text-blue-400"
-                          : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                          }`}
-                        onClick={() => setOpenDropdown(null)}
-                      >
-                        <div className="font-medium text-white">
-                          {item.name}
-                        </div>
-                        <div className="text-sm text-gray-400">
-                          {item.desc}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Vsebina */}
+            <Link href="/content" className={navLinkClass("/content")}>
+              <span>📁</span>
+              <span>Vsebina</span>
+            </Link>
 
-            {/* Direct Links */}
-            {NAV_DIRECT.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`px-4 py-2 rounded-lg transition-colors font-medium ${linkClass(
-                  item.href
-                )} ${pathname !== item.href
-                  ? "hover:bg-gray-800 hover:text-white"
-                  : ""
-                  }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {/* Cenik */}
+            <Link href="/pricing" className={navLinkClass("/pricing")}>
+              <span>💳</span>
+              <span>Cenik</span>
+            </Link>
+
           </div>
 
-          {/* User / Auth Dropdown */}
-          <div className="relative hidden md:block">
-            {status === "loading" ? (
-              <span className="px-4 py-2 text-gray-400">Loading...</span>
-            ) : (
-              <>
+          {/* Desni del: User menu */}
+          <div className="hidden md:flex items-center gap-2">
+
+            {/* Hitri gumb Ustvari */}
+            <Link
+              href="/generate"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+            >
+              <span>+</span>
+              <span>Nova vsebina</span>
+            </Link>
+
+            {/* User dropdown */}
+            {status !== "loading" && (
+              <div className="relative" ref={userRef}>
                 <button
                   type="button"
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
-                  aria-expanded={userDropdownOpen}
-                  aria-haspopup="true"
+                  onClick={() => setUserOpen(v => !v)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-sm font-medium text-white">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-sm font-bold text-white">
                     {session?.user?.email?.[0]?.toUpperCase() ?? "?"}
                   </span>
-                  <span className="hidden lg:inline">Account ▼</span>
+                  <span className="text-sm hidden lg:inline">{firstName || "Račun"}</span>
+                  <span className="text-xs opacity-60">▼</span>
                 </button>
-                {userDropdownOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      aria-hidden="true"
-                      onClick={() => setUserDropdownOpen(false)}
-                    />
-                    <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border border-gray-700 bg-gray-800 p-2 shadow-xl">
-                      {session ? (
-                        <>
-                          {userLinksFiltered.map((item) => (
-                            <Link
-                              key={item.name}
-                              href={item.href}
-                              className={`block rounded-lg px-4 py-3 transition-colors ${pathname === item.href
+
+                {userOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-52 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-2 z-50">
+                    {session ? (
+                      <>
+                        <div className="px-3 py-2 border-b border-gray-700 mb-2">
+                          <p className="text-xs text-gray-400">Prijavljeni kot</p>
+                          <p className="text-sm text-white font-medium truncate">{session.user?.email}</p>
+                        </div>
+                        {[
+                          { href: "/dashboard",  icon: "🏠", label: "Dashboard" },
+                          { href: "/profile",    icon: "👤", label: "Profil" },
+                          { href: "/settings",   icon: "⚙️", label: "Nastavitve" },
+                          { href: "/monitoring", icon: "📊", label: "Monitoring" },
+                          { href: "/admin",      icon: "👑", label: "Admin" },
+                        ].map(item => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm ${
+                              pathname === item.href
                                 ? "bg-blue-600/20 text-blue-400"
                                 : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                                }`}
-                              onClick={() => {
-                                setUserDropdownOpen(false);
-                              }}
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
-                          <div className="my-1 border-t border-gray-700" />
+                            }`}
+                          >
+                            <span>{item.icon}</span>
+                            <span>{item.label}</span>
+                          </Link>
+                        ))}
+                        <div className="border-t border-gray-700 mt-2 pt-2">
                           <button
                             type="button"
-                            onClick={() => {
-                              signOut({ callbackUrl: "/login" });
-                              setUserDropdownOpen(false);
-                            }}
-                            className="block w-full rounded-lg px-4 py-3 text-left text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
+                            onClick={() => signOut({ callbackUrl: "/login" })}
+                            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm"
                           >
-                            Logout
+                            <span>🚪</span>
+                            <span>Odjava</span>
                           </button>
-                        </>
-                      ) : (
-                        <>
-                          <Link
-                            href="/login"
-                            className="block rounded-lg px-4 py-3 text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
-                            onClick={() => setUserDropdownOpen(false)}
-                          >
-                            Login
-                          </Link>
-                          <Link
-                            href="/onboarding"
-                            className="block rounded-lg bg-blue-600 px-4 py-3 text-center font-medium text-white transition-colors hover:bg-blue-700"
-                            onClick={() => setUserDropdownOpen(false)}
-                          >
-                            Get Started
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                  </>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Link href="/login" className="block px-3 py-2.5 rounded-xl text-gray-300 hover:bg-gray-700 text-sm">
+                          Prijava
+                        </Link>
+                        <Link href="/onboarding" className="block mt-1 px-3 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold text-center">
+                          Začni brezplačno
+                        </Link>
+                      </>
+                    )}
+                  </div>
                 )}
-              </>
+              </div>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile hamburger */}
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-gray-300 hover:text-white md:hidden"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMobileOpen(v => !v)}
+            className="md:hidden p-2 text-gray-300 hover:text-white"
+            aria-label={mobileOpen ? "Zapri meni" : "Odpri meni"}
           >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {mobileMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
           </button>
         </div>
 
-        {/* Mobile Drawer */}
-        {mobileMenuOpen && (
-          <div className="absolute left-0 right-0 top-16 z-50 border-b border-gray-800 bg-gray-900 p-4 md:hidden">
-            <div className="space-y-4">
-              {/* Create Group */}
-              <div>
-                <div className="mb-2 font-semibold text-white">
-                  {createGroup.label}
-                </div>
-                <div className="space-y-1">
-                  {createGroup.items.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className="block py-2 text-gray-400 hover:text-white"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              {/* Content Group */}
-              <div>
-                <div className="mb-2 font-semibold text-white">
-                  {NAV_GROUPS.content.label}
-                </div>
-                <div className="space-y-1">
-                  {NAV_GROUPS.content.items.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className="block py-2 text-gray-400 hover:text-white"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              {/* Direct Links */}
-              {NAV_DIRECT.map((item) => (
+        {/* Mobile meni */}
+        {mobileOpen && (
+          <div className="md:hidden py-4 space-y-1 border-t border-gray-800">
+
+            {/* Hitri gumb */}
+            <Link
+              href="/generate"
+              className="flex items-center justify-center gap-2 mx-2 mb-3 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold"
+            >
+              <span>✍️</span> Nova vsebina
+            </Link>
+
+            {MAIN_NAV.map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                  isActive(item.href)
+                    ? "bg-blue-600/20 text-blue-400"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`}
+              >
+                <span>{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
+              </Link>
+            ))}
+
+            <div className="border-t border-gray-800 pt-3 mt-3">
+              <p className="px-4 text-xs font-semibold text-gray-500 uppercase mb-2">Ustvari</p>
+              {CREATE_ITEMS.slice(1).map(item => (
                 <Link
-                  key={item.name}
+                  key={item.href}
                   href={item.href}
-                  className="block py-2 text-gray-400 hover:text-white"
-                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors"
                 >
-                  {item.name}
+                  <span>{item.icon}</span>
+                  <span className="text-sm">{item.label}</span>
                 </Link>
               ))}
-              {/* Account Section */}
-              <div className="border-t border-gray-800 pt-4">
-                <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Account
-                </p>
-                {status === "loading" ? (
-                  <span className="text-gray-400">Loading...</span>
-                ) : session ? (
-                  <>
-                    {userLinksFiltered.map((item) => (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className="block py-2 text-gray-400 hover:text-white"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        signOut({ callbackUrl: "/login" });
-                        setMobileMenuOpen(false);
-                      }}
-                      className="block w-full py-2 text-left text-gray-400 hover:text-white"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      href="/login"
-                      className="block py-2 text-gray-400 hover:text-white"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Login
+            </div>
+
+            {/* Account */}
+            <div className="border-t border-gray-800 pt-3 mt-3">
+              {session ? (
+                <>
+                  <p className="px-4 text-xs text-gray-500 mb-2">{session.user?.email}</p>
+                  {[
+                    { href: "/profile",    label: "Profil" },
+                    { href: "/settings",   label: "Nastavitve" },
+                    { href: "/monitoring", label: "Monitoring" },
+                  ].map(item => (
+                    <Link key={item.href} href={item.href} className="block px-4 py-2 text-gray-400 hover:text-white">
+                      {item.label}
                     </Link>
-                    <Link
-                      href="/onboarding"
-                      className="mt-2 block rounded-lg bg-blue-600 py-3 text-center font-medium text-white hover:bg-blue-700"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Get Started
-                    </Link>
-                  </>
-                )}
-              </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                    className="block w-full text-left px-4 py-2 text-gray-400 hover:text-white"
+                  >
+                    Odjava
+                  </button>
+                </>
+              ) : (
+                <Link href="/login" className="block px-4 py-2 text-gray-400 hover:text-white">
+                  Prijava
+                </Link>
+              )}
             </div>
           </div>
         )}

@@ -115,19 +115,41 @@
 
 | Plan | Cena | Features | Target |
 |------|------|----------|--------|
-| **Starter** | $29/mesec | 3 agenti, 100 runs/mesec | Freelancers |
-| **Pro** | $99/mesec | 10 agentov, 1000 runs/mesec | Small Teams |
-| **Enterprise** | $499/mesec | Unlimited agenti, custom | Companies |
-| **API** | $0.01/run | Pay-per-use | Developers |
+| **Starter** | $39/mesec | 3 agenti, 100 runs/mesec | Tourism Freelancers |
+| **Pro** | $79/mesec | 10 agentov, 1000 runs/mesec | Small Travel Agencies |
+| **Enterprise** | $299/mesec | Unlimited agenti, custom | Tourism Companies |
+| **API** | $0.005/run | Pay-per-use | Developers |
 
-### Revenue Projections
+### Revenue Projections (Tourism Adjusted)
 
 | Mesec | Users | MRR |
 |-------|-------|-----|
-| 1 | 5 Starter | $145 |
-| 3 | 20 Starter + 5 Pro | $1,075 |
-| 6 | 50 Starter + 20 Pro + 2 Enterprise | $4,430 |
-| 12 | 200 Starter + 100 Pro + 10 Enterprise | $18,380 |
+| 1 | 5 Starter | $195 |
+| 3 | 20 Starter + 5 Pro | $855 |
+| 6 | 50 Starter + 20 Pro + 2 Enterprise | $4,730 |
+| 12 | 200 Starter + 100 Pro + 10 Enterprise | $20,600 |
+
+### Pricing Strategy Rationale
+
+**Starter ($39/mo)**
+- Tourism freelancers have higher budgets vs general freelancers
+- Competitively positioned vs Jasper Pro ($69/mo)
+- Includes specialized tourism agents (Reservation, Communication)
+
+**Pro ($79/mo)**
+- Small travel agencies are price-sensitive
+- 20% lower than original pricing for volume adoption
+- Competitive with Jasper Pro while offering tourism specialization
+
+**Enterprise ($299/mo)**
+- Tourism companies need volume discounts for scale
+- 40% reduction from original pricing
+- Custom features for large tourism operations
+
+**API ($0.005/run)**
+- Tourism volume is high with seasonal peaks
+- 50% reduction to encourage API adoption
+- Ideal for integration partners and OTAs
 
 ---
 

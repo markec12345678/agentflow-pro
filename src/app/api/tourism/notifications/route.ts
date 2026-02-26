@@ -1,16 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
+
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
+  if (!session?.user) return null;
+  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
+}
 
 // GET /api/tourism/notifications - get user notifications
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
     const unreadOnly = searchParams.get("unread") === "true";
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    const where: { propertyId?: string; read?: boolean } = {};
-    if (propertyId) where.propertyId = propertyId;
+    const where: { userId: string; propertyId?: string; read?: boolean } = { userId };
+    if (propertyId) {
+      const property = await getPropertyForUser(propertyId, userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      }
+      where.propertyId = propertyId;
+    }
     if (unreadOnly) where.read = false;
 
     const notifications = await prisma.notification.findMany({
@@ -39,12 +59,25 @@ export async function GET(request: NextRequest) {
 // POST /api/tourism/notifications - create notification
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { propertyId, type, title, message, link, userId } = body;
+    const { propertyId, type, title, message, link } = body;
+
+    if (propertyId) {
+      const property = await getPropertyForUser(propertyId, userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      }
+    }
 
     const notification = await prisma.notification.create({
       data: {
-        propertyId,
+        propertyId: propertyId || null,
         type,
         title,
         message,
@@ -97,6 +130,12 @@ export async function PATCH(request: NextRequest) {
 // DELETE /api/tourism/notifications - delete notification
 export async function DELETE(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -105,6 +144,14 @@ export async function DELETE(request: NextRequest) {
         { error: "Notification ID is required" },
         { status: 400 }
       );
+    }
+
+    const existing = await prisma.notification.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+    if (!existing || existing.userId !== userId) {
+      return NextResponse.json({ error: "Notification not found" }, { status: 404 });
     }
 
     await prisma.notification.delete({

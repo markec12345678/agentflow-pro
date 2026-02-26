@@ -19,6 +19,7 @@ jest.mock("@/lib/user-keys", () => ({
 
 jest.mock("@/config/env", () => ({
   getOpenAiApiKey: () => mockGetOpenAiApiKey(),
+  getLlmApiKey: () => ({ apiKey: mockGetOpenAiApiKey() || "mock-key", model: "gpt-4o-mini" }),
 }));
 
 jest.mock("ai", () => ({
@@ -29,6 +30,7 @@ jest.mock("@/lib/mock-mode", () => ({
   get mockMode() {
     return mockModeValue;
   },
+  isMockMode: () => mockModeValue,
 }));
 
 async function importHandler() {

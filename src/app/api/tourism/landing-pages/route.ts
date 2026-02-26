@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
 import { extractKeywords } from "@/agents/content/seo-optimizer";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
@@ -25,6 +26,13 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
+
+    if (propertyId) {
+      const property = await getPropertyForUser(propertyId, userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      }
+    }
 
     const where: { userId: string; propertyId?: string | null } = { userId };
     if (propertyId) {
@@ -79,6 +87,13 @@ export async function POST(request: NextRequest) {
         { error: "content must be a valid JSON object" },
         { status: 400 }
       );
+    }
+
+    if (propertyId?.trim()) {
+      const property = await getPropertyForUser(propertyId.trim(), userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      }
     }
 
     const finalSlug = slug?.trim() || title.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");

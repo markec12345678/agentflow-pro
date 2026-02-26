@@ -1,7 +1,7 @@
 /**
  * Tourism prompts and substitutePrompt unit tests
  */
-import { PROMPTS } from "@/data/prompts";
+import { PROMPTS, CATEGORY_LABELS, VARIABLE_LABELS } from "@/data/prompts";
 import { substitutePrompt } from "@/lib/tourism/substitute-prompt";
 
 describe("PROMPTS tourism category", () => {
@@ -92,5 +92,15 @@ describe("substitutePrompt", () => {
     expect(substitutePrompt(template, { var: "value" })).toBe(
       "Fixed text with value in middle."
     );
+  });
+});
+
+describe("prompts CATEGORY_LABELS and VARIABLE_LABELS", () => {
+  it("CATEGORY_LABELS has tourism", () => {
+    expect(CATEGORY_LABELS.tourism).toBeDefined();
+  });
+  it("VARIABLE_LABELS has common vars", () => {
+    expect(VARIABLE_LABELS.lokacija).toBeDefined();
+    expect(VARIABLE_LABELS.jezik).toBeDefined();
   });
 });

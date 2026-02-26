@@ -28,6 +28,7 @@
 
 1. Preberi project-brief.md
 2. Preberi tasks.md
+2.5. Za roadmap/prioritete/naloge iz raziskave: preberi docs/RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP.md
 3. Search memory bank za kontekst
 4. Izvedi naslednji task iz tasks.md
 5. Update progress.md

@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth-options";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
+
+function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
+  if (!session?.user) return null;
+  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
+}
 
 // GET /api/tourism/guest-communication - list guest emails
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
     const type = searchParams.get("type"); // 'pre-arrival', 'post-stay', 'all'
@@ -13,6 +27,11 @@ export async function GET(request: NextRequest) {
         { error: "Property ID is required" },
         { status: 400 }
       );
+    }
+
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
     const where: { propertyId: string; type?: string } = { propertyId };
@@ -48,6 +67,12 @@ export async function GET(request: NextRequest) {
 // POST /api/tourism/guest-communication - create guest email
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       propertyId,
@@ -63,6 +88,11 @@ export async function POST(request: NextRequest) {
         { error: "Missing required fields" },
         { status: 400 }
       );
+    }
+
+    const property = await getPropertyForUser(propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
     // Create or update guest
@@ -131,6 +161,12 @@ export async function PATCH(request: NextRequest) {
 // DELETE /api/tourism/guest-communication/:id
 export async function DELETE(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -139,6 +175,19 @@ export async function DELETE(request: NextRequest) {
         { error: "Communication ID is required" },
         { status: 400 }
       );
+    }
+
+    const existing = await prisma.guestCommunication.findUnique({
+      where: { id },
+      select: { propertyId: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Communication not found" }, { status: 404 });
+    }
+
+    const property = await getPropertyForUser(existing.propertyId, userId);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
     await prisma.guestCommunication.delete({

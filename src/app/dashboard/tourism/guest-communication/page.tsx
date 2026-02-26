@@ -105,11 +105,10 @@ export default function GuestCommunicationPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as "all" | "pre-arrival" | "post-stay")}
-              className={`pb-3 px-1 font-medium text-sm border-b-2 transition-colors ${
-                activeTab === tab.id
+              className={`pb-3 px-1 font-medium text-sm border-b-2 transition-colors ${activeTab === tab.id
                   ? "border-blue-600 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
+                }`}
             >
               {tab.label}
               <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
@@ -143,28 +142,26 @@ export default function GuestCommunicationPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${
-                          comm.type === "pre-arrival"
+                        className={`text-xs px-2 py-0.5 rounded-full ${comm.type === "pre-arrival"
                             ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
                             : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
-                        }`}
+                          }`}
                       >
                         {comm.type === "pre-arrival" ? "Pre-Arrival" : "Post-Stay"}
                       </span>
                       <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${
-                          comm.status === "sent"
+                        className={`text-xs px-2 py-0.5 rounded-full ${comm.status === "sent"
                             ? "bg-green-100 text-green-700"
                             : comm.status === "scheduled"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
                       >
                         {comm.status === "sent"
                           ? "Poslano"
                           : comm.status === "scheduled"
-                          ? "Načrtovano"
-                          : "Osnutek"}
+                            ? "Načrtovano"
+                            : "Osnutek"}
                       </span>
                     </div>
                     <p className="font-medium text-gray-900 dark:text-white">
@@ -206,15 +203,20 @@ export default function GuestCommunicationPage() {
   );
 }
 
+const CONFIDENCE_THRESHOLD = 0.9;
+
 // FAQ Chatbot Demo Component
 function FaqChatbotDemo() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
+  const [confidence, setConfidence] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   const askQuestion = async () => {
     if (!question.trim()) return;
     setLoading(true);
+    setAnswer(null);
+    setConfidence(null);
     try {
       const res = await fetch("/api/tourism/faq", {
         method: "POST",
@@ -222,7 +224,8 @@ function FaqChatbotDemo() {
         body: JSON.stringify({ question }),
       });
       const data = await res.json();
-      setAnswer(data.answer);
+      setAnswer(data.answer ?? "Žal nimam odgovora.");
+      setConfidence(typeof data.confidence === "number" ? data.confidence : null);
     } catch {
       setAnswer("Žal je prišlo do napake. Poskusite znova.");
     } finally {
@@ -248,6 +251,7 @@ function FaqChatbotDemo() {
             onClick={() => {
               setQuestion(q);
               setAnswer(null);
+              setConfidence(null);
             }}
             className="text-sm px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
@@ -277,8 +281,15 @@ function FaqChatbotDemo() {
 
       {/* Answer */}
       {answer && (
-        <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
-          <p className="text-gray-800 dark:text-gray-200">{answer}</p>
+        <div className="space-y-2">
+          <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+            <p className="text-gray-800 dark:text-gray-200">{answer}</p>
+          </div>
+          {confidence !== null && confidence < CONFIDENCE_THRESHOLD && (
+            <p className="text-sm text-amber-700 dark:text-amber-300">
+              Za bolj natančen odgovor vas bo kmalu kontaktiral človek.
+            </p>
+          )}
         </div>
       )}
 

@@ -4,8 +4,13 @@ Referenčni list features za launch materials, Product Hunt, marketing.
 
 ---
 
-## Knowledge Graph • Memory MCP integration
+## Content Generation (Terminology)
 
+Za Airbnb/Booking.com opis in podobne outpute: en **Content Agent** z različnimi **platform-specific content templates** (prompty). Ni ločenih "Airbnb Agent" in "Booking.com Agent" – gre za iste prompte/template, prilagojene formatu platforme.
+
+## Knowledge Graph • Memory
+
+- MCP je v Cursor za razvoj; aplikacija uporablja REST API za agente.
 - Entity tracking (Agents, Workflows, Users, Tasks)
 - Relation mapping (executes, owns, triggers)
 - Observation logging
@@ -53,6 +58,8 @@ Referenčni list features za launch materials, Product Hunt, marketing.
 ---
 
 ## Metrike
+
+*Trditve o RevPAR, +18 %, +25 % so industrijske benchmarke, ne lastni podatki AgentFlow Pro.*
 
 | Metrika | Vrednost |
 |---------|----------|

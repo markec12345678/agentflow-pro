@@ -9,6 +9,7 @@ import { retryWithBackoff } from "./error-handler";
 import { verify } from "@/verifier/VerifierService";
 import type { ConditionOperator } from "./nodes";
 import { sendSlackMessage } from "@/lib/publish/slack";
+import { sendWorkflowNotificationEmail } from "@/lib/publish/email";
 import { PrismaClient, Workflow } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -201,8 +202,30 @@ export class WorkflowExecutor {
       } else if (progress.status === "error") {
         message = `❌ Workflow \"${workflow.name}\" failed. Error: ${progress.errors[progress.errors.length - 1]?.message}`
       }
-      if(message) {
+      if (message) {
         await sendSlackMessage(workflow.slackWebhookUrl, message);
+      }
+    }
+
+    const meta = workflow?.metadata as { notificationEmail?: string } | undefined;
+    const notificationEmail = meta?.notificationEmail;
+    if (notificationEmail) {
+      try {
+        if (progress.status === "completed") {
+          await sendWorkflowNotificationEmail(
+            notificationEmail,
+            `Workflow "${workflow!.name}" completed`,
+            `Workflow "${workflow!.name}" completed successfully.`
+          );
+        } else if (progress.status === "error") {
+          await sendWorkflowNotificationEmail(
+            notificationEmail,
+            `Workflow "${workflow!.name}" failed`,
+            `Workflow "${workflow!.name}" failed. Error: ${progress.errors[progress.errors.length - 1]?.message ?? "Unknown"}`
+          );
+        }
+      } catch (e) {
+        console.error("Workflow notification email failed:", e);
       }
     }
 

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Skeleton, SkeletonText } from "@/web/components/Skeleton";
+import { generateFaqSchema } from "@/lib/tourism/faq-schema";
+import { DEFAULT_FAQS } from "@/data/tourism-faqs";
 
 const TEMPLATES = [
   { id: "tourism-basic", name: "Standard", desc: "Klasična nastanitev – hero, o nas, nastanitve, posebnosti, CTA" },
@@ -51,7 +53,7 @@ function escHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function sectionsToHtml(pages: PagesData, title: string): string {
+function sectionsToHtml(pages: PagesData, title: string, baseUrl?: string): string {
   const firstLang = Object.keys(pages)[0] ?? "sl";
   const first = pages[firstLang];
   if (!first) return "";
@@ -67,6 +69,23 @@ function sectionsToHtml(pages: PagesData, title: string): string {
     })
     .join("\n");
 
+  const faqSchema = generateFaqSchema(DEFAULT_FAQS);
+  const faqJson = JSON.stringify(faqSchema).replace(/<\/script>/gi, "<\\/script>");
+  const faqSchemaScript = `<script type="application/ld+json">${faqJson}</script>`;
+
+  const langCodes = Object.keys(pages);
+  const base = baseUrl || process.env.NEXT_PUBLIC_APP_URL || "https://yoursite.com";
+  const hreflangLinks =
+    langCodes.length > 1
+      ? langCodes
+        .map(
+          (lang) =>
+            `<link rel="alternate" hreflang="${lang}" href="${base}/${lang === firstLang ? "" : lang + "/"}" />`
+        )
+        .join("\n  ") +
+      `\n  <link rel="alternate" hreflang="x-default" href="${base}/" />`
+      : "";
+
   return `<!DOCTYPE html>
 <html lang="${escHtml(firstLang)}">
 <head>
@@ -74,6 +93,7 @@ function sectionsToHtml(pages: PagesData, title: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>${escHtml(first.seoTitle ?? title)}</title>
   <meta name="description" content="${escHtml(first.seoDescription ?? "")}" />
+  ${hreflangLinks ? hreflangLinks + "\n  " : ""}${faqSchemaScript}
 </head>
 <body>
   <header>
@@ -105,6 +125,7 @@ export default function TourismLandingPage() {
     capacity: "4",
     features: "",
     priceFrom: "65",
+    baseUrl: process.env.NEXT_PUBLIC_APP_URL || "https://yoursite.com",
   });
   const [languages, setLanguages] = useState<string[]>(["sl", "en"]);
   const [pages, setPages] = useState<PagesData | null>(null);
@@ -284,7 +305,7 @@ export default function TourismLandingPage() {
 
   const handleExportHtml = () => {
     if (!pages) return;
-    const html = sectionsToHtml(pages, formData.name);
+    const html = sectionsToHtml(pages, formData.name, formData.baseUrl?.trim() || undefined);
     const blob = new Blob([html], { type: "text/html" });
     downloadBlob(blob, `landing-${formData.name.replace(/\s+/g, "-")}.html`);
     toast.success("Export HTML – shranjeno");
@@ -612,50 +633,65 @@ export default function TourismLandingPage() {
 
       {step === 3 && pages && !loading && (
         <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-semibold text-gray-900 dark:text-white">
-              Predogled
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="min-h-[44px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500"
-              >
-                ← Uredi
-              </button>
-              <button
-                type="button"
-                onClick={handleExportJson}
-                aria-label="Export JSON"
-                className="min-h-[44px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500"
-              >
-                Export JSON
-              </button>
-              <button
-                type="button"
-                onClick={handleExportMarkdown}
-                aria-label="Export Markdown"
-                className="min-h-[44px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500"
-              >
-                Export Markdown
-              </button>
-              <button
-                type="button"
-                onClick={handleExportHtml}
-                aria-label="Export HTML"
-                className="min-h-[44px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500"
-              >
-                Export HTML
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSave()}
-                aria-label="Shrani v bazo"
-                className="min-h-[44px] px-3 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-500"
-              >
-                Shrani
-              </button>
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-semibold text-gray-900 dark:text-white">
+                Predogled
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="min-h-[44px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  ← Uredi
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportJson}
+                  aria-label="Export JSON"
+                  className="min-h-[44px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  Export JSON
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportMarkdown}
+                  aria-label="Export Markdown"
+                  className="min-h-[44px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  Export Markdown
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportHtml}
+                  aria-label="Export HTML"
+                  className="min-h-[44px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  Export HTML
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSave()}
+                  aria-label="Shrani v bazo"
+                  className="min-h-[44px] px-3 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-500"
+                >
+                  Shrani
+                </button>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="baseUrl" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Base URL za hreflang (npr. https://moja-nastanitev.si)
+              </label>
+              <input
+                id="baseUrl"
+                type="url"
+                value={formData.baseUrl}
+                onChange={(e) => setFormData({ ...formData, baseUrl: e.target.value })}
+                placeholder="https://yoursite.com"
+                className="w-full max-w-md px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-sm"
+              />
             </div>
           </div>
           <div className="p-4 max-h-[60vh] overflow-y-auto space-y-6">

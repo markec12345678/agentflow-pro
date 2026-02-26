@@ -1,160 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  StatusList,
-  CICDStatus,
-  DeployStatus,
-} from "@/web/components";
-import { FeatureTour } from "@/web/components/FeatureTour";
-import { PROMPTS } from "@/data/prompts";
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 
-interface Workflow {
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface ContentItem {
   id: string;
-  name: string;
-  nodes?: unknown[];
-  edges?: unknown[];
+  type: string;
+  content: string;
+  createdAt: string;
 }
-
-// Status Indicator Component
-function StatusIndicator({
-  status,
-}: {
-  status: "online" | "busy" | "offline";
-}) {
-  const config = {
-    online: { color: "bg-green-500", text: "Online", pulse: true },
-    busy: { color: "bg-yellow-500", text: "Busy", pulse: true },
-    offline: { color: "bg-gray-500", text: "Offline", pulse: false },
-  };
-
-  const { color, text, pulse } = config[status];
-
-  return (
-    <div className="flex items-center gap-2">
-      <span className="relative flex h-3 w-3">
-        {pulse && (
-          <span
-            className={`animate-ping absolute inline-flex h-full w-full rounded-full ${color} opacity-75`}
-          />
-        )}
-        <span
-          className={`relative inline-flex rounded-full h-3 w-3 ${color}`}
-        />
-      </span>
-      <span className="text-sm text-gray-600 dark:text-gray-400">{text}</span>
-    </div>
-  );
-}
-
-const colorToBadge: Record<string, string> = {
-  "border-green-500":
-    "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200",
-  "border-blue-500":
-    "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200",
-  "border-purple-500":
-    "bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200",
-  "border-orange-500":
-    "bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200",
-};
-
-// Agent Card Component
-function AgentCard({
-  name,
-  icon,
-  color,
-  description,
-  technologies,
-  runsToday,
-  status,
-}: {
-  name: string;
-  icon: string;
-  color: string;
-  description: string;
-  technologies: string[];
-  runsToday: number;
-  status: "online" | "busy" | "offline";
-}) {
-  const badgeClass = colorToBadge[color] || "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
-
-  return (
-    <div
-      className={`bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all border-l-4 ${color} hover:transform hover:scale-105`}
-    >
-      <div className="flex items-start justify-between mb-4">
-        <div className="text-4xl">{icon}</div>
-        <StatusIndicator status={status} />
-      </div>
-
-      <h3 className="text-xl font-bold mb-2">{name}</h3>
-      <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-        {description}
-      </p>
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        {technologies.map((tech) => (
-          <span
-            key={tech}
-            className={`text-xs px-2 py-1 rounded ${badgeClass}`}
-          >
-            {tech}
-          </span>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div>
-          <p className="text-2xl font-bold">{runsToday}</p>
-          <p className="text-xs text-gray-500">Runs Today</p>
-        </div>
-        <Link
-          href={`/workflows?agent=${name.toLowerCase().replace(" ", "-")}`}
-          className="text-blue-600 hover:text-blue-700 text-sm font-semibold"
-        >
-          Create Workflow →
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-// Activity Item Component
-function ActivityItem({
-  agent,
-  action,
-  time,
-  status,
-}: {
-  agent: string;
-  action: string;
-  time: string;
-  status: "success" | "running" | "error";
-}) {
-  const statusConfig = {
-    success: { icon: "✅", color: "text-green-600" },
-    running: { icon: "🔄", color: "text-blue-600" },
-    error: { icon: "❌", color: "text-red-600" },
-  };
-
-  const { icon, color } = statusConfig[status];
-
-  return (
-    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-      <span className="text-2xl">{icon}</span>
-      <div className="flex-1">
-        <p className="font-medium">
-          <span className={color}>{agent}</span> - {action}
-        </p>
-        <p className="text-sm text-gray-500">{time}</p>
-      </div>
-    </div>
-  );
-}
-
-const tourismPrompts = PROMPTS.filter((p) => p.category === "tourism").slice(0, 3);
 
 interface Checkpoint {
   id: string;
@@ -165,78 +21,205 @@ interface Checkpoint {
   workflow: { id: string; name: string };
 }
 
-function ApprovalQueue() {
-  const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
+// ─── Onboarding Checklist ─────────────────────────────────────────────────────
+const CHECKLIST_STEPS = [
+  { id: "register",   label: "Ustvarili ste račun",          done: true },
+  { id: "property",   label: "Dodajte nastanitev",           href: "/settings" },
+  { id: "content",    label: "Ustvarite prvi opis sobe",     href: "/generate?template=booking-description" },
+  { id: "email",      label: "Pošljite email dobrodošlice",  href: "/generate?template=guest-welcome-email" },
+  { id: "landing",    label: "Ustvarite landing stran",      href: "/generate?template=landing-page" },
+];
+
+function OnboardingChecklist() {
+  const [dismissed, setDismissed] = useState(false);
+  const [completed, setCompleted] = useState<string[]>(["register"]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("agentflow-checklist");
+      if (saved) setCompleted(JSON.parse(saved));
+      const dis = localStorage.getItem("agentflow-checklist-dismissed");
+      if (dis) setDismissed(true);
+    } catch {}
+  }, []);
+
+  const markDone = (id: string) => {
+    const next = [...completed, id];
+    setCompleted(next);
+    try { localStorage.setItem("agentflow-checklist", JSON.stringify(next)); } catch {}
+  };
+
+  const dismiss = () => {
+    setDismissed(true);
+    try { localStorage.setItem("agentflow-checklist-dismissed", "1"); } catch {}
+  };
+
+  if (dismissed) return null;
+
+  const doneCount = CHECKLIST_STEPS.filter(s => completed.includes(s.id)).length;
+  const pct = Math.round((doneCount / CHECKLIST_STEPS.length) * 100);
+
+  if (doneCount === CHECKLIST_STEPS.length) return null;
+
+  return (
+    <div className="mb-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-blue-100 dark:border-blue-900 p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">🎯 Vaš napredek: {doneCount}/{CHECKLIST_STEPS.length}</h2>
+          <p className="text-sm text-gray-500">Dokončajte nastavitev za najboljšo izkušnjo</p>
+        </div>
+        <button onClick={dismiss} className="text-gray-400 hover:text-gray-600 text-xl leading-none" aria-label="Zapri">×</button>
+      </div>
+      <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mb-5">
+        <div className="bg-blue-600 h-2 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+      </div>
+      <div className="space-y-3">
+        {CHECKLIST_STEPS.map(step => {
+          const done = completed.includes(step.id);
+          return (
+            <div key={step.id} className="flex items-center gap-3">
+              <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${done ? "bg-green-500 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-400"}`}>
+                {done ? "✓" : ""}
+              </span>
+              <span className={`flex-1 text-sm ${done ? "line-through text-gray-400" : "text-gray-700 dark:text-gray-300"}`}>
+                {step.label}
+              </span>
+              {!done && step.href && (
+                <Link
+                  href={step.href}
+                  onClick={() => markDone(step.id)}
+                  className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Začni →
+                </Link>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Quick Action Card ────────────────────────────────────────────────────────
+function QuickCard({
+  emoji, title, desc, href, color,
+}: {
+  emoji: string; title: string; desc: string; href: string; color: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`group flex flex-col gap-3 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-t-4 ${color} hover:-translate-y-1`}
+    >
+      <span className="text-4xl">{emoji}</span>
+      <div>
+        <h3 className="font-bold text-gray-900 dark:text-white text-lg leading-tight">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{desc}</p>
+      </div>
+      <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 group-hover:underline mt-auto">
+        Začni →
+      </span>
+    </Link>
+  );
+}
+
+// ─── Recent Content ───────────────────────────────────────────────────────────
+function RecentContent() {
+  const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchCheckpoints = useCallback(() => {
-    fetch("/api/workflows/checkpoint")
-      .then((r) => r.json())
-      .then((list: Checkpoint[]) => setCheckpoints(Array.isArray(list) ? list : []))
-      .catch(() => setCheckpoints([]))
+  useEffect(() => {
+    fetch("/api/content?limit=5")
+      .then(r => r.json())
+      .then((data: ContentItem[] | { items?: ContentItem[] }) => {
+        const list = Array.isArray(data) ? data : (data.items ?? []);
+        setItems(list.slice(0, 5));
+      })
+      .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    fetchCheckpoints();
-  }, [fetchCheckpoints]);
+  if (loading) return (
+    <div className="space-y-3">
+      {[1,2,3].map(i => (
+        <div key={i} className="h-14 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+      ))}
+    </div>
+  );
 
-  const handleApprove = (checkpointId: string) => {
-    fetch("/api/workflows/checkpoint/approve", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ checkpointId }),
-    })
-      .then((r) => r.json())
-      .then(() => fetchCheckpoints());
+  if (items.length === 0) return (
+    <div className="text-center py-8 text-gray-400">
+      <p className="text-4xl mb-2">📄</p>
+      <p className="text-sm">Še nimate vsebine. Začnite s klikom na eno od akcij zgoraj!</p>
+    </div>
+  );
+
+  const typeLabel: Record<string, string> = {
+    blog: "📝 Blog", landing: "🌐 Landing", email: "📧 Email", social: "📱 Social",
   };
-
-  const handleReject = (checkpointId: string) => {
-    fetch("/api/workflows/checkpoint/reject", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ checkpointId }),
-    })
-      .then(() => fetchCheckpoints());
-  };
-
-  if (loading || checkpoints.length === 0) return null;
 
   return (
-    <div className="max-w-7xl mx-auto mb-12">
-      <h2 className="text-2xl font-bold mb-6">Pending Approvals</h2>
-      <p className="text-gray-600 dark:text-gray-400 mb-4">
-        Workflows waiting for your approval before continuing
-      </p>
+    <div className="space-y-3">
+      {items.map(item => (
+        <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <span className="text-lg">{typeLabel[item.type]?.split(" ")[0] ?? "📄"}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+              {item.content?.slice(0, 60) || "Brez naslova"}...
+            </p>
+            <p className="text-xs text-gray-400">
+              {typeLabel[item.type] ?? item.type} · {new Date(item.createdAt).toLocaleDateString("sl-SI")}
+            </p>
+          </div>
+          <Link href={`/content?id=${item.id}`} className="text-xs text-blue-500 hover:underline flex-shrink-0">
+            Odpri
+          </Link>
+        </div>
+      ))}
+      <Link href="/content" className="block text-center text-sm text-blue-600 dark:text-blue-400 hover:underline pt-2">
+        Vsa vsebina →
+      </Link>
+    </div>
+  );
+}
+
+// ─── Approval Queue ───────────────────────────────────────────────────────────
+function ApprovalQueue() {
+  const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
+
+  const fetchCheckpoints = useCallback(() => {
+    fetch("/api/workflows/checkpoint")
+      .then(r => r.json())
+      .then((list: Checkpoint[]) => setCheckpoints(Array.isArray(list) ? list : []))
+      .catch(() => setCheckpoints([]));
+  }, []);
+
+  useEffect(() => { fetchCheckpoints(); }, [fetchCheckpoints]);
+
+  const handle = (id: string, action: "approve" | "reject") => {
+    fetch(`/api/workflows/checkpoint/${action}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checkpointId: id }),
+    }).then(() => fetchCheckpoints());
+  };
+
+  if (checkpoints.length === 0) return null;
+
+  return (
+    <div className="mb-8 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-800 p-6">
+      <h2 className="font-bold text-amber-800 dark:text-amber-300 mb-3">⏳ Čaka na odobritev ({checkpoints.length})</h2>
       <div className="space-y-3">
-        {checkpoints.map((cp) => (
-          <div
-            key={cp.id}
-            className="flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"
-          >
+        {checkpoints.map(cp => (
+          <div key={cp.id} className="flex items-center justify-between gap-4">
             <div>
-              <p className="font-medium">
-                {cp.workflow.name} – {cp.nodeLabel || cp.nodeId}
-              </p>
-              <p className="text-sm text-gray-500">
-                {new Date(cp.createdAt).toLocaleString()}
-              </p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{cp.workflow.name} – {cp.nodeLabel ?? cp.nodeId}</p>
+              <p className="text-xs text-gray-400">{new Date(cp.createdAt).toLocaleString("sl-SI")}</p>
             </div>
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleReject(cp.id)}
-                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                Reject
-              </button>
-              <button
-                type="button"
-                onClick={() => handleApprove(cp.id)}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Approve
-              </button>
+              <button onClick={() => handle(cp.id, "reject")} className="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">Zavrni</button>
+              <button onClick={() => handle(cp.id, "approve")} className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700">Odobri</button>
             </div>
           </div>
         ))}
@@ -245,364 +228,127 @@ function ApprovalQueue() {
   );
 }
 
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const searchParams = useSearchParams();
-  const [workflows, setWorkflows] = useState<Workflow[]>([]);
-  const [tourForceOpen, setTourForceOpen] = useState(false);
-  const [isTourismUser, setIsTourismUser] = useState(false);
+  const { data: session } = useSession();
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/onboarding")
-      .then((r) => r.json())
-      .then((data: { onboarding?: { industry?: string } }) => {
-        const industry = data.onboarding?.industry;
-        if (industry === "tourism" || industry === "travel-agency") {
-          setIsTourismUser(true);
-        }
-      })
-      .catch(() => { });
-  }, []);
+  const firstName = session?.user?.name?.split(" ")[0] ?? session?.user?.email?.split("@")[0] ?? "tam";
 
-  const handleTakeTour = useCallback(() => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("agentflow-tour-seen");
-    }
-    setTourForceOpen(true);
-  }, []);
-
-  const tourTriggeredRef = useRef(false);
-  useEffect(() => {
-    if (searchParams.get("tour") === "1" && !tourTriggeredRef.current) {
-      tourTriggeredRef.current = true;
-      handleTakeTour();
-    }
-  }, [searchParams, handleTakeTour]);
-
-  useEffect(() => {
-    fetch("/api/workflows")
-      .then((r) => r.json())
-      .then((list: Workflow[]) => setWorkflows(Array.isArray(list) ? list : []))
-      .catch(() => setWorkflows([]));
-  }, []);
-
-  // Mock data - v produkciji bi to prišlo iz API-ja
-  const [agents] = useState([
-    {
-      name: "Research Agent",
-      icon: "🔍",
-      color: "border-green-500",
-      description:
-        "Web scraping, market intelligence, competitor analysis",
-      technologies: ["Firecrawl", "SerpAPI"],
-      runsToday: 24,
-      status: "online" as const,
-    },
-    {
-      name: "Content Agent",
-      icon: "✍️",
-      color: "border-blue-500",
-      description:
-        "Blog posts, social media, emails with SEO optimization",
-      technologies: ["Context7", "LLM"],
-      runsToday: 18,
-      status: "busy" as const,
-    },
-    {
-      name: "Code Agent",
-      icon: "💻",
-      color: "border-purple-500",
-      description: "Code generation, reviews, auto PR creation",
-      technologies: ["GitHub MCP", "Code Review"],
-      runsToday: 12,
-      status: "online" as const,
-    },
-    {
-      name: "Deploy Agent",
-      icon: "🚀",
-      color: "border-orange-500",
-      description: "One-click deploy to Vercel, Netlify with rollback",
-      technologies: ["Vercel", "Netlify"],
-      runsToday: 8,
-      status: "online" as const,
-    },
-  ]);
-
-  const [activities] = useState([
-    {
-      agent: "Research Agent",
-      action: "Completed market analysis for competitor XYZ",
-      time: "2 minutes ago",
-      status: "success" as const,
-    },
-    {
-      agent: "Content Agent",
-      action: 'Generated blog post: "AI Trends 2026"',
-      time: "5 minutes ago",
-      status: "success" as const,
-    },
-    {
-      agent: "Code Agent",
-      action: "Created PR #42: Feature/user-authentication",
-      time: "12 minutes ago",
-      status: "success" as const,
-    },
-    {
-      agent: "Deploy Agent",
-      action: "Deployed to production (v1.2.3)",
-      time: "15 minutes ago",
-      status: "success" as const,
-    },
-    {
-      agent: "Content Agent",
-      action: "Generating social media posts...",
-      time: "Now",
-      status: "running" as const,
-    },
-  ]);
+  const getGreeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return "Dobro jutro";
+    if (h < 17) return "Dober dan";
+    return "Dober večer";
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-      <FeatureTour
-        forceOpen={tourForceOpen}
-        onComplete={() => setTourForceOpen(false)}
-      />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-5xl mx-auto px-4 py-8">
 
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Agent Dashboard</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Monitor and manage your AI agents
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleTakeTour}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-              aria-label="Take feature tour"
-            >
-              Take Tour
-            </button>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {getGreeting()}, {firstName}! 👋
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Kaj boste naredili danes?</p>
+        </div>
+
+        {/* Approval Queue */}
+        <ApprovalQueue />
+
+        {/* Onboarding Checklist */}
+        <OnboardingChecklist />
+
+        {/* 3 Main Actions */}
+        <div className="grid sm:grid-cols-3 gap-5 mb-10">
+          <QuickCard
+            emoji="✍️"
+            title="Ustvari vsebino"
+            desc="Opis sobe, blog post, social objava"
+            href="/generate"
+            color="border-blue-500"
+          />
+          <QuickCard
+            emoji="📧"
+            title="Email za goste"
+            desc="Dobrodošlica, opomnilo, zahvala"
+            href="/generate?template=guest-welcome-email"
+            color="border-green-500"
+          />
+          <QuickCard
+            emoji="🌐"
+            title="Landing stran"
+            desc="SEO strani za direktne rezervacije"
+            href="/generate?template=landing-page"
+            color="border-purple-500"
+          />
+        </div>
+
+        {/* Secondary Actions */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
+          {[
+            { emoji: "🏨", label: "Booking.com opis",   href: "/generate?template=booking-description" },
+            { emoji: "✈️", label: "Airbnb story",        href: "/generate?template=airbnb-story" },
+            { emoji: "📍", label: "Vodič destinacije",   href: "/generate?template=destination-guide" },
+            { emoji: "📱", label: "Instagram caption",   href: "/generate?template=instagram-travel" },
+          ].map(item => (
             <Link
-              href="/workflows"
-              data-feature-tour="dashboard-new-workflow"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all"
+              key={item.label}
+              href={item.href}
+              className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 shadow hover:shadow-md transition-all text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-100 dark:border-gray-700"
             >
-              + New Workflow
+              <span>{item.emoji}</span>
+              <span>{item.label}</span>
             </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Recommended for you (tourism users) */}
-      {isTourismUser && tourismPrompts.length > 0 && (
-        <div className="max-w-7xl mx-auto mb-12">
-          <h2 className="text-2xl font-bold mb-6">Recommended for you</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Tourism prompts tailored to your role
-          </p>
-          <div className="grid md:grid-cols-3 gap-4">
-            {tourismPrompts.map((p) => (
-              <Link
-                key={p.id}
-                href={`/dashboard/chat?prompt=${encodeURIComponent(p.prompt)}`}
-                className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all border-l-4 border-blue-500"
-              >
-                <h3 className="font-semibold text-lg">{p.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                  {p.description}
-                </p>
-              </Link>
-            ))}
-          </div>
-          <Link
-            href="/dashboard/tourism"
-            className="inline-block mt-4 text-blue-600 dark:text-blue-400 hover:underline font-medium"
-          >
-            View all Tourism Tools →
-          </Link>
-        </div>
-      )}
-
-      {/* Pending Approvals (HITL) */}
-      <ApprovalQueue />
-
-      {/* Saved Workflows */}
-      {workflows.length > 0 && (
-        <div className="max-w-7xl mx-auto mb-12">
-          <h2 className="text-2xl font-bold mb-6">Saved Workflows</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {workflows.map((wf) => (
-              <Link
-                key={wf.id}
-                href={`/workflows?id=${wf.id}`}
-                className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all border-l-4 border-blue-500"
-              >
-                <h3 className="font-semibold text-lg">{wf.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {Array.isArray(wf.nodes) ? wf.nodes.length : 0} nodes
-                </p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Agent Cards */}
-      <div className="max-w-7xl mx-auto mb-12">
-        <h2 className="text-2xl font-bold mb-6">Your Agents</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {agents.map((agent) => (
-            <AgentCard key={agent.name} {...agent} />
           ))}
         </div>
-      </div>
 
-      {/* Stats Overview */}
-      <div className="max-w-7xl mx-auto mb-12">
-        <h2 className="text-2xl font-bold mb-6">Overview</h2>
-        <div className="grid md:grid-cols-4 gap-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-              Total Runs Today
-            </p>
-            <p className="text-4xl font-bold">62</p>
-            <p className="text-green-600 text-sm mt-2">↑ 12% from yesterday</p>
+        {/* Recent Content */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">📁 Zadnja vsebina</h2>
+            <Link href="/content" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">Vse →</Link>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-              Active Workflows
-            </p>
-            <p className="text-4xl font-bold">{workflows.length}</p>
-            <p className="text-gray-500 text-sm mt-2">Saved workflows</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-              Success Rate
-            </p>
-            <p className="text-4xl font-bold">98.5%</p>
-            <p className="text-green-600 text-sm mt-2">↑ 0.5% this week</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-              API Usage
-            </p>
-            <p className="text-4xl font-bold">73%</p>
-            <p className="text-yellow-600 text-sm mt-2">27% remaining</p>
-          </div>
+          <RecentContent />
         </div>
-      </div>
 
-      {/* CI/CD Status Section */}
-      <div className="max-w-7xl mx-auto mb-12">
-        <h2 className="text-2xl font-bold mb-6">CI/CD Pipeline Status</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          <CICDStatus
-            pipeline="Main Branch"
-            status="success"
-            duration="2m 34s"
-            timestamp="5 minutes ago"
-          />
-          <CICDStatus
-            pipeline="Feature Branch"
-            status="running"
-            timestamp="Running now"
-          />
-        </div>
-      </div>
-
-      {/* Deploy Status Section */}
-      <div className="max-w-7xl mx-auto mb-12">
-        <h2 className="text-2xl font-bold mb-6">Deployment Status</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          <DeployStatus
-            environment="Production"
-            url="https://agentflow-pro.vercel.app"
-            status="success"
-            commit="abc123"
-          />
-          <DeployStatus
-            environment="Staging"
-            url="https://staging.agentflow-pro.vercel.app"
-            status="success"
-            commit="def456"
-          />
-          <DeployStatus environment="Development" status="running" />
-        </div>
-      </div>
-
-      {/* Agent Health Section */}
-      <div className="max-w-7xl mx-auto mb-12">
-        <h2 className="text-2xl font-bold mb-6">Agent Health</h2>
-        <StatusList
-          items={[
-            {
-              status: "success",
-              label: "Research Agent",
-              timestamp: "2 minutes ago",
-            },
-            {
-              status: "running",
-              label: "Content Agent",
-              timestamp: "Running now",
-            },
-            {
-              status: "success",
-              label: "Code Agent",
-              timestamp: "12 minutes ago",
-            },
-            {
-              status: "success",
-              label: "Deploy Agent",
-              timestamp: "15 minutes ago",
-            },
-          ]}
-        />
-      </div>
-
-      {/* Recent Activity */}
-      <div className="max-w-7xl mx-auto mb-12">
-        <h2 className="text-2xl font-bold mb-6">Recent Activity</h2>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <div className="space-y-4">
-            {activities.map((activity, index) => (
-              <ActivityItem key={index} {...activity} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div
-        className="max-w-7xl mx-auto"
-        data-feature-tour="dashboard-quick-actions"
-      >
-        <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          <Link
-            href="/workflows"
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-blue-500 flex items-center justify-center gap-3"
+        {/* Advanced toggle */}
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <button
+            onClick={() => setShowAdvanced(v => !v)}
+            className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
           >
-            <span className="text-2xl">➕</span>
-            <span className="font-semibold">Create Workflow</span>
-          </Link>
-          <Link
-            href="/pricing"
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-purple-500 flex items-center justify-center gap-3"
-          >
-            <span className="text-2xl">💳</span>
-            <span className="font-semibold">Upgrade Plan</span>
-          </Link>
-          <Link
-            href="/docs"
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-green-500 flex items-center justify-center gap-3"
-          >
-            <span className="text-2xl">📚</span>
-            <span className="font-semibold">Documentation</span>
-          </Link>
+            <span>{showAdvanced ? "▲" : "▼"}</span>
+            <span>{showAdvanced ? "Skrij napredno" : "Napredno (za izkušene uporabnike)"}</span>
+          </button>
+
+          {showAdvanced && (
+            <div className="mt-5 grid sm:grid-cols-3 gap-4">
+              {[
+                { emoji: "⚡", label: "Workflow Builder",  href: "/workflows",  desc: "Vizualni gradnik avtomatizacij" },
+                { emoji: "🤖", label: "Chat z agenti",     href: "/chat",       desc: "Direktno navodilo AI agentu" },
+                { emoji: "🎨", label: "Canvas",            href: "/canvas",     desc: "Vizualni kampanjski načrtovalec" },
+                { emoji: "📊", label: "Monitoring",        href: "/monitoring", desc: "Stanje sistemov in logov" },
+                { emoji: "🧠", label: "Memory graph",      href: "/memory",     desc: "Graf znanja" },
+                { emoji: "👑", label: "Admin",             href: "/admin",      desc: "Administracija" },
+              ].map(item => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="flex items-start gap-3 bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:border-blue-400 transition-colors"
+                >
+                  <span className="text-2xl">{item.emoji}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{item.label}</p>
+                    <p className="text-xs text-gray-400">{item.desc}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
+
       </div>
     </div>
   );

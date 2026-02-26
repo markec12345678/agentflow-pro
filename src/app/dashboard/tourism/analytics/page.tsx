@@ -11,6 +11,15 @@ interface ChannelStats {
   avgStay: number;
 }
 
+interface PredictiveData {
+  forecastNightsNext30d: number;
+  forecastBookingsNext30d: number;
+  forecastRevenueNext30d: number;
+  trendDirection: "up" | "down" | "stable";
+  trendPercent: number;
+  confidence: number;
+}
+
 interface AnalyticsData {
   summary: {
     totalBookings: number;
@@ -27,6 +36,15 @@ interface AnalyticsData {
     byType: Record<string, number>;
   };
   topGuests: Array<{ name: string; bookings: number; totalSpent: number }>;
+  predictive?: PredictiveData;
+  successMetrics?: {
+    avgResponseTimeMs: number;
+    autoAnsweredCount: number;
+    totalFaqResponses?: number;
+    lowConfidenceCount?: number;
+    revParPlaceholder: number | null;
+    revParNote?: string;
+  };
 }
 
 export default function AnalyticsPageWrapper() {
@@ -58,7 +76,7 @@ function AnalyticsPage() {
         setLoading(false);
       }
     };
-    
+
     if (activePropertyId) {
       fetchAnalytics();
     }
@@ -106,6 +124,87 @@ function AnalyticsPage() {
         />
       ) : (
         <>
+          {/* Success metrics (Roadmap optional) */}
+          {data.successMetrics && (
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="font-semibold">Uspešnost FAQ</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Čas odziva in avtomatsko odgovorjena sporočila
+                </p>
+              </div>
+              <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Povp. čas odziva</div>
+                  <div className="text-xl font-bold">
+                    {data.successMetrics.avgResponseTimeMs > 0
+                      ? `${data.successMetrics.avgResponseTimeMs} ms`
+                      : "—"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Avtomatsko odgovorjeno</div>
+                  <div className="text-xl font-bold">{data.successMetrics.autoAnsweredCount}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Za ročni pregled</div>
+                  <div className="text-xl font-bold">
+                    {typeof data.successMetrics.lowConfidenceCount === "number"
+                      ? data.successMetrics.lowConfidenceCount
+                      : "—"}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-0.5">nizko zaupanje (&lt;90%)</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">RevPAR</div>
+                  <div className="text-xl font-bold">
+                    {data.successMetrics.revParPlaceholder != null
+                      ? `€${data.successMetrics.revParPlaceholder}`
+                      : "—"}
+                  </div>
+                  {data.successMetrics.revParNote && (
+                    <div className="text-xs text-gray-500 mt-0.5">{data.successMetrics.revParNote}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Predictive (Blok C #8) */}
+          {data.predictive && (
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="font-semibold">📈 Napoved (naslednjih 30 dni)</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Na podlagi trenutnega trenda • zaupanje {Math.round(data.predictive.confidence * 100)}%
+                </p>
+              </div>
+              <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Prenočišča</div>
+                  <div className="text-xl font-bold">{data.predictive.forecastNightsNext30d}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Rezervacije</div>
+                  <div className="text-xl font-bold">{data.predictive.forecastBookingsNext30d}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Prihodki</div>
+                  <div className="text-xl font-bold">€{data.predictive.forecastRevenueNext30d.toLocaleString()}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Trend</div>
+                  <div className="text-xl font-bold">
+                    {data.predictive.trendDirection === "up" && "↑"}
+                    {data.predictive.trendDirection === "down" && "↓"}
+                    {data.predictive.trendDirection === "stable" && "→"}
+                    {data.predictive.trendPercent !== 0 && ` ${data.predictive.trendPercent}%`}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Summary Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <SummaryCard
@@ -335,11 +434,10 @@ function SummaryCard({
         <span className="text-2xl">{icon}</span>
         {trend && (
           <span
-            className={`text-xs px-2 py-1 rounded-full ${
-              positive
-                ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
-            }`}
+            className={`text-xs px-2 py-1 rounded-full ${positive
+              ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+              : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+              }`}
           >
             {trend}
           </span>

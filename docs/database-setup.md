@@ -94,3 +94,29 @@ npx prisma db seed
 5. **Restart dev serverja** – po spremembi `.env.local` vedno ponovno zaženi `npm run dev`.
 
 6. **IPv6 / Firewall** – nekateri omrežja blokirajo Supabase. Preveri na drugi mreži ali z VPN.
+
+---
+
+## Production Database (Supabase / Neon)
+
+### Koraki
+
+1. **Ustvari prod projekt**
+   - [Supabase](https://supabase.com) ali [Neon](https://neon.tech)
+   - Za Vercel uporabi **connection pooler** (port 6543 pri Supabase)
+
+2. **Nastavi DATABASE_URL v .env.local**
+   ```
+   DATABASE_URL="postgresql://postgres.[project-ref]:[PASSWORD]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true"
+   ```
+
+3. **Zaženi migracije in seed**
+   ```bash
+   npm run db:migrate:deploy
+   npm run db:seed
+   ```
+   Ali na Windows: `.\scripts\setup-prod-database.ps1`
+
+4. **Vercel**
+   - Vercel Dashboard → Settings → Environment Variables
+   - Dodaj `DATABASE_URL` (Production) – enako vrednost kot v .env.local

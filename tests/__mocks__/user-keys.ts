@@ -1,11 +1,17 @@
 /**
  * Mock for @/lib/user-keys - used by batch-translate tests
  */
+export function getLlmApiKey(): { apiKey: string; baseURL?: string; model: string } {
+  return { apiKey: "", model: "gpt-4o-mini" };
+}
+
 export async function getUserApiKeys(
   _userId: string,
   _opts?: { masked?: boolean }
 ): Promise<Record<string, string>> {
-  return {};
+  return {
+    openai: "test-openai-key"
+  };
 }
 
 export async function setUserApiKeys(
