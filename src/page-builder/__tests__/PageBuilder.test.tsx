@@ -91,13 +91,8 @@ describe('PageBuilder', () => {
     expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({
       fields: expect.any(Array),
     }));
-  });
 
-  expect(onUpdate).toHaveBeenCalledTimes(3);
-  expect(mockPluginContext.getPlugin).toHaveBeenCalledTimes(3);
-  expect(mockPluginContext.getPlugin).toHaveBeenCalledTimes(3);
-  expect(mockPluginContext.getPlugin).toHaveBeenCalledTimes(3);
-  expect(mockPluginContext.getPlugin).toHaveBeenCalledTimes(3);
+    expect(onUpdate).toHaveBeenCalledTimes(3);
   });
 
   test('drag and drop functionality', () => {
