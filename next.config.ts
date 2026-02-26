@@ -4,7 +4,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  output: "standalone",
+  // output: "standalone" removed – Vercel serves assets better without it
   outputFileTracingRoot: path.resolve(process.cwd()),
 };
 
