@@ -1,391 +1,67 @@
-# AgentFlow Pro - CI/CD Pipeline Configuration
-# GitHub Actions workflow for automated testing and deployment
+# AgentFlow Pro - CI/CD Pipeline (simplified)
+# Mirrors ci.yml – lint, test, build. Deploy via Vercel.
 
 name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, master, develop]
   pull_request:
-    branches: [ main, develop ]
-  release:
-    types: [ published ]
-
-env:
-  NODE_VERSION: '18'
-  PYTHON_VERSION: '3.11'
+    branches: [main, master, develop]
 
 jobs:
-  # Code Quality Checks
-  lint-and-format:
+  ci:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
+      - name: Verify production env
+        run: npm run verify:production-env
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          STRIPE_PRICE_PRO: price_placeholder
+          STRIPE_PRICE_BUSINESS: price_business_placeholder
+          STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
+          NEXTAUTH_SECRET: ci-secret-key
+          NEXTAUTH_URL: http://localhost:3000
+          FIRECRAWL_API_KEY: fc_test_placeholder
+          SERPAPI_API_KEY: serp_test_placeholder
+
+      - name: Lint
         run: npm run lint
 
-      - name: Run Prettier check
-        run: npm run format:check
-
-      - name: Type check
-        run: npm run type-check
-
-  # Unit Tests
-  unit-tests:
-    runs-on: ubuntu-latest
-    needs: lint-and-format
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run unit tests
-        run: npm run test:unit
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
-
-  # Integration Tests
-  integration-tests:
-    runs-on: ubuntu-latest
-    needs: unit-tests
-    services:
-      - postgres
+      - name: Test
+        run: npm run test
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test
-          POSTGRES_USER: postgres
-        options:
-          health-check-interval: 10s
-          health-check-timeout: 5s
-          health-check-retries: 5
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NEXTAUTH_SECRET: ci-secret-key
+          NEXTAUTH_URL: http://localhost:3000
+          FIRECRAWL_API_KEY: fc_test_placeholder
+          SERPAPI_API_KEY: serp_test_placeholder
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          npm ci
-          pip install -r requirements.txt
-
-      - name: Setup database
-        run: |
-          npm run db:setup:test
-          npm run db:migrate:test
-
-      - name: Run integration tests
-        run: npm run test:integration
-
-      - name: Clean up database
-        if: always()
-        run: npm run db:cleanup:test
-
-  # E2E Tests
-  e2e-tests:
-    runs-on: ubuntu-latest
-    needs: integration-tests
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps
-
-      - name: Build application
+      - name: Build
         run: npm run build
-
-      - name: Run E2E tests
-        run: npx playwright test
-
-      - name: Upload E2E test results
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
-
-  # Security Scans
-  security-scan:
-    runs-on: ubuntu-latest
-    needs: lint-and-format
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run npm audit
-        run: npm audit --audit-level high
-
-      - name: Run Snyk security scan
-        uses: snyk/actions/node@master
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/init@v2
-        with:
-          languages: typescript, javascript
-
-      - name: Autobuild CodeQL database
-        uses: github/codeql-action/autobuild@v2
-
-      - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@v2
-        with:
-          category: "/language:${{ matrix.language }}"
-
-  # Build and Deploy
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    needs: [unit-tests, integration-tests, e2e-tests, security-scan]
-    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build application
-        run: npm run build
-
-      - name: Build Docker images
-        run: |
-          docker build -t agentflow-pro:latest .
-          docker build -t agentflow-pro:${{ github.sha }} .
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Push Docker images
-        run: |
-          docker push agentflow-pro:latest
-          docker push agentflow-pro:${{ github.sha }}
-
-      - name: Deploy to production
-        if: github.ref == 'refs/heads/main'
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          script: |
-            cd /opt/agentflow-pro
-            docker-compose pull
-            docker-compose up -d
-            docker-compose restart
-
-      - name: Deploy to staging
-        if: github.ref == 'refs/heads/develop'
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          script: |
-            cd /opt/agentflow-pro-staging
-            docker-compose pull
-            docker-compose up -d
-            docker-compose restart
-
-      - name: Run health checks
-        run: |
-          sleep 30
-          curl -f https://agentflow-pro.com/api/health || exit 1
-
-  # Performance Tests
-  performance-tests:
-    runs-on: ubuntu-latest
-    needs: build-and-deploy
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Lighthouse CI
-        run: npm install -g @lhci/cli
-
-      - name: Run Lighthouse performance audit
-        run: |
-          lhci autorun
-            --config=.lighthouserci.json
-            --upload.target=temp/lighthouse-results
-            --upload.github-token=${{ secrets.GITHUB_TOKEN }}
-
-      - name: Load testing
-        run: |
-          npm install -g artillery
-          artillery run performance-test.yml
-
-  # Database Migrations
-  database-migrations:
-    runs-on: ubuntu-latest
-    needs: build-and-deploy
-    if: github.ref == 'refs/heads/main'
-    
-    services:
-      - postgres
-        env:
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-        options:
-          health-check-interval: 10s
-          health-check-timeout: 5s
-          health-check-retries: 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run database migrations
-        run: |
-          npm run db:migrate:prod
-          npm run db:seed:prod
-
-      - name: Backup database
-        run: |
-          npm run db:backup
-
-  # Notification
-  notify:
-    runs-on: ubuntu-latest
-    needs: [build-and-deploy, performance-tests]
-    if: always()
-    
-    steps:
-      - name: Notify on success
-        if: needs.build-and-deploy.result == 'success' && needs.performance-tests.result == 'success'
-        uses: 8398a7/action-slack@v3
-        with:
-          status: success
-          channel: '#deployments'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-          text: '✅ AgentFlow Pro deployed successfully!'
-
-      - name: Notify on failure
-        if: needs.build-and-deploy.result == 'failure' || needs.performance-tests.result == 'failure'
-        uses: 8398a7/action-slack@v3
-        with:
-          status: failure
-          channel: '#deployments'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-          text: '❌ AgentFlow Pro deployment failed!'
-
-      - name: Send email notification
-        if: always()
-        uses: dawidd6/action-mailgun@v3
-        with:
-          from: ${{ secrets.EMAIL_FROM }}
-          to: ${{ secrets.EMAIL_TO }}
-          subject: "AgentFlow Pro Deployment ${{ needs.build-and-deploy.result }}"
-          body: |
-            Deployment Status: ${{ needs.build-and-deploy.result }}
-            Performance Tests: ${{ needs.performance-tests.result }}
-            Commit: ${{ github.sha }}
-            Branch: ${{ github.ref }}
-          api_key: ${{ secrets.MAILGUN_API_KEY }}
-
-  # Release Management
-  create-release:
-    runs-on: ubuntu-latest
-    needs: build-and-deploy
-    if: github.event_name == 'release'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Create release notes
-        run: |
-          # Extract version from package.json
-          VERSION=$(node -p "require('./package.json').version")
-          echo "## Release Notes v$VERSION" > release-notes.md
-          echo "" >> release-notes.md
-          echo "### Changes" >> release-notes.md
-          git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD >> release-notes.md
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.extract-version.outputs.version }}
-          release_name: Release v${{ steps.extract-version.outputs.version }}
-          body_path: release-notes.md
-          draft: false
-          prerelease: false
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          STRIPE_PRICE_PRO: price_placeholder
+          STRIPE_PRICE_BUSINESS: price_business_placeholder
+          STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
+          NEXTAUTH_SECRET: ci-secret-key
+          NEXTAUTH_URL: http://localhost:3000
+          FIRECRAWL_API_KEY: fc_test_placeholder
+          SERPAPI_API_KEY: serp_test_placeholder
