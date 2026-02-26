@@ -75,7 +75,9 @@ describe("authOptions", () => {
         options?: { authorize?: (c: unknown) => Promise<unknown> };
       };
       // NextAuth Credentials() puts custom authorize in options; parseProviders merges it
-      authorize = creds?.options?.authorize ?? creds?.authorize!;
+      const authFn = creds?.options?.authorize ?? creds?.authorize;
+      if (!authFn) throw new Error("Credentials provider has no authorize");
+      authorize = authFn;
     });
 
     it("returns null when email missing", async () => {

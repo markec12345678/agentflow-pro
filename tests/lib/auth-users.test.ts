@@ -1,6 +1,8 @@
 /**
  * auth-users.ts - getUserId, registerUser, getUser
  */
+import type { Session } from "next-auth";
+import bcrypt from "bcrypt";
 import { getUserId, registerUser, getUser } from "@/lib/auth-users";
 
 const mockPrismaUserFindUnique = jest.fn();
@@ -23,7 +25,7 @@ jest.mock("bcrypt", () => ({
 describe("auth-users", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (require("bcrypt").compare as jest.Mock).mockResolvedValue(true);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
   });
 
   describe("getUserId", () => {
@@ -32,24 +34,24 @@ describe("auth-users", () => {
     });
 
     it("returns userId when present on session.user", () => {
-      const session = {
+      const session: Session = {
         user: { userId: "usr-1", email: "u@b.com" },
         expires: "2025",
-      };
-      expect(getUserId(session as any)).toBe("usr-1");
+      } as Session;
+      expect(getUserId(session)).toBe("usr-1");
     });
 
     it("falls back to email when userId not present", () => {
-      const session = {
+      const session: Session = {
         user: { email: "u@b.com" },
         expires: "2025",
-      };
-      expect(getUserId(session as any)).toBe("u@b.com");
+      } as Session;
+      expect(getUserId(session)).toBe("u@b.com");
     });
 
     it("returns null when no userId or email", () => {
-      const session = { user: {}, expires: "2025" };
-      expect(getUserId(session as any)).toBeNull();
+      const session: Session = { user: {}, expires: "2025" } as Session;
+      expect(getUserId(session)).toBeNull();
     });
   });
 
@@ -101,7 +103,7 @@ describe("auth-users", () => {
 
     it("returns null when password invalid", async () => {
       mockPrismaUserFindUnique.mockResolvedValue({ id: "u1", passwordHash: "hash" });
-      (require("bcrypt").compare as jest.Mock).mockResolvedValue(false);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
       const result = await getUser("u@b.com", "wrong");
       expect(result).toBeNull();
     });

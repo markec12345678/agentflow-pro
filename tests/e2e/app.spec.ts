@@ -326,7 +326,7 @@ test.describe('Review Management', () => {
     // Should show analytics dashboard
     await expect(page.locator('[data-testid="total-reviews"]')).toBeVisible();
     await expect(page.locator('[data-testid="average-rating"]')).toBeVisible();
-    await expect(page.locator="[data-testid="rating-distribution"]')).toBeVisible();
+    await expect(page.locator('[data-testid="rating-distribution"]')).toBeVisible();
     await expect(page.locator('[data-testid="response-rate"]')).toBeVisible();
     await expect(page.locator('[data-testid="platform-breakdown"]')).toBeVisible();
   });

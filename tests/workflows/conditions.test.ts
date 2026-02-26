@@ -8,6 +8,7 @@ import {
   executeParallel,
   type ExecutionContext,
 } from "@/workflows/conditions";
+import type { ConditionOperator } from "@/workflows/nodes";
 import type { WorkflowNode, WorkflowEdge } from "@/workflows/types";
 
 describe("evaluateCondition", () => {
@@ -50,7 +51,7 @@ describe("evaluateCondition", () => {
   });
 
   it("returns false for unknown operator", () => {
-    expect(evaluateCondition("unknown" as any, "a", "b", {})).toBe(false);
+    expect(evaluateCondition("unknown" as ConditionOperator, "a", "b", {})).toBe(false);
   });
 });
 

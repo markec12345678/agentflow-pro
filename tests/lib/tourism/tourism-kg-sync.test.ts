@@ -2,18 +2,25 @@
  * Tourism KG Sync - Blok C #10
  * Tests with mocked prisma and MemoryBackend
  */
+import type { MemoryBackend } from "@/memory/memory-backend";
 import {
   syncPropertyToKg,
   syncGuestToKg,
   syncReservationToKg,
 } from "@/lib/tourism/tourism-kg-sync";
+import { prisma } from "@/database/schema";
 
 const mockCreateEntities = jest.fn();
 const mockCreateRelations = jest.fn();
 
-const mockBackend = {
+const mockBackend: MemoryBackend = {
   createEntities: mockCreateEntities,
   createRelations: mockCreateRelations,
+  addObservations: jest.fn(),
+  deleteObservations: jest.fn(),
+  deleteRelations: jest.fn(),
+  searchNodes: jest.fn().mockReturnValue({ entities: [], relations: [] }),
+  readGraph: jest.fn().mockReturnValue({ entities: [], relations: [] }),
 };
 
 jest.mock("@/database/schema", () => ({
@@ -29,8 +36,6 @@ jest.mock("@/database/schema", () => ({
     },
   },
 }));
-
-const { prisma } = require("@/database/schema");
 
 describe("tourism-kg-sync", () => {
   beforeEach(() => {
@@ -49,7 +54,7 @@ describe("tourism-kg-sync", () => {
         userId: "user-1",
       });
 
-      await syncPropertyToKg(mockBackend as any, "prop-1");
+      await syncPropertyToKg(mockBackend, "prop-1");
 
       expect(mockCreateEntities).toHaveBeenCalledWith([
         expect.objectContaining({
@@ -71,7 +76,7 @@ describe("tourism-kg-sync", () => {
     it("does nothing when property not found", async () => {
       (prisma.property.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await syncPropertyToKg(mockBackend as any, "missing");
+      await syncPropertyToKg(mockBackend, "missing");
 
       expect(mockCreateEntities).not.toHaveBeenCalled();
       expect(mockCreateRelations).not.toHaveBeenCalled();
@@ -87,7 +92,7 @@ describe("tourism-kg-sync", () => {
         propertyId: "prop-1",
       });
 
-      await syncGuestToKg(mockBackend as any, "guest-1");
+      await syncGuestToKg(mockBackend, "guest-1");
 
       expect(mockCreateEntities).toHaveBeenCalledWith([
         expect.objectContaining({
@@ -103,7 +108,7 @@ describe("tourism-kg-sync", () => {
     it("does nothing when guest not found", async () => {
       (prisma.guest.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await syncGuestToKg(mockBackend as any, "missing");
+      await syncGuestToKg(mockBackend, "missing");
 
       expect(mockCreateEntities).not.toHaveBeenCalled();
     });
@@ -121,7 +126,7 @@ describe("tourism-kg-sync", () => {
         channel: "booking.com",
       });
 
-      await syncReservationToKg(mockBackend as any, "res-1");
+      await syncReservationToKg(mockBackend, "res-1");
 
       expect(mockCreateEntities).toHaveBeenCalledWith([
         expect.objectContaining({
@@ -141,7 +146,7 @@ describe("tourism-kg-sync", () => {
     it("does nothing when reservation not found", async () => {
       (prisma.reservation.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await syncReservationToKg(mockBackend as any, "missing");
+      await syncReservationToKg(mockBackend, "missing");
 
       expect(mockCreateEntities).not.toHaveBeenCalled();
     });
