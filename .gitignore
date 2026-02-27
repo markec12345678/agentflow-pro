@@ -46,7 +46,10 @@ coverage/
 *.lcov
 test-results/
 playwright-report/
+screenshots/
 
 # Misc
 *.tgz
 .cache
+cookies.txt
+test-login-body.json

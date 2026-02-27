@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
+import { getUserApiKeys } from "@/lib/user-keys";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -15,19 +16,15 @@ export async function GET() {
   }
 
   const [apiKeys, salesforceIntegration] = await Promise.all([
-    prisma.userApiKey.findMany({
-      where: {
-        userId,
-        provider: { in: ["linkedin", "twitter", "hubspot"] },
-      },
-      select: { provider: true },
-    }),
+    getUserApiKeys(userId, { masked: false }),
     prisma.integration.findUnique({
       where: { userId_provider: { userId, provider: "salesforce" } },
     }),
   ]);
 
-  const providers = new Set(apiKeys.map((k) => k.provider));
+  const providers = new Set(
+    ["linkedin", "twitter", "hubspot"].filter((p) => apiKeys[p]?.trim())
+  );
 
   return NextResponse.json({
     linkedin: providers.has("linkedin"),
@@ -57,14 +54,22 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Unknown provider" }, { status: 400 });
   }
 
-  if (provider === "salesforce") {
-    await prisma.integration.deleteMany({
-      where: { userId, provider: "salesforce" },
-    });
-  } else {
-    await prisma.userApiKey.deleteMany({
-      where: { userId, provider },
-    });
+  try {
+    if (provider === "salesforce") {
+      await prisma.integration.deleteMany({
+        where: { userId, provider: "salesforce" },
+      });
+    } else {
+      await prisma.userApiKey.deleteMany({
+        where: { userId, provider },
+      });
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("does not exist")) {
+      return NextResponse.json({ ok: true });
+    }
+    throw err;
   }
   return NextResponse.json({ ok: true });
 }

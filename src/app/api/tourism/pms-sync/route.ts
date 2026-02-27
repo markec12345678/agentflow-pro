@@ -43,7 +43,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
 
+    let accessToken = body.accessToken?.trim();
+    let clientToken = body.clientToken?.trim();
     const provider = body.provider ?? "mews";
+
+    if (!accessToken || !clientToken) {
+      const conn = await prisma.pmsConnection.findUnique({
+        where: {
+          propertyId_provider: {
+            propertyId: body.propertyId,
+            provider,
+          },
+        },
+      });
+      if (conn) {
+        const creds = conn.credentials as { accessToken?: string; clientToken?: string };
+        accessToken = String(creds?.accessToken ?? "").trim();
+        clientToken = String(creds?.clientToken ?? "").trim();
+      }
+      if (!accessToken || !clientToken) {
+        return NextResponse.json(
+          { error: "Dodaj credentials v PMS Povezave ali vnesi accessToken in clientToken v ta klic." },
+          { status: 400 }
+        );
+      }
+    }
     const adapter = getPmsAdapter(provider);
     if (!adapter) {
       return NextResponse.json(
@@ -52,51 +76,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let credentials: Record<string, string> = {};
-    if (body.accessToken && body.clientToken) {
-      credentials = { accessToken: body.accessToken, clientToken: body.clientToken };
-    } else {
-      const conn = await prisma.pmsConnection.findUnique({
-        where: { propertyId_provider: { propertyId: body.propertyId, provider } },
-      });
-      if (conn && conn.credentials && typeof conn.credentials === "object") {
-        const c = conn.credentials as { accessToken?: string; clientToken?: string };
-        if (c.accessToken && c.clientToken) {
-          credentials = { accessToken: c.accessToken, clientToken: c.clientToken };
-        }
-      }
-    }
+    const now = new Date();
+    const from = subDays(now, 30);
+    const to = addDays(now, 90);
+    const config = {
+      propertyId: body.propertyId,
+      credentials: { accessToken, clientToken },
+    };
 
-    if (!credentials.accessToken || !credentials.clientToken) {
-      return NextResponse.json(
-        { error: "Mews requires accessToken and clientToken (in body or saved in PmsConnection)" },
-        { status: 400 }
-      );
-    }
-
-    const from = subDays(new Date(), 30);
-    const to = addDays(new Date(), 90);
-
-    const reservations = await adapter.getReservations({
-      config: { propertyId: body.propertyId, credentials },
-      from,
-      to,
-    });
-
-    const result = await adapter.syncToAgentFlow({
-      config: { propertyId: body.propertyId, credentials },
-      reservations,
-    });
+    const reservations = await adapter.getReservations({ config, from, to });
+    const result = await adapter.syncToAgentFlow({ config, reservations });
 
     return NextResponse.json({
-      provider,
+      success: result.errors.length === 0,
+      message: `Sinhronizirano: ${result.synced} rezervacij`,
+      synced: result.synced,
+      created: result.created,
+      updated: result.updated,
+      errors: result.errors,
       fetched: reservations.length,
-      ...result,
     });
   } catch (error) {
     console.error("PMS sync error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "PMS sync failed" },
+      { error: "Failed to sync with PMS" },
       { status: 500 }
     );
   }

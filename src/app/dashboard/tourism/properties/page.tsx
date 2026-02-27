@@ -5,6 +5,12 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { SkeletonList } from "@/web/components/Skeleton";
 
+interface SeasonRange {
+  from: string;
+  to: string;
+  rate: number;
+}
+
 interface Property {
   id: string;
   name: string;
@@ -13,6 +19,7 @@ interface Property {
   capacity: number | null;
   basePrice?: number | null;
   currency?: string | null;
+  seasonRates?: { high?: SeasonRange[]; mid?: SeasonRange[]; low?: SeasonRange[] } | null;
   createdAt: string;
 }
 
@@ -42,7 +49,15 @@ export default function TourismPropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", location: "", type: "", capacity: "" });
+  const [form, setForm] = useState({
+    name: "",
+    location: "",
+    type: "",
+    capacity: "",
+    basePrice: "",
+    currency: "EUR",
+    seasonRates: { high: [] as SeasonRange[], mid: [] as SeasonRange[], low: [] as SeasonRange[] },
+  });
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
   const [amenities, setAmenities] = useState<Amenity[]>([]);
@@ -109,7 +124,7 @@ export default function TourismPropertiesPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Napaka");
-      setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR" });
+      setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR", seasonRates: { high: [], mid: [], low: [] } });
       fetchProperties(false);
       toast.success("Nastanitev dodana");
     } catch (err) {
@@ -130,12 +145,19 @@ export default function TourismPropertiesPage() {
           location: form.location.trim() || null,
           type: form.type.trim() || null,
           capacity: form.capacity ? parseInt(form.capacity, 10) : null,
+          basePrice: form.basePrice ? parseFloat(form.basePrice) : null,
+          currency: form.currency?.trim() || null,
+          seasonRates: {
+            high: (form.seasonRates.high || []).filter((r) => r.from && r.to && r.rate > 0),
+            mid: (form.seasonRates.mid || []).filter((r) => r.from && r.to && r.rate > 0),
+            low: (form.seasonRates.low || []).filter((r) => r.from && r.to && r.rate > 0),
+          },
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Napaka");
       setEditing(null);
-      setForm({ name: "", location: "", type: "", capacity: "" });
+      setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR", seasonRates: { high: [], mid: [], low: [] } });
       fetchProperties(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Napaka pri posodabljanju");
@@ -163,6 +185,7 @@ export default function TourismPropertiesPage() {
 
   const startEdit = (p: Property) => {
     setEditing(p.id);
+    const sr = p.seasonRates as { high?: SeasonRange[]; mid?: SeasonRange[]; low?: SeasonRange[] } | null | undefined;
     setForm({
       name: p.name,
       location: p.location ?? "",
@@ -170,12 +193,17 @@ export default function TourismPropertiesPage() {
       capacity: p.capacity != null ? String(p.capacity) : "",
       basePrice: p.basePrice != null ? String(p.basePrice) : "",
       currency: p.currency ?? "EUR",
+      seasonRates: {
+        high: Array.isArray(sr?.high) ? sr.high : [],
+        mid: Array.isArray(sr?.mid) ? sr.mid : [],
+        low: Array.isArray(sr?.low) ? sr.low : [],
+      },
     });
   };
 
   const cancelEdit = () => {
     setEditing(null);
-    setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR" });
+    setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR", seasonRates: { high: [], mid: [], low: [] } });
     setAmenities([]);
     setPolicies([]);
   };
@@ -480,6 +508,7 @@ export default function TourismPropertiesPage() {
                           value={newPolicy.type}
                           onChange={(e) => setNewPolicy((p) => ({ ...p, type: e.target.value }))}
                           className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm"
+                          aria-label="Tip pravila"
                         >
                           <option value="">Tip pravila</option>
                           {POLICY_PRESETS.map((pr) => (
@@ -516,6 +545,96 @@ export default function TourismPropertiesPage() {
                           </li>
                         ))}
                       </ul>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                    <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Sezonske cene</h4>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">Cena za noč (€) za obdobje. Če datum prihoda spada v sezono, uporabi se ta cena namesto osnovne.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {(["high", "mid", "low"] as const).map((season) => (
+                        <div key={season} className="p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800/50">
+                          <div className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">
+                            {season === "high" ? "Visoka sezona" : season === "mid" ? "Srednja sezona" : "Nizka sezona"}
+                          </div>
+                          {(form.seasonRates[season]?.length ? form.seasonRates[season] : [{ from: "", to: "", rate: 0 }]).map((r, i) => (
+                            <div key={i} className="space-y-1 mb-2">
+                              <div className="flex gap-1">
+                                <input
+                                  type="date"
+                                  value={r.from}
+                                  onChange={(e) => {
+                                    const arr = [...(form.seasonRates[season] || [])];
+                                    if (!arr[i]) arr[i] = { from: "", to: "", rate: 0 };
+                                    arr[i] = { ...arr[i], from: e.target.value };
+                                    setForm((f) => ({ ...f, seasonRates: { ...f.seasonRates, [season]: arr } }));
+                                  }}
+                                  className="flex-1 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-xs"
+                                  placeholder="Od"
+                                />
+                                <input
+                                  type="date"
+                                  value={r.to}
+                                  onChange={(e) => {
+                                    const arr = [...(form.seasonRates[season] || [])];
+                                    if (!arr[i]) arr[i] = { from: "", to: "", rate: 0 };
+                                    arr[i] = { ...arr[i], to: e.target.value };
+                                    setForm((f) => ({ ...f, seasonRates: { ...f.seasonRates, [season]: arr } }));
+                                  }}
+                                  className="flex-1 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-xs"
+                                  placeholder="Do"
+                                />
+                              </div>
+                              <div className="flex gap-1 items-center">
+                                <input
+                                  type="number"
+                                  value={r.rate || ""}
+                                  onChange={(e) => {
+                                    const arr = [...(form.seasonRates[season] || [])];
+                                    if (!arr[i]) arr[i] = { from: "", to: "", rate: 0 };
+                                    arr[i] = { ...arr[i], rate: parseFloat(e.target.value) || 0 };
+                                    setForm((f) => ({ ...f, seasonRates: { ...f.seasonRates, [season]: arr } }));
+                                  }}
+                                  placeholder="Cena €"
+                                  min={0}
+                                  step={1}
+                                  className="w-20 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-xs"
+                                />
+                                {form.seasonRates[season]?.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setForm((f) => ({
+                                      ...f,
+                                      seasonRates: {
+                                        ...f.seasonRates,
+                                        [season]: f.seasonRates[season].filter((_, j) => j !== i),
+                                      },
+                                    }))}
+                                    className="text-red-600 text-xs"
+                                  >
+                                    ×
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                          {(!form.seasonRates[season]?.length || form.seasonRates[season].every((x) => x.from || x.to || x.rate)) && (
+                            <button
+                              type="button"
+                              onClick={() => setForm((f) => ({
+                                ...f,
+                                seasonRates: {
+                                  ...f.seasonRates,
+                                  [season]: [...(f.seasonRates[season] || []), { from: "", to: "", rate: 0 }],
+                                },
+                              }))}
+                              className="text-xs text-blue-600 hover:underline"
+                            >
+                              + Dodaj obdobje
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

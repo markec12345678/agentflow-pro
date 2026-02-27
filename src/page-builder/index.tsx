@@ -1,5 +1,9 @@
-import { PluginProvider } from "./context/PluginContext";
+import { PluginProvider, usePlugins } from "./context/PluginContext";
 import { DragDropBuilder } from "./components/DragDropBuilder";
+import { TextPlugin } from "./plugins/TextPlugin";
+import { ImagePlugin } from "./plugins/ImagePlugin";
+import { ButtonPlugin } from "./plugins/ButtonPlugin";
+import { FormPlugin } from "./plugins/FormPlugin";
 
 export default function PageBuilder() {
   return (
@@ -18,3 +22,5 @@ export default function PageBuilder() {
     </PluginProvider>
   );
 }
+
+export { PluginProvider, usePlugins, DragDropBuilder, TextPlugin, ImagePlugin, ButtonPlugin, FormPlugin };

@@ -74,16 +74,29 @@ export default function PmsConnectionsPage() {
 
   const handleSync = async () => {
     if (!activePropertyId) return;
+    const hasTokensInForm = form.accessToken.trim() && form.clientToken.trim();
+    if (!hasMews && !hasTokensInForm) {
+      toast.error("Vnesite Access Token in Client Token za sinhronizacijo");
+      return;
+    }
     setSyncing(true);
     try {
+      const body: { propertyId: string; provider: string; accessToken?: string; clientToken?: string } = {
+        propertyId: activePropertyId,
+        provider: "mews",
+      };
+      if (hasTokensInForm) {
+        body.accessToken = form.accessToken.trim();
+        body.clientToken = form.clientToken.trim();
+      }
       const res = await fetch("/api/tourism/pms-sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propertyId: activePropertyId, provider: "mews" }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Napaka");
-      toast.success(`Sinhronizirano: ${data.fetched ?? 0} rezervacij`);
+      if (!res.ok) throw new Error(data.error ?? data.message ?? "Napaka");
+      toast.success(data.message ?? `Sinhronizirano: ${data.fetched ?? data.synced ?? 0} rezervacij`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Napaka pri sinhronizaciji");
     } finally {
@@ -170,28 +183,26 @@ export default function PmsConnectionsPage() {
               >
                 {saving ? "Shranjujem..." : "Shrani poverilnice"}
               </button>
+              <button
+                onClick={handleSync}
+                disabled={syncing || !form.accessToken.trim() || !form.clientToken.trim()}
+                className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 disabled:opacity-50"
+              >
+                {syncing ? "Sinhroniziram..." : "Sinhroniziraj zdaj"}
+              </button>
               {hasMews && (
-                <>
-                  <button
-                    onClick={handleSync}
-                    disabled={syncing}
-                    className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 disabled:opacity-50"
-                  >
-                    {syncing ? "Sinhroniziram..." : "Sinhroniziraj zdaj"}
-                  </button>
-                  <button
-                    onClick={handleRemove}
-                    className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm hover:bg-red-50 dark:hover:bg-red-900/20"
-                  >
-                    Odstrani
-                  </button>
-                </>
+                <button
+                  onClick={handleRemove}
+                  className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm hover:bg-red-50 dark:hover:bg-red-900/20"
+                >
+                  Odstrani
+                </button>
               )}
             </div>
 
             {hasMews && (
               <p className="text-xs text-green-600 dark:text-green-400">
-                Poverilnice shranjene. Sinhronizacija uporablja shranjene podatke.
+                Poverilnice shranjene. Kliknite Sinhroniziraj zdaj brez vnosa – uporablja shranjene tokene.
               </p>
             )}
           </div>

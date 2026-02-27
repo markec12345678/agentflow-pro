@@ -1,24 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface Post {
   id: string;
   title: string | null;
   topic: string | null;
   type?: string;
+  source?: string;
   createdAt: string;
 }
 
 const TYPE_LABELS: Record<string, { icon: string; label: string }> = {
   "booking-description": { icon: "📋", label: "Booking opis" },
   "guest-welcome-email": { icon: "📧", label: "Email" },
-  "destination-guide":   { icon: "📍", label: "Vodič" },
-  "instagram-travel":    { icon: "📱", label: "Social" },
-  "landing-page":        { icon: "🌐", label: "Landing" },
-  "seasonal-campaign":   { icon: "🎄", label: "Kampanja" },
-  "blog":                { icon: "📝", label: "Blog" },
+  "destination-guide": { icon: "📍", label: "Vodič" },
+  "instagram-travel": { icon: "📱", label: "Social" },
+  "landing-page": { icon: "🌐", label: "Landing" },
+  "seasonal-campaign": { icon: "🎄", label: "Kampanja" },
+  "blog": { icon: "📝", label: "Blog" },
 };
 
 function typeInfo(type?: string | null) {
@@ -43,16 +45,70 @@ export default function ContentPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("vse");
+  const [filterSource, setFilterSource] = useState<string>("vse");
+  const [sortBy, setSortBy] = useState<"createdAt" | "title">("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   useEffect(() => {
-    fetch("/api/content/history")
+    setLoading(true);
+    const params = new URLSearchParams();
+    params.set("sort", sortBy);
+    params.set("order", sortOrder);
+    if (filterType !== "vse") params.set("type", filterType);
+    if (filterSource !== "vse") params.set("source", filterSource);
+    fetch(`/api/content/history?${params.toString()}`)
       .then(r => r.json())
       .then(data => {
         if (data.posts) setPosts(data.posts);
       })
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [filterType, filterSource, sortBy, sortOrder]);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAll = () => {
+    if (selectedIds.size === filtered.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map(p => p.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkDeleting(true);
+    try {
+      const res = await fetch("/api/content/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selectedIds) }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Brisanje ni uspelo");
+      }
+      toast.success(`Izbrisano: ${data.deleted ?? selectedIds.size} kosov`);
+      setSelectedIds(new Set());
+      await refetch();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Napaka pri brisanju");
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
 
   const types = ["vse", ...Array.from(new Set(posts.map(p => p.type ?? "").filter(Boolean)))];
 
@@ -87,16 +143,33 @@ export default function ContentPage() {
           </div>
           <div className="flex items-center gap-2">
             {posts.length > 0 && (
-              <a
-                href="/api/content/export?format=json"
-                download
-                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                ⬇️ Izvozi
-              </a>
+              <div className="flex gap-2">
+                <a
+                  href="/api/content/export?format=json"
+                  download
+                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  ⬇️ JSON
+                </a>
+                <a
+                  href="/api/content/export?format=csv"
+                  download
+                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  ⬇️ CSV
+                </a>
+                <a
+                  href="/api/content/export?format=markdown"
+                  download
+                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  ⬇️ MD
+                </a>
+              </div>
             )}
             <Link
               href="/generate"
+              title="Ustvari novo vsebino (g n)"
               className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-all flex items-center gap-2"
             >
               <span>+</span>
@@ -119,7 +192,7 @@ export default function ContentPage() {
               {[
                 { href: "/generate?template=booking-description", icon: "📋", label: "Booking opis" },
                 { href: "/generate?template=guest-welcome-email", icon: "📧", label: "Email za goste" },
-                { href: "/generate?template=instagram-travel",    icon: "📱", label: "Social post" },
+                { href: "/generate?template=instagram-travel", icon: "📱", label: "Social post" },
               ].map(item => (
                 <Link
                   key={item.href}
@@ -135,17 +208,73 @@ export default function ContentPage() {
         ) : (
           <>
             {/* Iskanje + filter */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-6">
-              <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-                <input
-                  type="text"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Išči vsebino..."
-                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm"
-                />
+            <div className="flex flex-col gap-3 mb-6">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Išči vsebino..."
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <select
+                    value={sortBy}
+                    onChange={e => setSortBy(e.target.value as "createdAt" | "title")}
+                    aria-label="Sortiraj po"
+                    className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                  >
+                    <option value="createdAt">Datum</option>
+                    <option value="title">Naslov</option>
+                  </select>
+                  <select
+                    value={sortOrder}
+                    onChange={e => setSortOrder(e.target.value as "asc" | "desc")}
+                    aria-label="Vrstni red"
+                    className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                  >
+                    <option value="desc">Najnovejše</option>
+                    <option value="asc">Najstarejše</option>
+                  </select>
+                  <select
+                    value={filterSource}
+                    onChange={e => setFilterSource(e.target.value)}
+                    aria-label="Filter po viru"
+                    className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                  >
+                    <option value="vse">Vsi viri</option>
+                    <option value="blogPost">Blog</option>
+                    <option value="contentHistory">Historia</option>
+                  </select>
+                </div>
               </div>
+              {selectedIds.size > 0 && (
+                <div className="flex items-center justify-between gap-4 py-3 px-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 mb-4">
+                  <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    Izbrano: {selectedIds.size}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={selectAll}
+                      className="px-3 py-1.5 text-sm text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-lg"
+                    >
+                      {selectedIds.size === filtered.length ? "Odznači vse" : "Izberi vse"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleBulkDelete}
+                      disabled={bulkDeleting}
+                      className="px-4 py-1.5 text-sm bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg font-medium"
+                    >
+                      {bulkDeleting ? "Brisanje…" : "Izbriši izbrano"}
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="flex gap-2 flex-wrap">
                 {types.map(t => {
                   const info = t === "vse" ? { icon: "📋", label: "Vse" } : typeInfo(t);
@@ -154,11 +283,10 @@ export default function ContentPage() {
                       key={t}
                       type="button"
                       onClick={() => setFilterType(t)}
-                      className={`px-3 py-2 text-xs rounded-xl font-semibold transition-all border ${
-                        filterType === t
+                      className={`px-3 py-2 text-xs rounded-xl font-semibold transition-all border ${filterType === t
                           ? "bg-blue-600 text-white border-blue-600"
                           : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-600 hover:border-blue-400"
-                      }`}
+                        }`}
                     >
                       {info.icon} {info.label}
                     </button>
@@ -177,11 +305,22 @@ export default function ContentPage() {
               <div className="space-y-3">
                 {filtered.map(post => {
                   const info = typeInfo(post.type);
+                  const isSelected = selectedIds.has(post.id);
                   return (
                     <div
                       key={post.id}
-                      className="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 group"
+                      className={`flex items-center gap-4 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all border group ${isSelected ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-100 dark:border-gray-700"
+                        }`}
                     >
+                      <label className="flex-shrink-0 cursor-pointer" title={`Izbira ${post.title ?? post.topic ?? "vsebine"}`}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelect(post.id)}
+                          aria-label={`Izbira ${post.title ?? post.topic ?? "vsebine"}`}
+                          className="rounded border-gray-300 w-4 h-4"
+                        />
+                      </label>
                       {/* Ikona */}
                       <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-2xl">
                         {info.icon}

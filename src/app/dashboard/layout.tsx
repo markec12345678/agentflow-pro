@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import FloatingChat from "@/components/FloatingChat";
 
 // ─── Glavna navigacija ────────────────────────────────────────────────────────
@@ -16,30 +16,87 @@ const MAIN_NAV = [
 // ─── Turizem podmeni ──────────────────────────────────────────────────────────
 const TOURISM_NAV = [
   { name: "Pregled", href: "/dashboard/tourism" },
+  { name: "Koledar", href: "/dashboard/tourism/calendar" },
+  { name: "Komunikacija", href: "/dashboard/tourism/guest-communication" },
   { name: "Generiraj", href: "/generate" },
   { name: "Predloge", href: "/dashboard/tourism/templates" },
   { name: "Nastanitve", href: "/dashboard/tourism/properties" },
   { name: "Landing strani", href: "/dashboard/tourism/landing" },
+  { name: "Page Builder", href: "/dashboard/page-builder" },
   { name: "Itinerarji", href: "/dashboard/tourism/itineraries" },
   { name: "Email", href: "/dashboard/tourism/email" },
   { name: "SEO", href: "/dashboard/tourism/seo" },
   { name: "Prevodi", href: "/dashboard/tourism/translate" },
+  { name: "Konkurenti", href: "/dashboard/tourism/competitors" },
+  { name: "Obvestila", href: "/dashboard/tourism/notifications" },
+  { name: "eTurizem", href: "/dashboard/tourism/eturizem-settings" },
 ];
 
 // ─── Napredno (skrito) ────────────────────────────────────────────────────────
 const ADVANCED_NAV = [
   { icon: "⚡", label: "Workflow Builder", href: "/workflows" },
+  { icon: "🌐", label: "Page Builder", href: "/dashboard/page-builder" },
   { icon: "💬", label: "Chat z agenti", href: "/chat" },
+  { icon: "🧠", label: "Memory", href: "/memory" },
   { icon: "🔄", label: "Escalations", href: "/dashboard/escalations" },
   { icon: "⚙️", label: "Nastavitve", href: "/settings" },
   { icon: "📊", label: "Monitoring", href: "/monitoring" },
 ];
 
+const SHORTCUTS: Record<string, string> = {
+  "g d": "/dashboard",
+  "g c": "/content",
+  "g n": "/generate",
+};
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [userIndustry, setUserIndustry] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [shortcutBuf, setShortcutBuf] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+  };
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === "?") {
+        e.preventDefault();
+        setShowHelp((v) => !v);
+        return;
+      }
+      if (e.key === "Escape") {
+        setShowHelp(false);
+        setShortcutBuf("");
+        return;
+      }
+      const key = e.key.toLowerCase();
+      if (key === "g" || (shortcutBuf === "g" && ["d", "c", "n"].includes(key))) {
+        const seq = shortcutBuf === "g" ? `g ${key}` : key === "g" ? "g" : "";
+        if (seq === "g") {
+          setShortcutBuf("g");
+          setTimeout(() => setShortcutBuf(""), 800);
+          return;
+        }
+        const href = SHORTCUTS[seq];
+        if (href) {
+          e.preventDefault();
+          router.push(href);
+          setShortcutBuf("");
+        }
+        return;
+      }
+      setShortcutBuf("");
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [router, shortcutBuf]);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -52,6 +109,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       .catch(() => setUserIndustry(null))
       .finally(() => clearTimeout(t));
   }, []);
+
+  // Privzeta Tourism stran za tourism uporabnike
+  useEffect(() => {
+    if (pathname === "/dashboard" && (userIndustry === "tourism" || userIndustry === "travel-agency")) {
+      router.replace("/dashboard/tourism");
+    }
+  }, [pathname, userIndustry, router]);
 
   const showTourismHub =
     userIndustry === "tourism" || userIndustry === "travel-agency";
@@ -69,12 +133,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const sidebar = (
     <nav className="p-4 space-y-1" aria-label="Navigacija">
-      {/* Logo */}
-      <div className="px-3 py-3 mb-2">
+      {/* Logo + theme toggle */}
+      <div className="px-3 py-3 mb-2 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2 font-bold text-gray-900 dark:text-white">
           <span className="text-xl">⚡</span>
           <span>AgentFlow<span className="text-blue-600"> Pro</span></span>
         </Link>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+          aria-label={darkMode ? "Svetla tema" : "Temna tema"}
+        >
+          {darkMode ? "☀️" : "🌙"}
+        </button>
       </div>
 
       {/* Hiter gumb Ustvari */}
@@ -105,8 +177,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               key={item.href}
               href={item.href}
               className={`block px-4 py-2 text-sm rounded-xl transition-all ${pathname.startsWith(item.href)
-                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
+                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium"
+                : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                 }`}
             >
               {item.name}
@@ -196,8 +268,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${isActive(item.href)
-                  ? "text-blue-600"
-                  : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                ? "text-blue-600"
+                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
             >
               <span className="text-xl">{item.icon}</span>
@@ -212,6 +284,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Floating AI Chat Assistant */}
       <FloatingChat />
+
+      {/* Keyboard shortcuts help overlay */}
+      {showHelp && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setShowHelp(false)}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+              Bližnjice na tipkovnici
+            </h3>
+            <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">g</kbd> <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">d</kbd> → Dashboard</li>
+              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">g</kbd> <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">c</kbd> → Vsebina</li>
+              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">g</kbd> <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">n</kbd> → Nova vsebina</li>
+              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">?</kbd> → Prikaži/skrij to pomoč</li>
+            </ul>
+            <button
+              type="button"
+              onClick={() => setShowHelp(false)}
+              className="mt-4 w-full py-2 bg-gray-100 dark:bg-gray-700 rounded-xl text-sm font-medium"
+            >
+              Zapri
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

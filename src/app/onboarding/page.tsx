@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 // ─── Tipi nastanitev ──────────────────────────────────────────────────────────
 const PROPERTY_TYPES = [
@@ -32,6 +34,7 @@ const LANGUAGES = [
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [step, setStep] = useState(1);
   const [propertyType, setPropertyType] = useState("");
   const [propertyName, setPropertyName] = useState("");
@@ -39,6 +42,37 @@ export default function OnboardingPage() {
   const [language, setLanguage] = useState("sl");
   const [firstNeed, setFirstNeed] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const isAuthenticated = status === "authenticated" && !!session;
+
+  // Restore draft from sessionStorage (e.g. after login redirect)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const draft = sessionStorage.getItem("onboarding-draft");
+    if (draft) {
+      try {
+        const data = JSON.parse(draft);
+        if (data.step) setStep(data.step);
+        if (data.propertyType) setPropertyType(data.propertyType);
+        if (data.propertyName) setPropertyName(data.propertyName);
+        if (data.location) setLocation(data.location);
+        if (data.language) setLanguage(data.language);
+        sessionStorage.removeItem("onboarding-draft");
+      } catch {
+        sessionStorage.removeItem("onboarding-draft");
+      }
+    }
+  }, []);
+
+  // Save draft when step 3 and not authenticated (before redirect to auth)
+  useEffect(() => {
+    if (step === 3 && !isAuthenticated && status !== "loading" && typeof window !== "undefined") {
+      sessionStorage.setItem(
+        "onboarding-draft",
+        JSON.stringify({ step: 3, propertyType, propertyName, location, language })
+      );
+    }
+  }, [step, isAuthenticated, status, propertyType, propertyName, location, language]);
 
   // ─── Shrani & pojdi na generate ─────────────────────────────────────────────
   const handleFinish = async () => {
@@ -214,6 +248,41 @@ export default function OnboardingPage() {
           {/* ─── KORAK 3: Kaj potrebuješ najprej ─────────────────────────── */}
           {step === 3 && (
             <div>
+              {!isAuthenticated && status !== "loading" ? (
+                <>
+                  <div className="text-center mb-8">
+                    <div className="text-5xl mb-3">🔐</div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      Ustvarite račun za nadaljevanje
+                    </h2>
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">
+                      Vaši podatki ({propertyName}, {location}) bodo shranjeni v vašem računu.
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                    <Link
+                      href="/register?callbackUrl=/onboarding"
+                      className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg transition-all"
+                    >
+                      Ustvari račun
+                    </Link>
+                    <Link
+                      href="/login?callbackUrl=/onboarding"
+                      className="flex-1 text-center border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 py-4 rounded-xl font-semibold text-gray-700 dark:text-gray-300 transition-all"
+                    >
+                      Imam že račun
+                    </Link>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setStep(2)}
+                    className="w-full py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium"
+                  >
+                    ← Nazaj
+                  </button>
+                </>
+              ) : (
+                <>
               <div className="text-center mb-8">
                 <div className="text-5xl mb-3">🎯</div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -278,6 +347,8 @@ export default function OnboardingPage() {
               <p className="text-center text-xs text-gray-400 mt-4">
                 Brez kreditne kartice • 7 dni brezplačno
               </p>
+                </>
+              )}
             </div>
           )}
 

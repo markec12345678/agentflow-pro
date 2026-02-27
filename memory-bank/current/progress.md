@@ -2,6 +2,25 @@
 
 ## Progress Update – 2026-02-21
 
+## Completed (2026-02-27) – Receptor Finance + Nova rezervacija
+
+**Receptor Finance Pricing MVP (Faza 1–2):**
+- [x] Prisma: deposit, touristTax (Reservation); Payment model; seasonRates (Property)
+- [x] API: payments, daily-revenue, invoice; calendar POST/PATCH z deposit/touristTax
+- [x] Overbooking: allowOverbooking v calendar API
+- [x] Widget dnevni promet na Tourism page
+- [x] UI plačila v koledarju (modal, stanje, Dodaj plačilo, Izpiši račun)
+- [x] pricing-engine: getSeasonRate, seasonRates v calculatePrice
+- [x] UI sezonske cene na Property (visoka/srednja/nizka sezona)
+
+**Nova rezervacija + overbooking UI:**
+- [x] Modal Nova rezervacija (forma, Izračunaj ceno, Ustvari)
+- [x] Overbooking dialog ob 409 (Prekrivanje... Ustvari vseeno)
+- [x] Calendar POST shrani deposit in touristTax
+
+**E2E:**
+- [x] calendar-reservation.spec.ts: Nova rezervacija happy path, Overbooking flow
+
 ## Completed (Phase 3 – Advanced)
 - [x] Phase 3.1: HITL s checkpoint_id – WorkflowCheckpoint, approval API, dashboard widget, requiresApproval v workflow editor
 - [x] Phase 3.2: Conversation branching – ConversationThread (parentThreadId), Create branch v chat, /chat/threads
@@ -12,10 +31,17 @@
 - [x] Phase 2.2–2.5: Agents, Phase 3–8: Knowledge Graph, Workflow Builder, Stripe, E2E, CI/CD, deploy prep
 
 ## Completed (2026-02-26) – MVP Launch 8.3.5 prep
-- [x] predeploy.js: uporabi `test:e2e:smoke` namesto `test:e2e:checklist` (usklajeno z production-launch-checklist)
-- [x] production-launch-checklist.md: konkretna production URL, navodila za predeploy
+
+**Tehnična priprava (opravljeno):**
+- [x] predeploy.js: `test:e2e:smoke` (usklajeno z production-launch-checklist)
+- [x] production-launch-checklist.md: production URL, navodila za predeploy
+- [x] LAUNCH-RUNBOOK.md: urejen vodnik po korakih
+- [x] Smoke testi: posodobljeni za trenutni UI (Homepage, Dashboard, Pricing, Phase E auth)
 - [x] tasks.md: 8.3.5 povezava na checklist
-- [ ] **Za dokončanje 8.3.5:** izpolni P0 v production-launch-checklist, zaženi `npm run predeploy`, redeploy, test flow
+
+**Ročni P0 koraki (na uporabniku):**
+- [ ] Production DB (Supabase/Neon), Stripe live keys, webhook, Vercel env
+- [ ] Zaženi `npm run predeploy`, redeploy, ročni test flow (Register → Subscribe → Generate)
 
 ## Next Steps
 - [ ] MOCK_MODE="false" + API keys za prave agente (če želiš)
@@ -67,7 +93,7 @@
 - [x] RAG v chat – semantic search nad indeksiranimi dokumenti; kontekst v system prompt
 
 ## Metrics
-- Tasks Complete: 132/155 (85%)
+- Tasks Complete: 154/155 (99%)
 - Days Elapsed: 1/14
 - Tests Passing: 58/58 (100%)
 - MCP Servers Used: 14/16

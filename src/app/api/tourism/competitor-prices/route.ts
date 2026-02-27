@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
+import { getFirecrawlApiKey } from "@/config/env";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     if (competitors.length > 0) {
       const prices = competitors.flatMap(c =>
-        c.priceHistory.map(p => p.price)
+        c.prices.map(p => p.price)
       ).filter(p => p > 0);
 
       if (prices.length > 0) {
@@ -127,34 +128,34 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "add-competitor") {
-      const { name, platform, url, roomType } = competitorData;
+      const { name, platform, url } = competitorData || {};
+      const displayName = name || platform || "Competitor";
 
       const competitor = await prisma.competitor.create({
         data: {
           propertyId,
-          name,
-          platform,
-          url,
-          roomType,
+          name: displayName,
+          url: url || "",
         },
       });
 
-      // Scrape initial price (using Firecrawl MCP or similar)
-      const scrapedPrice = await scrapeCompetitorPrice(url);
+      const scrapeOutcome = await scrapeCompetitorPrice(url);
 
-      if (scrapedPrice) {
+      if (scrapeOutcome.success) {
         await prisma.competitorPrice.create({
           data: {
             competitorId: competitor.id,
-            price: scrapedPrice.price,
-            currency: scrapedPrice.currency || "EUR",
+            price: scrapeOutcome.price,
             date: new Date(),
-            availability: scrapedPrice.availability,
           },
         });
       }
 
-      return NextResponse.json({ competitor, scrapedPrice });
+      return NextResponse.json({
+        competitor,
+        scrapedPrice: scrapeOutcome.success ? { price: scrapeOutcome.price, currency: scrapeOutcome.currency } : null,
+        scrapeError: !scrapeOutcome.success ? scrapeOutcome.error : undefined,
+      });
     }
 
     if (action === "refresh-all") {
@@ -162,22 +163,29 @@ export async function POST(request: NextRequest) {
         where: { propertyId },
       });
 
-      const results = [];
+      const results: Array<{ competitorId: string; price: number }> = [];
+      const errors: string[] = [];
       for (const competitor of competitors) {
-        const scrapedPrice = await scrapeCompetitorPrice(competitor.url);
-        if (scrapedPrice) {
+        const outcome = await scrapeCompetitorPrice(competitor.url);
+        if (outcome.success) {
           await prisma.competitorPrice.create({
             data: {
               competitorId: competitor.id,
-              price: scrapedPrice.price,
+              price: outcome.price,
               date: new Date(),
             },
           });
-          results.push({ competitorId: competitor.id, price: scrapedPrice.price });
+          results.push({ competitorId: competitor.id, price: outcome.price });
+        } else {
+          errors.push(`${competitor.name}: ${outcome.error}`);
         }
       }
 
-      return NextResponse.json({ refreshed: results.length, results });
+      return NextResponse.json({
+        refreshed: results.length,
+        results,
+        scrapeErrors: errors.length ? errors : undefined,
+      });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
@@ -250,16 +258,26 @@ function calculateTrend(prices: Array<{ price: number; date: Date }>): "up" | "d
   return "stable";
 }
 
-async function scrapeCompetitorPrice(url: string): Promise<{ price: number; currency: string; availability?: boolean } | null> {
-  // In production, this would use Firecrawl MCP or similar
-  // For now, return a mock or call an external scraper
+type ScrapeOutcome =
+  | { success: true; price: number; currency: string; availability?: boolean }
+  | { success: false; error: string };
+
+async function scrapeCompetitorPrice(url: string): Promise<ScrapeOutcome> {
+  const apiKey = getFirecrawlApiKey();
+  if (!apiKey?.trim()) {
+    return {
+      success: false,
+      error: "FIRECRAWL_API_KEY not configured. Add it to .env to enable price scraping.",
+    };
+  }
 
   try {
-    // Simulate price scraping
-    // In real implementation, use Firecrawl MCP
-    const mockResponse = await fetch("https://api.firecrawl.dev/v1/scrape", {
+    const res = await fetch("https://api.firecrawl.dev/v1/scrape", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
         url,
         formats: ["extract"],
@@ -276,23 +294,35 @@ async function scrapeCompetitorPrice(url: string): Promise<{ price: number; curr
       }),
     });
 
-    if (!mockResponse.ok) {
-      // Return mock data for development
+    if (!res.ok) {
+      const errText = await res.text();
       return {
-        price: Math.floor(Math.random() * 100) + 50,
-        currency: "EUR",
-        availability: true,
+        success: false,
+        error: `Firecrawl scrape failed (${res.status}): ${errText.slice(0, 200)}`,
       };
     }
 
-    const data = await mockResponse.json();
-    return data.extract;
-  } catch {
-    // Return mock data if scraping fails
+    const data = (await res.json()) as {
+      data?: { extract?: { price?: number; currency?: string; availability?: boolean } };
+    };
+    const extracted = data.data?.extract;
+    if (extracted && typeof extracted.price === "number") {
+      return {
+        success: true,
+        price: extracted.price,
+        currency: extracted.currency ?? "EUR",
+        availability: extracted.availability,
+      };
+    }
     return {
-      price: Math.floor(Math.random() * 100) + 50,
-      currency: "EUR",
-      availability: true,
+      success: false,
+      error: "Firecrawl returned no price data for this URL.",
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return {
+      success: false,
+      error: `Price scraping failed: ${msg}`,
     };
   }
 }

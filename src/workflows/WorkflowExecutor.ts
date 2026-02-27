@@ -10,9 +10,8 @@ import { verify } from "@/verifier/VerifierService";
 import type { ConditionOperator } from "./nodes";
 import { sendSlackMessage } from "@/lib/publish/slack";
 import { sendWorkflowNotificationEmail } from "@/lib/publish/email";
-import { PrismaClient, Workflow } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import type { Workflow } from "@prisma/client";
+import { prisma } from "@/database/schema";
 
 export interface WorkflowNode {
   id: string;

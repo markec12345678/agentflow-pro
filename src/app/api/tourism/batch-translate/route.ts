@@ -5,14 +5,13 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { generateText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
 import { prisma } from "@/database/schema";
-import { recordAgentRun } from "@/api/usage";
 import { authOptions } from "@/lib/auth-options";
-import { getLlmApiKey } from "@/config/env";
+import { getLlmFromUserKeys } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { isMockMode } from "@/lib/mock-mode";
+import { OpenAIAdapter, DataSanitizer, PrismaAiUsageLogger } from "@/infrastructure/ai";
+import { AiService } from "@/services/ai.service";
 
 const VALID_LANGS = ["sl", "en", "de", "it", "hr"] as const;
 
@@ -61,10 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     const userKeys = await getUserApiKeys(userId, { masked: false });
-    const userOpenai = userKeys.openai?.trim();
-    const llm = userOpenai
-      ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
-      : getLlmApiKey();
+    const llm = getLlmFromUserKeys(userKeys);
     const apiKey = llm.apiKey;
 
     if (!isMockMode() && !apiKey) {
@@ -92,48 +88,32 @@ export async function POST(req: NextRequest) {
         results[lang] = `[MOCK ${lang}] ${truncated}`;
       }
     } else {
-      const openai = createOpenAI({
-        apiKey,
-        ...(llm.baseURL && { baseURL: llm.baseURL }),
+      const aiService = new AiService({
+        llm: new OpenAIAdapter({ apiKey, model: llm.model, baseURL: llm.baseURL }),
+        usageLogger: new PrismaAiUsageLogger(),
+        sanitizer: new DataSanitizer(),
       });
-      let totalInputTokens = 0;
-      let totalOutputTokens = 0;
 
       for (const targetLang of targetLangs) {
         try {
-          const { text, usage } = await generateText({
-            model: openai(llm.model),
-            prompt: `Translate the following ${sourceLang} tourism content to ${targetLang}.
+          const result = await aiService.generateWithLogging(
+            {
+              systemPrompt: "",
+              prompt: `Translate the following ${sourceLang} tourism content to ${targetLang}.
 Preserve formatting (paragraphs, line breaks). Keep tourism terminology (e.g. Apartma, Bela Krajina) - translate only where appropriate for the target language.
 Maintain the tone and style. Do not add explanations, just return the translated text.
 
 Content to translate:
 ${content}`,
-            temperature: 0.3,
-          });
-          results[targetLang] = text?.trim() ?? `[Translation error]`;
-          if (usage) {
-            totalInputTokens += usage.inputTokens ?? 0;
-            totalOutputTokens += usage.outputTokens ?? 0;
-          }
+              temperature: 0.3,
+            },
+            { userId, agentType: "translation", model: llm.model }
+          );
+          results[targetLang] = result.text.trim() || "[Translation error]";
         } catch (err) {
           console.error(`Translation failed for ${targetLang}:`, err);
           results[targetLang] = "[Translation error]";
         }
-      }
-
-      if (totalInputTokens > 0 || totalOutputTokens > 0) {
-        recordAgentRun(userId, "translation", {
-          input: { sourceLang, targetLangs: targetLangs.length, contentLength: content.length },
-          output: {
-            translationCount: Object.keys(results).length,
-            usage: {
-              inputTokens: totalInputTokens,
-              outputTokens: totalOutputTokens,
-              totalTokens: totalInputTokens + totalOutputTokens,
-            },
-          },
-        }).catch(() => { });
       }
     }
 

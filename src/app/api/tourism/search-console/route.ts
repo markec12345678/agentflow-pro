@@ -62,8 +62,18 @@ export async function GET(request: NextRequest) {
     });
 
     // Aggregate data
-    const keywordData = aggregateByField(metrics, "keyword");
-    const pageData = aggregateByField(metrics, "contentType");
+    const keywordData = aggregateByField(metrics.map(m => ({
+      keyword: m.keyword,
+      clicks: m.clicks || 0,
+      impressions: m.impressions || 0,
+      position: m.position || 0
+    })), "keyword");
+    const pageData = aggregateByField(metrics.map(m => ({
+      contentType: m.contentType,
+      clicks: m.clicks || 0,
+      impressions: m.impressions || 0,
+      position: m.position || 0
+    })), "contentType");
 
     return NextResponse.json({
       connected: true,
@@ -81,7 +91,11 @@ export async function GET(request: NextRequest) {
       },
       topKeywords: keywordData.slice(0, 10),
       topPages: pageData.slice(0, 10),
-      dailyTrend: aggregateByDate(metrics),
+      dailyTrend: aggregateByDate(metrics.filter(m => m.date).map(m => ({
+      date: m.date!,
+      clicks: m.clicks || 0,
+      impressions: m.impressions || 0
+    }))),
     });
   } catch (error) {
     console.error("Search Console error:", error);
@@ -160,7 +174,10 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const syncedData = await syncSearchConsoleData(connection);
+      const syncedData = await syncSearchConsoleData({
+        siteUrl: connection.siteUrl,
+        accessToken: connection.accessToken || ""
+      });
 
       await prisma.searchConsoleConnection.update({
         where: { id: connection.id },

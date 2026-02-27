@@ -3,6 +3,7 @@
  * Database models and business logic for subscription management
  */
 
+import { prisma } from "@/database/schema";
 import { stripeService, PlanType, SUBSCRIPTION_PLANS, USAGE_PRICING } from './stripe';
 
 // Database interfaces (matching Prisma schema)
@@ -62,17 +63,17 @@ export class UsageService {
   // Track agent run usage
   async trackAgentRun(userId: string): Promise<void> {
     const period = this.getCurrentPeriod();
-    
+
     // This would typically update the database
     // For now, we'll simulate the tracking
     console.log(`Tracking agent run for user ${userId} in period ${period}`);
-    
+
     // Check if user is within limits
     const user = await this.getUserById(userId);
     if (user && user.plan) {
       const plan = SUBSCRIPTION_PLANS[user.plan];
       const currentUsage = await this.getCurrentUsage(userId, period);
-      
+
       if (plan.limits.runsPerMonth > 0 && currentUsage.agentRuns >= plan.limits.runsPerMonth) {
         // User is over limit, calculate overage
         const overageCost = stripeService.calculateOverageCost(
@@ -83,7 +84,7 @@ export class UsageService {
           },
           user.plan
         );
-        
+
         console.log(`User ${userId} over limit. Overage cost: ${overageCost} cents`);
       }
     }
@@ -92,13 +93,13 @@ export class UsageService {
   // Track storage usage
   async trackStorageUsage(userId: string, storageUsed: number): Promise<void> {
     const period = this.getCurrentPeriod();
-    
+
     console.log(`Tracking storage usage for user ${userId}: ${storageUsed}MB in period ${period}`);
-    
+
     const user = await this.getUserById(userId);
     if (user && user.plan) {
       const plan = SUBSCRIPTION_PLANS[user.plan];
-      
+
       if (plan.limits.storage > 0 && storageUsed > plan.limits.storage) {
         const overageCost = stripeService.calculateOverageCost(
           {
@@ -108,7 +109,7 @@ export class UsageService {
           },
           user.plan
         );
-        
+
         console.log(`User ${userId} storage overage cost: ${overageCost} cents`);
       }
     }
@@ -117,13 +118,13 @@ export class UsageService {
   // Track team member usage
   async trackTeamMemberUsage(userId: string, teamMembers: number): Promise<void> {
     const period = this.getCurrentPeriod();
-    
+
     console.log(`Tracking team member usage for user ${userId}: ${teamMembers} members in period ${period}`);
-    
+
     const user = await this.getUserById(userId);
     if (user && user.plan) {
       const plan = SUBSCRIPTION_PLANS[user.plan];
-      
+
       if (plan.limits.teamMembers > 0 && teamMembers > plan.limits.teamMembers) {
         const overageCost = stripeService.calculateOverageCost(
           {
@@ -133,7 +134,7 @@ export class UsageService {
           },
           user.plan
         );
-        
+
         console.log(`User ${userId} team member overage cost: ${overageCost} cents`);
       }
     }
@@ -141,37 +142,70 @@ export class UsageService {
 
   // Get current usage for a user
   async getCurrentUsage(userId: string, period: string): Promise<UsageRecord> {
-    // This would typically query the database
-    // For now, return mock data
+    const [periodStart, periodEnd] = this.parsePeriod(period);
+
+    const [agentRuns, blogPosts, contentCount, teamMembersCount] = await Promise.all([
+      prisma.agentRun.count({
+        where: {
+          userId,
+          createdAt: { gte: periodStart, lte: periodEnd },
+        },
+      }),
+      prisma.blogPost.count({ where: { userId } }),
+      prisma.contentHistory.count({ where: { userId } }),
+      this.countTeamMembersForUser(userId),
+    ]);
+
+    // Storage estimate: ~50KB per blog post, ~20KB per content history item
+    const storageUsed = Math.round((blogPosts * 50 + contentCount * 20) / 1024); // MB
+
     return {
       id: `usage_${userId}_${period}`,
       userId,
       period,
-      agentRuns: 45,
-      storageUsed: 2500,
-      teamMembers: 3,
+      agentRuns,
+      storageUsed,
+      teamMembers: teamMembersCount,
       overageRuns: 0,
       overageStorage: 0,
       overageTeamMembers: 0,
       totalCost: 0,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
+  }
+
+  private parsePeriod(period: string): [Date, Date] {
+    const [y, m] = period.split("-").map(Number);
+    const start = new Date(y, (m ?? 1) - 1, 1, 0, 0, 0, 0);
+    const end = new Date(y, m ?? 12, 0, 23, 59, 59, 999);
+    return [start, end];
+  }
+
+  private async countTeamMembersForUser(userId: string): Promise<number> {
+    const teams = await prisma.team.findMany({
+      where: { ownerId: userId },
+      select: { id: true },
+    });
+    if (teams.length === 0) return 0;
+    return prisma.teamMember.count({
+      where: { teamId: { in: teams.map((t) => t.id) } },
+    });
   }
 
   // Get usage history for a user
   async getUsageHistory(userId: string, months: number = 6): Promise<UsageRecord[]> {
     const history: UsageRecord[] = [];
     const currentDate = new Date();
-    
+
     for (let i = 0; i < months; i++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
       const period = this.formatPeriod(date);
-      
+
       const usage = await this.getCurrentUsage(userId, period);
       history.push(usage);
     }
-    
+
     return history;
   }
 
@@ -180,7 +214,7 @@ export class UsageService {
     const period = this.getCurrentPeriod();
     const usage = await this.getCurrentUsage(userId, period);
     const user = await this.getUserById(userId);
-    
+
     if (!user || !user.stripeCustomerId) {
       throw new Error('User not found or no Stripe customer ID');
     }
@@ -212,7 +246,7 @@ export class UsageService {
 
       // Finalize and send invoice
       await stripeService.finalizeInvoice(invoice.id);
-      
+
       console.log(`Generated overage invoice for user ${userId}: ${overageCost} cents`);
     }
   }
@@ -230,13 +264,13 @@ export class UsageService {
     switch (action) {
       case 'agent_run':
         return plan.limits.runsPerMonth <= 0 || currentUsage.agentRuns < plan.limits.runsPerMonth;
-      
+
       case 'storage':
         return plan.limits.storage <= 0 || currentUsage.storageUsed < plan.limits.storage;
-      
+
       case 'team_member':
         return plan.limits.teamMembers <= 0 || currentUsage.teamMembers < plan.limits.teamMembers;
-      
+
       default:
         return false;
     }
@@ -263,22 +297,22 @@ export class UsageService {
       agentRuns: {
         used: currentUsage.agentRuns,
         limit: plan.limits.runsPerMonth,
-        percentage: plan.limits.runsPerMonth > 0 
-          ? (currentUsage.agentRuns / plan.limits.runsPerMonth) * 100 
+        percentage: plan.limits.runsPerMonth > 0
+          ? (currentUsage.agentRuns / plan.limits.runsPerMonth) * 100
           : 0
       },
       storage: {
         used: currentUsage.storageUsed,
         limit: plan.limits.storage,
-        percentage: plan.limits.storage > 0 
-          ? (currentUsage.storageUsed / plan.limits.storage) * 100 
+        percentage: plan.limits.storage > 0
+          ? (currentUsage.storageUsed / plan.limits.storage) * 100
           : 0
       },
       teamMembers: {
         used: currentUsage.teamMembers,
         limit: plan.limits.teamMembers,
-        percentage: plan.limits.teamMembers > 0 
-          ? (currentUsage.teamMembers / plan.limits.teamMembers) * 100 
+        percentage: plan.limits.teamMembers > 0
+          ? (currentUsage.teamMembers / plan.limits.teamMembers) * 100
           : 0
       },
       overageCost: stripeService.calculateOverageCost(
@@ -306,19 +340,28 @@ export class UsageService {
   }
 
   private async getUserById(userId: string): Promise<User | null> {
-    // This would typically query the database
-    // For now, return mock data
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { subscription: true },
+    });
+    if (!user) return null;
+
+    const sub = user.subscription;
+    const planId = sub?.planId ?? "starter";
+    const planKey =
+      planId in SUBSCRIPTION_PLANS ? (planId as PlanType) : ("starter" as PlanType);
+
     return {
-      id: userId,
-      email: 'user@example.com',
-      name: 'Test User',
-      stripeCustomerId: 'cus_mock',
-      plan: 'pro',
-      subscriptionId: 'sub_mock',
-      status: 'active',
-      currentPeriodEnd: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: user.id,
+      email: user.email,
+      name: user.name ?? "",
+      stripeCustomerId: sub?.stripeCustomerId ?? undefined,
+      plan: planKey as PlanType,
+      subscriptionId: sub?.stripeSubscriptionId ?? undefined,
+      status: (sub?.status ?? "active") as User["status"],
+      currentPeriodEnd: sub?.currentPeriodEnd ?? undefined,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 }
@@ -404,7 +447,7 @@ export class BillingService {
     canceledAt?: Date;
   }> {
     const subscription = await stripeService.getSubscription(subscriptionId);
-    
+
     return {
       status: subscription.status,
       currentPeriodEnd: new Date(subscription.current_period_end * 1000),
@@ -419,23 +462,23 @@ export class BillingService {
       case 'customer.subscription.created':
         await this.handleSubscriptionCreated(event.data.object as Stripe.Subscription);
         break;
-      
+
       case 'customer.subscription.updated':
         await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
         break;
-      
+
       case 'customer.subscription.deleted':
         await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
         break;
-      
+
       case 'invoice.payment_succeeded':
         await this.handleInvoicePaymentSucceeded(event.data.object as Stripe.Invoice);
         break;
-      
+
       case 'invoice.payment_failed':
         await this.handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
         break;
-      
+
       default:
         console.log(`Unhandled webhook event: ${event.type}`);
     }

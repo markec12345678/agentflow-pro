@@ -20,11 +20,11 @@ interface DragDropBuilderProps {
   onComponentSelect: (id: string | null) => void;
 }
 
-export function DragDropBuilder({ 
-  components, 
-  onComponentsChange, 
+export function DragDropBuilder({
+  components,
+  onComponentsChange,
   selectedComponent,
-  onComponentSelect 
+  onComponentSelect
 }: DragDropBuilderProps) {
   const moveComponent = useCallback((dragIndex: number, hoverIndex: number) => {
     const newComponents = [...components];
@@ -35,7 +35,7 @@ export function DragDropBuilder({
   }, [components, onComponentsChange]);
 
   const updateComponent = useCallback((id: string, updates: Partial<PageComponent>) => {
-    const newComponents = components.map(comp => 
+    const newComponents = components.map(comp =>
       comp.id === id ? { ...comp, ...updates } : comp
     );
     onComponentsChange(newComponents);
@@ -55,7 +55,7 @@ export function DragDropBuilder({
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
             Page Builder
           </h1>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Component Library */}
             <div className="lg:col-span-1">
@@ -67,13 +67,38 @@ export function DragDropBuilder({
                   {getAllPlugins().map((plugin) => (
                     <div
                       key={plugin.id}
-                      className={`p-3 rounded cursor-pointer hover:bg-gray-100 ${
-                        selectedComponent === plugin.id ? "bg-blue-100" : ""
-                      }`}
-                      onClick={() => onComponentSelect(plugin.id)}
+                      className={`p-3 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${selectedComponent === plugin.id ? "bg-blue-100 dark:bg-blue-900/40" : ""
+                        }`}
                     >
-                      <div className="text-2xl mb-2">{plugin.icon}</div>
-                      <div className="text-sm font-medium">{plugin.name}</div>
+                      <div
+                        onClick={() => onComponentSelect(plugin.id)}
+                        className="pointer-events-auto"
+                      >
+                        <div className="text-2xl mb-2">{plugin.icon}</div>
+                        <div className="text-sm font-medium">{plugin.name}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newComp: PageComponent = {
+                            id: `comp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                            type: plugin.id as PageComponent["type"],
+                            content: (plugin as { config?: Record<string, unknown> }).config
+                              ? { ...(plugin as { config?: Record<string, unknown> }).config }
+                              : {},
+                            styles: {},
+                            position: {
+                              x: components.length * 60,
+                              y: components.length * 40,
+                            },
+                          };
+                          onComponentsChange([...components, newComp]);
+                          onComponentSelect(newComp.id);
+                        }}
+                        className="mt-2 w-full py-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded"
+                      >
+                        Dodaj na platno
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -97,7 +122,13 @@ export function DragDropBuilder({
                       {components.map((component, index) => (
                         <div
                           key={component.id}
-                          className="absolute border border-gray-300 rounded p-2 bg-white"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => onComponentSelect(component.id)}
+                          className={`absolute border rounded p-2 bg-white dark:bg-gray-800 cursor-pointer ${selectedComponent === component.id
+                              ? "border-blue-500 ring-2 ring-blue-200"
+                              : "border-gray-300 dark:border-gray-600"
+                            }`}
                           style={{
                             left: `${component.position.x}px`,
                             top: `${component.position.y}px`,
@@ -148,7 +179,7 @@ export function DragDropBuilder({
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         value={components.find(c => c.id === selectedComponent)?.position?.x || 0}
                         onChange={(e) => updateComponent(selectedComponent, {
-                          position: { 
+                          position: {
                             ...components.find(c => c.id === selectedComponent)?.position,
                             x: parseInt(e.target.value)
                           }
@@ -164,7 +195,7 @@ export function DragDropBuilder({
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         value={components.find(c => c.id === selectedComponent)?.position?.y || 0}
                         onChange={(e) => updateComponent(selectedComponent, {
-                          position: { 
+                          position: {
                             ...components.find(c => c.id === selectedComponent)?.position,
                             y: parseInt(e.target.value)
                           }

@@ -61,7 +61,13 @@ export async function POST(request: NextRequest) {
 
     const data = (await res.json()) as { data?: Array<{ url?: string }>; error?: { message?: string } };
     if (!res.ok) {
-      throw new Error(data.error?.message ?? "OpenAI API error");
+      const msg = data.error?.message ?? "OpenAI API error";
+      if (msg.includes("api.model.images.request") || msg.includes("insufficient permissions")) {
+        throw new Error(
+          "DALL-E ni na voljo za ta API ključ. Uporabi ključ iz platform.openai.com z Images scope ali preveri nastavitve organizacije."
+        );
+      }
+      throw new Error(msg);
     }
     const url = data.data?.[0]?.url;
     if (!url) {

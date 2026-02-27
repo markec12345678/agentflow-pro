@@ -10,9 +10,11 @@ import { generateText, Output } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth-options";
-import { getLlmApiKey } from "@/config/env";
+import { getLlmFromUserKeys } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { isMockMode } from "@/lib/mock-mode";
+import { OpenAIAdapter, DataSanitizer, PrismaAiUsageLogger } from "@/infrastructure/ai";
+import { AiService } from "@/services/ai.service";
 
 const VALID_TEMPLATES = ["tourism-basic", "luxury-retreat", "family-friendly"] as const;
 
@@ -184,10 +186,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userKeys = await getUserApiKeys(userId!, { masked: false });
-    const userOpenai = userKeys.openai?.trim();
-    const llm = userOpenai
-      ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
-      : getLlmApiKey();
+    const llm = getLlmFromUserKeys(userKeys);
 
     if (!llm.apiKey) {
       for (const lang of languages) {
@@ -218,14 +217,39 @@ export async function POST(request: NextRequest) {
       seoDescription: z.string(),
     });
 
-    const openai = createOpenAI({
-      apiKey: llm.apiKey,
-      ...(llm.baseURL && { baseURL: llm.baseURL }),
+    const outputConfig = Output.object({
+      schema: landingPageSchema,
+      name: "LandingPage",
+      description: "Tourism landing page sections and SEO meta",
     });
 
     for (const lang of languages) {
       try {
         const langName = langLabels[lang] ?? "Slovenian";
+        const openai = createOpenAI({
+          apiKey: llm.apiKey,
+          ...(llm.baseURL && { baseURL: llm.baseURL }),
+        });
+
+        const prompt = `Generate a tourism accommodation landing page in ${langName}.
+
+Property details:
+- Name: ${formData.name ?? "Accommodation"}
+- Location: ${formData.location ?? "Slovenia"}
+- Type: ${formData.type ?? "apartment"}
+- Capacity: ${formData.capacity ?? "4"}
+- Features: ${formData.features ?? "WiFi, parking"}
+- Price from: ${formData.priceFrom ?? "65"} EUR/night
+
+Template: ${template}. For tourism-basic include: hero, about, rooms, amenities, cta. For luxury-retreat add: story, gallery. For family-friendly add: activities, faq.
+
+Output JSON with:
+- sections: object where each key is a section id (hero, about, rooms, amenities, cta, and template-specific ones). Each section: { heading?, body?, items? }.
+- seoTitle: short SEO title for the page
+- seoDescription: 1-2 sentence meta description
+
+Write all content in ${langName}. Keep headings concise. Body text 1-3 sentences. items: bullet points if relevant.`;
+
         const result = await generateText({
           model: openai(llm.model),
           temperature: 0.6,
@@ -254,7 +278,7 @@ Output JSON with:
 Write all content in ${langName}. Keep headings concise. Body text 1-3 sentences. items: bullet points if relevant.`,
         });
 
-        const parsed = result.output as z.infer<typeof landingPageSchema>;
+        const parsed = result.output;
         if (parsed?.sections && parsed?.seoTitle && parsed?.seoDescription) {
           pages[lang] = {
             sections: parsed.sections as LandingContent,

@@ -1,6 +1,6 @@
 # Production Launch Checklist
 
-Za celovit pregled glej tudi [PRODUCTION-DEPLOY-STEPS.md](./PRODUCTION-DEPLOY-STEPS.md).
+Za urejen vodnik po korakih glej [LAUNCH-RUNBOOK.md](./LAUNCH-RUNBOOK.md). Za celovit pregled glej tudi [PRODUCTION-DEPLOY-STEPS.md](./PRODUCTION-DEPLOY-STEPS.md).
 
 ## P0 – Kritično (brez tega ne launchaj)
 
@@ -50,7 +50,9 @@ Glej [STRIPE-PRODUCTION-WEBHOOK.md](./STRIPE-PRODUCTION-WEBHOOK.md).
 - [x] BlogPost model v Prisma
 - [x] `blogPostsLimit` v plans (Starter=3, Pro=10, Enterprise=999)
 - [x] Generate-content zahteva auth in preverja limit
-- [ ] Migracija: `npx prisma migrate deploy` (vključuje BlogPost)
+- [ ] Migracija: Zagotovi, da se migracije zaženejo pri deployu. Možnosti:
+  - **Vercel:** Nastavi Build Command na `npm run build:vercel` (izvaja `prisma migrate deploy && next build`), ali
+  - **Ročno:** Pred prvim deployem zaženi `npx prisma migrate deploy` lokalno z production `DATABASE_URL`
 
 ---
 

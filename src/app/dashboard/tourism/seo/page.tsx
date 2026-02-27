@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "@/web/components/Skeleton";
 import { SeoKeywordChart } from "@/web/components/tourism/SeoKeywordChart";
+import { PropertySelector } from "@/web/components/PropertySelector";
 
 type KeywordRow = {
   id?: string;
@@ -22,14 +23,6 @@ type OptimizeResult = {
   geoHints?: { faqSuggestions: string[]; featuredSnippetHints: string[]; conversionPatterns: string[] };
   aeoHints?: { faqSuggestions: string[]; featuredSnippetHints: string[]; conversionPatterns: string[] };
 };
-
-const MOCK_KEYWORDS: KeywordRow[] = [
-  { keyword: "apartmaji bela krajina", position: 8, volume: 320, difficulty: 35 },
-  { keyword: "počitnice kolpa", position: 15, volume: 180, difficulty: 28 },
-  { keyword: "namestitev črnomelj", position: 4, volume: 90, difficulty: 22 },
-  { keyword: "apartma z bazenom bela krajina", position: 22, volume: 45, difficulty: 18 },
-  { keyword: "družinske počitnice slovenija", position: 12, volume: 210, difficulty: 40 },
-];
 
 type SortKey = "position-asc" | "position-desc" | "volume-desc" | "difficulty-asc";
 type PriorityFilter = "all" | "high" | "medium" | "low";
@@ -55,26 +48,55 @@ export default function TourismSeoPage() {
   const [importLoading, setImportLoading] = useState(false);
   const [importCsv, setImportCsv] = useState("");
   const [importFile, setImportFile] = useState<File | null>(null);
+  const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
+  const [gscData, setGscData] = useState<{
+    connected?: boolean;
+    siteUrl?: string;
+    lastSync?: string | null;
+    summary?: { totalClicks: number; totalImpressions: number; avgCTR: number; avgPosition: number };
+    setupRequired?: boolean;
+  } | null>(null);
+  const [gscLoading, setGscLoading] = useState(false);
 
   const refetchKeywords = () => {
     fetch("/api/tourism/seo-metrics")
       .then((r) => r.json())
       .then((data: { metrics?: KeywordRow[] }) => {
         const list = data.metrics ?? [];
-        if (list.length > 0) {
-          setKeywords(
-            list.map((m) => ({
-              id: m.id,
-              keyword: m.keyword,
-              position: m.position ?? null,
-              volume: m.volume ?? null,
-              difficulty: m.difficulty ?? null,
-            }))
-          );
-        }
+        setKeywords(
+          list.map((m) => ({
+            id: m.id,
+            keyword: m.keyword,
+            position: m.position ?? null,
+            volume: m.volume ?? null,
+            difficulty: m.difficulty ?? null,
+          }))
+        );
       })
       .catch(() => toast.error("Napaka pri osvežitvi"));
   };
+
+  useEffect(() => {
+    if (!activePropertyId) {
+      setGscData(null);
+      return;
+    }
+    setGscLoading(true);
+    fetch(`/api/tourism/search-console?propertyId=${activePropertyId}&days=30`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.setupRequired) {
+          setGscData({ setupRequired: true });
+        } else {
+          setGscData(data);
+        }
+      })
+      .catch(() => {
+        setGscData(null);
+        toast.error("Napaka pri nalaganju Search Console podatkov");
+      })
+      .finally(() => setGscLoading(false));
+  }, [activePropertyId]);
 
   const handleImport = async () => {
     setImportLoading(true);
@@ -118,24 +140,20 @@ export default function TourismSeoPage() {
       .then((r) => r.json())
       .then((data: { metrics?: KeywordRow[] }) => {
         const list = data.metrics ?? [];
-        if (list.length > 0) {
-          setKeywords(
-            list.map((m) => ({
-              id: m.id,
-              keyword: m.keyword,
-              position: m.position ?? null,
-              volume: m.volume ?? null,
-              difficulty: m.difficulty ?? null,
-            }))
-          );
-        } else {
-          setKeywords(MOCK_KEYWORDS);
-        }
+        setKeywords(
+          list.map((m) => ({
+            id: m.id,
+            keyword: m.keyword,
+            position: m.position ?? null,
+            volume: m.volume ?? null,
+            difficulty: m.difficulty ?? null,
+          }))
+        );
       })
       .catch((e) => {
         if ((e as Error).name !== "AbortError") {
-          setKeywords(MOCK_KEYWORDS);
-          toast.error("Napaka pri nalaganju SEO metrik. Prikazani so demo podatki.");
+          setKeywords([]);
+          toast.error("Napaka pri nalaganju SEO metrik.");
         }
       })
       .finally(() => setLoading(false));
@@ -224,14 +242,58 @@ export default function TourismSeoPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          SEO Dashboard
-        </h1>
-        <p className="text-neutral-600 dark:text-neutral-400">
-          Tourism SEO keywords and optimization suggestions. Track rankings and optimize with AI.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            SEO Dashboard
+          </h1>
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Tourism SEO keywords and optimization suggestions. Track rankings and optimize with AI.
+          </p>
+        </div>
+        <PropertySelector value={activePropertyId} onChange={setActivePropertyId} />
       </div>
+
+      {/* Google Search Console */}
+      {activePropertyId && (
+        <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
+          <h2 className="text-lg font-medium text-neutral-800 dark:text-neutral-200 mb-3">
+            Google Search Console
+          </h2>
+          {gscLoading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : gscData?.setupRequired ? (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              GSC ni povezan.               Povežite v{" "}
+              <a href="/settings" className="text-blue-600 dark:text-blue-400 hover:underline">
+                nastavitvah
+              </a>
+              .
+            </p>
+          ) : gscData?.connected && gscData.summary ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <p className="text-xs text-neutral-500 uppercase">Klikov</p>
+                <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">{gscData.summary.totalClicks}</p>
+              </div>
+              <div>
+                <p className="text-xs text-neutral-500 uppercase">Prikazov</p>
+                <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">{gscData.summary.totalImpressions}</p>
+              </div>
+              <div>
+                <p className="text-xs text-neutral-500 uppercase">CTR</p>
+                <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">{gscData.summary.avgCTR.toFixed(2)}%</p>
+              </div>
+              <div>
+                <p className="text-xs text-neutral-500 uppercase">Pov. pozicija</p>
+                <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">{gscData.summary.avgPosition.toFixed(1)}</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">Ni podatkov.</p>
+          )}
+        </div>
+      )}
 
       {/* Chart */}
       <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
@@ -371,6 +433,27 @@ export default function TourismSeoPage() {
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-12 w-full" />
+          </div>
+        ) : keywords.length === 0 ? (
+          <div className="p-8 text-center">
+            <p className="text-neutral-600 dark:text-neutral-400 mb-2">
+              Ni SEO podatkov – uvozite ali povežite GSC
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button
+                type="button"
+                onClick={() => setImportOpen(true)}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
+              >
+                Uvozi ključne besede
+              </button>
+              <a
+                href="/dashboard/tourism/seo/search-console-setup"
+                className="px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 text-sm font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              >
+                Poveži Google Search Console
+              </a>
+            </div>
           </div>
         ) : (
           <div className="overflow-x-auto">

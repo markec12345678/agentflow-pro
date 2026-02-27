@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import { UserService } from '@/services/user.service';
 import { AuthService, AuthError } from '@/services/auth.service';
+import { changePassword as changePasswordAuthUsers, getUserId } from '@/lib/auth-users';
+import { authOptions } from '@/lib/auth-options';
 
 const userService = new UserService();
 
@@ -8,65 +11,52 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/auth/password/change
- * Change user password
+ * Change user password.
+ * Accepts: NextAuth session (cookies, for web) OR Bearer token (for API clients).
  */
 export async function POST(request: NextRequest) {
   try {
-    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    let userId: string | null = null;
 
-    if (!token) {
+    const bearerToken = request.headers.get('authorization')?.replace('Bearer ', '');
+    if (bearerToken) {
+      try {
+        const decoded = AuthService.validateSession(bearerToken);
+        userId = decoded.userId;
+      } catch {
+        // Bearer invalid, try session
+      }
+    }
+    if (!userId) {
+      const session = await getServerSession(authOptions);
+      userId = getUserId(session);
+    }
+    if (!userId) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'TOKEN_REQUIRED',
-            message: 'Authorization token is required',
-          },
-        },
+        { success: false, error: { code: 'UNAUTHORIZED', message: 'Sign in or provide Authorization token' } },
         { status: 401 }
       );
     }
 
-    // Validate token and get user ID
-    const { userId } = AuthService.validateSession(token);
-
     const body = await request.json();
     const { currentPassword, newPassword } = body;
-
-    await userService.changePassword(userId, {
-      currentPassword,
-      newPassword,
-    });
-
-    return NextResponse.json({
-      success: true,
-      data: { message: 'Password changed successfully' },
-    });
-  } catch (error) {
-    console.error('Change password error:', error);
-
-    if (error instanceof AuthError) {
+    if (!currentPassword || !newPassword) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: error.code,
-            message: error.message,
-          },
-        },
+        { success: false, error: { code: 'MISSING_FIELDS', message: 'currentPassword and newPassword required' } },
         { status: 400 }
       );
     }
 
+    await changePasswordAuthUsers(userId, currentPassword, newPassword);
+
+    return NextResponse.json({ success: true, data: { message: 'Password changed successfully' } });
+  } catch (error) {
+    console.error('Change password error:', error);
+    const msg = error instanceof Error ? error.message : 'Internal server error';
+    const isAuthErr = msg.includes('password') || msg.includes('User not found');
     return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: 'Internal server error',
-        },
-      },
-      { status: 500 }
+      { success: false, error: { code: isAuthErr ? 'VALIDATION_ERROR' : 'INTERNAL_ERROR', message: msg } },
+      { status: isAuthErr ? 400 : 500 }
     );
   }
 }

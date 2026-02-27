@@ -1,11 +1,12 @@
 /**
- * Single blog post by ID
+ * Single content item by ID (BlogPost or ContentHistory)
  */
 
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { canApproveContent } from "@/lib/team-auth";
 import { indexBlogPost } from "@/lib/vector-indexer";
 
@@ -15,9 +16,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const userId = session?.user
-      ? (session.user as { userId?: string }).userId ?? session.user?.email ?? null
-      : null;
+    const userId = getUserId(session);
 
     if (!userId) {
       return NextResponse.json(
@@ -31,37 +30,83 @@ export async function GET(
       where: { id, userId },
     });
 
-    if (!post) {
-      post = await prisma.blogPost.findUnique({ where: { id } });
-      if (!post) {
-        return NextResponse.json({ error: "Not found" }, { status: 404 });
-      }
+    if (post) {
+      const canApprove = post.userId !== userId && (await canApproveContent(userId, post.userId));
+      return NextResponse.json({
+        id: post.id,
+        title: post.title,
+        topic: post.topic,
+        fullContent: post.fullContent,
+        metaTitle: post.metaTitle,
+        metaDescription: post.metaDescription,
+        imageUrl: post.imageUrl,
+        pipelineStage: post.pipelineStage,
+        brief: post.brief,
+        reviewedAt: post.reviewedAt,
+        guardrailIssues: (post.guardrailIssues as string[] | null) ?? null,
+        approvalStatus: post.approvalStatus ?? null,
+        approvedBy: post.approvedBy ?? null,
+        createdAt: post.createdAt,
+        canApprove,
+        isOwner: post.userId === userId,
+        source: "blogPost",
+      });
+    }
+
+    post = await prisma.blogPost.findUnique({ where: { id } });
+    if (post) {
       const canApprove = await canApproveContent(userId, post.userId);
       if (!canApprove) {
         return NextResponse.json({ error: "Not found" }, { status: 404 });
       }
+      return NextResponse.json({
+        id: post.id,
+        title: post.title,
+        topic: post.topic,
+        fullContent: post.fullContent,
+        metaTitle: post.metaTitle,
+        metaDescription: post.metaDescription,
+        imageUrl: post.imageUrl,
+        pipelineStage: post.pipelineStage,
+        brief: post.brief,
+        reviewedAt: post.reviewedAt,
+        guardrailIssues: (post.guardrailIssues as string[] | null) ?? null,
+        approvalStatus: post.approvalStatus ?? null,
+        approvedBy: post.approvedBy ?? null,
+        createdAt: post.createdAt,
+        canApprove: true,
+        isOwner: false,
+        source: "blogPost",
+      });
     }
 
-    const canApprove = post.userId !== userId && (await canApproveContent(userId, post.userId));
-
-    return NextResponse.json({
-      id: post.id,
-      title: post.title,
-      topic: post.topic,
-      fullContent: post.fullContent,
-      metaTitle: post.metaTitle,
-      metaDescription: post.metaDescription,
-      imageUrl: post.imageUrl,
-      pipelineStage: post.pipelineStage,
-      brief: post.brief,
-      reviewedAt: post.reviewedAt,
-      guardrailIssues: (post.guardrailIssues as string[] | null) ?? null,
-      approvalStatus: post.approvalStatus ?? null,
-      approvedBy: post.approvedBy ?? null,
-      createdAt: post.createdAt,
-      canApprove,
-      isOwner: post.userId === userId,
+    const history = await prisma.contentHistory.findFirst({
+      where: { id, userId },
     });
+
+    if (history) {
+      return NextResponse.json({
+        id: history.id,
+        title: history.content?.slice(0, 80) ?? history.type,
+        topic: history.type,
+        fullContent: history.content,
+        metaTitle: null,
+        metaDescription: null,
+        imageUrl: null,
+        pipelineStage: history.status,
+        brief: null,
+        reviewedAt: null,
+        guardrailIssues: null,
+        approvalStatus: null,
+        approvedBy: null,
+        createdAt: history.createdAt,
+        canApprove: false,
+        isOwner: true,
+        source: "contentHistory",
+      });
+    }
+
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to fetch post" },

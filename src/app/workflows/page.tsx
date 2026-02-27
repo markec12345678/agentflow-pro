@@ -335,27 +335,30 @@ function WorkflowsPageInner() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setExecuteResult({ success: false, error: data.error ?? res.statusText });
-        alert(`❌ Execution failed: ${data.error ?? res.statusText}`);
+        const err = data.error;
+        const errStr = typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : res.statusText);
+        setExecuteResult({ success: false, error: errStr });
+        alert(`❌ Execution failed: ${errStr}`);
         return;
       }
       if (data.success && data.progress) {
         setExecutionProgress(data.progress);
         setExecutionSteps(
-          data.progress.results.map((r: { nodeId: string; status: string; output?: unknown; error?: string }) => ({
+          data.progress.results.map((r: { nodeId: string; status: string; output?: unknown; error?: unknown }) => ({
             nodeId: r.nodeId,
             success: r.status === "success",
             output: r.output,
-            error: r.error,
+            error: typeof r.error === "object" && r.error && "message" in r.error ? (r.error as { message: string }).message : (typeof r.error === "string" ? r.error : undefined),
           }))
         );
         setExecuteResult({ success: true });
       } else {
+        const err = data.error;
         const errorMsg =
-          data.error ??
+          (typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : null)) ??
           data.progress?.errors?.[0]?.message ??
           "Execution failed";
-        setExecuteResult({ success: false, error: errorMsg });
+        setExecuteResult({ success: false, error: String(errorMsg) });
         setExecutionProgress(data.progress ?? null);
         alert(`❌ Execution failed: ${errorMsg}`);
       }

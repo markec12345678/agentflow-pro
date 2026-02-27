@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { TodayOverview } from "@/web/components/TodayOverview";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ContentItem {
@@ -23,16 +24,24 @@ interface Checkpoint {
 
 // ─── Onboarding Checklist ─────────────────────────────────────────────────────
 const CHECKLIST_STEPS = [
-  { id: "register",   label: "Ustvarili ste račun",          done: true },
-  { id: "property",   label: "Dodajte nastanitev",           href: "/settings" },
-  { id: "content",    label: "Ustvarite prvi opis sobe",     href: "/generate?template=booking-description" },
-  { id: "email",      label: "Pošljite email dobrodošlice",  href: "/generate?template=guest-welcome-email" },
-  { id: "landing",    label: "Ustvarite landing stran",      href: "/generate?template=landing-page" },
+  { id: "register", label: "Ustvarili ste račun", done: true },
+  { id: "property", label: "Dodajte nastanitev", href: "/settings" },
+  { id: "content", label: "Ustvarite prvi opis sobe", href: "/generate?template=booking-description" },
+  { id: "email", label: "Pošljite email dobrodošlice", href: "/generate?template=guest-welcome-email" },
+  { id: "landing", label: "Ustvarite landing stran", href: "/generate?template=landing-page" },
 ];
 
 function OnboardingChecklist() {
   const [dismissed, setDismissed] = useState(false);
   const [completed, setCompleted] = useState<string[]>(["register"]);
+  const [hasProperty, setHasProperty] = useState<boolean | null>(null);
+  const [hasContent, setHasContent] = useState<boolean | null>(null);
+
+  const resolvedDone = (id: string) => {
+    if (id === "property") return hasProperty === true;
+    if (id === "content") return hasContent === true;
+    return completed.includes(id);
+  };
 
   useEffect(() => {
     try {
@@ -40,18 +49,28 @@ function OnboardingChecklist() {
       if (saved) setCompleted(JSON.parse(saved));
       const dis = localStorage.getItem("agentflow-checklist-dismissed");
       if (dis) setDismissed(true);
-    } catch {}
+    } catch { }
+  }, []);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/tourism/properties").then((r) => r.json()),
+      fetch("/api/content/history?limit=1").then((r) => r.json()),
+    ]).then(([propData, contentData]) => {
+      setHasProperty(Array.isArray(propData?.properties) && propData.properties.length > 0);
+      setHasContent(Array.isArray(contentData?.posts) && contentData.posts.length > 0);
+    }).catch(() => { });
   }, []);
 
   const markDone = (id: string) => {
     const next = [...completed, id];
     setCompleted(next);
-    try { localStorage.setItem("agentflow-checklist", JSON.stringify(next)); } catch {}
+    try { localStorage.setItem("agentflow-checklist", JSON.stringify(next)); } catch { }
   };
 
   const dismiss = () => {
     setDismissed(true);
-    try { localStorage.setItem("agentflow-checklist-dismissed", "1"); } catch {}
+    try { localStorage.setItem("agentflow-checklist-dismissed", "1"); } catch { }
   };
 
   if (dismissed) return null;
@@ -75,7 +94,7 @@ function OnboardingChecklist() {
       </div>
       <div className="space-y-3">
         {CHECKLIST_STEPS.map(step => {
-          const done = completed.includes(step.id);
+          const done = resolvedDone(step.id);
           return (
             <div key={step.id} className="flex items-center gap-3">
               <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${done ? "bg-green-500 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-400"}`}>
@@ -97,6 +116,41 @@ function OnboardingChecklist() {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// ─── Tourism Today Widget (P0 Receptionist UX) ─────────────────────────────────
+function TourismTodayWidget() {
+  const [industry, setIndustry] = useState<string | null>(null);
+  const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    Promise.all([
+      fetch("/api/profile", { signal: ctrl.signal }).then((r) => r.json()),
+      fetch("/api/user/active-property", { signal: ctrl.signal }).then((r) => r.json()),
+    ])
+      .then(([profileData, activeData]) => {
+        setIndustry(profileData?.onboarding?.industry ?? null);
+        setActivePropertyId(activeData?.activePropertyId ?? null);
+      })
+      .catch(() => {
+        setIndustry(null);
+        setActivePropertyId(null);
+      })
+      .finally(() => clearTimeout(t));
+  }, []);
+
+  const showToday =
+    industry === "tourism" || industry === "travel-agency";
+
+  if (!showToday) return null;
+
+  return (
+    <div className="mb-8">
+      <TodayOverview propertyId={activePropertyId} />
     </div>
   );
 }
@@ -130,11 +184,17 @@ function RecentContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content?limit=5")
+    fetch("/api/content/history?limit=5")
       .then(r => r.json())
-      .then((data: ContentItem[] | { items?: ContentItem[] }) => {
-        const list = Array.isArray(data) ? data : (data.items ?? []);
-        setItems(list.slice(0, 5));
+      .then((data: { posts?: Array<{ id: string; title?: string | null; topic?: string | null; pipelineStage?: string | null; type?: string; content?: string; createdAt: string }> }) => {
+        const raw = data.posts ?? [];
+        const list: ContentItem[] = raw.slice(0, 5).map(p => ({
+          id: p.id,
+          type: (p.type ?? p.topic ?? p.pipelineStage ?? "blog") as string,
+          content: (p.title ?? p.content ?? p.topic ?? "").slice(0, 60),
+          createdAt: p.createdAt,
+        }));
+        setItems(list);
       })
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
@@ -142,7 +202,7 @@ function RecentContent() {
 
   if (loading) return (
     <div className="space-y-3">
-      {[1,2,3].map(i => (
+      {[1, 2, 3].map(i => (
         <div key={i} className="h-14 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
       ))}
     </div>
@@ -172,13 +232,99 @@ function RecentContent() {
               {typeLabel[item.type] ?? item.type} · {new Date(item.createdAt).toLocaleDateString("sl-SI")}
             </p>
           </div>
-          <Link href={`/content?id=${item.id}`} className="text-xs text-blue-500 hover:underline flex-shrink-0">
+          <Link href={`/content/${item.id}`} className="text-xs text-blue-500 hover:underline flex-shrink-0">
             Odpri
           </Link>
         </div>
       ))}
       <Link href="/content" className="block text-center text-sm text-blue-600 dark:text-blue-400 hover:underline pt-2">
         Vsa vsebina →
+      </Link>
+    </div>
+  );
+}
+
+// ─── KPI Widgets + Usage Progress ──────────────────────────────────────────────
+interface UsageSummary {
+  agentRuns: number;
+  limit: number;
+  planId: string;
+  creditsUsed: number;
+  creditsLimit: number;
+  canRunAgent?: boolean;
+}
+
+function UsageKPICards() {
+  const [usage, setUsage] = useState<UsageSummary | null>(null);
+
+  useEffect(() => {
+    fetch("/api/usage")
+      .then(r => r.json())
+      .then((data: UsageSummary) => {
+        if (data.agentRuns !== undefined) setUsage(data);
+      })
+      .catch(() => { });
+  }, []);
+
+  if (!usage) return null;
+
+  const planLabels: Record<string, string> = {
+    free: "Free", starter: "Starter", pro: "Pro", enterprise: "Enterprise",
+  };
+  const runsPct = usage.limit > 0 ? Math.min(100, (usage.agentRuns / usage.limit) * 100) : 0;
+  const creditsPct = usage.creditsLimit > 0 ? Math.min(100, (usage.creditsUsed / usage.creditsLimit) * 100) : 0;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-100 dark:border-gray-700 p-4">
+        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Agent runovi</p>
+        <p className="text-xl font-bold text-gray-900 dark:text-white">{usage.agentRuns} / {usage.limit}</p>
+        <div className="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${runsPct}%` }} />
+        </div>
+      </div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-100 dark:border-gray-700 p-4">
+        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Credits</p>
+        <p className="text-xl font-bold text-gray-900 dark:text-white">{usage.creditsUsed} / {usage.creditsLimit}</p>
+        <div className="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${creditsPct}%` }} />
+        </div>
+      </div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-100 dark:border-gray-700 p-4 flex flex-col justify-center">
+        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Plan</p>
+        <Link href="/settings" className="text-lg font-bold text-blue-600 dark:text-blue-400 hover:underline">
+          {planLabels[usage.planId] ?? usage.planId}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// ─── Seasonal Banner ──────────────────────────────────────────────────────────
+function SeasonalBanner() {
+  const now = new Date();
+  const m = now.getMonth() + 1;
+  const d = now.getDate();
+  const seasons: { name: string; msg: string; emoji: string }[] = [];
+  if (m === 11 && d >= 20) seasons.push({ name: "zimo", msg: "Priporočamo sezonsko kampanjo za zimo in praznike.", emoji: "🎄" });
+  else if (m === 12) seasons.push({ name: "praznike", msg: "Božična in novoletna kampanja – ustvarite vsebino zdaj!", emoji: "🎅" });
+  else if (m >= 2 && m <= 3) seasons.push({ name: "pomlad", msg: "Pomladna kampanja – idealen čas za vikend ponudbe.", emoji: "🌸" });
+  else if (m >= 5 && m <= 6) seasons.push({ name: "poletje", msg: "Poletna sezona – pripravi vsebino za direktne rezervacije.", emoji: "☀️" });
+  else if (m >= 9 && m <= 10) seasons.push({ name: "jesen", msg: "Jesenska kampanja – vikendi ob barvanju listja.", emoji: "🍂" });
+  if (seasons.length === 0) return null;
+  const s = seasons[0];
+  return (
+    <div className="mb-8 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl border border-amber-200 dark:border-amber-800 p-4 flex items-center gap-4">
+      <span className="text-4xl">{s.emoji}</span>
+      <div className="flex-1">
+        <h3 className="font-semibold text-amber-800 dark:text-amber-200">{s.msg}</h3>
+        <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">Ustvarite sezonsko kampanjo z enim klikom.</p>
+      </div>
+      <Link
+        href="/generate?template=seasonal-campaign"
+        className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium text-sm whitespace-nowrap"
+      >
+        Ustvari kampanjo →
       </Link>
     </div>
   );
@@ -254,11 +400,20 @@ export default function DashboardPage() {
           <p className="text-gray-500 dark:text-gray-400 mt-1">Kaj boste naredili danes?</p>
         </div>
 
+        {/* KPI + Usage */}
+        <UsageKPICards />
+
+        {/* Seasonal Banner */}
+        <SeasonalBanner />
+
         {/* Approval Queue */}
         <ApprovalQueue />
 
         {/* Onboarding Checklist */}
         <OnboardingChecklist />
+
+        {/* Tourism Today - prihod/odhod za receptorje */}
+        <TourismTodayWidget />
 
         {/* 3 Main Actions */}
         <div className="grid sm:grid-cols-3 gap-5 mb-10">
@@ -288,10 +443,10 @@ export default function DashboardPage() {
         {/* Secondary Actions */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
           {[
-            { emoji: "🏨", label: "Booking.com opis",   href: "/generate?template=booking-description" },
-            { emoji: "✈️", label: "Airbnb story",        href: "/generate?template=airbnb-story" },
-            { emoji: "📍", label: "Vodič destinacije",   href: "/generate?template=destination-guide" },
-            { emoji: "📱", label: "Instagram caption",   href: "/generate?template=instagram-travel" },
+            { emoji: "🏨", label: "Booking.com opis", href: "/generate?template=booking-description" },
+            { emoji: "✈️", label: "Airbnb story", href: "/generate?template=airbnb-story" },
+            { emoji: "📍", label: "Vodič destinacije", href: "/generate?template=destination-guide" },
+            { emoji: "📱", label: "Instagram caption", href: "/generate?template=instagram-travel" },
           ].map(item => (
             <Link
               key={item.label}
@@ -326,12 +481,12 @@ export default function DashboardPage() {
           {showAdvanced && (
             <div className="mt-5 grid sm:grid-cols-3 gap-4">
               {[
-                { emoji: "⚡", label: "Workflow Builder",  href: "/workflows",  desc: "Vizualni gradnik avtomatizacij" },
-                { emoji: "🤖", label: "Chat z agenti",     href: "/chat",       desc: "Direktno navodilo AI agentu" },
-                { emoji: "🎨", label: "Canvas",            href: "/canvas",     desc: "Vizualni kampanjski načrtovalec" },
-                { emoji: "📊", label: "Monitoring",        href: "/monitoring", desc: "Stanje sistemov in logov" },
-                { emoji: "🧠", label: "Memory graph",      href: "/memory",     desc: "Graf znanja" },
-                { emoji: "👑", label: "Admin",             href: "/admin",      desc: "Administracija" },
+                { emoji: "⚡", label: "Workflow Builder", href: "/workflows", desc: "Vizualni gradnik avtomatizacij" },
+                { emoji: "🤖", label: "Chat z agenti", href: "/chat", desc: "Direktno navodilo AI agentu" },
+                { emoji: "🎨", label: "Canvas", href: "/canvas", desc: "Vizualni kampanjski načrtovalec" },
+                { emoji: "📊", label: "Monitoring", href: "/monitoring", desc: "Stanje sistemov in logov" },
+                { emoji: "🧠", label: "Memory graph", href: "/memory", desc: "Graf znanja" },
+                { emoji: "👑", label: "Admin", href: "/admin", desc: "Administracija" },
               ].map(item => (
                 <Link
                   key={item.label}

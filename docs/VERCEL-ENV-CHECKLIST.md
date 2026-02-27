@@ -50,6 +50,34 @@ Po povezavi: vsak `git push` na `master` sproži nov deploy.
 
 ---
 
+## Opcijsko (Google OAuth – "Sign in with Google")
+
+| Variable | Opis | Kje dobiti |
+|----------|------|------------|
+| `GOOGLE_CLIENT_ID` | OAuth 2.0 Client ID | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → Credentials → Create → OAuth 2.0 Client ID |
+| `GOOGLE_CLIENT_SECRET` | OAuth 2.0 Client Secret | Enako – prikazan po ustvarjanju Client ID |
+
+**Nastavitev:**
+
+1. Google Cloud Console → APIs & Services → Credentials
+2. Create Credentials → OAuth 2.0 Client ID
+3. Application type: Web application
+4. Authorized redirect URIs: `{NEXTAUTH_URL}/api/auth/callback/google` (npr. `https://agentflow-pro-seven.vercel.app/api/auth/callback/google`)
+5. Kopiraj Client ID in Client Secret v Vercel env
+
+Brez teh spremenljivk: prikazuje se samo email/password prijava.
+
+---
+
+## Opcijsko (Email – Phase E)
+
+| Variable | Opis |
+|----------|------|
+| `RESEND_API_KEY` | Resend API key – za email verifikacijo, reset gesla, team povabila |
+| `EMAIL_FROM` | Od naslov (npr. `AgentFlow Pro <notifications@agentflow.pro>`) |
+
+Brez teh spremenljivk: registracija/reset/povabila delujejo, vendar uporabnik ne prejme emailov (link se lahko ročno skopira iz logov).
+
 ## Opcijsko (Stripe pricing)
 
 | Variable | Opis |

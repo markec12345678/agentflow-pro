@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { subDays, addDays, startOfDay, isSameDay } from "date-fns";
 import { format } from "date-fns";
+import { sendPendingGuestEmails, sendPendingWhatsAppMessages } from "@/lib/tourism/email-sender";
 
 function verifyCronAuth(request: NextRequest): boolean {
   const authHeader = request.headers.get("authorization");
@@ -30,12 +31,56 @@ export async function GET(request: NextRequest) {
       during_stay: 0,
       post_stay: 0,
       re_booking: 0,
+      payment_reminder: 0,
     };
 
     const reservations = await prisma.reservation.findMany({
       where: { status: "confirmed" },
-      include: { guest: true, property: { select: { name: true } } },
+      include: { guest: true, property: { select: { name: true, location: true } }, payments: true },
     });
+
+    // Payment reminders: outstanding > 0, checkIn within next 7 days or up to 60 days ago
+    for (const r of reservations) {
+      const totalDue = (r.totalPrice ?? 0) + (r.touristTax ?? 0);
+      const totalPaid = r.payments.reduce((sum, p) => sum + p.amount, 0);
+      const outstanding = Math.max(0, totalDue - totalPaid);
+      if (outstanding <= 0) continue;
+
+      const checkInDay = startOfDay(r.checkIn);
+      if (checkInDay < subDays(today, 60) || checkInDay > addDays(today, 7)) continue;
+
+      const recentReminders = await prisma.guestCommunication.findMany({
+        where: {
+          propertyId: r.propertyId,
+          guestId: r.guestId,
+          type: "payment-reminder",
+          createdAt: { gte: subDays(today, 3) },
+        },
+        take: 20,
+      });
+      const hasForReservation = recentReminders.some(
+        (c) => (c.variables as { reservationId?: string })?.reservationId === r.id
+      );
+      if (hasForReservation) continue;
+
+      if (!r.guest?.email?.trim() || !r.guest.email.includes("@")) continue;
+
+      const propertyName = r.property?.name ?? "Property";
+      const guestName = r.guest?.name ?? "Guest";
+      await prisma.guestCommunication.create({
+        data: {
+          propertyId: r.propertyId,
+          guestId: r.guestId,
+          type: "payment-reminder",
+          channel: "email",
+          subject: `Opomnik – neplačan znesek za ${propertyName}`,
+          content: `Pozdravljeni ${guestName},\n\nObveščamo vas, da imate pri rezervaciji (prihod: ${format(r.checkIn, "yyyy-MM-dd")}) neporavnan znesek v višini €${outstanding.toFixed(2)}.\n\nProsimo, poravnajte znesek pred prihodom.\n\nLep pozdrav,\n${propertyName}`,
+          status: "pending",
+          variables: { reservationId: r.id },
+        },
+      });
+      result.payment_reminder++;
+    }
 
     for (const r of reservations) {
       const checkInDay = startOfDay(r.checkIn);
@@ -145,6 +190,22 @@ export async function GET(request: NextRequest) {
           (c) => (c.variables as { reservationId?: string })?.reservationId === r.id
         );
         if (!hasPostStayForRes) {
+          const location = r.property?.location ?? "";
+          const searchQuery = `${propertyName} ${location}`.trim();
+          const googleReviewLink =
+            searchQuery.length > 0
+              ? `https://www.google.com/maps/search/${encodeURIComponent(searchQuery)}`
+              : "https://www.google.com/maps";
+          let reviewSection =
+            `\n\nWe'd love to hear your feedback! Please leave a review:\n` +
+            `- Google: ${googleReviewLink}\n`;
+          const resChannel = r.channel?.toLowerCase();
+          if (resChannel?.includes("booking")) {
+            reviewSection +=
+              `- If you booked via Booking.com, you'll receive a review request from them directly.\n`;
+          }
+          reviewSection += `\nYour feedback helps us improve. Thank you!\n`;
+
           await prisma.guestCommunication.create({
             data: {
               propertyId: r.propertyId,
@@ -152,7 +213,7 @@ export async function GET(request: NextRequest) {
               type: "post-stay",
               channel: "email",
               subject: `Thank you – ${propertyName}`,
-              content: `Dear ${guestName},\n\nThank you for staying with us! We'd love to hear your feedback.\n\nBest regards,\n${propertyName}`,
+              content: `Dear ${guestName},\n\nThank you for staying with us!${reviewSection}\n\nBest regards,\n${propertyName}`,
               status: "pending",
               variables: { reservationId: r.id },
             },
@@ -191,13 +252,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const sendResult = await sendPendingGuestEmails();
+    const emailResult = await sendPendingGuestEmails();
+    const whatsappResult = await sendPendingWhatsAppMessages();
 
     return NextResponse.json({
       success: true,
       date: today.toISOString(),
       created: result,
-      sent: sendResult,
+      sent: {
+        email: emailResult,
+        whatsapp: whatsappResult,
+      },
     });
   } catch (error) {
     console.error("Email scheduler error:", error);

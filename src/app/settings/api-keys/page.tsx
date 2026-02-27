@@ -9,6 +9,8 @@ export default function ApiKeysPage() {
   const [keys, setKeys] = useState({
     firecrawl: "",
     context7: "",
+    openai: "",
+    gemini: "",
     github: "",
     serpapi: "",
   });
@@ -29,6 +31,8 @@ export default function ApiKeysPage() {
         setKeys({
           firecrawl: data.firecrawl ?? "",
           context7: data.context7 ?? "",
+          openai: data.openai ?? "",
+          gemini: data.gemini ?? "",
           github: data.github ?? "",
           serpapi: data.serpapi ?? "",
         });
@@ -45,6 +49,10 @@ export default function ApiKeysPage() {
         body.firecrawl = keys.firecrawl.trim();
       if (keys.context7.trim() && !keys.context7.includes("*"))
         body.context7 = keys.context7.trim();
+      if (keys.openai.trim() && !keys.openai.includes("*"))
+        body.openai = keys.openai.trim();
+      if (keys.gemini.trim() && !keys.gemini.includes("*"))
+        body.gemini = keys.gemini.trim();
       if (keys.github.trim() && !keys.github.includes("*"))
         body.github = keys.github.trim();
       if (keys.serpapi.trim() && !keys.serpapi.includes("*"))
@@ -57,7 +65,8 @@ export default function ApiKeysPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMessage(data.error ?? "Failed to save");
+        const err = data.error;
+        setMessage(typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : "Failed to save"));
         return;
       }
       setMessage("API keys saved!");
@@ -150,6 +159,54 @@ export default function ApiKeysPage() {
             >
               Get your API key →
             </a>
+          </div>
+
+          {/* OpenAI */}
+          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+            <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
+              OpenAI API Key
+              <span className="ml-2 text-xs text-gray-500">(LLM, DALL-E)</span>
+            </label>
+            <input
+              type="password"
+              value={keys.openai}
+              onChange={(e) =>
+                setKeys((prev) => ({ ...prev, openai: e.target.value }))
+              }
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              placeholder="sk-..."
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Ali dodaj OPENAI_API_KEY v .env – ostane trajno
+            </p>
+          </div>
+
+          {/* Gemini */}
+          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+            <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
+              Google Gemini API Key
+              <span className="ml-2 text-xs text-gray-500">(LLM, brezplačna kvota)</span>
+            </label>
+            <input
+              type="password"
+              value={keys.gemini}
+              onChange={(e) =>
+                setKeys((prev) => ({ ...prev, gemini: e.target.value }))
+              }
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              placeholder="AIza..."
+            />
+            <a
+              href="https://aistudio.google.com/app/apikey"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block text-sm text-blue-600 hover:underline dark:text-blue-400"
+            >
+              Ustvari ključ (Google AI Studio) →
+            </a>
+            <p className="mt-1 text-xs text-gray-500">
+              Ali dodaj GEMINI_API_KEY v .env – ne izgubi se, trajno
+            </p>
           </div>
 
           {/* GitHub */}

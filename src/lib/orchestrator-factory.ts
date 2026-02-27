@@ -29,7 +29,15 @@ export function getOrchestrator({
   const firecrawlKey = k.firecrawl ?? getFirecrawlApiKey();
   const serpApiKey = k.serpapi ?? getSerpApiKey();
   const context7Key = k.context7 ?? getContext7ApiKey();
-  const llm = k.openai ? { apiKey: k.openai, baseURL: undefined, model: "gpt-4o-mini" } : getLlmApiKey();
+  const llm = k.openai
+    ? { apiKey: k.openai, baseURL: undefined, model: "gpt-4o-mini" }
+    : k.gemini
+      ? {
+        apiKey: k.gemini,
+        baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+        model: "gemini-2.0-flash",
+      }
+      : getLlmApiKey();
   const openaiKey = llm.apiKey;
   const githubToken = k.github ?? (process.env.GITHUB_TOKEN ?? "");
   const vercelToken = k.vercel ?? (process.env.VERCEL_TOKEN ?? "");

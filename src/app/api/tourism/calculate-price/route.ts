@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { parseISO } from "date-fns";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
-import { calculatePrice } from "@/lib/tourism/pricing-engine";
+import { calculatePrice, type SeasonRatesJson } from "@/lib/tourism/pricing-engine";
 import { authOptions } from "@/lib/auth-options";
 
 function getUserId(session: {
@@ -64,7 +64,8 @@ export async function GET(request: NextRequest) {
     }
 
     const baseRate = property.basePrice ?? 100;
-    const result = calculatePrice(baseRate, checkIn, checkOut);
+    const seasonRates = (property.seasonRates as SeasonRatesJson) ?? null;
+    const result = calculatePrice(baseRate, checkIn, checkOut, { seasonRates });
     const currency = property.currency ?? "EUR";
 
     return NextResponse.json({

@@ -1,11 +1,12 @@
 /**
  * AgentFlow Pro - User Authentication & Management
- * Complete user management system with authentication
+ * Legacy auth API backed by Prisma. Main auth flow uses NextAuth + auth-users.
  */
 
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
+import { prisma } from '@/database/schema';
 
 // User interfaces
 export interface User {
@@ -119,7 +120,7 @@ export class AuthService {
 
     // Return user without password
     const { password, ...userWithoutPassword } = user;
-    
+
     return { user: userWithoutPassword, tokens };
   }
 
@@ -153,7 +154,7 @@ export class AuthService {
 
     // Return user without password
     const { password, ...userWithoutPassword } = user;
-    
+
     return { user: userWithoutPassword, tokens };
   }
 
@@ -165,12 +166,12 @@ export class AuthService {
   }): Promise<{ user: Omit<User, 'password'>; tokens: AuthTokens }> {
     // Find or create user
     let user = await this.getUserByEmail(profile.email);
-    
+
     if (!user) {
       // Create new user from OAuth
       const randomPassword = uuidv4(); // Random password for OAuth users
       const hashedPassword = await bcrypt.hash(randomPassword, 12);
-      
+
       user = {
         id: uuidv4(),
         email: profile.email,
@@ -182,7 +183,7 @@ export class AuthService {
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      
+
       await this.saveUser(user);
     } else {
       // Update last login
@@ -199,7 +200,7 @@ export class AuthService {
 
     // Return user without password
     const { password, ...userWithoutPassword } = user;
-    
+
     return { user: userWithoutPassword, tokens };
   }
 
@@ -208,7 +209,7 @@ export class AuthService {
     try {
       const decoded = jwt.verify(refreshToken, this.JWT_SECRET) as any;
       const user = await this.getUserById(decoded.userId);
-      
+
       if (!user) {
         throw new Error('User not found');
       }
@@ -241,7 +242,7 @@ export class AuthService {
     user.emailVerified = true;
     user.emailVerificationToken = undefined;
     user.updatedAt = new Date();
-    
+
     await this.saveUser(user);
   }
 
@@ -256,7 +257,7 @@ export class AuthService {
     user.passwordResetToken = uuidv4();
     user.passwordResetExpires = new Date(Date.now() + 3600000); // 1 hour
     user.updatedAt = new Date();
-    
+
     await this.saveUser(user);
 
     // In production, send email with reset link
@@ -275,7 +276,7 @@ export class AuthService {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     user.updatedAt = new Date();
-    
+
     await this.saveUser(user);
   }
 
@@ -294,7 +295,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
     user.password = hashedPassword;
     user.updatedAt = new Date();
-    
+
     await this.saveUser(user);
   }
 
@@ -314,7 +315,7 @@ export class AuthService {
       if (existingUser) {
         throw new Error('Email is already taken');
       }
-      
+
       user.email = updates.email;
       user.emailVerified = false;
       user.emailVerificationToken = uuidv4();
@@ -356,7 +357,7 @@ export class AuthService {
   async addTeamMember(
     teamId: string,
     userId: string,
-    role: 'admin' | 'member',
+    role: 'owner' | 'admin' | 'member',
     invitedBy: string
   ): Promise<TeamMember> {
     const teamMember: TeamMember = {
@@ -422,55 +423,140 @@ export class AuthService {
     await this.saveSession(session);
   }
 
-  // Database methods (mock implementations - would connect to real database)
+  // Database methods - Prisma-backed
+  private mapPrismaUserToUser(row: {
+    id: string;
+    email: string;
+    name: string | null;
+    passwordHash: string | null;
+    role: string;
+    emailVerified: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+    subscription?: { planId: string; status: string; stripeCustomerId: string | null; stripeSubscriptionId: string | null } | null;
+  }): User {
+    const plan = (row.subscription?.planId as 'starter' | 'pro' | 'enterprise') || 'starter';
+    const role = (row.role === 'ADMIN' ? 'admin' : row.role === 'EDITOR' ? 'admin' : 'user') as 'user' | 'admin' | 'owner';
+    return {
+      id: row.id,
+      email: row.email,
+      name: row.name || '',
+      password: row.passwordHash || '',
+      role,
+      plan,
+      stripeCustomerId: row.subscription?.stripeCustomerId ?? undefined,
+      subscriptionId: row.subscription?.stripeSubscriptionId ?? undefined,
+      subscriptionStatus: (row.subscription?.status as User['subscriptionStatus']) ?? undefined,
+      emailVerified: !!row.emailVerified,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  }
+
   private async saveUser(user: User): Promise<void> {
-    // Mock implementation - would save to database
-    console.log('Saving user:', user.id);
+    const existing = await prisma.user.findUnique({ where: { id: user.id }, select: { id: true } });
+    if (existing) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          name: user.name || null,
+          passwordHash: user.password || undefined,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      await prisma.user.create({
+        data: {
+          id: user.id,
+          email: user.email,
+          name: user.name || null,
+          passwordHash: user.password,
+          role: user.role === 'admin' || user.role === 'owner' ? 'ADMIN' : 'VIEWER',
+        },
+      });
+    }
   }
 
   private async getUserByEmail(email: string): Promise<User | null> {
-    // Mock implementation - would query database
-    return null;
+    const row = await prisma.user.findUnique({
+      where: { email: email.toLowerCase().trim() },
+      include: { subscription: true },
+    });
+    if (!row?.passwordHash) return null;
+    return this.mapPrismaUserToUser({ ...row, passwordHash: row.passwordHash });
   }
 
-  private async getUserById(id: string): Promise<User | null> {
-    // Mock implementation - would query database
-    return null;
+  async getUserById(id: string): Promise<User | null> {
+    const row = await prisma.user.findUnique({
+      where: { id },
+      include: { subscription: true },
+    });
+    if (!row) return null;
+    return this.mapPrismaUserToUser({
+      ...row,
+      passwordHash: row.passwordHash ?? '',
+      name: row.name ?? '',
+    });
   }
 
   private async getUserByEmailVerificationToken(token: string): Promise<User | null> {
-    // Mock implementation - would query database
     return null;
   }
 
   private async getUserByPasswordResetToken(token: string): Promise<User | null> {
-    // Mock implementation - would query database
     return null;
   }
 
-  private async saveSession(session: AuthSession): Promise<void> {
-    // Mock implementation - would save to database
-    console.log('Saving session:', session.id);
+  private async saveSession(_session: AuthSession): Promise<void> {
+    // JWT is stateless; no session storage needed
   }
 
-  private async removeSessions(userId: string): Promise<void> {
-    // Mock implementation - would remove from database
-    console.log('Removing sessions for user:', userId);
+  private async removeSessions(_userId: string): Promise<void> {
+    // JWT is stateless; no server-side sessions to remove
   }
 
   private async saveTeam(team: Team): Promise<void> {
-    // Mock implementation - would save to database
-    console.log('Saving team:', team.id);
+    const existing = await prisma.team.findUnique({ where: { id: team.id }, select: { id: true } });
+    if (!existing) {
+      await prisma.team.create({
+        data: {
+          id: team.id,
+          name: team.name,
+          ownerId: team.ownerId,
+        },
+      });
+    }
   }
 
   private async saveTeamMember(teamMember: TeamMember): Promise<void> {
-    // Mock implementation - would save to database
-    console.log('Saving team member:', teamMember.id);
+    await prisma.teamMember.upsert({
+      where: { userId_teamId: { userId: teamMember.userId, teamId: teamMember.teamId } },
+      create: {
+        id: teamMember.id,
+        userId: teamMember.userId,
+        teamId: teamMember.teamId,
+        role: teamMember.role,
+      },
+      update: { role: teamMember.role },
+    });
   }
 
   private async getTeamMember(id: string): Promise<TeamMember | null> {
-    // Mock implementation - would query database
-    return null;
+    const row = await prisma.teamMember.findUnique({
+      where: { id },
+      include: { team: true },
+    });
+    if (!row) return null;
+    return {
+      id: row.id,
+      teamId: row.teamId,
+      userId: row.userId,
+      role: row.role as 'owner' | 'admin' | 'member',
+      invitedBy: row.team.ownerId,
+      invitedAt: row.createdAt,
+      joinedAt: row.updatedAt,
+      status: 'active',
+    };
   }
 
   // Validation methods
@@ -521,14 +607,64 @@ export class AuthService {
 
   // Get user teams
   async getUserTeams(userId: string): Promise<Team[]> {
-    // Mock implementation - would query database
-    return [];
+    const owned = await prisma.team.findMany({
+      where: { ownerId: userId },
+      include: { owner: { include: { subscription: true } } },
+    });
+    const memberOf = await prisma.teamMember.findMany({
+      where: { userId },
+      include: { team: { include: { owner: { include: { subscription: true } } } } },
+    });
+    const teamIds = new Set<string>();
+    const teams: Team[] = [];
+    for (const t of owned) {
+      teamIds.add(t.id);
+      teams.push({
+        id: t.id,
+        name: t.name,
+        ownerId: t.ownerId,
+        plan: (t.owner.subscription?.planId as 'starter' | 'pro' | 'enterprise') || 'starter',
+        stripeCustomerId: t.owner.subscription?.stripeCustomerId ?? undefined,
+        subscriptionId: t.owner.subscription?.stripeSubscriptionId ?? undefined,
+        subscriptionStatus: (t.owner.subscription?.status as Team['subscriptionStatus']) ?? undefined,
+        createdAt: t.createdAt,
+        updatedAt: t.updatedAt,
+      });
+    }
+    for (const m of memberOf) {
+      if (teamIds.has(m.teamId)) continue;
+      const t = m.team;
+      teams.push({
+        id: t.id,
+        name: t.name,
+        ownerId: t.ownerId,
+        plan: (t.owner.subscription?.planId as 'starter' | 'pro' | 'enterprise') || 'starter',
+        stripeCustomerId: t.owner.subscription?.stripeCustomerId ?? undefined,
+        subscriptionId: t.owner.subscription?.stripeSubscriptionId ?? undefined,
+        subscriptionStatus: (t.owner.subscription?.status as Team['subscriptionStatus']) ?? undefined,
+        createdAt: t.createdAt,
+        updatedAt: t.updatedAt,
+      });
+    }
+    return teams;
   }
 
   // Get team members
   async getTeamMembers(teamId: string): Promise<TeamMember[]> {
-    // Mock implementation - would query database
-    return [];
+    const rows = await prisma.teamMember.findMany({
+      where: { teamId },
+      include: { team: true },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      teamId: r.teamId,
+      userId: r.userId,
+      role: r.role as 'owner' | 'admin' | 'member',
+      invitedBy: r.team.ownerId,
+      invitedAt: r.createdAt,
+      joinedAt: r.updatedAt,
+      status: 'active' as const,
+    }));
   }
 }
 

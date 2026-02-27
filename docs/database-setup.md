@@ -6,7 +6,7 @@ V `.env.local` nastavi:
 
 - `DATABASE_URL` – PostgreSQL connection string (Supabase ali lokalni)
 - `NEXTAUTH_SECRET` – secret za NextAuth JWT (npr. `openssl rand -base64 32`)
-- `NEXTAUTH_URL` – npr. `http://localhost:3000`
+- `NEXTAUTH_URL` – mora ustrezati portu dev serverja: `http://localhost:3002`
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` – za Google sign-in (optional)
 
 ## Prisma Setup (korak za korakom)

@@ -1,147 +1,73 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/database/schema";
-import { retrieveGuestContext } from "@/lib/tourism/guest-retrieval";
-import { runGuestCopyAgent } from "@/lib/tourism/guest-copy-agent";
-import { runPolicyAgent } from "@/lib/tourism/policy-agent";
+import { z } from "zod";
+import { createAnswerFaqUseCase } from "@/domain/tourism/use-cases/answer-faq";
+import {
+  PrismaFaqLogRepository,
+  GuestRetrievalAdapter,
+  PolicyAgentAdapter,
+  GuestCopyAgentAdapter,
+} from "@/infrastructure/tourism";
 import { generateFaqSchema } from "@/lib/tourism/faq-schema";
-import { DEFAULT_FAQS, type FaqEntry } from "@/data/tourism-faqs";
+import { DEFAULT_FAQS } from "@/data/tourism-faqs";
 import { getLlmApiKey } from "@/config/env";
 
-function findBestKeywordMatch(
-  question: string,
-  faqs: FAQEntry[]
-): FAQEntry | null {
-  const normalizedQuestion = question.toLowerCase().trim();
-  let bestMatch: FAQEntry | null = null;
-  let bestScore = 0;
-  for (const faq of faqs) {
-    let score = 0;
-    if (faq.question.toLowerCase().includes(normalizedQuestion)) score += 10;
-    for (const keyword of faq.keywords) {
-      if (normalizedQuestion.includes(keyword.toLowerCase())) score += 2;
-    }
-    const questionWords = faq.question.toLowerCase().split(/\s+/);
-    for (const word of normalizedQuestion.split(/\s+/)) {
-      if (word.length > 3 && questionWords.includes(word)) score += 1;
-    }
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatch = faq;
-    }
-  }
-  return bestScore >= 2 ? bestMatch : null;
-}
+const PostBodySchema = z.object({
+  question: z.string().min(1),
+  propertyId: z.string().optional().nullable(),
+  guestId: z.string().optional().nullable(),
+  userId: z.string().optional().nullable(),
+  customFaqs: z.array(z.object({
+    question: z.string(),
+    answer: z.string(),
+    category: z.string(),
+    keywords: z.array(z.string()),
+  })).optional(),
+  useMultiAgent: z.boolean().optional(),
+});
 
-async function logFaqResponse(
-  question: string,
-  responseTimeMs: number,
-  confidence: number,
-  propertyId: string | null
-) {
-  try {
-    await prisma.faqResponseLog.create({
-      data: {
-        question: question.slice(0, 2000),
-        responseTimeMs,
-        confidence,
-        propertyId,
-      },
-    });
-  } catch (e) {
-    console.warn("FaqResponseLog create failed:", e);
-  }
+function buildAnswerFaqUseCase() {
+  const answerFaq = createAnswerFaqUseCase({
+    faqLogRepo: new PrismaFaqLogRepository(),
+    guestRetrieval: new GuestRetrievalAdapter(),
+    policyAgent: new PolicyAgentAdapter(),
+    copyAgent: new GuestCopyAgentAdapter(),
+  });
+  return answerFaq;
 }
 
 // POST /api/tourism/faq - chatbot response
 export async function POST(request: NextRequest) {
-  const startMs = Date.now();
   try {
     const body = await request.json();
-    const { question, propertyId, guestId, userId, customFaqs, useMultiAgent } = body;
-
-    if (!question) {
+    const parsed = PostBodySchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Question is required" },
+        { error: "Invalid request", details: parsed.error.flatten() },
         { status: 400 }
       );
     }
 
-    const propId = propertyId || null;
+    const { question, propertyId, guestId, userId, customFaqs, useMultiAgent } = parsed.data;
 
-    // Multi-agent flow: Retrieval + Copy when useMultiAgent and (propertyId or userId)
-    if (useMultiAgent && (propertyId || userId)) {
-      const { getAppBackend } = await import("@/memory/app-backend");
-      const retrievalCtx = await retrieveGuestContext({
-        propertyId: propertyId || undefined,
-        guestId: guestId || undefined,
-        userId: userId || undefined,
-        kgBackend: getAppBackend(),
-      });
-      const llm = getLlmApiKey();
-      if (llm.apiKey) {
-        const keywordMatch = findBestKeywordMatch(
-          question,
-          [...DEFAULT_FAQS, ...(customFaqs || [])]
-        );
-        const policyResult = runPolicyAgent({
-          question,
-          reservation: retrievalCtx.reservations?.[0]
-            ? {
-              checkIn: retrievalCtx.reservations[0].checkIn,
-              checkOut: retrievalCtx.reservations[0].checkOut,
-              status: retrievalCtx.reservations[0].status,
-            }
-            : undefined,
-          policyRules: undefined,
-        });
-        const copyResult = await runGuestCopyAgent({
-          question,
-          retrievalContext: retrievalCtx,
-          fallbackFaqAnswer: keywordMatch?.answer,
-          policyResult: policyResult.isPolicyRelevant ? policyResult : null,
-          apiKey: llm.apiKey,
-        });
-        const responseTimeMs = Date.now() - startMs;
-        logFaqResponse(question, responseTimeMs, copyResult.confidence, propId);
-        return NextResponse.json({
-          answer: copyResult.answer,
-          confidence: copyResult.confidence,
-          category: keywordMatch?.category ?? "multi-agent",
-          source: "multi-agent",
-        });
-      }
-    }
-
-    // Keyword-based matching
     const faqs = [...DEFAULT_FAQS, ...(customFaqs || [])];
-    const bestMatch = findBestKeywordMatch(question, faqs);
-    if (bestMatch) {
-      const responseTimeMs = Date.now() - startMs;
-      logFaqResponse(question, responseTimeMs, 0.8, propId);
-      return NextResponse.json({
-        answer: bestMatch.answer,
-        confidence: 0.8,
-        category: bestMatch.category,
-        matchedQuestion: bestMatch.question,
-        alternatives: faqs
-          .filter((f) => f !== bestMatch && f.category === bestMatch.category)
-          .slice(0, 2)
-          .map((f) => ({ question: f.question, answer: f.answer })),
-      });
-    }
+    const llm = getLlmApiKey();
 
-    // Fallback response
-    const responseTimeMs = Date.now() - startMs;
-    logFaqResponse(question, responseTimeMs, 0, propId);
-    return NextResponse.json({
-      answer: "Žal nimam neposrednega odgovora na to vprašanje. Prosimo, kontaktirajte nas direktno na telefon ali email in z veseljem vam bomo pomagali.",
-      confidence: 0,
-      category: "unknown",
-      contactInfo: {
-        phone: "+386 40 123 456",
-        email: "info@example.com",
-      },
+    const answerFaq = buildAnswerFaqUseCase();
+    const result = await answerFaq({
+      question,
+      propertyId,
+      guestId,
+      userId,
+      useMultiAgent,
+      faqs,
+      propertyIdForLog: propertyId ?? null,
+      apiKey: llm.apiKey,
+      kgBackend: useMultiAgent && (propertyId || userId)
+        ? (await import("@/memory/app-backend")).getAppBackend()
+        : undefined,
     });
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error("FAQ chatbot error:", error);
     return NextResponse.json(

@@ -60,6 +60,12 @@ function AnalyticsPage() {
   const [period, setPeriod] = useState("30d");
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [competitorLocation, setCompetitorLocation] = useState("");
+  const [competitorData, setCompetitorData] = useState<{
+    competitors?: Array<{ name: string; prices?: number[] }>;
+    marketData?: { avgPrice: number; recommendations?: string[] };
+  } | null>(null);
+  const [competitorLoading, setCompetitorLoading] = useState(false);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -81,6 +87,25 @@ function AnalyticsPage() {
       fetchAnalytics();
     }
   }, [activePropertyId, period]);
+
+  const fetchCompetitorPrices = () => {
+    if (!activePropertyId || !competitorLocation.trim()) {
+      toast.error("Izberite nastanitev in vnesite lokacijo (npr. Bela Krajina)");
+      return;
+    }
+    setCompetitorLoading(true);
+    fetch(`/api/tourism/competitor-prices?propertyId=${activePropertyId}&location=${encodeURIComponent(competitorLocation.trim())}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) throw new Error(d.error);
+        setCompetitorData({ competitors: d.competitors, marketData: d.marketAnalysis });
+      })
+      .catch((e) => {
+        toast.error(e instanceof Error ? e.message : "Napaka pri nalaganju konkurenčnih cen");
+        setCompetitorData(null);
+      })
+      .finally(() => setCompetitorLoading(false));
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -111,6 +136,71 @@ function AnalyticsPage() {
           <PropertySelector value={activePropertyId} onChange={setActivePropertyId} />
         </div>
       </div>
+
+      {/* Competitor prices */}
+      {activePropertyId && (
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="font-semibold">Konkurenčne cene</h2>
+            <p className="text-sm text-gray-500 mt-1">Primerjajte cene s konkurenco v izbrani lokaciji</p>
+          </div>
+          <div className="p-4 flex flex-wrap gap-2 items-end">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Lokacija (npr. Bela Krajina)</label>
+              <input
+                type="text"
+                value={competitorLocation}
+                onChange={(e) => setCompetitorLocation(e.target.value)}
+                placeholder="Bela Krajina"
+                className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm min-w-[180px]"
+              />
+            </div>
+            <button
+              onClick={fetchCompetitorPrices}
+              disabled={competitorLoading}
+              className="rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {competitorLoading ? "Nalaganje..." : "Naloži konkurenčne cene"}
+            </button>
+          </div>
+          {competitorData && (
+            <div className="p-4 pt-0 space-y-4">
+              {competitorData.marketData && competitorData.marketData.avgPrice > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Povp. tržna cena</div>
+                    <div className="text-xl font-bold">€{competitorData.marketData.avgPrice.toLocaleString()}</div>
+                  </div>
+                  {competitorData.marketData.recommendations?.[0] && (
+                    <div className="col-span-2 md:col-span-3">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Priporočilo</div>
+                      <div className="text-sm text-gray-800 dark:text-gray-200">{competitorData.marketData.recommendations[0]}</div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {competitorData.competitors && competitorData.competitors.length > 0 && (
+                <div>
+                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sledeni konkurenti</div>
+                  <div className="flex flex-wrap gap-2">
+                    {competitorData.competitors.map((c: { name: string; prices?: number[] }) => (
+                      <span
+                        key={c.name}
+                        className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-sm"
+                      >
+                        {c.name}: {c.prices && c.prices.length > 0 ? `€${c.prices[c.prices.length - 1]}` : "—"}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {(!competitorData.competitors || competitorData.competitors.length === 0) && !competitorLoading && competitorData.marketData?.avgPrice === 0 && (
+                <p className="text-sm text-gray-500">Za to nastanitev še ni podatkov o konkurenci. Dodajte konkurente v nastanitvah.</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <LoadingState message="Nalaganje analitike..." />

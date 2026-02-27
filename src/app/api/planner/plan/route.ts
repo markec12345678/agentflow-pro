@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 import { getUserApiKeys } from "@/lib/user-keys";
-import { getLlmApiKey } from "@/config/env";
+import { getLlmFromUserKeys } from "@/config/env";
 import { plan } from "@/planner/PlannerService";
 
 export async function POST(request: NextRequest) {
@@ -24,10 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     const keys = await getUserApiKeys(userId, { masked: false });
-    const userOpenai = keys.openai?.trim();
-    const llm = userOpenai
-      ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
-      : getLlmApiKey();
+    const llm = getLlmFromUserKeys(keys);
     if (!llm.apiKey) {
       return NextResponse.json(
         { error: "OpenAI or Qwen API key required. Add in Settings." },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { format, addMonths, subMonths } from "date-fns";
+import { format, addMonths, subMonths, addDays } from "date-fns";
 import { sl } from "date-fns/locale";
 import { toast } from "sonner";
 import { PropertySelector } from "@/web/components/PropertySelector";
@@ -36,7 +36,55 @@ export default function CalendarPage() {
   const [stats, setStats] = useState<CalendarStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<CalendarDay | null>(null);
-  const [_showNewReservation, setShowNewReservation] = useState(false);
+  const [showNewReservation, setShowNewReservation] = useState(false);
+  const [newReservationForm, setNewReservationForm] = useState({
+    checkIn: "",
+    checkOut: "",
+    guestName: "",
+    guestEmail: "",
+    guestPhone: "",
+    channel: "direct",
+    totalAmount: "",
+    deposit: "",
+    touristTax: "",
+    notes: "",
+  });
+  const [createReservationLoading, setCreateReservationLoading] = useState(false);
+  const [createConflict, setCreateConflict] = useState<{ message: string; conflicts?: unknown[] } | null>(null);
+  const [editAmount, setEditAmount] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
+  const [calcCheckIn, setCalcCheckIn] = useState("");
+  const [calcCheckOut, setCalcCheckOut] = useState("");
+  const [calcResult, setCalcResult] = useState<{
+    nights: number;
+    baseTotal: number;
+    adjustments: Array<{ label: string; amount: number }>;
+    finalPrice: number;
+    currency: string;
+  } | null>(null);
+  const [calcLoading, setCalcLoading] = useState(false);
+  const [icalSyncOpen, setIcalSyncOpen] = useState(false);
+  const [icalFeedUrl, setIcalFeedUrl] = useState<string | null>(null);
+  const [icalInstructions, setIcalInstructions] = useState<Record<string, string> | null>(null);
+  const [icalLoading, setIcalLoading] = useState(false);
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);
+  const [bulkFormat, setBulkFormat] = useState<"csv" | "json">("csv");
+  const [bulkData, setBulkData] = useState("");
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkResult, setBulkResult] = useState<{ imported: number; skipped: number; errors: { row: number; message: string }[] } | null>(null);
+  const [paymentsData, setPaymentsData] = useState<{
+    payments: { id: string; type: string; amount: number; method: string | null; paidAt: string }[];
+    totalPaid: number;
+    totalDue: number;
+    outstanding: number;
+    deposit: number | null;
+    touristTax: number | null;
+  } | null>(null);
+  const [paymentsLoading, setPaymentsLoading] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [newPayment, setNewPayment] = useState({ type: "deposit" as "deposit" | "balance" | "tourist_tax" | "extra", amount: "", method: "cash" as "cash" | "card" | "transfer" });
+  const [addPaymentLoading, setAddPaymentLoading] = useState(false);
 
   const fetchCalendar = useCallback(async () => {
     setLoading(true);
@@ -62,8 +110,190 @@ export default function CalendarPage() {
     }
   }, [activePropertyId, currentDate, fetchCalendar]);
 
+  useEffect(() => {
+    const rid = selectedDate?.reservation?.id;
+    if (!rid) {
+      setPaymentsData(null);
+      return;
+    }
+    setPaymentsLoading(true);
+    fetch(`/api/tourism/reservations/${rid}/payments`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) throw new Error(d.error);
+        setPaymentsData({
+          payments: d.payments ?? [],
+          totalPaid: d.totalPaid ?? 0,
+          totalDue: d.totalDue ?? 0,
+          outstanding: d.outstanding ?? 0,
+          deposit: d.deposit ?? null,
+          touristTax: d.touristTax ?? null,
+        });
+      })
+      .catch(() => setPaymentsData(null))
+      .finally(() => setPaymentsLoading(false));
+  }, [selectedDate?.reservation?.id]);
+
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
   const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
+
+  const generateIcalSync = () => {
+    if (!activePropertyId) {
+      toast.error("Izberite nastanitev");
+      return;
+    }
+    setIcalLoading(true);
+    setIcalSyncOpen(true);
+    fetch("/api/tourism/ical", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ propertyId: activePropertyId, action: "generate-token" }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) throw new Error(d.error);
+        setIcalFeedUrl(d.feedUrl ?? null);
+        setIcalInstructions(d.instructions ?? null);
+      })
+      .catch((e) => {
+        toast.error(e instanceof Error ? e.message : "Napaka");
+        setIcalFeedUrl(null);
+        setIcalInstructions(null);
+      })
+      .finally(() => setIcalLoading(false));
+  };
+
+  const copyIcalUrl = () => {
+    if (icalFeedUrl) {
+      navigator.clipboard.writeText(icalFeedUrl);
+      toast.success("iCal povezava kopirana");
+    }
+  };
+
+  const runBulkImport = () => {
+    if (!activePropertyId || !bulkData.trim()) {
+      toast.error("Izberite nastanitev in vnesite podatke");
+      return;
+    }
+    setBulkLoading(true);
+    setBulkResult(null);
+    fetch("/api/tourism/calendar/bulk-import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        propertyId: activePropertyId,
+        format: bulkFormat,
+        data: bulkData.trim(),
+      }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) throw new Error(d.error);
+        setBulkResult(d);
+        toast.success(`Uvoženo: ${d.imported}, preskočeno: ${d.skipped}`);
+        if (d.imported > 0) fetchCalendar();
+      })
+      .catch((e) => {
+        toast.error(e instanceof Error ? e.message : "Napaka pri uvozu");
+      })
+      .finally(() => setBulkLoading(false));
+  };
+
+  const handleBulkFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setBulkData(String(reader.result ?? ""));
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const fetchCalculatedPrice = () => {
+    if (!activePropertyId || !calcCheckIn || !calcCheckOut) {
+      toast.error("Izberite nastanitev in vnesite prihod ter odhod");
+      return;
+    }
+    setCalcLoading(true);
+    setCalcResult(null);
+    fetch(
+      `/api/tourism/calculate-price?propertyId=${activePropertyId}&checkIn=${encodeURIComponent(calcCheckIn)}&checkOut=${encodeURIComponent(calcCheckOut)}`
+    )
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) throw new Error(d.error);
+        setCalcResult(d);
+      })
+      .catch((e) => {
+        toast.error(e instanceof Error ? e.message : "Napaka pri izračunu cene");
+        setCalcResult(null);
+      })
+      .finally(() => setCalcLoading(false));
+  };
+
+  const doCreateReservation = async (allowOverbooking: boolean) => {
+    if (!activePropertyId || !newReservationForm.checkIn || !newReservationForm.checkOut) {
+      toast.error("Izberite nastanitev ter vnesite prihod in odhod");
+      return;
+    }
+    setCreateReservationLoading(true);
+    setCreateConflict(null);
+    const body = {
+      propertyId: activePropertyId,
+      type: "reservation",
+      checkIn: newReservationForm.checkIn,
+      checkOut: newReservationForm.checkOut,
+      guestName: newReservationForm.guestName.trim() || undefined,
+      guestEmail: newReservationForm.guestEmail.trim() || undefined,
+      guestPhone: newReservationForm.guestPhone.trim() || undefined,
+      channel: newReservationForm.channel,
+      totalAmount: newReservationForm.totalAmount ? parseFloat(newReservationForm.totalAmount) : undefined,
+      deposit: newReservationForm.deposit ? parseFloat(newReservationForm.deposit) : undefined,
+      touristTax: newReservationForm.touristTax ? parseFloat(newReservationForm.touristTax) : undefined,
+      notes: newReservationForm.notes.trim() || undefined,
+      allowOverbooking,
+    };
+    try {
+      const res = await fetch("/api/tourism/calendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (res.status === 409) {
+        setCreateConflict({ message: "Prekrivanje z obstoječo rezervacijo.", conflicts: data.conflicts });
+        setCreateReservationLoading(false);
+        return;
+      }
+      if (data.error) throw new Error(data.error);
+      toast.success("Rezervacija ustvarjena");
+      if (data.warning) toast.warning(data.warning);
+      setShowNewReservation(false);
+      setNewReservationForm({ checkIn: "", checkOut: "", guestName: "", guestEmail: "", guestPhone: "", channel: "direct", totalAmount: "", deposit: "", touristTax: "", notes: "" });
+      fetchCalendar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Napaka pri ustvarjanju");
+    } finally {
+      setCreateReservationLoading(false);
+    }
+  };
+
+  const fetchPriceForNewReservation = async () => {
+    if (!activePropertyId || !newReservationForm.checkIn || !newReservationForm.checkOut) {
+      toast.error("Vnesite prihod in odhod");
+      return;
+    }
+    try {
+      const res = await fetch(
+        `/api/tourism/calculate-price?propertyId=${activePropertyId}&checkIn=${encodeURIComponent(newReservationForm.checkIn)}&checkOut=${encodeURIComponent(newReservationForm.checkOut)}`
+      );
+      const d = await res.json();
+      if (d.error) throw new Error(d.error);
+      setNewReservationForm((f) => ({ ...f, totalAmount: String(d.finalPrice ?? "") }));
+      toast.success("Cena izračunana");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Napaka pri izračunu");
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -102,7 +332,7 @@ export default function CalendarPage() {
   // Group days by week
   const weeks: CalendarDay[][] = [];
   let currentWeek: CalendarDay[] = [];
-  
+
   // Add empty days at start
   const firstDay = calendar[0];
   if (firstDay) {
@@ -172,6 +402,65 @@ export default function CalendarPage() {
         </div>
       )}
 
+      {/* Price calculator */}
+      {activePropertyId && (
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="font-semibold">Izračun cene</h2>
+            <p className="text-sm text-gray-500 mt-1">Izračunajte ceno glede na datum prihoda in odhoda</p>
+          </div>
+          <div className="p-4 flex flex-wrap gap-2 items-end">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Prihod</label>
+              <input
+                type="date"
+                value={calcCheckIn}
+                onChange={(e) => setCalcCheckIn(e.target.value)}
+                className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Odhod</label>
+              <input
+                type="date"
+                value={calcCheckOut}
+                onChange={(e) => setCalcCheckOut(e.target.value)}
+                className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+              />
+            </div>
+            <button
+              onClick={fetchCalculatedPrice}
+              disabled={calcLoading}
+              className="rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {calcLoading ? "Računam..." : "Izračunaj ceno"}
+            </button>
+          </div>
+          {calcResult && (
+            <div className="p-4 pt-0 space-y-2">
+              <div className="flex items-baseline justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Nastanitve:</span>
+                <span className="font-bold">{calcResult.nights}</span>
+              </div>
+              {calcResult.adjustments?.length > 0 && (
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {calcResult.adjustments.map((a: { label: string; amount: number }) => (
+                    <div key={a.label} className="flex justify-between">
+                      <span>{a.label}</span>
+                      <span>{a.amount >= 0 ? "+" : ""}{calcResult.currency === "EUR" ? "€" : ""}{a.amount}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-baseline justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                <span className="font-medium">Skupaj:</span>
+                <span className="text-xl font-bold">{calcResult.currency === "EUR" ? "€" : ""}{calcResult.finalPrice}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Calendar Navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -193,10 +482,21 @@ export default function CalendarPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => setShowNewReservation(true)}
+            onClick={() => {
+              setNewReservationForm({ checkIn: "", checkOut: "", guestName: "", guestEmail: "", guestPhone: "", channel: "direct", totalAmount: "", deposit: "", touristTax: "", notes: "" });
+              setCreateConflict(null);
+              setShowNewReservation(true);
+            }}
             className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
           >
             + Nova rezervacija
+          </button>
+          <button
+            onClick={() => { setBulkImportOpen(true); setBulkResult(null); setBulkData(""); }}
+            disabled={!activePropertyId}
+            className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          >
+            Bulk uvoz
           </button>
           <a
             href={`/api/tourism/ical/export?propertyId=${activePropertyId}&token=demo`}
@@ -204,6 +504,13 @@ export default function CalendarPage() {
           >
             📥 iCal Export
           </a>
+          <button
+            onClick={generateIcalSync}
+            disabled={!activePropertyId || icalLoading}
+            className="px-4 py-2 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors disabled:opacity-50"
+          >
+            {icalLoading ? "Nalaganje..." : "🔗 iCal Sync"}
+          </button>
         </div>
       </div>
 
@@ -253,9 +560,8 @@ export default function CalendarPage() {
                   <div
                     key={dayIndex}
                     onClick={() => day.day > 0 && setSelectedDate(day)}
-                    className={`min-h-[100px] p-2 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                      day.day > 0 ? getStatusColor(day.status) : "bg-gray-50 dark:bg-gray-800/50"
-                    }`}
+                    className={`min-h-[100px] p-2 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${day.day > 0 ? getStatusColor(day.status) : "bg-gray-50 dark:bg-gray-800/50"
+                      }`}
                   >
                     {day.day > 0 && (
                       <>
@@ -289,7 +595,7 @@ export default function CalendarPage() {
             <h3 className="text-lg font-semibold mb-4">
               {format(new Date(selectedDate.date), "EEEE, d. MMMM yyyy", { locale: sl })}
             </h3>
-            
+
             {selectedDate.reservation ? (
               <div className="space-y-3">
                 <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -309,28 +615,131 @@ export default function CalendarPage() {
                   </div>
                   <div>
                     <div className="text-gray-500">Kanal</div>
-                    <div className="capitalize">{selectedDate.reservation.channel}</div>
+                    <div className="capitalize">{selectedDate.reservation.channel || "—"}</div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Znesek</div>
+                    <div className="text-gray-500">Celotna cena</div>
                     <div>€{selectedDate.reservation.totalAmount}</div>
+                  </div>
+                </div>
+
+                {paymentsLoading ? (
+                  <div className="text-sm text-gray-500">Nalaganje plačil...</div>
+                ) : paymentsData && (
+                  <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 space-y-2 text-sm">
+                    {paymentsData.deposit != null && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Akontacija</span>
+                        <span>€{paymentsData.deposit.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {paymentsData.touristTax != null && paymentsData.touristTax > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Turistična taksa</span>
+                        <span>€{paymentsData.touristTax.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-medium">
+                      <span>Plačano</span>
+                      <span>€{paymentsData.totalPaid.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold">
+                      <span>Stanje dolga</span>
+                      <span className={paymentsData.outstanding > 0 ? "text-amber-600 dark:text-amber-400" : "text-green-600 dark:text-green-400"}>
+                        €{paymentsData.outstanding.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => setPaymentModalOpen(true)}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700"
+                      >
+                        Dodaj plačilo
+                      </button>
+                      <a
+                        href={`/api/tourism/reservations/${selectedDate.reservation.id}/invoice`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium"
+                      >
+                        Izpiši račun
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Znesek (€)</label>
+                    <input
+                      type="number"
+                      value={editAmount || selectedDate.reservation.totalAmount}
+                      onChange={(e) => setEditAmount(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opombe (opcijsko)</label>
+                    <textarea
+                      value={editNotes}
+                      onChange={(e) => setEditNotes(e.target.value)}
+                      placeholder="Opombe za rezervacijo"
+                      rows={2}
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                    />
                   </div>
                 </div>
                 <div className="flex gap-2 pt-4">
                   <button
-                    onClick={() => setSelectedDate(null)}
+                    onClick={() => {
+                      setSelectedDate(null);
+                      setEditAmount("");
+                      setEditNotes("");
+                      setPaymentModalOpen(false);
+                      setPaymentsData(null);
+                    }}
                     className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
                     Zapri
                   </button>
                   <button
-                    onClick={() => {
-                      // Edit reservation logic
-                      toast.success("Funkcionalnost v pripravi");
+                    onClick={async () => {
+                      const amount = editAmount.trim()
+                        ? parseFloat(editAmount)
+                        : selectedDate.reservation!.totalAmount;
+                      if (isNaN(amount)) {
+                        toast.error("Vnesite veljaven znesek");
+                        return;
+                      }
+                      setEditLoading(true);
+                      try {
+                        const res = await fetch("/api/tourism/calendar", {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            id: selectedDate.reservation!.id,
+                            totalAmount: amount,
+                            ...(editNotes.trim() ? { notes: editNotes } : {}),
+                          }),
+                        });
+                        const data = await res.json();
+                        if (data.error) throw new Error(data.error);
+                        toast.success("Rezervacija posodobljena");
+                        setSelectedDate(null);
+                        setEditAmount("");
+                        setEditNotes("");
+                        setPaymentsData(null);
+                        fetchCalendar();
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Napaka");
+                      } finally {
+                        setEditLoading(false);
+                      }
                     }}
-                    className="flex-1 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                    disabled={editLoading}
+                    className="flex-1 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
                   >
-                    Uredi
+                    {editLoading ? "Shranjevanje..." : "Shrani"}
                   </button>
                 </div>
               </div>
@@ -342,6 +751,12 @@ export default function CalendarPage() {
                 {selectedDate.status === "available" && (
                   <button
                     onClick={() => {
+                      const d = new Date(selectedDate.date);
+                      setNewReservationForm((f) => ({
+                        ...f,
+                        checkIn: selectedDate.date,
+                        checkOut: format(addDays(d, 1), "yyyy-MM-dd"),
+                      }));
                       setShowNewReservation(true);
                       setSelectedDate(null);
                     }}
@@ -362,27 +777,364 @@ export default function CalendarPage() {
         </div>
       )}
 
-      {/* iCal Sync Info */}
-      <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-        <h3 className="font-semibold mb-2">🔗 iCal Sinhronizacija</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-          Povežite koledar z Airbnb, Booking.com in drugimi platformami.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => toast.success("iCal URL kopiran v odložišče")}
-            className="text-sm px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50"
-          >
-            Kopiraj iCal URL
-          </button>
-          <button
-            onClick={() => toast.success("Navodila poslana na email")}
-            className="text-sm px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-          >
-            Nastavi sinhronizacijo
-          </button>
+      {/* Payment Modal (add payment) */}
+      {paymentModalOpen && selectedDate?.reservation && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[60]">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-sm w-full p-6">
+            <h4 className="text-lg font-semibold mb-4">Dodaj plačilo</h4>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vrsta</label>
+                <select
+                  value={newPayment.type}
+                  onChange={(e) => setNewPayment((p) => ({ ...p, type: e.target.value as typeof p.type }))}
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                >
+                  <option value="deposit">Akontacija</option>
+                  <option value="balance">Stanje</option>
+                  <option value="tourist_tax">Turistična taksa</option>
+                  <option value="extra">Dodatno</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Znesek (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={newPayment.amount}
+                  onChange={(e) => setNewPayment((p) => ({ ...p, amount: e.target.value }))}
+                  placeholder="0.00"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Način</label>
+                <select
+                  value={newPayment.method}
+                  onChange={(e) => setNewPayment((p) => ({ ...p, method: e.target.value as typeof p.method }))}
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                >
+                  <option value="cash">Gotovina</option>
+                  <option value="card">Kartica</option>
+                  <option value="transfer">Nakazilo</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => { setPaymentModalOpen(false); setNewPayment({ type: "deposit", amount: "", method: "cash" }); }}
+                className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                Prekliči
+              </button>
+              <button
+                onClick={async () => {
+                  const amount = parseFloat(newPayment.amount);
+                  if (isNaN(amount) || amount <= 0) {
+                    toast.error("Vnesite veljaven znesek");
+                    return;
+                  }
+                  setAddPaymentLoading(true);
+                  try {
+                    const res = await fetch(`/api/tourism/reservations/${selectedDate.reservation!.id}/payments`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        type: newPayment.type,
+                        amount,
+                        method: newPayment.method,
+                      }),
+                    });
+                    const data = await res.json();
+                    if (data.error) throw new Error(data.error);
+                    toast.success("Plačilo dodano");
+                    setPaymentModalOpen(false);
+                    setNewPayment({ type: "deposit", amount: "", method: "cash" });
+                    const payRes = await fetch(`/api/tourism/reservations/${selectedDate.reservation!.id}/payments`);
+                    const payData = await payRes.json();
+                    if (!payData.error) {
+                      setPaymentsData({
+                        payments: payData.payments ?? [],
+                        totalPaid: payData.totalPaid ?? 0,
+                        totalDue: payData.totalDue ?? 0,
+                        outstanding: payData.outstanding ?? 0,
+                        deposit: payData.deposit ?? null,
+                        touristTax: payData.touristTax ?? null,
+                      });
+                    }
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Napaka");
+                  } finally {
+                    setAddPaymentLoading(false);
+                  }
+                }}
+                disabled={addPaymentLoading}
+                className="flex-1 px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50"
+              >
+                {addPaymentLoading ? "Dodajam..." : "Dodaj"}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* New Reservation Modal */}
+      {showNewReservation && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Nova rezervacija</h3>
+              <button onClick={() => { setShowNewReservation(false); setCreateConflict(null); }} className="text-gray-500 hover:text-gray-700 text-xl leading-none">×</button>
+            </div>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prihod</label>
+                  <input
+                    type="date"
+                    aria-label="Prihod"
+                    value={newReservationForm.checkIn}
+                    onChange={(e) => setNewReservationForm((f) => ({ ...f, checkIn: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Odhod</label>
+                  <input
+                    type="date"
+                    aria-label="Odhod"
+                    value={newReservationForm.checkOut}
+                    onChange={(e) => setNewReservationForm((f) => ({ ...f, checkOut: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ime gosta</label>
+                <input
+                  type="text"
+                  aria-label="Ime gosta"
+                  value={newReservationForm.guestName}
+                  onChange={(e) => setNewReservationForm((f) => ({ ...f, guestName: e.target.value }))}
+                  placeholder="Ime"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-pošta</label>
+                <input
+                  type="email"
+                  value={newReservationForm.guestEmail}
+                  onChange={(e) => setNewReservationForm((f) => ({ ...f, guestEmail: e.target.value }))}
+                  placeholder="email@example.com"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefon</label>
+                <input
+                  type="tel"
+                  value={newReservationForm.guestPhone}
+                  onChange={(e) => setNewReservationForm((f) => ({ ...f, guestPhone: e.target.value }))}
+                  placeholder="+386 ..."
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kanal</label>
+                <select
+                  value={newReservationForm.channel}
+                  onChange={(e) => setNewReservationForm((f) => ({ ...f, channel: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                  aria-label="Kanal rezervacije"
+                >
+                  <option value="direct">Direct</option>
+                  <option value="booking.com">Booking.com</option>
+                  <option value="airbnb">Airbnb</option>
+                  <option value="expedia">Expedia</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Celotna cena (€)</label>
+                  <input
+                    type="number"
+                    aria-label="Celotna cena (€)"
+                    step="0.01"
+                    value={newReservationForm.totalAmount}
+                    onChange={(e) => setNewReservationForm((f) => ({ ...f, totalAmount: e.target.value }))}
+                    placeholder="0"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Akontacija (€)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newReservationForm.deposit}
+                    onChange={(e) => setNewReservationForm((f) => ({ ...f, deposit: e.target.value }))}
+                    placeholder="0"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Turistična taksa (€)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newReservationForm.touristTax}
+                    onChange={(e) => setNewReservationForm((f) => ({ ...f, touristTax: e.target.value }))}
+                    placeholder="0"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opombe</label>
+                <textarea
+                  value={newReservationForm.notes}
+                  onChange={(e) => setNewReservationForm((f) => ({ ...f, notes: e.target.value }))}
+                  placeholder="Opombe za rezervacijo"
+                  rows={2}
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                />
+              </div>
+            </div>
+            {createConflict && (
+              <div className="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-200">{createConflict.message} Ustvari vseeno?</p>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => setCreateConflict(null)}
+                    className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                  >
+                    Prekliči
+                  </button>
+                  <button
+                    onClick={() => doCreateReservation(true)}
+                    disabled={createReservationLoading}
+                    className="px-3 py-1.5 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 disabled:opacity-50"
+                  >
+                    Ustvari vseeno
+                  </button>
+                </div>
+              </div>
+            )}
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={fetchPriceForNewReservation}
+                disabled={!activePropertyId || !newReservationForm.checkIn || !newReservationForm.checkOut}
+                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+              >
+                Izračunaj ceno
+              </button>
+              <button
+                onClick={() => doCreateReservation(false)}
+                disabled={createReservationLoading}
+                className="flex-1 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+              >
+                {createReservationLoading ? "Ustvarjam..." : "Ustvari rezervacijo"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Import Modal */}
+      {bulkImportOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Bulk uvoz rezervacij</h3>
+              <button onClick={() => setBulkImportOpen(false)} className="text-gray-500 hover:text-gray-700 text-xl leading-none">×</button>
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+              CSV: checkIn, checkOut, guestName, guestEmail, guestPhone, channel, totalAmount, notes
+            </p>
+            <div className="flex gap-2 mb-3">
+              <label className="flex items-center gap-2">
+                <input type="radio" checked={bulkFormat === "csv"} onChange={() => setBulkFormat("csv")} />
+                CSV
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="radio" checked={bulkFormat === "json"} onChange={() => setBulkFormat("json")} />
+                JSON
+              </label>
+            </div>
+            <div className="mb-3">
+              <input type="file" accept=".csv,.json,.txt" onChange={handleBulkFileSelect} className="text-sm" />
+            </div>
+            <textarea
+              value={bulkData}
+              onChange={(e) => setBulkData(e.target.value)}
+              placeholder={bulkFormat === "csv" ? "2025-03-01, 2025-03-05, Janez Novak, janez@example.com, ..." : '{"reservations": [{"checkIn": "2025-03-01", "checkOut": "2025-03-05", "guestName": "Janez"}]}'}
+              rows={8}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 p-3 text-sm font-mono"
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={runBulkImport}
+                disabled={bulkLoading || !bulkData.trim()}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+              >
+                {bulkLoading ? "Uvozam..." : "Uvozi"}
+              </button>
+              <button onClick={() => setBulkImportOpen(false)} className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600">
+                Zapri
+              </button>
+            </div>
+            {bulkResult && (
+              <div className="mt-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                <p className="text-sm font-medium">Rezultat: uvoženo {bulkResult.imported}, preskočeno {bulkResult.skipped}</p>
+                {bulkResult.errors.length > 0 && (
+                  <ul className="mt-2 text-sm text-red-600 dark:text-red-400 space-y-1">
+                    {bulkResult.errors.map((e, i) => (
+                      <li key={i}>Vrstica {e.row}: {e.message}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* iCal Sync */}
+      {(icalSyncOpen || icalFeedUrl) && (
+        <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold">🔗 iCal Sinhronizacija</h3>
+            <button onClick={() => { setIcalSyncOpen(false); setIcalFeedUrl(null); setIcalInstructions(null); }} className="text-gray-500 hover:text-gray-700 text-xl leading-none">×</button>
+          </div>
+          {icalLoading && <p className="text-sm text-gray-500">Generiranje povezave...</p>}
+          {icalFeedUrl && !icalLoading && (
+            <>
+              <div className="flex gap-2">
+                <input readOnly value={icalFeedUrl} className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
+                <button onClick={copyIcalUrl} className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">Kopiraj</button>
+              </div>
+              {icalInstructions && (
+                <div className="space-y-2 text-sm">
+                  <p className="font-medium text-gray-700 dark:text-gray-300">Navodila po platformah:</p>
+                  <div className="grid gap-2">
+                    <div className="p-2 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      <span className="font-medium">Booking.com:</span> Rates &amp; Availability → Calendar Sync → Import by URL
+                    </div>
+                    <div className="p-2 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      <span className="font-medium">Airbnb:</span> Calendar → Sync calendars → Import
+                    </div>
+                    <div className="p-2 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      <span className="font-medium">Google Calendar:</span> Add calendar → From URL
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

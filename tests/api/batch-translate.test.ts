@@ -6,10 +6,10 @@ import { NextRequest } from "next/server";
 const mockGetServerSession = jest.fn();
 const mockTranslationJobCreate = jest.fn();
 const mockTranslationJobUpdate = jest.fn();
+const mockAgentRunCreate = jest.fn();
 const mockGetUserApiKeys = jest.fn();
 const mockGetOpenAiApiKey = jest.fn();
 const mockGenerateText = jest.fn();
-const mockRecordAgentRun = jest.fn();
 
 let mockModeValue = true;
 jest.mock("next-auth", () => ({
@@ -21,6 +21,9 @@ jest.mock("@/database/schema", () => ({
     translationJob: {
       create: (...args: unknown[]) => mockTranslationJobCreate(...args),
       update: (...args: unknown[]) => mockTranslationJobUpdate(...args),
+    },
+    agentRun: {
+      create: (...args: unknown[]) => mockAgentRunCreate(...args),
     },
   },
 }));
@@ -45,9 +48,6 @@ jest.mock("ai", () => ({
   generateText: (...args: unknown[]) => mockGenerateText(...args),
 }));
 
-jest.mock("@/api/usage", () => ({
-  recordAgentRun: (...args: unknown[]) => mockRecordAgentRun(...args),
-}));
 
 async function importHandler() {
   const mod = await import("@/app/api/tourism/batch-translate/route");
@@ -230,7 +230,7 @@ describe("POST /api/tourism/batch-translate", () => {
     });
   });
 
-  it("records usage via recordAgentRun when translations succeed", async () => {
+  it("records AI usage via PrismaAiUsageLogger when translations succeed", async () => {
     mockModeValue = false;
     mockGetOpenAiApiKey.mockReturnValue("fake-key");
     mockGetServerSession.mockResolvedValue(authSession);
@@ -252,24 +252,13 @@ describe("POST /api/tourism/batch-translate", () => {
     const handler = await importHandler();
     await handler(req);
 
-    expect(mockRecordAgentRun).toHaveBeenCalledWith(
-      "e2e-user-1",
-      "translation",
-      expect.objectContaining({
-        input: expect.objectContaining({
-          sourceLang: "sl",
-          targetLangs: 1,
-          contentLength: 4,
-        }),
-        output: expect.objectContaining({
-          translationCount: 1,
-          usage: expect.objectContaining({
-            inputTokens: 50,
-            outputTokens: 25,
-            totalTokens: 75,
-          }),
-        }),
-      })
-    );
+    expect(mockAgentRunCreate).toHaveBeenCalled();
+    const createCall = mockAgentRunCreate.mock.calls[0][0];
+    expect(createCall.data).toMatchObject({
+      userId: "e2e-user-1",
+      agentType: "translation",
+      status: "completed",
+      model: "gpt-4o-mini",
+    });
   });
 });

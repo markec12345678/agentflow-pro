@@ -28,7 +28,8 @@ export default function ContactPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to submit");
+        const err = data.error;
+        setError(typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : "Failed to submit"));
         return;
       }
       setSubmitted(true);

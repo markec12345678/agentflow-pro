@@ -13,6 +13,7 @@ const ALLOWED_PROVIDERS: ApiKeyProvider[] = [
   "context7",
   "serpapi",
   "openai",
+  "gemini",
   "github",
   "vercel",
   "netlify",

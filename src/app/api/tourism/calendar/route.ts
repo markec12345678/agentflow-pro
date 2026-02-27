@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
           checkIn: format(dayReservations[0].checkIn, "yyyy-MM-dd"),
           checkOut: format(dayReservations[0].checkOut, "yyyy-MM-dd"),
           channel: dayReservations[0].channel,
-          totalAmount: dayReservations[0].totalAmount,
+          totalAmount: dayReservations[0].totalPrice,
         } : null,
       };
     });
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
         bookedDays,
         availableDays,
         occupancyRate,
-        revenue: reservations.reduce((sum, r) => sum + (r.totalAmount || 0), 0),
+        revenue: reservations.reduce((sum, r) => sum + (r.totalPrice || 0), 0),
       },
     });
   } catch (error) {
@@ -140,6 +140,16 @@ export async function GET(request: NextRequest) {
 // POST /api/tourism/calendar - create reservation or block date
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const {
       propertyId,
@@ -152,7 +162,10 @@ export async function POST(request: NextRequest) {
       guestPhone,
       channel, // 'direct', 'booking.com', 'airbnb', 'expedia'
       totalAmount,
+      deposit,
+      touristTax,
       notes,
+      allowOverbooking,
     } = body;
 
     if (!propertyId || !checkIn || !checkOut) {
@@ -184,26 +197,42 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    let overbookingWarning: string | undefined;
     if (existingReservations.length > 0) {
-      return NextResponse.json(
-        { error: "Date range conflicts with existing reservation", conflicts: existingReservations },
-        { status: 409 }
-      );
+      if (!allowOverbooking) {
+        return NextResponse.json(
+          { error: "Date range conflicts with existing reservation", conflicts: existingReservations },
+          { status: 409 }
+        );
+      }
+      overbookingWarning = `Overbooking – prekrivanje z rezervacijo ${existingReservations[0].id}`;
     }
 
     if (type === "reservation") {
       // Create or find guest
-      const guest = await prisma.guest.upsert({
-        where: { email: guestEmail || `${Date.now()}@temp.com` },
-        update: { name: guestName, phone: guestPhone },
-        create: {
-          name: guestName || "Guest",
-          email: guestEmail || `${Date.now()}@temp.com`,
-          phone: guestPhone,
-          propertyId,
-        },
-      });
+      let guest;
+      if (guestEmail) {
+        guest = await prisma.guest.findFirst({ where: { email: guestEmail } });
+        if (!guest) {
+          guest = await prisma.guest.create({
+            data: {
+              name: guestName || "Guest",
+              email: guestEmail,
+              phone: guestPhone,
+            },
+          });
+        }
+      } else {
+        guest = await prisma.guest.create({
+          data: {
+            name: guestName || "Guest",
+            email: `${Date.now()}@temp.com`,
+            phone: guestPhone,
+          },
+        });
+      }
 
+      const checkInToken = randomBytes(24).toString("base64url");
       const reservation = await prisma.reservation.create({
         data: {
           propertyId,
@@ -213,8 +242,11 @@ export async function POST(request: NextRequest) {
           checkOut: checkOutDate,
           channel: channel || "direct",
           totalPrice: totalAmount,
+          deposit: deposit != null ? deposit : undefined,
+          touristTax: touristTax != null ? touristTax : undefined,
           notes,
           status: "confirmed",
+          checkInToken,
         },
       });
 
@@ -225,7 +257,22 @@ export async function POST(request: NextRequest) {
         guest.id
       ).catch((err) => console.error("Booking confirmation trigger:", err));
 
-      return NextResponse.json({ reservation, guest });
+      await prisma.notification.create({
+        data: {
+          userId,
+          propertyId,
+          type: "success",
+          title: "Nova rezervacija",
+          message: `${guestName || "Gost"} · ${format(checkInDate, "d.M.yyyy")} - ${format(checkOutDate, "d.M.yyyy")}`,
+          link: `/dashboard/tourism/calendar?reservation=${reservation.id}`,
+        },
+      });
+
+      return NextResponse.json({
+        reservation,
+        guest,
+        ...(overbookingWarning && { warning: overbookingWarning }),
+      });
     } else {
       // Block dates
       const days = eachDayOfInterval({ start: checkInDate, end: checkOutDate });
@@ -263,7 +310,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, status, notes, totalAmount } = body;
+    const { id, status, notes, totalAmount, deposit, touristTax } = body;
 
     if (!id) {
       return NextResponse.json({ error: "id is required" }, { status: 400 });
@@ -282,13 +329,22 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
+    const updateData: {
+      status?: string;
+      notes?: string;
+      totalPrice?: number;
+      deposit?: number | null;
+      touristTax?: number | null;
+    } = {};
+    if (status !== undefined) updateData.status = status;
+    if (notes !== undefined) updateData.notes = notes;
+    if (totalAmount !== undefined) updateData.totalPrice = totalAmount;
+    if (deposit !== undefined) updateData.deposit = deposit == null ? null : Number(deposit);
+    if (touristTax !== undefined) updateData.touristTax = touristTax == null ? null : Number(touristTax);
+
     const reservation = await prisma.reservation.update({
       where: { id },
-      data: {
-        status,
-        notes,
-        totalAmount,
-      },
+      data: updateData,
     });
 
     return NextResponse.json({ reservation });

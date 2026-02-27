@@ -1,16 +1,17 @@
 /**
  * Tourism Email Generator API
  * POST: generates guest emails from prompt (variables substituted on frontend)
+ * Uses centralized AI service (OpenAIAdapter + AiService)
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { generateText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
 import { authOptions } from "@/lib/auth-options";
-import { getLlmApiKey } from "@/config/env";
+import { getLlmFromUserKeys } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { isMockMode } from "@/lib/mock-mode";
+import { OpenAIAdapter, DataSanitizer, PrismaAiUsageLogger } from "@/infrastructure/ai";
+import { AiService } from "@/services/ai.service";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
@@ -44,10 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     const userKeys = await getUserApiKeys(userId, { masked: false });
-    const userOpenai = userKeys.openai?.trim();
-    const llm = userOpenai
-      ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
-      : getLlmApiKey();
+    const llm = getLlmFromUserKeys(userKeys);
     const apiKey = llm.apiKey;
 
     if (isMockMode()) {
@@ -68,22 +66,25 @@ ${prompt.slice(0, 200)}...`;
       );
     }
 
-    const openai = createOpenAI({
-      apiKey,
-      ...(llm.baseURL && { baseURL: llm.baseURL }),
-    });
-    const result = await generateText({
-      model: openai(llm.model),
-      prompt: `You are a tourism hospitality email writer. Write a professional guest email based on these instructions.
-
-Output format: Subject line first (Predmet: ...), then body. Use line breaks between paragraphs. No meta commentary or explanations.
-
-Instructions:
-${prompt}`,
-      temperature: 0.5,
+    const aiService = new AiService({
+      llm: new OpenAIAdapter({ apiKey, model: llm.model, baseURL: llm.baseURL }),
+      usageLogger: new PrismaAiUsageLogger(),
+      sanitizer: new DataSanitizer(),
     });
 
-    const content = result.text?.trim() ?? "";
+    const systemPrompt =
+      "You are a tourism hospitality email writer. Write a professional guest email based on these instructions.\n\nOutput format: Subject line first (Predmet: ...), then body. Use line breaks between paragraphs. No meta commentary or explanations.";
+
+    const result = await aiService.generateWithLogging(
+      {
+        systemPrompt,
+        prompt: `Instructions:\n${prompt}`,
+        temperature: 0.5,
+      },
+      { userId, agentType: "email", model: llm.model }
+    );
+
+    const content = result.text.trim();
     return NextResponse.json({ content });
   } catch (error) {
     return NextResponse.json(

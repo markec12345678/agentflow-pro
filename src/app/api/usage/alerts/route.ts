@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
+import { getUserId } from '@/lib/auth-users';
 import { UserService } from '@/services/user.service';
 import { AuthService, AuthError } from '@/services/auth.service';
 
@@ -7,26 +10,29 @@ const userService = new UserService();
 export const dynamic = "force-dynamic";
 
 /**
- * Middleware to validate authentication
+ * Resolve userId from Bearer token or session cookie
  */
-function validateAuth(request: NextRequest): { userId: string } {
+async function getAuthUserId(request: NextRequest): Promise<string> {
   const token = request.headers.get('authorization')?.replace('Bearer ', '');
-
-  if (!token) {
-    throw new AuthError('TOKEN_REQUIRED', 'Authorization token is required');
+  if (token) {
+    const { userId } = AuthService.validateSession(token);
+    return userId;
   }
-
-  return AuthService.validateSession(token);
+  const session = await getServerSession(authOptions);
+  const userId = getUserId(session);
+  if (!userId) {
+    throw new AuthError('TOKEN_REQUIRED', 'Authentication required');
+  }
+  return userId;
 }
 
 /**
  * GET /api/usage/alerts
- * Get user's usage alerts
+ * Get user's usage alerts (session or Bearer)
  */
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = validateAuth(request);
-
+    const userId = await getAuthUserId(request);
     const alerts = await userService.getUsageAlerts(userId);
 
     return NextResponse.json({
@@ -68,7 +74,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = validateAuth(request);
+    const userId = await getAuthUserId(request);
 
     const body = await request.json();
     const { type, threshold } = body;

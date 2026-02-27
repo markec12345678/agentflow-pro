@@ -1,17 +1,17 @@
 /**
  * Tourism Content Generator API
  * POST: generates tourism content (Booking, Airbnb, Destination, Seasonal, Instagram)
- * Uses LLM with full prompt – same pattern as generate-email
+ * Uses centralized AI service (OpenAIAdapter + AiService)
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { generateText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
 import { authOptions } from "@/lib/auth-options";
-import { getLlmApiKey } from "@/config/env";
+import { getLlmFromUserKeys } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { isMockMode } from "@/lib/mock-mode";
+import { OpenAIAdapter, DataSanitizer, PrismaAiUsageLogger } from "@/infrastructure/ai";
+import { AiService } from "@/services/ai.service";
 
 function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
   if (!session?.user) return null;
@@ -41,10 +41,7 @@ export async function POST(req: NextRequest) {
     }
 
     const userKeys = await getUserApiKeys(userId, { masked: false });
-    const userOpenai = userKeys.openai?.trim();
-    const llm = userOpenai
-      ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
-      : getLlmApiKey();
+    const llm = getLlmFromUserKeys(userKeys);
     const apiKey = llm.apiKey;
 
     if (isMockMode()) {
@@ -66,20 +63,22 @@ AgentFlow Pro Tourism Content Generator.`;
       );
     }
 
-    const openai = createOpenAI({
-      apiKey,
-      ...(llm.baseURL && { baseURL: llm.baseURL }),
-    });
-    const result = await generateText({
-      model: openai(llm.model),
-      prompt: `You are a tourism hospitality content writer. Follow the instructions exactly. Output only the requested content – no meta commentary, no explanations, no headers like "Here is your..." or "I have generated...".
-
-Instructions:
-${prompt}`,
-      temperature: 0.6,
+    const aiService = new AiService({
+      llm: new OpenAIAdapter({ apiKey, model: llm.model, baseURL: llm.baseURL }),
+      usageLogger: new PrismaAiUsageLogger(),
+      sanitizer: new DataSanitizer(),
     });
 
-    const fullContent = result.text?.trim() ?? "";
+    const result = await aiService.generateWithLogging(
+      {
+        systemPrompt: "You are a tourism hospitality content writer. Follow the instructions exactly. Output only the requested content – no meta commentary, no explanations, no headers like \"Here is your...\" or \"I have generated...\".",
+        prompt: `Instructions:\n${prompt}`,
+        temperature: 0.6,
+      },
+      { userId, agentType: "content", model: llm.model }
+    );
+
+    const fullContent = result.text.trim();
     const titleMatch = fullContent.match(/^#\s+(.+)/m);
     const title = titleMatch?.[1] ?? "Tourism Content";
     const bodyText = fullContent.replace(/^#\s+.+\n*/m, "").trim();

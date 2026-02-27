@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactNode, useState, useCallback } from "react";
 
 export interface PageBuilderPlugin {
   id: string;
@@ -56,7 +56,7 @@ export function PluginProvider({ children }: { children: ReactNode }) {
 
 export function usePlugins() {
   const context = React.useContext(PluginContext);
-  
+
   if (!context) {
     throw new Error('usePlugins must be used within a PluginProvider');
   }

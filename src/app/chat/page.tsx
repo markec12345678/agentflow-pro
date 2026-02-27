@@ -167,7 +167,9 @@ export default function ChatPage() {
       });
       const data = (await res.json()) as { id?: string; error?: string };
       if (!res.ok) {
-        setSaveErrorForMessage((prev) => ({ ...prev, [messageId]: data.error ?? "Save failed" }));
+        const err = data.error;
+        const errStr = typeof err === "object" && err && 'message' in err ? (err as { message: string }).message : (typeof err === "string" ? err : "Save failed");
+        setSaveErrorForMessage((prev) => ({ ...prev, [messageId]: errStr }));
         return;
       }
       if (data.id) {

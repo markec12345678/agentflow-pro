@@ -8,6 +8,7 @@ const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
 export const authOptions: NextAuthOptions = {
+  trustHost: true,
   providers: [
     ...(googleClientId && googleClientSecret
       ? [
@@ -27,10 +28,17 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
         const password = typeof credentials?.password === "string" ? credentials.password : "";
-        if (!email || !password) return null;
+        if (!email || !password) {
+          console.log("[auth] authorize: missing email or password");
+          return null;
+        }
         try {
           const u = await getUser(email, password);
-          if (!u) return null;
+          if (!u) {
+            console.log("[auth] authorize: getUser returned null for", email);
+            return null;
+          }
+          console.log("[auth] authorize: OK for", email);
           return { id: u.id, email, name: email };
         } catch (err) {
           console.error("[auth] authorize error:", err);
@@ -113,7 +121,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as { userId?: string }).userId = token.userId as string;
+        const uid = token.userId as string;
+        (session.user as { userId?: string }).userId = uid;
+        if (uid) (session.user as { id?: string }).id = uid;
         (session.user as { trialEndsAt?: string | null }).trialEndsAt =
           token.trialEndsAt as string | null | undefined;
         (session.user as { subscriptionActive?: boolean }).subscriptionActive =
@@ -122,6 +132,17 @@ export const authOptions: NextAuthOptions = {
         (session.user as { teamRole?: string }).teamRole = token.teamRole as string | undefined;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) return url;
+      if (url.startsWith("/")) return `${baseUrl.replace(/\/$/, "")}${url}`;
+      try {
+        const u = new URL(url);
+        if (u.pathname) return `${baseUrl.replace(/\/$/, "")}${u.pathname}${u.search || ""}`;
+      } catch {
+        // ignore
+      }
+      return baseUrl;
     },
   },
   pages: { signIn: "/login" },

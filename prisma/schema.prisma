@@ -124,6 +124,11 @@ model AgentRun {
   input           Json?
   output          Json?
   creditsConsumed Int      @default(3)
+  model           String?
+  inputTokens     Int?
+  outputTokens    Int?
+  costEst         Float?
+  latencyMs       Int?
   createdAt       DateTime @default(now())
 }
 
@@ -222,6 +227,8 @@ model Property {
   description     String?
   basePrice       Float?
   currency        String?              @default("EUR")
+  seasonRates     Json? // { high: [{from,to,rate}], mid: [...], low: [...] }
+  rnoId           Int? // RNO ID nastanitvenega obrata (AJPES)
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   landingPages    LandingPage[]
@@ -238,8 +245,39 @@ model Property {
   blockedDates    BlockedDate[]
   pageDesigns     PageDesign[]         @relation("PageDesignProperties")
   users           User[]
+  pmsConnections  PmsConnection[]
+  ajpesConnection AjpesConnection?
 
   @@map("properties")
+}
+
+model AjpesConnection {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  username    String
+  passwordEnc String
+  rnoId       Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([propertyId])
+  @@index([propertyId])
+  @@map("ajpes_connections")
+}
+
+model PmsConnection {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  provider    String
+  credentials Json // { accessToken, clientToken }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([propertyId, provider])
+  @@index([propertyId])
+  @@map("pms_connections")
 }
 
 model Itinerary {
@@ -504,35 +542,59 @@ model VerificationToken {
 
 // Tourism models
 model Reservation {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   guestId    String?
-  guest      Guest?   @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  guest      Guest?    @relation(fields: [guestId], references: [id], onDelete: SetNull)
   roomId     String?
   checkIn    DateTime
   checkOut   DateTime
-  status     String   @default("confirmed") // confirmed, cancelled, pending
+  status     String    @default("confirmed") // confirmed, cancelled, pending
   channel    String? // direct, booking.com, airbnb, etc.
   totalPrice Float?
+  deposit    Float? // zahtevana akontacija
+  touristTax Float? // turistična taksa (skupni znesek)
   notes      String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  payments   Payment[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([propertyId, checkIn])
   @@index([status])
   @@map("reservations")
 }
 
+model Payment {
+  id            String      @id @default(cuid())
+  reservationId String
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  type          String // deposit, balance, tourist_tax, extra
+  amount        Float
+  currency      String      @default("EUR")
+  paidAt        DateTime    @default(now())
+  method        String? // cash, card, transfer
+  notes         String?
+  createdAt     DateTime    @default(now())
+
+  @@index([reservationId])
+  @@map("payments")
+}
+
 model Guest {
-  id         String    @id @default(cuid())
-  propertyId String?
-  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
-  name       String
-  email      String?
-  phone      String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  propertyId   String?
+  property     Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  name         String
+  email        String?
+  phone        String?
+  dateOfBirth  DateTime? // za eTurizem
+  countryCode  String? // ISO 2 (SI, DE)
+  documentType String? // vrstaDok: F,H,I,O,P,U,V,L
+  documentId   String? // idStDok
+  gender       String? // M / F
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   reservations   Reservation[]
   communications GuestCommunication[]
@@ -550,6 +612,7 @@ model Notification {
   message    String
   type       String // info, warning, error, success
   read       Boolean  @default(false)
+  link       String?
   createdAt  DateTime @default(now())
 
   @@index([userId, read])
@@ -714,4 +777,31 @@ model PageDesign {
   @@index([userId, published])
   @@index([version])
   @@map("page_designs")
+}
+
+model PageBuilderTemplate {
+  id          String   @id @default(cuid())
+  userId      String?
+  name        String
+  description String?
+  components  Json     @default("[]")
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("page_builder_templates")
+}
+
+model PageBuilderPage {
+  id           String   @id @default(cuid())
+  userId       String?
+  name         String?
+  components   Json     @default("[]")
+  lastModified DateTime @updatedAt
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@map("page_builder_pages")
 }

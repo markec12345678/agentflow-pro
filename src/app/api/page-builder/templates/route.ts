@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as { id?: string })?.id ?? null;
     const templates = await prisma.pageBuilderTemplate.findMany({
-      orderBy: { updatedAt: "desc" }
+      where: {
+        OR: [
+          { isPublic: true },
+          ...(userId ? [{ userId }] : []),
+        ],
+      },
+      orderBy: { updatedAt: "desc" },
     });
-
     return NextResponse.json({ templates });
   } catch (error) {
     console.error("Page builder templates error:", error);
@@ -19,6 +28,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
     const { name, description, components } = await request.json();
 
     if (!name) {
@@ -31,9 +41,10 @@ export async function POST(request: NextRequest) {
     const template = await prisma.pageBuilderTemplate.create({
       data: {
         name,
-        description,
-        components,
+        description: description ?? null,
+        components: components ?? [],
         isPublic: false,
+        userId: (session?.user as { id?: string })?.id ?? null,
       },
     });
 

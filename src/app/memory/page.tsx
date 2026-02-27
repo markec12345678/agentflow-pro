@@ -47,7 +47,8 @@ export default function MemoryPage() {
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
-        setError(d.error ?? "Failed to add entity");
+        const err = d.error;
+        setError(typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : "Failed to add entity"));
         return;
       }
       setName("");

@@ -81,9 +81,9 @@ export async function POST(request: NextRequest) {
         type,
         title,
         message,
-        link,
         userId,
         read: false,
+        link: link || null,
       },
     });
 
@@ -100,16 +100,29 @@ export async function POST(request: NextRequest) {
 // PATCH /api/tourism/notifications - mark as read
 export async function PATCH(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { id, _read } = body;
+    const { id } = body;
 
     if (id === "all") {
-      // Mark all as read
       await prisma.notification.updateMany({
-        where: { read: false },
+        where: { userId, read: false },
         data: { read: true },
       });
       return NextResponse.json({ success: true });
+    }
+
+    const existing = await prisma.notification.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+    if (!existing || existing.userId !== userId) {
+      return NextResponse.json({ error: "Notification not found" }, { status: 404 });
     }
 
     const notification = await prisma.notification.update({

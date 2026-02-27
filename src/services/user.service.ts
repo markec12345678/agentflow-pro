@@ -1,25 +1,16 @@
-import { PrismaClient } from '@prisma/client';
-import { 
-  User, 
-  Session, 
-  AuthResponse, 
-  LoginRequest, 
-  RegisterRequest, 
+import { prisma } from "@/database/schema";
+import { AuthService, AuthError } from "./auth.service";
+import {
+  User,
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
   UpdateUserRequest,
   ChangePasswordRequest,
-  Team,
-  TeamMember,
-  UsageAlert,
-  AuthError,
-  AuthService
-} from '../types/user';
+} from "../types/user";
 
 export class UserService {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  private prisma = prisma;
 
   /**
    * Register a new user
@@ -197,7 +188,7 @@ export class UserService {
   async refreshToken(refreshToken: string): Promise<{ token: string; refreshToken: string }> {
     // Find session with refresh token
     const session = await this.prisma.session.findFirst({
-      where: { 
+      where: {
         refreshToken,
         isActive: true,
         expiresAt: { gt: new Date() }
@@ -210,10 +201,10 @@ export class UserService {
     }
 
     // Generate new tokens
-    const newToken = AuthService.generateToken({ 
-      userId: session.userId, 
-      email: session.user.email, 
-      role: session.user.role 
+    const newToken = AuthService.generateToken({
+      userId: session.userId,
+      email: session.user.email,
+      role: session.user.role
     });
     const newRefreshToken = AuthService.generateRefreshToken();
 
@@ -295,7 +286,7 @@ export class UserService {
 
     // Verify current password
     const isCurrentPasswordValid = await AuthService.verifyPassword(
-      data.currentPassword, 
+      data.currentPassword,
       user.passwordHash
     );
 
@@ -317,7 +308,7 @@ export class UserService {
 
     // Invalidate all sessions except current
     await this.prisma.session.updateMany({
-      where: { 
+      where: {
         userId,
         isActive: true,
       },
@@ -368,22 +359,19 @@ export class UserService {
 
       const newPasswordHash = await AuthService.hashPassword(newPassword);
 
-      await this.prisma.user.update({
+      const user = await this.prisma.user.update({
         where: { email },
         data: {
           passwordHash: newPasswordHash,
           updatedAt: new Date(),
-        }
+        },
+        select: { id: true }
       });
 
-      // Invalidate all sessions
-      await this.prisma.session.updateMany({
-        where: { 
-          userId: email, // This should be userId, but we don't have it here
-          isActive: true,
-        },
-        data: { isActive: false }
-      });
+      // Invalidate all sessions for this user (log out everywhere)
+      await this.prisma.session.deleteMany({
+        where: { userId: user.id }
+      }).catch(() => { /* Ignore if Session schema differs */ });
     } catch (error) {
       throw new AuthError('INVALID_RESET_TOKEN', 'Invalid or expired reset token');
     }
@@ -564,26 +552,36 @@ export class UserService {
   }
 
   /**
-   * Send email verification (placeholder)
+   * Send email verification (used by register and resend-verification)
    */
-  private async sendEmailVerification(email: string): Promise<void> {
-    // TODO: Implement email sending
-    console.log('Email verification sent to:', email);
+  async sendEmailVerification(email: string): Promise<void> {
+    const token = AuthService.generateEmailVerificationToken(email);
+    const { sendVerificationEmail } = await import('@/lib/email/send');
+    await sendVerificationEmail(email, token);
   }
 
   /**
-   * Send password reset email (placeholder)
+   * Send password reset email
    */
   private async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-    // TODO: Implement email sending
-    console.log('Password reset email sent to:', email, 'with token:', token);
+    const { sendPasswordResetEmail: sendResetEmail } = await import('@/lib/email/send');
+    await sendResetEmail(email, token);
   }
 
   /**
-   * Send team invitation (placeholder)
+   * Send team invitation email
+   * @param inviteLink - Optional invite link (e.g. /invite/{token}). If not provided, uses generic /settings/teams.
    */
-  private async sendTeamInvitation(email: string, teamId: string, role: string): Promise<void> {
-    // TODO: Implement email sending
-    console.log('Team invitation sent to:', email, 'for team:', teamId, 'with role:', role);
+  private async sendTeamInvitation(
+    email: string,
+    teamId: string,
+    role: string,
+    inviteLink?: string
+  ): Promise<void> {
+    const baseUrl = process.env.NEXTAUTH_URL
+      ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    const link = inviteLink ?? `${baseUrl}/settings/teams`;
+    const { sendTeamInviteEmail } = await import('@/lib/email/send');
+    await sendTeamInviteEmail(email, link, role);
   }
 }

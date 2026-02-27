@@ -40,7 +40,8 @@ export default function PersonalizePage() {
       });
       const out = (await res.json()) as { results?: string[]; error?: string };
       if (!res.ok) {
-        setError(out.error ?? "Personalization failed");
+        const err = out.error;
+        setError(typeof err === "object" && err && 'message' in err ? (err as { message: string }).message : (typeof err === "string" ? err : "Personalization failed"));
         setLoading(false);
         return;
       }

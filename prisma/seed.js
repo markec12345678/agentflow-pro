@@ -35,6 +35,24 @@ async function main() {
 
   const e2eUserId = "e2e-user-1";
 
+  // Property - E2E calendar/reservation tests
+  const seedPropertyId = "seed-property-e2e";
+  await prisma.property.upsert({
+    where: { id: seedPropertyId },
+    update: { name: "E2E Test Nastanitev", basePrice: 80, currency: "EUR" },
+    create: {
+      id: seedPropertyId,
+      userId: e2eUserId,
+      name: "E2E Test Nastanitev",
+      basePrice: 80,
+      currency: "EUR",
+    },
+  });
+  await prisma.user.update({
+    where: { id: e2eUserId },
+    data: { activePropertyId: seedPropertyId },
+  });
+
   // UserTemplate - 2 samples for tourism
   await prisma.userTemplate.upsert({
     where: { id: "seed-template-1" },

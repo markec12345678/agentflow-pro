@@ -77,15 +77,24 @@ export async function POST(request: NextRequest) {
     const {
       propertyId,
       guestId,
+      guest: guestData, // { name, email?, phone? } – when creating new guest
       type, // 'pre-arrival', 'post-stay'
+      channel = "email", // 'email' | 'whatsapp' – whatsapp requires guest.phone
       content,
+      subject,
       scheduledFor,
-      variables, // { ime_gosta, lokacija, datum_prihoda, ... }
+      variables, // { ime_gosta, lokacija, datum_prihoda, email, phone, ... }
     } = body;
 
-    if (!propertyId || !guestId || !type || !content) {
+    if (!propertyId || !type || !content) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields: propertyId, type, content" },
+        { status: 400 }
+      );
+    }
+    if (!guestId && !guestData?.name) {
+      return NextResponse.json(
+        { error: "Provide guestId or guest: { name, email?, phone? }" },
         { status: 400 }
       );
     }
@@ -95,32 +104,52 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Property not found" }, { status: 403 });
     }
 
-    // Create or update guest
-    const guest = await prisma.guest.upsert({
-      where: { id: guestId },
-      update: {
-        name: variables?.ime_gosta || "Guest",
-        email: variables?.email,
-        phone: variables?.phone,
-      },
-      create: {
-        id: guestId,
-        name: variables?.ime_gosta || "Guest",
-        email: variables?.email,
-        phone: variables?.phone,
-        propertyId,
-      },
-    });
+    const name = variables?.ime_gosta || guestData?.name || "Guest";
+    const email = variables?.email ?? guestData?.email ?? null;
+    const phone = variables?.phone ?? guestData?.phone ?? null;
+
+    let guest;
+    if (guestId) {
+      guest = await prisma.guest.upsert({
+        where: { id: guestId },
+        update: { name, email: email ?? undefined, phone: phone ?? undefined },
+        create: {
+          id: guestId,
+          name,
+          email: email ?? undefined,
+          phone: phone ?? undefined,
+          propertyId,
+        },
+      });
+    } else {
+      guest = await prisma.guest.create({
+        data: {
+          name,
+          email: email ?? undefined,
+          phone: phone ?? undefined,
+          propertyId,
+        },
+      });
+    }
+
+    const validChannel = channel === "whatsapp" ? "whatsapp" : "email";
+    if (validChannel === "whatsapp" && !guest.phone?.trim()) {
+      return NextResponse.json(
+        { error: "Guest phone is required for WhatsApp. Add phone in variables." },
+        { status: 400 }
+      );
+    }
 
     const communication = await prisma.guestCommunication.create({
       data: {
         propertyId,
         guestId: guest.id,
         type,
+        channel: validChannel,
+        subject: subject ?? (validChannel === "email" ? "Message from your accommodation" : null),
         content,
         variables: variables || {},
-        scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
-        status: scheduledFor ? "scheduled" : "draft",
+        status: "draft",
       },
     });
 

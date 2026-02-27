@@ -24,7 +24,11 @@ npm run test:e2e:smoke
 | | Shrani workflow | ⏭️ Zahteva DATABASE_URL |
 | | Odpri Dashboard | ✅ |
 | | Preveri "Saved Workflows" | ⏭️ Zahteva DATABASE_URL |
-| **4. Vse strani** | | |
+| **4. Phase E – Auth** | | |
+| | Forgot password (/forgot-password) | ✅ |
+| | Reset password (/reset-password) | ✅ |
+| | Verify email (/verify-email) | ✅ |
+| **5. Vse strani** | | |
 | | Homepage (/) | ✅ |
 | | Dashboard (/dashboard) | ✅ |
 | | Pricing (/pricing) | ✅ |

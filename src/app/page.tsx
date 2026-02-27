@@ -82,39 +82,47 @@ export default function HomePage() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">4</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">AI Agents</div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">5+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Jezikov vsebine</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">100%</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Test Coverage</div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">SEO</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Optimizirano</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">24h</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">MVP Build</div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">7</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Dni brezplačno</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">$40K+</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">MRR Potential</div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">0</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Kreditna kartica</div>
             </div>
           </div>
+          <p className="text-center mt-6">
+            <Link
+              href="/stories"
+              className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium hover:underline"
+            >
+              Preberite uspešne primere uporabe →
+            </Link>
+          </p>
         </div>
       </section>
 
-      {/* Demo Video Section */}
+      {/* Try Now Section */}
       <section id="demo-video" className="py-12 px-4 bg-gray-50 dark:bg-gray-800/50">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            90-Second Product Demo
+            V petih minutah do prve vsebine
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            See how to generate hotel content, destination guides, and campaigns. Demo video coming soon.
+            Odberite tip nastanitve, vnesite ime in lokacijo – AI ustvari opis, vodič ali kampanjo. Brez kreditne kartice.
           </p>
           <Link
             href="/onboarding"
             className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
           >
-            Try AgentFlow Pro Now
+            Začni zdaj
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

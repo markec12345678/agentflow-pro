@@ -237,7 +237,7 @@
 | Phase 3: Knowledge Graph | 15 | 15 | 100% |
 | Phase 4: Workflow Builder | 15 | 15 | 100% |
 | Phase 5: Monetization | 20 | 20 | 100% |
-| Phase 6: Testing | 20 | 19 | 95% |
+| Phase 6: Testing | 20 | 20 | 100% |
 | Phase 7: Deploy | 20 | 20 | 100% |
 | Phase 8: Launch | 15 | 14 | 93% |
 | **TOTAL** | **155** | **154** | **99%** |
@@ -256,6 +256,24 @@
 | **P1** | 6.1-6.3 | Testing | High |
 | **P2** | 7.1-7.3 | Deploy | Medium |
 | **P2** | 8.1-8.3 | Launch | Medium |
+
+---
+
+## PHASE: Receptionist UX (Receptor / Lastnik kampa)
+
+### P0 - Danes na glavnem dashboardu
+- [x] TodayOverview na dashboard za tourism users
+- [x] Active property fetch na dashboard
+
+### P0 - Sidebar navigacija
+- [x] Koledar in Komunikacija v TOURISM_NAV
+
+### P1 - Telefon gosta
+- [x] today-overview API: phone v response
+- [x] TodayOverview UI: tel: link za telefon
+
+### P1 - Lokacija konkurentov
+- [x] Competitors: location iz property.location
 
 ---
 

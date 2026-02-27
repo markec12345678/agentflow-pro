@@ -155,7 +155,33 @@ REDIS_URL="redis://localhost:6379"
 SENTRY_DSN="https://..."
 STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_PUBLISHABLE_KEY="pk_test_..."
+# Email (verification, password reset, team invites)
+RESEND_API_KEY="re_..."
+EMAIL_FROM="AgentFlow Pro <notifications@agentflow.pro>"
 ```
+
+### MCP Setup
+
+AgentFlow Pro uses Model Context Protocol (MCP) servers for AI-assisted development. Configure them in `~/.cursor/mcp.json`:
+
+| MCP | Purpose | Env Variable |
+|-----|---------|--------------|
+| Memory | Knowledge graph & context | — |
+| GitHub | Repo management | `GITHUB_TOKEN` |
+| Git | Version control | — |
+| Playwright | E2E testing | — |
+| Firecrawl | Web scraping | `FIRECRAWL_API_KEY` |
+| Context7 | API documentation | `CONTEXT7_API_KEY` |
+| Vercel | Frontend deploy | — |
+| Docker | Agent containers | — |
+| Sentry | Error monitoring | — |
+| Sequential Thinking | Complex decisions | — |
+
+See [.cursor/MCP_REQUIRED.md](.cursor/MCP_REQUIRED.md) for full mcp.json reference and verification.
+
+### Production (Vercel)
+
+For production deployment, see [docs/VERCEL-ENV-CHECKLIST.md](docs/VERCEL-ENV-CHECKLIST.md) for required variables: `DATABASE_URL`, `STRIPE_*`, `NEXTAUTH_*`, `SENTRY_*`, and optional `RESEND_API_KEY`, `EMAIL_FROM` (Phase E – email verification, password reset, team invites).
 
 ### Database Setup
 ```bash
@@ -310,8 +336,9 @@ npm run test:e2e:tourism
 ## 📚 Documentation
 
 - **[API Documentation](./docs/api.md)**: REST API reference
+- **[Phase E – Auth & Email](./docs/PHASE-E-AUTH-EMAIL.md)**: Email flow, password reset, User Profile API
 - **[Agent Development](./docs/agent-development.md)**: Building custom agents
-- **[Deployment Guide](./docs/deployment.md)**: Production deployment
+- **[Deployment Guide](./docs/DEPLOYMENT.md)**: Production deployment
 - **[Troubleshooting](./docs/troubleshooting.md)**: Common issues
 
 ### Architecture Diagrams

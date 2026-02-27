@@ -38,27 +38,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Property not found" }, { status: 404 });
   }
 
-  const connections = await prisma.pmsConnection.findMany({
-    where: { propertyId: { in: propertyIds } },
-    select: {
-      id: true,
-      propertyId: true,
-      provider: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+  const rows = propertyIds.length > 0
+    ? await prisma.pmsConnection.findMany({
+      where: { propertyId: { in: propertyIds } },
+      select: { id: true, propertyId: true, provider: true },
+    })
+    : [];
 
-  return NextResponse.json({
-    connections: connections.map((c) => ({
-      id: c.id,
-      propertyId: c.propertyId,
-      provider: c.provider,
-      hasCredentials: true,
-      createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
-    })),
-  });
+  const connections = rows.map((r) => ({
+    id: r.id,
+    propertyId: r.propertyId,
+    provider: r.provider,
+    hasCredentials: true,
+  }));
+
+  return NextResponse.json({ connections });
 }
 
 export async function POST(request: NextRequest) {
@@ -88,21 +82,27 @@ export async function POST(request: NextRequest) {
   }
 
   const provider = body.provider ?? "mews";
+
   const credentials = {
-    accessToken: body.accessToken,
-    clientToken: body.clientToken,
+    accessToken: body.accessToken.trim(),
+    clientToken: body.clientToken.trim(),
   };
 
   const conn = await prisma.pmsConnection.upsert({
     where: {
-      propertyId_provider: { propertyId: body.propertyId, provider },
+      propertyId_provider: {
+        propertyId: body.propertyId,
+        provider,
+      },
     },
     create: {
       propertyId: body.propertyId,
       provider,
       credentials,
     },
-    update: { credentials, updatedAt: new Date() },
+    update: {
+      credentials,
+    },
   });
 
   return NextResponse.json({

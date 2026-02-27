@@ -9,7 +9,47 @@ import {
   addDays,
   startOfDay,
   getDay,
+  parseISO,
 } from "date-fns";
+
+export interface SeasonRange {
+  from: string; // YYYY-MM-DD
+  to: string;   // YYYY-MM-DD
+  rate: number; // absolute price per night for this season
+}
+
+export type SeasonRatesJson = {
+  high?: SeasonRange[];
+  mid?: SeasonRange[];
+  low?: SeasonRange[];
+} | null;
+
+/**
+ * Returns the applicable rate per night for a given checkIn date.
+ * If seasonRates has a matching range, returns that rate; otherwise returns baseRate.
+ */
+export function getSeasonRate(
+  checkIn: Date,
+  baseRate: number,
+  seasonRates: SeasonRatesJson
+): number {
+  if (!seasonRates || typeof seasonRates !== "object") return baseRate;
+  const checkInDay = startOfDay(checkIn);
+  const allRanges: SeasonRange[] = [
+    ...(Array.isArray(seasonRates.high) ? seasonRates.high : []),
+    ...(Array.isArray(seasonRates.mid) ? seasonRates.mid : []),
+    ...(Array.isArray(seasonRates.low) ? seasonRates.low : []),
+  ];
+  for (const range of allRanges) {
+    if (!range.from || !range.to || typeof range.rate !== "number") continue;
+    const from = startOfDay(parseISO(range.from));
+    const to = startOfDay(parseISO(range.to));
+    if (checkInDay >= from && checkInDay <= to) {
+      return range.rate;
+    }
+  }
+  return baseRate;
+}
 
 export interface CalculatePriceResult {
   baseTotal: number;
@@ -24,7 +64,7 @@ export interface CalculatePriceOptions {
 
 /**
  * Calculates total price applying PRICING_STRATEGIES rules.
- * Order: length_of_stay discount → early_bird or last_minute → weekend_premium.
+ * Order: season rate → length_of_stay discount → early_bird or last_minute → weekend_premium.
  */
 export function calculatePrice(
   baseRatePerNight: number,
@@ -37,7 +77,8 @@ export function calculatePrice(
   const checkInDay = startOfDay(checkIn);
   const checkOutDay = startOfDay(checkOut);
   const nights = Math.max(1, differenceInDays(checkOutDay, checkInDay));
-  let runningTotal = baseRatePerNight * nights;
+  const ratePerNight = getSeasonRate(checkIn, baseRatePerNight, options?.seasonRates ?? null);
+  let runningTotal = ratePerNight * nights;
 
   const { rules } = PRICING_STRATEGIES;
 
@@ -94,7 +135,7 @@ export function calculatePrice(
   }
 
   return {
-    baseTotal: baseRatePerNight * nights,
+    baseTotal: ratePerNight * nights,
     adjustments,
     finalPrice: Math.round(runningTotal * 100) / 100,
     nights,

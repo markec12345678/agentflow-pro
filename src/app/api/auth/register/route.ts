@@ -1,57 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { UserService } from '@/services/user.service';
-import { AuthService, AuthError } from '@/services/auth.service';
-
-const userService = new UserService();
+import { prisma } from '@/database/schema';
+import { registerUser } from '@/lib/auth-users';
 
 export const dynamic = "force-dynamic";
 
 /**
  * POST /api/auth/register
- * Register a new user
+ * Register a new user (uses Prisma schema, compatible with NextAuth credentials)
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, name, planId, teamName } = body;
+    const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
+    const name = typeof body.name === 'string' ? body.name : undefined;
 
-    const result = await userService.register({
-      email,
-      password,
-      name,
-      planId,
-      teamName,
-    });
-
-    return NextResponse.json({
-      success: true,
-      data: result,
-    });
-  } catch (error) {
-    console.error('Registration error:', error);
-
-    if (error instanceof AuthError) {
+    if (!email) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: error.code,
-            message: error.message,
-            field: error.field,
-          },
-        },
+        { success: false, error: { code: 'EMAIL_REQUIRED', message: 'Email is required' } },
+        { status: 400 }
+      );
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        { success: false, error: { code: 'EMAIL_INVALID', message: 'Invalid email format' } },
+        { status: 400 }
+      );
+    }
+    if (!password || password.length < 8) {
+      return NextResponse.json(
+        { success: false, error: { code: 'PASSWORD_TOO_SHORT', message: 'Password must be at least 8 characters' } },
         { status: 400 }
       );
     }
 
+    const result = await registerUser(email, password, name);
+
+    if (!result) {
+      return NextResponse.json(
+        { success: false, error: { code: 'USER_EXISTS', message: 'User with this email already exists' } },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: { id: result.id },
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: 'Internal server error',
-        },
-      },
+      { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
     );
   }
@@ -80,7 +79,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if email is available
-    const existingUser = await userService.getUserByEmail(email);
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase().trim() },
+      select: { id: true },
+    });
 
     return NextResponse.json({
       success: true,

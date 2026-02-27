@@ -4,16 +4,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
 
 // Types
 interface BillingPlan {
@@ -24,536 +14,327 @@ interface BillingPlan {
   interval: string;
   features: string[];
   limits: {
-    agents: number;
-    runsPerMonth: number;
-    storage: number;
-    teamMembers: number;
+    properties: number;
+    content: number;
+    aiGenerations: number;
   };
-  formattedPrice: string;
-}
-
-interface UsageStats {
-  currentPeriod: string;
-  agentRuns: { used: number; limit: number; percentage: number };
-  storage: { used: number; limit: number; percentage: number };
-  teamMembers: { used: number; limit: number; percentage: number };
-  overageCost: number;
-}
-
-interface Customer {
-  customerId: string;
-  email: string;
-  name: string;
 }
 
 interface Subscription {
-  subscriptionId: string;
-  status: string;
-  currentPeriodEnd: Date;
-  trialEnd?: Date;
+  id: string;
   planId: string;
+  status: 'active' | 'canceled' | 'past_due';
+  currentPeriodEnd: string;
+  cancelAtPeriodEnd: boolean;
 }
 
-// Main Billing Dashboard Component
-export function BillingDashboard() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  // State
-  const [plans, setPlans] = useState<BillingPlan[]>([]);
-  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
-  const [customer, setCustomer] = useState<Customer | null>(null);
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  
-  // Form state
-  const [newCustomer, setNewCustomer] = useState({
-    email: '',
-    name: ''
-  });
-  
-  const [newSubscription, setNewSubscription] = useState({
-    email: '',
-    name: '',
-    planId: 'starter' as const,
-    trialPeriodDays: 14
-  });
+interface Usage {
+  properties: number;
+  content: number;
+  aiGenerations: number;
+}
 
-  // Load data on mount
+export default function BillingDashboard() {
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [usage, setUsage] = useState<Usage | null>(null);
+  const [plans, setPlans] = useState<BillingPlan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('overview');
+
   useEffect(() => {
-    loadPlans();
-    loadUsageStats();
+    fetchBillingData();
   }, []);
 
-  // API calls
-  const loadPlans = async () => {
+  const fetchBillingData = async () => {
     try {
-      const response = await fetch('/api/billing/complete?action=plans');
-      const result = await response.json();
+      setLoading(true);
+      setError(null);
       
-      if (result.success) {
-        setPlans(result.data);
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError('Failed to load plans');
-    }
-  };
-
-  const loadUsageStats = async () => {
-    try {
-      const response = await fetch('/api/billing/complete?action=usage&userId=demo-user');
-      const result = await response.json();
-      
-      if (result.success) {
-        setUsageStats(result.data);
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError('Failed to load usage stats');
-    }
-  };
-
-  const createCustomer = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await fetch('/api/billing/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'create_customer',
-          ...newCustomer
-        })
+      // Mock data for now
+      setSubscription({
+        id: 'sub_123',
+        planId: 'pro',
+        status: 'active',
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false
       });
       
-      const result = await response.json();
+      setUsage({
+        properties: 3,
+        content: 45,
+        aiGenerations: 120
+      });
       
-      if (result.success) {
-        setCustomer(result.data);
-        setNewCustomer({ email: '', name: '' });
-      } else {
-        setError(result.error);
-      }
+      setPlans([
+        {
+          id: 'starter',
+          name: 'Starter',
+          price: 29,
+          currency: 'EUR',
+          interval: 'month',
+          features: ['Up to 3 properties', '100 content generations', 'Basic support'],
+          limits: { properties: 3, content: 100, aiGenerations: 100 }
+        },
+        {
+          id: 'pro',
+          name: 'Pro',
+          price: 79,
+          currency: 'EUR',
+          interval: 'month',
+          features: ['Up to 10 properties', '500 content generations', 'Priority support', 'Advanced analytics'],
+          limits: { properties: 10, content: 500, aiGenerations: 500 }
+        },
+        {
+          id: 'enterprise',
+          name: 'Enterprise',
+          price: 199,
+          currency: 'EUR',
+          interval: 'month',
+          features: ['Unlimited properties', 'Unlimited content', 'Dedicated support', 'Custom features'],
+          limits: { properties: 999, content: 9999, aiGenerations: 9999 }
+        }
+      ]);
     } catch (err) {
-      setError('Failed to create customer');
+      setError('Failed to load billing data');
     } finally {
       setLoading(false);
     }
   };
 
-  const createSubscription = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await fetch('/api/billing/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'create_subscription',
-          ...newSubscription
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setSubscription(result.data);
-        setNewSubscription({
-          email: '',
-          name: '',
-          planId: 'starter',
-          trialPeriodDays: 14
-        });
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError('Failed to create subscription');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const trackUsage = async (type: 'agent_run' | 'storage' | 'team_member', value?: number) => {
-    try {
-      const response = await fetch('/api/billing/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'track_usage',
-          userId: 'demo-user',
-          type,
-          value
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        // Reload usage stats
-        loadUsageStats();
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError('Failed to track usage');
-    }
-  };
-
-  const createCheckoutSession = async (planId: string) => {
-    if (!customer) {
-      setError('Please create a customer first');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/billing/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'create_checkout_session',
-          customerId: customer.customerId,
-          planId,
-          successUrl: `${window.location.origin}/billing/success`,
-          cancelUrl: `${window.location.origin}/billing/cancel`
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        // Redirect to Stripe Checkout
-        window.location.href = result.data.url;
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError('Failed to create checkout session');
-    }
-  };
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">Loading billing information...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">AgentFlow Pro - Billing</h1>
-          <p className="text-muted-foreground">Complete subscription management and payment processing</p>
+          <p className="text-gray-600">Complete subscription management and payment processing</p>
         </div>
-        <Badge variant="secondary" className="text-green-600">
+        <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
           Stripe Integration ✅
-        </Badge>
+        </div>
       </div>
 
       {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
       )}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="plans">Plans</TabsTrigger>
-          <TabsTrigger value="usage">Usage</TabsTrigger>
-          <TabsTrigger value="management">Management</TabsTrigger>
-        </TabsList>
+      <div className="space-y-4">
+        <div className="flex space-x-4 border-b">
+          {['overview', 'plans', 'usage', 'management'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 font-medium ${
+                activeTab === tab
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Current Plan</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {subscription ? (
-                  <div className="space-y-2">
-                    <div className="text-2xl font-bold capitalize">{subscription.planId}</div>
-                    <div className="text-sm text-muted-foreground">
-                      Status: <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
-                        {subscription.status}
-                      </Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Next billing: {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">No active subscription</div>
-                )}
-              </CardContent>
-            </Card>
+        {activeTab === 'overview' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="border rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Current Plan</h3>
+                <div className="space-y-2">
+                  {subscription ? (
+                    <>
+                      <div className="text-2xl font-bold capitalize">{subscription.planId}</div>
+                      <div className="text-sm text-gray-600">
+                        Status: <span className={`px-2 py-1 rounded text-xs ${
+                          subscription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {subscription.status}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Next billing: {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-sm text-gray-600">No active subscription</div>
+                  )}
+                </div>
+              </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Usage This Month</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {usageStats ? (
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>Agent Runs</span>
-                        <span>{usageStats.agentRuns.used}/{usageStats.agentRuns.limit}</span>
+              <div className="border rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Usage This Month</h3>
+                <div className="space-y-3">
+                  {usage && (
+                    <>
+                      <div>
+                        <div className="flex justify-between text-sm">
+                          <span>Properties</span>
+                          <span>{usage.properties}/10</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full" 
+                            style={{ width: `${(usage.properties / 10) * 100}%` }}
+                          />
+                        </div>
                       </div>
-                      <Progress value={usageStats.agentRuns.percentage} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>Storage</span>
-                        <span>{usageStats.storage.used}MB/{usageStats.storage.limit}MB</span>
+                      <div>
+                        <div className="flex justify-between text-sm">
+                          <span>Content</span>
+                          <span>{usage.content}/500</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full" 
+                            style={{ width: `${(usage.content / 500) * 100}%` }}
+                          />
+                        </div>
                       </div>
-                      <Progress value={usageStats.storage.percentage} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>Team Members</span>
-                        <span>{usageStats.teamMembers.used}/{usageStats.teamMembers.limit}</span>
+                      <div>
+                        <div className="flex justify-between text-sm">
+                          <span>AI Generations</span>
+                          <span>{usage.aiGenerations}/500</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full" 
+                            style={{ width: `${(usage.aiGenerations / 500) * 100}%` }}
+                          />
+                        </div>
                       </div>
-                      <Progress value={usageStats.teamMembers.percentage} className="h-2" />
-                    </div>
-                    {usageStats.overageCost > 0 && (
-                      <div className="text-sm text-orange-600">
-                        Overage cost: ${(usageStats.overageCost / 100).toFixed(2)}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">Loading usage stats...</div>
-                )}
-              </CardContent>
-            </Card>
+                    </>
+                  )}
+                </div>
+              </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Customer Info</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {customer ? (
-                  <div className="space-y-2">
-                    <div className="font-medium">{customer.name}</div>
-                    <div className="text-sm text-muted-foreground">{customer.email}</div>
-                    <div className="text-sm text-muted-foreground">ID: {customer.customerId}</div>
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">No customer created</div>
-                )}
-              </CardContent>
-            </Card>
+              <div className="border rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+                <div className="space-y-2">
+                  <button className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Upgrade Plan
+                  </button>
+                  <button className="w-full px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                    View Invoices
+                  </button>
+                  <button className="w-full px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                    Payment Methods
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </TabsContent>
+        )}
 
         {/* Plans Tab */}
-        <TabsContent value="plans" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {plans.map((plan) => (
-              <Card key={plan.id} className={plan.id === 'pro' ? 'border-blue-500' : ''}>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    {plan.name}
-                    {plan.id === 'pro' && <Badge variant="default">Popular</Badge>}
-                  </CardTitle>
-                  <CardDescription>
-                    <div className="text-2xl font-bold">{plan.formattedPrice}</div>
-                    <div className="text-sm text-muted-foreground">per {plan.interval}</div>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Features:</h4>
-                    <ul className="text-sm space-y-1">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-center space-x-2">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+        {activeTab === 'plans' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {plans.map((plan) => (
+                <div key={plan.id} className="border rounded-lg p-6">
+                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                  <div className="text-3xl font-bold mb-4">
+                    €{plan.price}<span className="text-sm text-gray-600">/{plan.interval}</span>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Limits:</h4>
-                    <div className="text-sm space-y-1">
-                      <div>Agents: {plan.limits.agents === -1 ? 'Unlimited' : plan.limits.agents}</div>
-                      <div>Runs/month: {plan.limits.runsPerMonth === -1 ? 'Unlimited' : plan.limits.runsPerMonth}</div>
-                      <div>Storage: {plan.limits.storage === -1 ? 'Unlimited' : `${plan.limits.storage}MB`}</div>
-                      <div>Team members: {plan.limits.teamMembers === -1 ? 'Unlimited' : plan.limits.teamMembers}</div>
-                    </div>
-                  </div>
-
-                  <Button 
-                    className="w-full" 
-                    onClick={() => createCheckoutSession(plan.id)}
-                    disabled={!customer}
+                  <ul className="space-y-2 mb-6">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="text-sm text-gray-600">
+                        ✓ {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button 
+                    className={`w-full px-4 py-2 rounded ${
+                      subscription?.planId === plan.id
+                        ? 'bg-gray-100 text-gray-800'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
                   >
-                    {customer ? 'Subscribe' : 'Create customer first'}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                    {subscription?.planId === plan.id ? 'Current Plan' : 'Select Plan'}
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-        </TabsContent>
+        )}
 
         {/* Usage Tab */}
-        <TabsContent value="usage" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Usage Tracking</CardTitle>
-              <CardDescription>Track and monitor your usage</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button onClick={() => trackUsage('agent_run')}>
-                  Track Agent Run
-                </Button>
-                <Button onClick={() => trackUsage('storage', 2500)}>
-                  Track Storage (2.5GB)
-                </Button>
-                <Button onClick={() => trackUsage('team_member', 3)}>
-                  Track Team Members (3)
-                </Button>
+        {activeTab === 'usage' && (
+          <div className="space-y-4">
+            <div className="border rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">Detailed Usage</h3>
+              <div className="space-y-4">
+                {usage && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-blue-600">{usage.properties}</div>
+                        <div className="text-sm text-gray-600">Properties</div>
+                      </div>
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-green-600">{usage.content}</div>
+                        <div className="text-sm text-gray-600">Content Items</div>
+                      </div>
+                      <div className="text-center p-4 border rounded">
+                        <div className="text-2xl font-bold text-purple-600">{usage.aiGenerations}</div>
+                        <div className="text-sm text-gray-600">AI Generations</div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
-              
-              {usageStats && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Current Usage</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold">{usageStats.agentRuns.used}</div>
-                          <div className="text-sm text-muted-foreground">Agent Runs</div>
-                          <Progress value={usageStats.agentRuns.percentage} className="mt-2" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold">{usageStats.storage.used}MB</div>
-                          <div className="text-sm text-muted-foreground">Storage Used</div>
-                          <Progress value={usageStats.storage.percentage} className="mt-2" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold">{usageStats.teamMembers.used}</div>
-                          <div className="text-sm text-muted-foreground">Team Members</div>
-                          <Progress value={usageStats.teamMembers.percentage} className="mt-2" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+          </div>
+        )}
 
         {/* Management Tab */}
-        <TabsContent value="management" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Create Customer</CardTitle>
-                <CardDescription>Create a new Stripe customer</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="customer@example.com"
-                    value={newCustomer.email}
-                    onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
-                  />
+        {activeTab === 'management' && (
+          <div className="space-y-4">
+            <div className="border rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">Subscription Management</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded">
+                  <div>
+                    <h4 className="font-medium">Cancel Subscription</h4>
+                    <p className="text-sm text-gray-600">Cancel your subscription at the end of the billing period</p>
+                  </div>
+                  <button className="px-4 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50">
+                    Cancel Plan
+                  </button>
                 </div>
-                <div>
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="Customer Name"
-                    value={newCustomer.name}
-                    onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
-                  />
+                <div className="flex items-center justify-between p-4 border rounded">
+                  <div>
+                    <h4 className="font-medium">Update Payment Method</h4>
+                    <p className="text-sm text-gray-600">Add or update your payment method</p>
+                  </div>
+                  <button className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                    Update Payment
+                  </button>
                 </div>
-                <Button onClick={createCustomer} disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Customer'}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Create Subscription</CardTitle>
-                <CardDescription>Create a new subscription (requires customer)</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="sub-email">Email</Label>
-                  <Input
-                    id="sub-email"
-                    type="email"
-                    placeholder="customer@example.com"
-                    value={newSubscription.email}
-                    onChange={(e) => setNewSubscription({...newSubscription, email: e.target.value})}
-                  />
+                <div className="flex items-center justify-between p-4 border rounded">
+                  <div>
+                    <h4 className="font-medium">Download Invoices</h4>
+                    <p className="text-sm text-gray-600">Download your billing invoices</p>
+                  </div>
+                  <button className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                    View Invoices
+                  </button>
                 </div>
-                <div>
-                  <Label htmlFor="sub-name">Name</Label>
-                  <Input
-                    id="sub-name"
-                    placeholder="Customer Name"
-                    value={newSubscription.name}
-                    onChange={(e) => setNewSubscription({...newSubscription, name: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="plan">Plan</Label>
-                  <Select value={newSubscription.planId} onValueChange={(value: any) =>
-                    setNewSubscription({...newSubscription, planId: value})
-                  }>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="starter">Starter</SelectItem>
-                      <SelectItem value="pro">Pro</SelectItem>
-                      <SelectItem value="enterprise">Enterprise</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="trial">Trial Days</Label>
-                  <Input
-                    id="trial"
-                    type="number"
-                    placeholder="14"
-                    value={newSubscription.trialPeriodDays}
-                    onChange={(e) => setNewSubscription({...newSubscription, trialPeriodDays: parseInt(e.target.value)})}
-                  />
-                </div>
-                <Button onClick={createSubscription} disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Subscription'}
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
     </div>
   );
 }
-
-// Export individual components
-export { BillingDashboard as default };

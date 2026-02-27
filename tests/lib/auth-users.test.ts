@@ -2,7 +2,7 @@
  * auth-users.ts - getUserId, registerUser, getUser
  */
 import type { Session } from "next-auth";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { getUserId, registerUser, getUser } from "@/lib/auth-users";
 
 const mockPrismaUserFindUnique = jest.fn();
@@ -17,7 +17,7 @@ jest.mock("@/database/schema", () => ({
   },
 }));
 
-jest.mock("bcrypt", () => ({
+jest.mock("bcryptjs", () => ({
   hash: jest.fn().mockResolvedValue("$hashed"),
   compare: jest.fn().mockResolvedValue(true),
 }));

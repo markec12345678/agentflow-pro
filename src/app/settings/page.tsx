@@ -41,6 +41,14 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [usageAlerts, setUsageAlerts] = useState<Array<{ id: string; type: string; threshold: number }>>([]);
+  const [usageAlertsLoading, setUsageAlertsLoading] = useState(false);
+  const [newAlertType, setNewAlertType] = useState("agent_runs");
+  const [newAlertThreshold, setNewAlertThreshold] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
 
   useEffect(() => {
     const linkedin = searchParams.get("linkedin");
@@ -66,8 +74,9 @@ export default function SettingsPage() {
       fetch("/api/user/keys").then((r) => r.json()),
       fetch("/api/auth/connections").then((r) => r.json()),
       fetch("/api/onboarding").then((r) => r.json()),
+      fetch("/api/usage/alerts").then((r) => r.json()),
     ])
-      .then(([keysData, connData, onboardingData]) => {
+      .then(([keysData, connData, onboardingData, alertsData]) => {
         if (!keysData.error) {
           setKeys(keysData);
           setFormData({});
@@ -85,6 +94,9 @@ export default function SettingsPage() {
             competitors: Array.isArray(ck.competitors) ? ck.competitors.join("\n") : "",
             keyFacts: Array.isArray(ck.keyFacts) ? ck.keyFacts.join("\n") : "",
           });
+        }
+        if (alertsData?.success && alertsData?.data?.alerts) {
+          setUsageAlerts(alertsData.data.alerts);
         }
       })
       .catch(() => { })
@@ -113,7 +125,8 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMessage(data.error ?? "Failed to save");
+        const err = data.error;
+        setMessage(typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : "Failed to save"));
         return;
       }
       setMessage("API keys saved. Your workflows will use these keys.");
@@ -193,6 +206,69 @@ export default function SettingsPage() {
           >
             Admin →
           </Link>
+        </div>
+
+        <h2 className="mb-4 text-xl font-semibold text-white">Sprememba gesla</h2>
+        <p className="mb-2 text-gray-400 text-sm">
+          Uporabniki z email/geslom lahko spremenite geslo. (Google prijava nima gesla.)
+        </p>
+        <div className="mb-8 rounded-lg border border-gray-700 bg-gray-800 p-4 space-y-3 max-w-md">
+          <input
+            type="password"
+            placeholder="Trenutno geslo"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-500"
+          />
+          <input
+            type="password"
+            placeholder="Novo geslo (min. 8 znakov)"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-500"
+          />
+          <input
+            type="password"
+            placeholder="Potrdi novo geslo"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-500"
+          />
+          <button
+            type="button"
+            disabled={passwordSaving || !currentPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 8}
+            onClick={async () => {
+              setMessage(null);
+              setPasswordSaving(true);
+              try {
+                const res = await fetch("/api/auth/password", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    currentPassword,
+                    newPassword,
+                  }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                  const err = data.error?.message ?? data.error ?? "Napaka";
+                  setMessage(typeof err === "string" ? err : "Napaka pri spremembi gesla");
+                  return;
+                }
+                setMessage("Geslo uspešno spremenjeno.");
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+              } catch {
+                setMessage("Napaka pri spremembi gesla");
+              } finally {
+                setPasswordSaving(false);
+              }
+            }}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {passwordSaving ? "Shranjujem..." : "Spremeni geslo"}
+          </button>
         </div>
 
         <h2 className="mb-4 text-xl font-semibold text-white">Publish Connections</h2>
@@ -287,6 +363,137 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        <h2 className="mb-4 text-xl font-semibold text-white">Usage Alerts</h2>
+        <p className="mb-4 text-gray-400">
+          Nastavite opozorila, ko presežete uporabniške limite (agenti, API klici, prostor, stroški).
+        </p>
+        <div className="mb-8 space-y-4 rounded-lg border border-gray-700 bg-gray-800 p-4">
+          {usageAlerts.length > 0 && (
+            <ul className="space-y-2">
+              {usageAlerts.map((a) => (
+                <li key={a.id} className="flex items-center justify-between text-sm">
+                  <span className="text-white">{a.type}: prag {a.threshold}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex flex-wrap gap-2 items-end">
+            <select
+              value={newAlertType}
+              onChange={(e) => setNewAlertType(e.target.value)}
+              className="rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white text-sm"
+            >
+              <option value="agent_runs">Agent runs</option>
+              <option value="api_calls">API calls</option>
+              <option value="storage">Storage</option>
+              <option value="cost">Cost</option>
+            </select>
+            <input
+              type="number"
+              value={newAlertThreshold}
+              onChange={(e) => setNewAlertThreshold(e.target.value)}
+              placeholder="Prag (npr. 100)"
+              className="rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-500 text-sm w-32"
+            />
+            <button
+              type="button"
+              disabled={usageAlertsLoading || !newAlertThreshold.trim()}
+              onClick={async () => {
+                setUsageAlertsLoading(true);
+                setMessage(null);
+                try {
+                  const res = await fetch("/api/usage/alerts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      type: newAlertType,
+                      threshold: Number(newAlertThreshold),
+                    }),
+                  });
+                  const data = await res.json();
+                  if (!data.success) {
+                    const errMsg = typeof data.error === "object" ? data.error?.message : data.error;
+                    setMessage(errMsg ?? "Napaka pri ustvarjanju opozorila");
+                    return;
+                  }
+                  setUsageAlerts((prev) => [...prev, data.data.alert]);
+                  setNewAlertThreshold("");
+                  setMessage("Opozorilo ustvarjeno.");
+                } catch {
+                  setMessage("Napaka pri ustvarjanju opozorila");
+                } finally {
+                  setUsageAlertsLoading(false);
+                }
+              }}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {usageAlertsLoading ? "Shranjevanje..." : "Dodaj opozorilo"}
+            </button>
+          </div>
+        </div>
+
+        <h2 className="mb-4 text-xl font-semibold text-white">Integracije – pregled</h2>
+        <p className="mb-4 text-gray-400">
+          Mailchimp liste in HubSpot kontakti (zahteva konfigurirane ključe / povezavo zgoraj).
+        </p>
+        <div className="mb-8 space-y-4">
+          <div className="rounded-lg border border-gray-700 bg-gray-800 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-white font-medium">Mailchimp liste</span>
+              <button
+                type="button"
+                onClick={async () => {
+                  setMessage(null);
+                  try {
+                    const res = await fetch("/api/mailchimp/lists");
+                    const data = await res.json();
+                    if (data.error) {
+                      setMessage(data.error);
+                      return;
+                    }
+                    setMessage(`Mailchimp: ${data.lists?.length ?? 0} list.`);
+                    setTimeout(() => setMessage(null), 3000);
+                  } catch {
+                    setMessage("Napaka pri nalaganju Mailchimp list.");
+                  }
+                }}
+                className="text-sm text-blue-400 hover:text-blue-300"
+              >
+                Naloži liste
+              </button>
+            </div>
+            <p className="text-xs text-gray-500">Dodajte Mailchimp API ključ zgoraj (All API Keys).</p>
+          </div>
+          <div className="rounded-lg border border-gray-700 bg-gray-800 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-white font-medium">HubSpot kontakti</span>
+              <button
+                type="button"
+                onClick={async () => {
+                  setMessage(null);
+                  try {
+                    const res = await fetch("/api/hubspot/contacts");
+                    const data = await res.json();
+                    if (data.error) {
+                      const err = data.error;
+                      setMessage(typeof err === "object" && err?.message ? err.message : String(err));
+                      return;
+                    }
+                    setMessage(`HubSpot: ${data.contacts?.length ?? 0} kontaktov.`);
+                    setTimeout(() => setMessage(null), 3000);
+                  } catch {
+                    setMessage("Napaka pri nalaganju HubSpot kontaktov.");
+                  }
+                }}
+                className="text-sm text-blue-400 hover:text-blue-300"
+              >
+                Naloži kontakte
+              </button>
+            </div>
+            <p className="text-xs text-gray-500">Povežite HubSpot v Publish Connections zgoraj.</p>
+          </div>
+        </div>
+
         <h2 className="mb-4 text-xl font-semibold text-white">Company Knowledge</h2>
         <p className="mb-4 text-gray-400">
           Products, competitors, and key facts used when generating content. One item per line or comma-separated.
@@ -353,7 +560,8 @@ export default function SettingsPage() {
                 });
                 const data = await res.json();
                 if (!res.ok) {
-                  setMessage(data.error ?? "Failed to save company knowledge");
+                  const err = data.error;
+                  setMessage(typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : "Failed to save company knowledge"));
                   return;
                 }
                 setMessage("Company knowledge saved.");

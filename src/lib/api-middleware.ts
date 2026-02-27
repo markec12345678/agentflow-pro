@@ -28,6 +28,9 @@ export function validateAuth(request: NextRequest): { userId: string; email: str
 
 /**
  * Middleware to check permissions
+ * - own: user can access only their own resources (validated by caller with resourceUserId)
+ * - team: user can access team resources (caller should verify team membership)
+ * - global: admin-only actions (role must be admin)
  */
 export function checkPermission(
   request: NextRequest,
@@ -36,11 +39,33 @@ export function checkPermission(
   scope: 'own' | 'team' | 'global' = 'own'
 ): { userId: string; email: string; role: string } {
   const auth = validateAuth(request);
-  
-  // TODO: Implement permission checking with user data
-  // For now, just return auth data
-  
+
+  if (scope === 'global') {
+    const adminRoles = ['admin', 'ADMIN', 'owner'];
+    if (!adminRoles.includes(auth.role)) {
+      const error = new Error('Admin access required');
+      (error as any).code = 'FORBIDDEN';
+      (error as any).status = 403;
+      throw error;
+    }
+  }
+
   return auth;
+}
+
+/**
+ * Assert that the resource belongs to the user (for scope: 'own')
+ */
+export function assertOwnResource(
+  authUserId: string,
+  resourceUserId: string | null | undefined
+): void {
+  if (!resourceUserId || resourceUserId !== authUserId) {
+    const error = new Error('Access denied');
+    (error as any).code = 'FORBIDDEN';
+    (error as any).status = 403;
+    throw error;
+  }
 }
 
 /**

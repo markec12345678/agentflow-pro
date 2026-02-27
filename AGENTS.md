@@ -17,6 +17,7 @@
 | Memory | Ob začetku seje, ob odločitvah, ob koncu task-a |
 | GitHub | Vse code operacije, PR creation |
 | Playwright | E2E testing, browser automation |
+| **Screenshot** | Pri debugiranju UI/login: `npm run capture:login` (zahteva dev server), nato preberi `screenshots/capture.png` |
 | Firecrawl | Web scraping za research |
 | Context7 | Sveže API dokumentacije |
 | Vercel | Frontend deployment |
@@ -34,6 +35,15 @@
 5. Update progress.md
 6. Git commit + push
 7. Repeat
+
+### Pogled na UI (Agent mora SAM zagnati – uporabnik tega NE dela)
+
+**Ob napakah pri prijavi, registraciji ali drugih UI težavah agent SAM:**
+1. Zaženi `npm run capture:login` (ali `npm run capture:page -- <URL>`)
+2. Preberi `agentflow-pro/screenshots/capture.png` z read_file
+3. Analiziraj vsebino slike za diagnozo
+
+Zahteva: dev server teče, `playwright install` narejen. Screenshot orodje je na voljo agentu, ne uporabniku.
 
 ### Review Points (Vprašaj Uporabnika)
 

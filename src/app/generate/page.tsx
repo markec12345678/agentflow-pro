@@ -45,8 +45,8 @@ const CONTENT_TYPES = [
     id: "seasonal-campaign",
     icon: "🎄",
     label: "Sezonska kampanja",
-    desc: "Božič, poletje, vikend akcija",
-    fields: ["name", "location", "season", "offer"],
+    desc: "Božič, poletje, vikend akcija – z datumom in CTA",
+    fields: ["name", "location", "season", "offer", "cta"],
   },
 ];
 
@@ -60,17 +60,26 @@ const LANGUAGES = [
 
 // ─── Naslovi polj ─────────────────────────────────────────────────────────────
 const FIELD_LABELS: Record<string, { label: string; placeholder: string }> = {
-  name:       { label: "Ime nastanitve",     placeholder: "npr. Hotel Krim, Apartma Bled..." },
-  location:   { label: "Lokacija",           placeholder: "npr. Bled, Kranjska Gora, Ljubljana..." },
-  highlights: { label: "Posebnosti / USP",   placeholder: "npr. pogled na jezero, spa, zasebni bazen, v naravi..." },
-  rooms:      { label: "Sobe / apartmaji",   placeholder: "npr. 12 sob, premium soba z jacuzzijem, family suite..." },
-  checkin:    { label: "Check-in čas",       placeholder: "npr. 14:00, zgodnji check-in možen..." },
-  tips:       { label: "Nasveti za goste",   placeholder: "npr. najboljša restavracija, parkirišče, aktivnosti..." },
+  name: { label: "Ime nastanitve", placeholder: "npr. Hotel Krim, Apartma Bled..." },
+  location: { label: "Lokacija", placeholder: "npr. Bled, Kranjska Gora, Ljubljana..." },
+  highlights: { label: "Posebnosti / USP", placeholder: "npr. pogled na jezero, spa, zasebni bazen, v naravi..." },
+  rooms: { label: "Sobe / apartmaji", placeholder: "npr. 12 sob, premium soba z jacuzzijem, family suite..." },
+  checkin: { label: "Check-in čas", placeholder: "npr. 14:00, zgodnji check-in možen..." },
+  tips: { label: "Nasveti za goste", placeholder: "npr. najboljša restavracija, parkirišče, aktivnosti..." },
   activities: { label: "Aktivnosti / privlačnosti", placeholder: "npr. pohodništvo, kolesarjenje, jezero, Triglav..." },
-  price:      { label: "Cena od",            placeholder: "npr. od 89€ na noč, cene od 150€..." },
-  season:     { label: "Sezona / akcija",    placeholder: "npr. Božič & novo leto, poletne počitnice, zimska akcija..." },
-  offer:      { label: "Posebna ponudba",    placeholder: "npr. 3 noči za ceno 2, brezplačen zajtrk, 20% popust..." },
+  price: { label: "Cena od", placeholder: "npr. od 89€ na noč, cene od 150€..." },
+  season: { label: "Sezona / akcija", placeholder: "npr. Božič & novo leto, poletne počitnice, zimska akcija..." },
+  offer: { label: "Posebna ponudba", placeholder: "npr. 3 noči za ceno 2, brezplačen zajtrk, 20% popust..." },
+  cta: { label: "CTA (poziv k akciji)", placeholder: "npr. Rezervirajte zdaj, Oglejte si ponudbo, Kontaktirajte nas..." },
 };
+
+const SEASON_OPTIONS = [
+  { id: "pomlad", label: "Pomlad", emoji: "🌸" },
+  { id: "poletje", label: "Poletje", emoji: "☀️" },
+  { id: "jesen", label: "Jesen", emoji: "🍂" },
+  { id: "zima", label: "Zima", emoji: "🎄" },
+  { id: "bozic", label: "Božič & novo leto", emoji: "🎅" },
+];
 
 // ─── Ikona za tip ─────────────────────────────────────────────────────────────
 function typeIcon(id: string) {
@@ -100,6 +109,29 @@ function GenerateWizard() {
   const [result, setResult] = useState("");
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [properties, setProperties] = useState<{ id: string; name: string; location?: string | null; description?: string | null }[]>([]);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
+
+  useEffect(() => {
+    fetch("/api/tourism/properties")
+      .then((r) => r.json())
+      .then((data) => setProperties(data.properties ?? []))
+      .catch(() => setProperties([]));
+  }, []);
+
+  useEffect(() => {
+    if (selectedPropertyId && properties.length > 0) {
+      const p = properties.find((x) => x.id === selectedPropertyId);
+      if (p) {
+        setFields((prev) => ({
+          ...prev,
+          name: p.name,
+          location: p.location ?? prev.location,
+          highlights: p.description?.slice(0, 200) ?? prev.highlights,
+        }));
+      }
+    }
+  }, [selectedPropertyId, properties]);
 
   // Predizpolni iz URL params
   useEffect(() => {
@@ -179,13 +211,12 @@ function GenerateWizard() {
           ].map((s, i) => (
             <div key={s.n} className="flex items-center">
               <div
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                  step === s.n
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${step === s.n
                     ? "bg-blue-600 text-white shadow-lg"
                     : step > s.n
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-200 dark:bg-gray-700 text-gray-500"
-                }`}
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-500"
+                  }`}
               >
                 <span>{step > s.n ? "✓" : s.n}</span>
                 <span className="hidden sm:inline">{s.label}</span>
@@ -245,6 +276,27 @@ function GenerateWizard() {
               </div>
 
               <div className="space-y-5">
+                {selectedType.id === "seasonal-campaign" && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Sezona</label>
+                    <div className="flex flex-wrap gap-2">
+                      {SEASON_OPTIONS.map(opt => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setFields(prev => ({ ...prev, season: opt.label }))}
+                          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 flex items-center gap-1 ${fields.season === opt.label
+                              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                              : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-300"
+                            }`}
+                        >
+                          <span>{opt.emoji}</span>
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {selectedType.fields.map(fieldId => {
                   const f = FIELD_LABELS[fieldId];
                   if (!f) return null;
@@ -276,11 +328,10 @@ function GenerateWizard() {
                         key={lang.id}
                         type="button"
                         onClick={() => setLanguage(lang.id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 ${
-                          language === lang.id
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 ${language === lang.id
                             ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                             : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-300"
-                        }`}
+                          }`}
                       >
                         {lang.label}
                       </button>
@@ -324,7 +375,7 @@ function GenerateWizard() {
                   <p className="text-gray-500 mt-2">Navadno traja 5–10 sekund</p>
                   <div className="mt-6 flex justify-center">
                     <div className="flex gap-2">
-                      {[0,1,2].map(i => (
+                      {[0, 1, 2].map(i => (
                         <div
                           key={i}
                           className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"

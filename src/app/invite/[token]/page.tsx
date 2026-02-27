@@ -31,7 +31,8 @@ export default function InviteAcceptPage() {
           setMessage("You have joined the team.");
         } else {
           setStatusMsg("error");
-          setMessage(data.error ?? "Failed to accept invite");
+          const err = data.error;
+          setMessage(typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : "Failed to accept invite"));
         }
       })
       .catch(() => {

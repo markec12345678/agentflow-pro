@@ -8,13 +8,15 @@ import { PropertySelector } from "@/web/components/PropertySelector";
 interface Communication {
   id: string;
   type: "pre-arrival" | "post-stay";
+  channel?: "email" | "whatsapp";
   status: "draft" | "scheduled" | "sent";
   content: string;
   scheduledFor: string | null;
   sentAt: string | null;
   guest: {
     name: string;
-    email: string;
+    email: string | null;
+    phone?: string | null;
   } | null;
 }
 
@@ -23,6 +25,7 @@ export default function GuestCommunicationPage() {
   const [communications, setCommunications] = useState<Communication[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "pre-arrival" | "post-stay">("all");
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   useEffect(() => {
     if (activePropertyId) {
@@ -84,6 +87,15 @@ export default function GuestCommunicationPage() {
           <div className="text-sm text-white/80">Po odhodu gosta</div>
         </Link>
 
+        <button
+          onClick={() => setCreateModalOpen(true)}
+          className="p-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-opacity text-left"
+        >
+          <div className="text-2xl mb-2">📱</div>
+          <div className="font-semibold">Pošlji sporočilo</div>
+          <div className="text-sm text-white/80">Email ali WhatsApp</div>
+        </button>
+
         <Link
           href="#faq-section"
           className="p-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
@@ -93,6 +105,17 @@ export default function GuestCommunicationPage() {
           <div className="text-sm text-white/80">Avtomatski odgovori</div>
         </Link>
       </div>
+
+      {createModalOpen && (
+        <CreateMessageModal
+          propertyId={activePropertyId}
+          onClose={() => setCreateModalOpen(false)}
+          onSuccess={() => {
+            setCreateModalOpen(false);
+            fetchCommunications();
+          }}
+        />
+      )}
 
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
@@ -106,8 +129,8 @@ export default function GuestCommunicationPage() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id as "all" | "pre-arrival" | "post-stay")}
               className={`pb-3 px-1 font-medium text-sm border-b-2 transition-colors ${activeTab === tab.id
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
             >
               {tab.label}
@@ -142,19 +165,27 @@ export default function GuestCommunicationPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span
+                        className={`text-xs px-2 py-0.5 rounded-full ${comm.channel === "whatsapp"
+                          ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                          : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                          }`}
+                      >
+                        {comm.channel === "whatsapp" ? "WhatsApp" : "Email"}
+                      </span>
+                      <span
                         className={`text-xs px-2 py-0.5 rounded-full ${comm.type === "pre-arrival"
-                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
-                            : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
+                          ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                          : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
                           }`}
                       >
                         {comm.type === "pre-arrival" ? "Pre-Arrival" : "Post-Stay"}
                       </span>
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full ${comm.status === "sent"
-                            ? "bg-green-100 text-green-700"
-                            : comm.status === "scheduled"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-gray-100 text-gray-700"
+                          ? "bg-green-100 text-green-700"
+                          : comm.status === "scheduled"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-gray-100 text-gray-700"
                           }`}
                       >
                         {comm.status === "sent"
@@ -167,7 +198,9 @@ export default function GuestCommunicationPage() {
                     <p className="font-medium text-gray-900 dark:text-white">
                       {comm.guest?.name || "Neznani gost"}
                     </p>
-                    <p className="text-sm text-gray-500">{comm.guest?.email}</p>
+                    <p className="text-sm text-gray-500">
+                      {comm.channel === "whatsapp" ? comm.guest?.phone : comm.guest?.email}
+                    </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
                       {comm.content.slice(0, 100)}...
                     </p>
@@ -198,6 +231,195 @@ export default function GuestCommunicationPage() {
           </p>
         </div>
         <FaqChatbotDemo />
+      </div>
+    </div>
+  );
+}
+
+// Create Message Modal with channel selection (email / whatsapp)
+function CreateMessageModal({
+  propertyId,
+  onClose,
+  onSuccess,
+}: {
+  propertyId: string | null;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [channel, setChannel] = useState<"email" | "whatsapp">("email");
+  const [guestName, setGuestName] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [type, setType] = useState<"pre-arrival" | "post-stay">("pre-arrival");
+  const [subject, setSubject] = useState("");
+  const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!propertyId) {
+      toast.error("Izberite nastanitev");
+      return;
+    }
+    if (!guestName.trim()) {
+      toast.error("Vnesite ime gosta");
+      return;
+    }
+    if (channel === "email" && !guestEmail.trim()) {
+      toast.error("Vnesite e-pošto gosta za email");
+      return;
+    }
+    if (channel === "whatsapp" && !guestPhone.trim()) {
+      toast.error("Vnesite telefonsko številko gosta za WhatsApp");
+      return;
+    }
+    if (!content.trim()) {
+      toast.error("Vnesite vsebino sporočila");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/tourism/guest-communication", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          propertyId,
+          guest: {
+            name: guestName.trim(),
+            email: channel === "email" ? guestEmail.trim() : undefined,
+            phone: channel === "whatsapp" ? guestPhone.trim() : undefined,
+          },
+          type,
+          channel,
+          subject: channel === "email" ? (subject.trim() || "Sporočilo od nastanitve") : undefined,
+          content: content.trim(),
+          status: "draft",
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      toast.success("Sporočilo ustvarjeno");
+      onSuccess();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Napaka");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+        <h3 className="text-lg font-semibold mb-4">Novo sporočilo</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kanal</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setChannel("email")}
+                className={`px-3 py-2 rounded-lg text-sm font-medium ${channel === "email"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  }`}
+              >
+                ✉️ Email
+              </button>
+              <button
+                type="button"
+                onClick={() => setChannel("whatsapp")}
+                className={`px-3 py-2 rounded-lg text-sm font-medium ${channel === "whatsapp"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  }`}
+              >
+                📱 WhatsApp
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ime gosta</label>
+            <input
+              type="text"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              placeholder="Janez Novak"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+            />
+          </div>
+          {channel === "email" ? (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-pošta</label>
+              <input
+                type="email"
+                value={guestEmail}
+                onChange={(e) => setGuestEmail(e.target.value)}
+                placeholder="gost@example.com"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+              />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefon</label>
+              <input
+                type="tel"
+                value={guestPhone}
+                onChange={(e) => setGuestPhone(e.target.value)}
+                placeholder="+386 40 123 456"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+              />
+            </div>
+          )}
+          <div>
+            <label htmlFor="create-message-type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tip</label>
+            <select
+              id="create-message-type"
+              value={type}
+              onChange={(e) => setType(e.target.value as "pre-arrival" | "post-stay")}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+            >
+              <option value="pre-arrival">Pre-Arrival</option>
+              <option value="post-stay">Post-Stay</option>
+            </select>
+          </div>
+          {channel === "email" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Zadeva</label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Pre-arrival – Nastanitev"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+              />
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vsebina</label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={4}
+              placeholder="Dobrodošli! Pred prihodom..."
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+            />
+          </div>
+        </div>
+        <div className="flex gap-2 mt-6">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            Prekliči
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading || !propertyId}
+            className="flex-1 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? "Ustvarjam..." : "Ustvari"}
+          </button>
+        </div>
       </div>
     </div>
   );

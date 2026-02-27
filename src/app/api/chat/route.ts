@@ -13,7 +13,7 @@ import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
 import { requiresEscalationForType, estimateConfidence } from "@/lib/hitl";
 import { notifyEscalationCreated } from "@/lib/escalation-notify";
-import { getLlmApiKey } from "@/config/env";
+import { getLlmFromUserKeys } from "@/config/env";
 import { getUserApiKeys, getUserApiKeysForExecution } from "@/lib/user-keys";
 import { getCachedContext, setCachedContext } from "@/lib/redis";
 import { plan } from "@/planner/PlannerService";
@@ -39,10 +39,7 @@ export async function POST(req: Request) {
   }
 
   const userKeys = await getUserApiKeys(userId, { masked: false });
-  const userOpenai = userKeys.openai?.trim();
-  const llm = userOpenai
-    ? { apiKey: userOpenai, baseURL: undefined as string | undefined, model: "gpt-4o-mini" }
-    : getLlmApiKey();
+  const llm = getLlmFromUserKeys(userKeys);
   const apiKey = llm.apiKey;
 
   if (!apiKey && !MOCK_MODE) {
