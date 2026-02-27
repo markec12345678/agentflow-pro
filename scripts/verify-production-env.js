@@ -19,6 +19,9 @@ const required = [
   "DATABASE_URL",
   "NEXTAUTH_URL",
   "NEXTAUTH_SECRET",
+];
+
+const requiredForStripe = [
   "STRIPE_SECRET_KEY",
   "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
   "STRIPE_WEBHOOK_SECRET",
@@ -36,12 +39,21 @@ const optional = [
 
 const env = process.env;
 const missing = required.filter((k) => !env[k] || env[k].trim() === "");
+const hasStripe = env.STRIPE_SECRET_KEY?.trim();
+const missingStripe = hasStripe
+  ? requiredForStripe.filter((k) => !env[k] || env[k].trim() === "")
+  : [];
 const warnings = optional.filter((k) => !env[k] || env[k].trim() === "");
 
 if (missing.length > 0) {
   console.error("Missing required env vars:");
   missing.forEach((k) => console.error("  -", k));
   process.exit(1);
+}
+
+if (missingStripe.length > 0) {
+  console.warn("Stripe partial: missing", missingStripe.join(", "));
+  console.warn("Billing/checkout may not work until Stripe is fully configured.");
 }
 
 if (env.STRIPE_SECRET_KEY && !env.STRIPE_SECRET_KEY.startsWith("sk_live_")) {
