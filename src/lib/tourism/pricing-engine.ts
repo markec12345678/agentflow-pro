@@ -60,6 +60,7 @@ export interface CalculatePriceResult {
 
 export interface CalculatePriceOptions {
   competitorAvg?: number;
+  seasonRates?: SeasonRatesJson;
 }
 
 /**
