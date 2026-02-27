@@ -42,6 +42,8 @@ jest.mock("@/lib/user-keys", () => ({
 jest.mock("@/config/env", () => ({
   getOpenAiApiKey: () => mockGetOpenAiApiKey(),
   getLlmApiKey: () => ({ apiKey: mockGetOpenAiApiKey() || "mock-key", model: "gpt-4o-mini" }),
+  getLlmFromUserKeys: (keys?: Record<string, string>) =>
+    keys?.openai ? { apiKey: keys.openai, model: "gpt-4o-mini" } : { apiKey: mockGetOpenAiApiKey() || "", model: "gpt-4o-mini" },
 }));
 
 jest.mock("ai", () => ({
@@ -63,7 +65,7 @@ describe("POST /api/tourism/batch-translate", () => {
     jest.clearAllMocks();
     mockModeValue = true;
     mockGetUserApiKeys.mockResolvedValue({});
-    mockRecordAgentRun.mockResolvedValue(undefined);
+    mockAgentRunCreate.mockResolvedValue({} as never);
     mockGetOpenAiApiKey.mockReturnValue("");
     mockTranslationJobCreate.mockResolvedValue({
       id: "job-1",

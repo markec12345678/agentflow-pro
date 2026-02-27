@@ -5,6 +5,7 @@ import { NextRequest } from "next/server";
 
 const mockGetServerSession = jest.fn();
 const mockBlogPostFindMany = jest.fn();
+const mockContentHistoryFindMany = jest.fn();
 
 jest.mock("next-auth", () => ({
   getServerSession: () => mockGetServerSession(),
@@ -14,6 +15,9 @@ jest.mock("@/database/schema", () => ({
   prisma: {
     blogPost: {
       findMany: (...args: unknown[]) => mockBlogPostFindMany(...args),
+    },
+    contentHistory: {
+      findMany: (...args: unknown[]) => mockContentHistoryFindMany(...args),
     },
   },
 }));
@@ -34,9 +38,11 @@ describe("GET /api/content/export", () => {
         fullContent: "# Test\n\nContent here.",
         metaTitle: "Test Post",
         metaDescription: "A test post",
+        pipelineStage: "published",
         createdAt: new Date("2025-01-01T00:00:00Z"),
       },
     ]);
+    mockContentHistoryFindMany.mockResolvedValue([]);
   });
 
   it("returns 401 when not authenticated", async () => {
@@ -70,7 +76,7 @@ describe("GET /api/content/export", () => {
     expect(body).toContain("Content here.");
   });
 
-  it("returns 200 with json format, valid JSON { posts: [...] }", async () => {
+  it("returns 200 with json format, valid JSON { items: [...] }", async () => {
     mockGetServerSession.mockResolvedValue({
       user: { userId: "e2e-user-1", email: "e2e@test.com" },
     });
@@ -85,10 +91,10 @@ describe("GET /api/content/export", () => {
     expect(res.headers.get("Content-Type")).toMatch(/application\/json/i);
     expect(res.headers.get("Content-Disposition")).toContain(".json");
     const json = await res.json();
-    expect(json).toHaveProperty("posts");
-    expect(Array.isArray(json.posts)).toBe(true);
-    expect(json.posts.length).toBeGreaterThan(0);
-    expect(json.posts[0]).toHaveProperty("id", "post-1");
-    expect(json.posts[0]).toHaveProperty("title", "Test Post");
+    expect(json).toHaveProperty("items");
+    expect(Array.isArray(json.items)).toBe(true);
+    expect(json.items.length).toBeGreaterThan(0);
+    expect(json.items[0]).toHaveProperty("id", "post-1");
+    expect(json.items[0]).toHaveProperty("title", "Test Post");
   });
 });
