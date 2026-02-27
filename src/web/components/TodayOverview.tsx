@@ -134,33 +134,39 @@ export function TodayOverview({ propertyId }: TodayOverviewProps) {
           </p>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <button
                 onClick={() => setExpanded(expanded === "arrivals" ? null : "arrivals")}
-                className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="min-h-[120px] p-6 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-left hover:shadow-lg motion-safe:hover:scale-[1.02] transition-all duration-200"
+                aria-label={`Prihodov: ${data.counts.arrivals}`}
               >
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {data.counts.arrivals}
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Prihodov</div>
+                <svg className="w-8 h-8 mb-2 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+                <div className="text-4xl font-bold">{data.counts.arrivals}</div>
+                <div className="text-sm font-medium text-white/90 mt-1">Prihodov</div>
               </button>
               <button
                 onClick={() => setExpanded(expanded === "departures" ? null : "departures")}
-                className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="min-h-[120px] p-6 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white text-left hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                aria-label={`Odhodov: ${data.counts.departures}`}
               >
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {data.counts.departures}
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Odhodov</div>
+                <svg className="w-8 h-8 mb-2 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v7" />
+                </svg>
+                <div className="text-4xl font-bold">{data.counts.departures}</div>
+                <div className="text-sm font-medium text-white/90 mt-1">Odhodov</div>
               </button>
               <button
                 onClick={() => setExpanded(expanded === "inHouse" ? null : "inHouse")}
-                className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="min-h-[120px] p-6 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-left hover:shadow-lg motion-safe:hover:scale-[1.02] transition-all duration-200"
+                aria-label={`V nastanitvi: ${data.counts.inHouse}`}
               >
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {data.counts.inHouse}
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">V nastanitvi</div>
+                <svg className="w-8 h-8 mb-2 opacity-90" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <circle cx="12" cy="12" r="8" />
+                </svg>
+                <div className="text-4xl font-bold">{data.counts.inHouse}</div>
+                <div className="text-sm font-medium text-white/90 mt-1">V nastanitvi</div>
               </button>
             </div>
 

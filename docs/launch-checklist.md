@@ -12,7 +12,7 @@
 | ------------------------------------------------- | ------------------ | -------------------------------------------- |
 | DATABASE_URL                                      | Da                 | `postgresql://...` (Supabase ali lokalni PG) |
 | MOCK_MODE                                         | Priporočeno za dev | `true` (brez API keys)                       |
-| NEXTAUTH_URL                                      | Da                 | `http://localhost:3000`                      |
+| NEXTAUTH_URL                                      | Da                 | `http://localhost:3002`                      |
 | NEXTAUTH_SECRET                                   | Da                 | poljuben secret za JWT                       |
 | STRIPE_*                                          | Ne (za prod)       | `sk_test_...` za testiranje plačil           |
 | OPENAI_API_KEY / ALIBABA_QWEN_API_KEY              | Ne                 | Samo če MOCK_MODE=false (LLM fallback)        |
@@ -45,11 +45,11 @@ Pričakovani izhod v konzoli:
 
 - Ready in Xs
 - Compiled successfully
-- Local: http://localhost:3000
+- Local: http://localhost:3002
 
-Aplikacija: `http://localhost:3000`
+Aplikacija: `http://localhost:3002`
 
-**Port 3010:** Če želiš port 3010, zaženi `npx next dev -p 3010` ali nastavi `"dev": "next dev -p 3010"` v package.json. Posodobi tudi NEXTAUTH_URL v .env.local.
+**Drug port:** Če želiš port 3010, zaženi `npx next dev -p 3010` ali nastavi `"dev": "next dev -p 3010"` v package.json. Posodobi tudi NEXTAUTH_URL v .env.local.
 
 ---
 

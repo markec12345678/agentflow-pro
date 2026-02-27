@@ -43,6 +43,6 @@ npm run test:e2e:smoke
 
 ## Ročno testiranje
 
-1. **Simple Mode:** http://localhost:3000/generate (dodaj `?mock=1` za hitre rezultate)
-2. **Advanced Mode:** http://localhost:3000/workflows
-3. **Database:** Shrani workflow, odpri http://localhost:3000/dashboard
+1. **Simple Mode:** http://localhost:3002/generate (dodaj `?mock=1` za hitre rezultate)
+2. **Advanced Mode:** http://localhost:3002/workflows
+3. **Database:** Shrani workflow, odpri http://localhost:3002/dashboard

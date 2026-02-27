@@ -4,6 +4,15 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { PROMPTS } from "@/data/prompts";
 import { FeatureTour, TOURISM_STEPS } from "@/web/components/FeatureTour";
 import { PropertySelector } from "@/web/components/PropertySelector";
@@ -132,6 +141,15 @@ export default function TourismOverviewPage() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [dailyRevenue, setDailyRevenue] = useState<{ revenue: number; departureCount: number } | null>(null);
+  const [occupancyData, setOccupancyData] = useState<{
+    today: { occupancyPercent: number; revenue: number };
+    todayPlus1: { occupancyPercent: number; revenue: number };
+    todayPlus2: { occupancyPercent: number; revenue: number };
+    mtd: { occupancyPercent: number; revenue: number };
+    ytd: { occupancyPercent: number; revenue: number };
+  } | null>(null);
+  const [revenueRangeData, setRevenueRangeData] = useState<{ date: string; revenue: number }[] | null>(null);
+  const [chartsLoading, setChartsLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/user/active-property")
@@ -180,6 +198,37 @@ export default function TourismOverviewPage() {
       .then((r) => r.json())
       .then((d) => setDailyRevenue({ revenue: d.revenue ?? 0, departureCount: d.departureCount ?? 0 }))
       .catch(() => setDailyRevenue(null));
+  }, [activePropertyId]);
+
+  // Occupancy in revenue charts
+  useEffect(() => {
+    if (!activePropertyId) {
+      setOccupancyData(null);
+      setRevenueRangeData(null);
+      return;
+    }
+    setChartsLoading(true);
+    Promise.all([
+      fetch(`/api/tourism/occupancy?propertyId=${encodeURIComponent(activePropertyId)}`).then((r) => r.json()),
+      fetch(`/api/tourism/daily-revenue/range?propertyId=${encodeURIComponent(activePropertyId)}`).then((r) => r.json()),
+    ])
+      .then(([occRes, revRes]) => {
+        if (occRes.error) throw new Error(occRes.error);
+        if (revRes.error) throw new Error(revRes.error);
+        setOccupancyData({
+          today: occRes.today,
+          todayPlus1: occRes.todayPlus1,
+          todayPlus2: occRes.todayPlus2,
+          mtd: occRes.mtd,
+          ytd: occRes.ytd,
+        });
+        setRevenueRangeData(revRes.days ?? []);
+      })
+      .catch(() => {
+        setOccupancyData(null);
+        setRevenueRangeData(null);
+      })
+      .finally(() => setChartsLoading(false));
   }, [activePropertyId]);
 
   const getPromptName = (basePrompt: string) =>
@@ -284,18 +333,79 @@ export default function TourismOverviewPage() {
         <TodayOverview propertyId={activePropertyId} />
       </div>
 
+      {activePropertyId && (occupancyData || revenueRangeData?.length || chartsLoading) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {chartsLoading ? (
+            <>
+              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 h-64">
+                <Skeleton className="h-full w-full" />
+              </div>
+              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 h-64">
+                <Skeleton className="h-full w-full" />
+              </div>
+            </>
+          ) : occupancyData ? (
+            <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden p-4">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Zasedenost</h3>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={[
+                      { name: "Danes", value: occupancyData.today.occupancyPercent },
+                      { name: "Jutri", value: occupancyData.todayPlus1.occupancyPercent },
+                      { name: "Pojutrišnjem", value: occupancyData.todayPlus2.occupancyPercent },
+                      { name: "MTD", value: occupancyData.mtd.occupancyPercent },
+                      { name: "YTD", value: occupancyData.ytd.occupancyPercent },
+                    ]}
+                    margin={{ top: 8, right: 8, left: 0, bottom: 24 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+                    <Tooltip formatter={(v: number) => [`${v}%`, "Zasedenost"]} />
+                    <Bar dataKey="value" fill="#10b981" name="Zasedenost %" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          ) : null}
+          {revenueRangeData && revenueRangeData.length > 0 && !chartsLoading ? (
+            <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden p-4">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Prihodki (zadnjih 7 dni)</h3>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={revenueRangeData.map((d) => ({
+                      name: d.date.slice(5),
+                      revenue: d.revenue,
+                    }))}
+                    margin={{ top: 8, right: 8, left: 0, bottom: 24 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip formatter={(v: number) => [`€${v.toFixed(2)}`, "Prihodki"]} />
+                    <Bar dataKey="revenue" fill="#3b82f6" name="Prihodki €" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      )}
+
       {isReceptionMode && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <Link
             href="/dashboard/tourism/guest-communication"
-            className="p-6 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-90 transition-opacity text-center"
+            className="p-6 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 text-white hover:opacity-90 transition-opacity text-center"
           >
             <div className="text-4xl mb-3">💬</div>
             <div className="font-semibold text-xl">Komunikacija z Gosti</div>
           </Link>
           <Link
             href="/dashboard/tourism/calendar"
-            className="p-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 transition-opacity text-center"
+            className="p-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 transition-opacity text-center"
           >
             <div className="text-4xl mb-3">📅</div>
             <div className="font-semibold text-xl">Koledar & Zasedenost</div>
@@ -427,7 +537,7 @@ export default function TourismOverviewPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link
           href="/dashboard/tourism/guest-communication"
-          className="p-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">💬</div>
           <div className="font-semibold">Komunikacija z Gosti</div>
@@ -436,7 +546,7 @@ export default function TourismOverviewPage() {
 
         <Link
           href="/dashboard/tourism/calendar"
-          className="p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">📅</div>
           <div className="font-semibold">Koledar & Zasedenost</div>

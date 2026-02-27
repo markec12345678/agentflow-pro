@@ -38,6 +38,7 @@
 - [x] LAUNCH-RUNBOOK.md: urejen vodnik po korakih
 - [x] Smoke testi: posodobljeni za trenutni UI (Homepage, Dashboard, Pricing, Phase E auth)
 - [x] tasks.md: 8.3.5 povezava na checklist
+- [x] vercel.json: buildCommand za avtomatske migracije ob deployu
 
 **Ročni P0 koraki (na uporabniku):**
 - [ ] Production DB (Supabase/Neon), Stripe live keys, webhook, Vercel env

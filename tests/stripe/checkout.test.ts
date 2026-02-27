@@ -22,8 +22,8 @@ describe("createCheckoutSession", () => {
     userId: "user_1",
     userEmail: "test@example.com",
     planId: "pro" as const,
-    successUrl: "http://localhost:3000/success",
-    cancelUrl: "http://localhost:3000/cancel",
+    successUrl: "http://localhost:3002/success",
+    cancelUrl: "http://localhost:3002/cancel",
   };
 
   it("throws when plan has no Stripe price", async () => {

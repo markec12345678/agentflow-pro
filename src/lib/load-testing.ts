@@ -352,7 +352,7 @@ export const LOAD_TEST_CONFIGS = {
     concurrentUsers: 100,
     duration: 300, // 5 minutes
     rampUpTime: 30,
-    targetEndpoint: 'http://localhost:3000/api/tourism/complete',
+    targetEndpoint: 'http://localhost:3002/api/tourism/complete',
     thinkTime: 1000 // 1 second between requests
   },
   
@@ -360,7 +360,7 @@ export const LOAD_TEST_CONFIGS = {
     concurrentUsers: 500,
     duration: 600, // 10 minutes
     rampUpTime: 60,
-    targetEndpoint: 'http://localhost:3000/api/billing/complete',
+    targetEndpoint: 'http://localhost:3002/api/billing/complete',
     thinkTime: 500 // 500ms between requests
   },
   
@@ -368,7 +368,7 @@ export const LOAD_TEST_CONFIGS = {
     concurrentUsers: 1000,
     duration: 1800, // 30 minutes
     rampUpTime: 120,
-    targetEndpoint: 'http://localhost:3000/api/auth',
+    targetEndpoint: 'http://localhost:3002/api/auth',
     thinkTime: 200 // 200ms between requests
   },
   
@@ -376,7 +376,7 @@ export const LOAD_TEST_CONFIGS = {
     concurrentUsers: 2000,
     duration: 3600, // 1 hour
     rampUpTime: 300,
-    targetEndpoint: 'http://localhost:3000/api/health',
+    targetEndpoint: 'http://localhost:3002/api/health',
     thinkTime: 100 // 100ms between requests
   }
 };

@@ -49,7 +49,7 @@ export const playwrightConfig = {
     ['junit', { outputFile: 'test-results.xml' }]
   ],
   use: {
-    baseURL: process.env.E2E_BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.E2E_BASE_URL || 'http://localhost:3002',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

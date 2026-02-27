@@ -50,7 +50,7 @@ export async function sendEmail(
 function getBaseUrl(): string {
   return (
     process.env.NEXTAUTH_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3002")
   );
 }
 

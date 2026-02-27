@@ -25,7 +25,7 @@ export async function notifyEscalationCreated(payload: EscalationCreatedPayload)
   const notifyEmail = process.env.ESCALATION_NOTIFY_EMAIL?.trim();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+    : "http://localhost:3002";
 
   const shortPreview = lastMessagePreview.slice(0, 200) + (lastMessagePreview.length > 200 ? "…" : "");
   const dashboardUrl = `${baseUrl}/dashboard/escalations`;

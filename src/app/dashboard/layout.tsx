@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import FloatingChat from "@/components/FloatingChat";
+import { NotificationSidePanel } from "@/web/components/NotificationSidePanel";
 
 // ─── Glavna navigacija ────────────────────────────────────────────────────────
 const MAIN_NAV = [
@@ -58,6 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [showHelp, setShowHelp] = useState(false);
   const [shortcutBuf, setShortcutBuf] = useState("");
   const [darkMode, setDarkMode] = useState(false);
+  const [notificationPanelOpen, setNotificationPanelOpen] = useState(true);
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
@@ -97,6 +99,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [router, shortcutBuf]);
+
+  useEffect(() => {
+    const onToggle = () => setNotificationPanelOpen((v) => !v);
+    window.addEventListener("toggle-notification-panel", onToggle);
+    return () => window.removeEventListener("toggle-notification-panel", onToggle);
+  }, []);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -252,9 +260,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
 
         {/* Vsebina */}
-        <main className="flex-1 overflow-auto p-4 md:p-6">
+        <main
+          className={`flex-1 overflow-auto p-4 md:p-6 transition-[margin] ${showTourismHub && notificationPanelOpen ? "md:mr-80" : showTourismHub ? "md:mr-12" : ""
+            }`}
+        >
           {children}
         </main>
+
+        {/* Notification side panel (tourism only) */}
+        {showTourismHub && (
+          <NotificationSidePanel
+            isOpen={notificationPanelOpen}
+            onOpenChange={setNotificationPanelOpen}
+          />
+        )}
 
         {/* Mobile bottom nav */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-2 flex items-center justify-around">

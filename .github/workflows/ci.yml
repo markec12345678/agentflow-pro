@@ -32,7 +32,7 @@ jobs:
           STRIPE_PRICE_BUSINESS: price_business_placeholder
           STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
           NEXTAUTH_SECRET: ci-secret-key
-          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_URL: http://localhost:3002
           FIRECRAWL_API_KEY: fc_test_placeholder
           SERPAPI_API_KEY: serp_test_placeholder
 
@@ -44,7 +44,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
           NEXTAUTH_SECRET: ci-secret-key
-          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_URL: http://localhost:3002
           FIRECRAWL_API_KEY: fc_test_placeholder
           SERPAPI_API_KEY: serp_test_placeholder
 
@@ -59,6 +59,6 @@ jobs:
           STRIPE_PRICE_BUSINESS: price_business_placeholder
           STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
           NEXTAUTH_SECRET: ci-secret-key
-          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_URL: http://localhost:3002
           FIRECRAWL_API_KEY: fc_test_placeholder
           SERPAPI_API_KEY: serp_test_placeholder

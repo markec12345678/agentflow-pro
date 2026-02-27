@@ -50,9 +50,7 @@ Glej [STRIPE-PRODUCTION-WEBHOOK.md](./STRIPE-PRODUCTION-WEBHOOK.md).
 - [x] BlogPost model v Prisma
 - [x] `blogPostsLimit` v plans (Starter=3, Pro=10, Enterprise=999)
 - [x] Generate-content zahteva auth in preverja limit
-- [ ] Migracija: Zagotovi, da se migracije zaženejo pri deployu. Možnosti:
-  - **Vercel:** Nastavi Build Command na `npm run build:vercel` (izvaja `prisma migrate deploy && next build`), ali
-  - **Ročno:** Pred prvim deployem zaženi `npx prisma migrate deploy` lokalno z production `DATABASE_URL`
+- [x] Migracija: `vercel.json` vključuje `buildCommand: npm run build:vercel` – migracije se izvajajo avtomatsko ob vsakem deployu
 
 ---
 

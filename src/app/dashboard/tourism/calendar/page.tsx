@@ -298,17 +298,17 @@ export default function CalendarPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "available":
-        return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300";
+        return "bg-gradient-to-br from-emerald-400 to-teal-500 text-white";
       case "booked":
-        return "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300";
+        return "bg-gradient-to-br from-rose-500 to-red-600 text-white";
       case "check-in":
-        return "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-2 border-blue-400";
+        return "bg-gradient-to-br from-blue-500 to-indigo-600 text-white";
       case "check-out":
-        return "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-2 border-orange-400";
+        return "bg-gradient-to-br from-amber-500 to-orange-600 text-white";
       case "blocked":
-        return "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400";
+        return "bg-gray-500/80 text-white dark:bg-gray-600/90";
       default:
-        return "bg-white dark:bg-gray-800";
+        return "bg-white dark:bg-gray-800 text-gray-900 dark:text-white";
     }
   };
 
@@ -517,23 +517,23 @@ export default function CalendarPage() {
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-sm">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-green-100 dark:bg-green-900/30 border border-green-300" />
+          <div className="w-4 h-4 rounded bg-gradient-to-br from-emerald-400 to-teal-500 dark:from-emerald-600 dark:to-teal-700" />
           <span>Prosto</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-red-100 dark:bg-red-900/30 border border-red-300" />
+          <div className="w-4 h-4 rounded bg-gradient-to-br from-rose-500 to-red-600 dark:from-rose-600 dark:to-red-700" />
           <span>Zasedeno</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-400" />
+          <div className="w-4 h-4 rounded bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700" />
           <span>Check-in</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-orange-100 dark:bg-orange-900/30 border-2 border-orange-400" />
+          <div className="w-4 h-4 rounded bg-gradient-to-br from-amber-500 to-orange-600 dark:from-amber-600 dark:to-orange-700" />
           <span>Check-out</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-gray-200 dark:bg-gray-700 border border-gray-400" />
+          <div className="w-4 h-4 rounded bg-gray-500/80" />
           <span>Blokirano</span>
         </div>
       </div>

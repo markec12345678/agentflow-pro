@@ -5,7 +5,7 @@ Sistematično testiranje AI generiranja turističnih vsebin na `/dashboard/touri
 ## Predpogoj
 
 1. **OpenAI API Key** – nastavi v Settings ali `OPENAI_API_KEY` v `.env`
-2. **Lokalni server** – `npm run dev`, odpri `http://localhost:3000/dashboard/tourism/generate`
+2. **Lokalni server** – `npm run dev`, odpri `http://localhost:3002/dashboard/tourism/generate`
 
 ---
 

@@ -354,7 +354,7 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets:
-        - localhost:3000
+        - localhost:3002
 ```
 
 ### **Grafana Dashboards**

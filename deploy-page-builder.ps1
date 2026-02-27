@@ -57,9 +57,9 @@ while ($timeout -lt 10) {
 # Open browser
 Write-Host "🌐 Opening Page Builder in browser..."
 if (Get-Command pwsh -Command "Get-Command" -ErrorAction SilentlyContinue) {
-  Start-Process "http://localhost:3000"
+  Start-Process "http://localhost:3002"
 } else {
-  Start-Process "http://localhost:3000"
+  Start-Process "http://localhost:3002"
 }
 
 Write-Host "🎉 Deployment complete!"

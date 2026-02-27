@@ -17,7 +17,7 @@ npm install
 |----------|------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string | Lokalno PG ali [Supabase](https://supabase.com) free |
 | `NEXTAUTH_SECRET` | Secret za JWT | `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | Base URL | `http://localhost:3000` |
+| `NEXTAUTH_URL` | Base URL | `http://localhost:3002` |
 | `STRIPE_SECRET_KEY` | Stripe Test secret | [Stripe Dashboard](https://dashboard.stripe.com/apikeys) – Test mode: `sk_test_...` |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret | Stripe CLI output – glej korak 4F |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Test publishable | Stripe Dashboard: `pk_test_...` |
@@ -54,7 +54,7 @@ npm run build
 npm run dev
 ```
 
-Odpri http://localhost:3000
+Odpri http://localhost:3002
 
 ---
 
@@ -101,7 +101,7 @@ Odpri http://localhost:3000
 V **drugem** terminalu:
 
 ```bash
-stripe listen --forward-to localhost:3000/api/webhooks/stripe
+stripe listen --forward-to localhost:3002/api/webhooks/stripe
 ```
 
 Skopiraj `whsec_...` (Signing secret) v `.env.local` kot `STRIPE_WEBHOOK_SECRET`, ponovno zaženi `npm run dev`.

@@ -80,7 +80,7 @@ export async function POST(
       email: invite.email,
       role: invite.role,
       expiresAt: invite.expiresAt,
-      inviteLink: `${process.env.NEXTAUTH_URL ?? "http://localhost:3000"}/invite/${token}`,
+      inviteLink: `${process.env.NEXTAUTH_URL ?? "http://localhost:3002"}/invite/${token}`,
     },
   });
 }

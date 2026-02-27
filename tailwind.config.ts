@@ -34,6 +34,16 @@ const config: Config = {
           800: "#1e40af",
           900: "#1e3a8a",
         },
+        receptor: {
+          primary: "#7c3aed",
+          secondary: "#0d9488",
+          "purple-blue": "linear-gradient(to right, #7c3aed, #2563eb)",
+          "green-teal": "linear-gradient(to right, #10b981, #0d9488)",
+        },
+      },
+      backgroundImage: {
+        "gradient-receptor-primary": "linear-gradient(to right, #7c3aed, #2563eb)",
+        "gradient-receptor-secondary": "linear-gradient(to right, #10b981, #0d9488)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

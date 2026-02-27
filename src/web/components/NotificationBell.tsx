@@ -35,7 +35,7 @@ export function NotificationBell({ propertyId }: NotificationBellProps) {
         // Silent fail
       }
     };
-    
+
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
@@ -103,10 +103,18 @@ export function NotificationBell({ propertyId }: NotificationBellProps) {
     }
   };
 
+  const handleClick = () => {
+    if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) {
+      window.dispatchEvent(new CustomEvent("toggle-notification-panel"));
+      return;
+    }
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleClick}
         className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         aria-label={`Obvestila (${unreadCount} neprebranih)`}
       >
@@ -149,9 +157,8 @@ export function NotificationBell({ propertyId }: NotificationBellProps) {
                 notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`flex items-start gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                      !notification.read ? "bg-blue-50/50 dark:bg-blue-900/20" : ""
-                    }`}
+                    className={`flex items-start gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${!notification.read ? "bg-blue-50/50 dark:bg-blue-900/20" : ""
+                      }`}
                   >
                     <span className="text-xl mt-0.5">
                       {getIcon(notification.type)}

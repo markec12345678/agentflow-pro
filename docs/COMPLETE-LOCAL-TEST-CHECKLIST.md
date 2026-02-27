@@ -113,7 +113,7 @@ Checklist za sistematično lokalno preverjanje Tourism Hub in povezanih funkcij.
 
 ## Quick Smoke (3 koraki)
 
-1. `npm run dev` → http://localhost:3000
+1. `npm run dev` → http://localhost:3002
 2. Login / Onboarding → Tourism ali Travel Agency
 3. Tourism Hub → Generate → izberi Booking.com → vnesi lokacija, tip, jezik → Generiraj
 

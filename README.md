@@ -126,7 +126,7 @@ npm run db:seed
 npm run dev
 ```
 
-Visit `http://localhost:3000` to get started.
+Visit `http://localhost:3002` to get started.
 
 ## 📦 Installation
 
@@ -139,7 +139,7 @@ DATABASE_URL="postgresql://user:password@localhost:5432/agentflow_pro"
 
 # Authentication
 NEXTAUTH_SECRET="your-secret-key"
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3002"
 
 # AI Services
 OPENAI_API_KEY="sk-..."
@@ -348,7 +348,7 @@ npm run test:e2e:tourism
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTING.md) for details.
 
 ### Development Workflow
 1. Fork the repository

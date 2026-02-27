@@ -149,11 +149,11 @@ Glej tudi E2E: [tests/e2e/tourism-email.spec.ts](../tests/e2e/tourism-email.spec
 **Predpogoj:** `DATABASE_URL` v `.env`, server teče (`npm run dev`), prijavljen si (session cookie).
 
 ```bash
-# 1. Odpri http://localhost:3000/login, prijavi se
+# 1. Odpri http://localhost:3002/login, prijavi se
 # 2. V DevTools → Application → Cookies: kopiraj vrednost next-auth.session-token
 # 3. Zamenjaj YOUR_SESSION z vrednostjo
 
-curl -X POST http://localhost:3000/api/tourism/batch-translate \
+curl -X POST http://localhost:3002/api/tourism/batch-translate \
   -H "Content-Type: application/json" \
   -H "Cookie: next-auth.session-token=YOUR_SESSION" \
   -d '{"content":"Dobrodošli v apartmaju. Idealno za družinske počitnice v Bela Krajini.","sourceLang":"sl","targetLangs":["en","de","it","hr"]}'
@@ -191,9 +191,9 @@ Pri testiranju s pravim OPENAI_API_KEY preveri:
    ```
 
 2. **Odpri v brskalniku:**
-   - http://localhost:3000
-   - http://localhost:3000/onboarding
-   - http://localhost:3000/workflows
+   - http://localhost:3002
+   - http://localhost:3002/onboarding
+   - http://localhost:3002/workflows
 
 3. **Testiraj generiranje:**
    - Izberi prompt: "Booking.com Opis Nastanitve" (v /prompts, filter Tourism)
@@ -216,7 +216,7 @@ npx prisma generate
 npm run dev
 ```
 
-Odpri http://localhost:3000
+Odpri http://localhost:3002
 
 ---
 
@@ -224,18 +224,18 @@ Odpri http://localhost:3000
 
 | URL | Kaj preveriti |
 |-----|---------------|
-| http://localhost:3000 | Hero naslov: "Generate destination guides, hotel copy, and travel campaigns with AI Agents" |
-| http://localhost:3000/onboarding | Tourism / Hospitality in Travel Agency / DMO na vrhu industrij |
-| http://localhost:3000/prompts | Filtriraj po "Tourism" - 5 promptov (Booking.com, Airbnb, Vodič, Sezonska kampanja, Instagram) |
-| http://localhost:3000/chat | Generiraj testni opis z placeholderji |
-| http://localhost:3000/solutions/industry/tourism | Tourism & Hospitality industry stran |
-| http://localhost:3000/solutions/tourism-marketing | Tourism Marketing Manager role stran |
-| http://localhost:3000/dashboard/tourism | Tourism Hub overview (zahteva login + industry tourism) |
-| http://localhost:3000/dashboard/tourism/generate | Centraliziran generator s publish helpers |
-| http://localhost:3000/dashboard/tourism/landing | Landing Page Generator (3-step) |
-| http://localhost:3000/dashboard/tourism/email | Email Workflow za goste |
-| http://localhost:3000/dashboard/tourism/seo | SEO Dashboard (keywords, chart, Optimiziraj) |
-| http://localhost:3000/dashboard/tourism/translate | Multi-Language Batch Translator |
+| http://localhost:3002 | Hero naslov: "Generate destination guides, hotel copy, and travel campaigns with AI Agents" |
+| http://localhost:3002/onboarding | Tourism / Hospitality in Travel Agency / DMO na vrhu industrij |
+| http://localhost:3002/prompts | Filtriraj po "Tourism" - 5 promptov (Booking.com, Airbnb, Vodič, Sezonska kampanja, Instagram) |
+| http://localhost:3002/chat | Generiraj testni opis z placeholderji |
+| http://localhost:3002/solutions/industry/tourism | Tourism & Hospitality industry stran |
+| http://localhost:3002/solutions/tourism-marketing | Tourism Marketing Manager role stran |
+| http://localhost:3002/dashboard/tourism | Tourism Hub overview (zahteva login + industry tourism) |
+| http://localhost:3002/dashboard/tourism/generate | Centraliziran generator s publish helpers |
+| http://localhost:3002/dashboard/tourism/landing | Landing Page Generator (3-step) |
+| http://localhost:3002/dashboard/tourism/email | Email Workflow za goste |
+| http://localhost:3002/dashboard/tourism/seo | SEO Dashboard (keywords, chart, Optimiziraj) |
+| http://localhost:3002/dashboard/tourism/translate | Multi-Language Batch Translator |
 
 ---
 
@@ -281,7 +281,7 @@ npm run build
 npm run start
 ```
 
-Preveri, da app deluje na http://localhost:3000 v production modu.
+Preveri, da app deluje na http://localhost:3002 v production modu.
 
 ### 5.4 Environment variables na Vercel
 

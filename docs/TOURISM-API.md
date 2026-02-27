@@ -113,7 +113,7 @@ Prevede vsebino v več ciljnih jezikov. Podprti jeziki: `sl`, `en`, `de`, `it`, 
 
 **Curl primer:**
 ```bash
-curl -X POST http://localhost:3000/api/tourism/batch-translate \
+curl -X POST http://localhost:3002/api/tourism/batch-translate \
   -H "Content-Type: application/json" \
   -H "Cookie: next-auth.session-token=YOUR_SESSION" \
   -d '{"content":"Dobrodošli v apartmaju.","sourceLang":"sl","targetLangs":["en","de"]}'

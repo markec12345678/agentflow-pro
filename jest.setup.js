@@ -29,7 +29,7 @@ jest.mock('next/image', () => ({
 // Mock environment variables
 process.env.NODE_ENV = 'test'
 process.env.NEXTAUTH_SECRET = 'test-secret'
-process.env.NEXTAUTH_URL = 'http://localhost:3000'
+process.env.NEXTAUTH_URL = 'http://localhost:3002'
 process.env.MOCK_MODE = 'true'
 
 // Mock Prisma

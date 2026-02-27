@@ -17,12 +17,12 @@ if ($LASTEXITCODE -eq 0); then
   
   # Open browser
   echo "🌐 Opening Page Builder in browser..."
-  start http://localhost:3000
+  start http://localhost:3002
   
   # Open browser with PowerShell (Windows fallback)
   if (Get-Command pwsh -Command "Get-Command" -ErrorAction SilentlyContinue)) {
     echo "🌐 Opening Page Builder in browser (PowerShell)..."
-    Start-Process "http://localhost:3000"
+    Start-Process "http://localhost:3002"
   }
   
   echo "🎉 Deployment complete!"

@@ -43,7 +43,7 @@ Uredi `.env.local` z ustreznimi keys:
 |----------|------|
 | `DATABASE_URL` | PostgreSQL connection string (obvezno) |
 | `NEXTAUTH_SECRET` | Random string za auth (obvezno) |
-| `NEXTAUTH_URL` | `http://localhost:3000` (obvezno) |
+| `NEXTAUTH_URL` | `http://localhost:3002` (obvezno) |
 | `STRIPE_SECRET_KEY` | Stripe test key (`sk_test_...`) – za billing |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook – za billing |
 | `GITHUB_TOKEN` | GitHub PAT – za Code Agent |
@@ -57,7 +57,7 @@ Minimalni zagon zahteva vsaj: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`.
 | Preveri | Zahteva |
 |---------|---------|
 | `NEXTAUTH_SECRET` | Nastavljen (npr. `openssl rand -base64 32`) |
-| `NEXTAUTH_URL` | Ujema dejanski URL: `http://localhost:3000` (ne `127.0.0.1`) |
+| `NEXTAUTH_URL` | Ujema dejanski URL: `http://localhost:3002` (ne `127.0.0.1`) |
 | `DATABASE_URL` | Pravilen connection string, baza dosegljiva |
 | Migracije | Zagnane: `npm run db:migrate:deploy` ali `npx prisma db push` |
 
@@ -69,7 +69,7 @@ Minimalni zagon zahteva vsaj: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`.
 npm run dev
 ```
 
-Odpri http://localhost:3000
+Odpri http://localhost:3002
 
 ---
 
@@ -101,7 +101,7 @@ npm run test:e2e
 
 **Production E2E** (če je skripta na voljo):
 ```bash
-BASE_URL=http://localhost:3000 ./scripts/run-e2e-production.sh
+BASE_URL=http://localhost:3002 ./scripts/run-e2e-production.sh
 ```
 
 **Windows:** Uporabi `npm run test:e2e` z zagnanim dev serverjem – Playwright sam zagnal app.

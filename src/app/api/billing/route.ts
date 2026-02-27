@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     if (body.action === "checkout") {
       const planId = body.planId ?? "pro";
       const origin =
-        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
+        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3002";
 
       const { url, sessionId } = await createCheckout(
         userId,

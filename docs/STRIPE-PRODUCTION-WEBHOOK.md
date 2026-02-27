@@ -41,7 +41,7 @@ Vercel → Deployments → ... → Redeploy
 ### 6. Test
 
 1. Stripe Dashboard → Payments → Create test payment (v Live mode uporabi realno kartico ali Stripe test ključe za test)
-2. Ali lokalno: `stripe listen --forward-to localhost:3000/api/webhooks/stripe` (za Test mode)
+2. Ali lokalno: `stripe listen --forward-to localhost:3002/api/webhooks/stripe` (za Test mode)
 
 ---
 

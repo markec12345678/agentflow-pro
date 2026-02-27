@@ -2,12 +2,12 @@
  * k6 Smoke Test – AgentFlow Pro
  * Quick verification that critical endpoints respond.
  * Run: k6 run load-tests/smoke.js
- * Base URL: env BASE_URL or http://localhost:3000
+ * Base URL: env BASE_URL or http://localhost:3002
  */
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-const BASE_URL = __ENV.BASE_URL || "http://localhost:3000";
+const BASE_URL = __ENV.BASE_URL || "http://localhost:3002";
 
 export const options = {
   vus: 5,
