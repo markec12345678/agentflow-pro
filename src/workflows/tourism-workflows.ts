@@ -4,8 +4,8 @@
  */
 
 import { Orchestrator } from '../orchestrator/Orchestrator';
-import { createResearchAgent } from '../agents/research/researchAgent';
-import { createContentAgent } from '../agents/content/contentAgent';
+import { createResearchAgent } from '../agents/research/ResearchAgent';
+import { createContentAgent } from '../agents/content/ContentAgent';
 import { createReservationAgent } from '../agents/reservation/reservationAgent';
 import { createCommunicationAgent } from '../agents/communication/communicationAgent';
 
