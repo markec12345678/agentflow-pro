@@ -26,7 +26,7 @@ export default function HomePage() {
           </h1>
 
           <p className="mx-auto mb-10 max-w-3xl text-lg text-blue-100 md:text-xl">
-            AI content that drives direct reservations. Multi-language, SEO-optimized, brand-consistent.
+            Od AI besedila do polnega koledarja – vse v enem orodju za turizem
           </p>
 
           <div className="mb-12 flex flex-col justify-center gap-4 sm:flex-row">
@@ -80,6 +80,9 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-white">
             Zakaj AgentFlow Pro?
           </h2>
+          <p className="text-center text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+            Druga orodja ponujajo samo AI vsebino. AgentFlow Pro združuje vsebino in operacije: koledar rezervacij, email scheduler, PMS sinhronizacija – vse v enem.
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">5+</div>
@@ -205,10 +208,20 @@ export default function HomePage() {
           <h2 className="text-4xl font-bold text-center mb-4">
             Customer Stories
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 text-center mb-8 max-w-2xl mx-auto">
             See how teams use AgentFlow Pro to scale their content without
             scaling headcount.
           </p>
+          <div className="mb-10 flex flex-wrap justify-center gap-4">
+            <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-5 py-3 text-center">
+              <span className="font-semibold text-blue-900 dark:text-blue-100">Alpine Destinations</span>
+              <span className="text-gray-600 dark:text-gray-400"> — 60% content time saved, 30 guides/quarter</span>
+            </div>
+            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-5 py-3 text-center">
+              <span className="font-semibold text-emerald-900 dark:text-emerald-100">Nexus Digital</span>
+              <span className="text-gray-600 dark:text-gray-400"> — 50% time per deliverable, 8 new clients in 6 months</span>
+            </div>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {CASE_STUDIES.map((study, i) => {
@@ -416,10 +429,43 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ICP - Za koga je AgentFlow Pro? */}
+      <section className="py-20 px-4 bg-white dark:bg-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4 text-gray-900 dark:text-white">
+            Za koga je AgentFlow Pro?
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8 mt-12">
+            <div className="rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-6">
+              <h3 className="text-lg font-bold text-green-800 dark:text-green-300 mb-3">Primarni cilji</h3>
+              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <li>• Boutique hoteli (10–50 sob) z direktnimi rezervacijami</li>
+                <li>• Lokalni DMO z več nastanitvami pod enim krovom</li>
+                <li>• Kampi z sezonskimi cenami in turistično takso</li>
+              </ul>
+            </div>
+            <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-6">
+              <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300 mb-3">Sekundarni cilji</h3>
+              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <li>• Apartmaji z več enotami (3–10)</li>
+                <li>• Touroperatorji z lastno vsebino</li>
+              </ul>
+            </div>
+            <div className="rounded-xl bg-gray-100 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 p-6">
+              <h3 className="text-lg font-bold text-gray-600 dark:text-gray-400 mb-3">Ne ciljam</h3>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <li>• Verige hotelov z lastnim IT oddelkom</li>
+                <li>• Enterprise PMS uporabniki</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Solutions by Industry */}
       <section className="py-20 px-4 bg-white dark:bg-gray-800">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-4">
+          <h2 className="text-4xl font-bold text-center mb-4 text-gray-900 dark:text-white">
             Solutions by Industry
           </h2>
           <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
@@ -447,6 +493,49 @@ export default function HomePage() {
                 </span>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Zaupanje in varnost - Trust Signals */}
+      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4 text-gray-900 dark:text-white">
+            Zaupanje in varnost
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+            Vaši podatki in vsebina so varni. Transparentno in skladno s predpisi.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+              <span className="text-2xl mb-2 block">🔒</span>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">GDPR compliant</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">EU hosting, podatki v Evropi</p>
+            </div>
+            <div className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+              <span className="text-2xl mb-2 block">🛡️</span>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">SOC 2 Type I</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">V pripravi (2026 Q2)</p>
+            </div>
+            <div className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+              <span className="text-2xl mb-2 block">🔐</span>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Google OAuth + 2FA</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Prijava z Google ✓, 2FA prihaja</p>
+            </div>
+            <div className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+              <span className="text-2xl mb-2 block">💾</span>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Avtomatski backup</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Backup podatkov (PostgreSQL)</p>
+            </div>
+            <div className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+              <span className="text-2xl mb-2 block">📋</span>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Transparentni logi</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                <Link href="/settings/audit" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  Vsaka AI akcija se logira →
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </section>

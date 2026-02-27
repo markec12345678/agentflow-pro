@@ -8,10 +8,12 @@ export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
   const { status } = useSession();
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const startCheckout = async (planId: string) => {
     if (checkoutLoading) return;
     setCheckoutLoading(planId);
+    setCheckoutError(null);
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
@@ -20,8 +22,12 @@ export default function PricingPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (data.url) window.location.href = data.url;
-      else setCheckoutLoading(null);
+      else {
+        setCheckoutError(data.error || "Checkout failed.");
+        setCheckoutLoading(null);
+      }
     } catch {
+      setCheckoutError("Checkout failed. Please try again.");
       setCheckoutLoading(null);
     }
   };
@@ -123,9 +129,8 @@ export default function PricingPage() {
               }
             >
               <span
-                className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${
-                  isAnnual ? "right-1" : "left-1"
-                }`}
+                className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${isAnnual ? "right-1" : "left-1"
+                  }`}
               />
             </button>
             <span
@@ -142,6 +147,15 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Checkout error (e.g. billing not configured yet) */}
+      {checkoutError && (
+        <div className="max-w-2xl mx-auto px-4 -mt-6 mb-4">
+          <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-4 text-amber-800 dark:text-amber-200">
+            {checkoutError}
+          </div>
+        </div>
+      )}
+
       {/* Pricing Cards */}
       <section className="py-20 px-4 -mt-10">
         <div className="max-w-6xl mx-auto">
@@ -149,11 +163,10 @@ export default function PricingPage() {
             {plans.map((plan, index) => (
               <div
                 key={index}
-                className={`relative bg-white dark:bg-gray-800 rounded-2xl p-8 transition-all ${
-                  plan.highlighted
-                    ? "shadow-2xl scale-105 border-2 border-blue-500"
-                    : "shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl"
-                }`}
+                className={`relative bg-white dark:bg-gray-800 rounded-2xl p-8 transition-all ${plan.highlighted
+                  ? "shadow-2xl scale-105 border-2 border-blue-500"
+                  : "shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl"
+                  }`}
               >
                 {plan.badge && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -206,11 +219,10 @@ export default function PricingPage() {
                     onClick={() => startCheckout("pro")}
                     disabled={!!checkoutLoading}
                     data-testid="pro-checkout-cta"
-                    className={`block w-full py-4 px-6 rounded-lg font-semibold text-center transition-all ${
-                      plan.highlighted
-                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl disabled:opacity-70"
-                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
-                    }`}
+                    className={`block w-full py-4 px-6 rounded-lg font-semibold text-center transition-all ${plan.highlighted
+                      ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl disabled:opacity-70"
+                      : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
+                      }`}
                   >
                     {checkoutLoading === "pro" ? "Redirecting..." : plan.cta}
                   </button>
@@ -218,11 +230,10 @@ export default function PricingPage() {
                   <Link
                     href={plan.link}
                     data-testid={plan.id === "pro" ? "pro-checkout-cta" : undefined}
-                    className={`block w-full py-4 px-6 rounded-lg font-semibold text-center transition-all ${
-                      plan.highlighted
-                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
-                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
-                    }`}
+                    className={`block w-full py-4 px-6 rounded-lg font-semibold text-center transition-all ${plan.highlighted
+                      ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
+                      : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
+                      }`}
                   >
                     {plan.cta}
                   </Link>
@@ -234,6 +245,84 @@ export default function PricingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Trust strip */}
+      <section className="py-8 px-4 bg-gray-100 dark:bg-gray-800/50">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600 dark:text-gray-300">
+            <span className="flex items-center gap-1.5">
+              <span className="text-green-500">✓</span> GDPR compliant
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-green-500">✓</span> SOC 2 Type I v pripravi
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-green-500">✓</span> Google OAuth + 2FA prihaja
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-green-500">✓</span> Avtomatski backup
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-green-500">✓</span> Transparentni AI logi
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison Table */}
+      <section className="py-16 px-4 bg-white dark:bg-gray-800">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+            Kaj dobiš za manj
+          </h2>
+          <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-600">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-700/50">
+                  <th className="text-left px-4 py-3 font-semibold text-gray-900 dark:text-white">Funkcija</th>
+                  <th className="text-center px-4 py-3 font-semibold text-blue-600 dark:text-blue-400">AgentFlow Pro</th>
+                  <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Več ločenih orodij</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                <tr>
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">AI generiranje vsebine</td>
+                  <td className="text-center px-4 py-3 text-green-600 dark:text-green-400">✓</td>
+                  <td className="text-center px-4 py-3 text-green-600 dark:text-green-400">✓</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">Workflow builder</td>
+                  <td className="text-center px-4 py-3 text-green-600 dark:text-green-400">✓</td>
+                  <td className="text-center px-4 py-3 text-red-600 dark:text-red-400">—</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">Rezervacije / koledar</td>
+                  <td className="text-center px-4 py-3 text-green-600 dark:text-green-400">✓</td>
+                  <td className="text-center px-4 py-3 text-red-600 dark:text-red-400">—</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">Email scheduler</td>
+                  <td className="text-center px-4 py-3 text-green-600 dark:text-green-400">✓</td>
+                  <td className="text-center px-4 py-3 text-red-600 dark:text-red-400">—</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">PMS sinhronizacija</td>
+                  <td className="text-center px-4 py-3 text-green-600 dark:text-green-400">✓</td>
+                  <td className="text-center px-4 py-3 text-red-600 dark:text-red-400">—</td>
+                </tr>
+                <tr className="bg-gray-50 dark:bg-gray-700/30 font-semibold">
+                  <td className="px-4 py-3 text-gray-900 dark:text-white">Skupna cena</td>
+                  <td className="text-center px-4 py-3 text-blue-600 dark:text-blue-400">od $59/mesec</td>
+                  <td className="text-center px-4 py-3 text-gray-600 dark:text-gray-400">~$100+/mesec</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-center text-gray-600 dark:text-gray-400 mt-4">
+            Vse v enem – manj plačevanja in manj integracij.
+          </p>
         </div>
       </section>
 
