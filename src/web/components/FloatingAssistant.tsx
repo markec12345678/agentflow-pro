@@ -4,11 +4,11 @@ import { useState, useRef, useEffect } from "react";
 
 // ─── Hitre akcije ──────────────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
-  { label: "📋 Opis sobe",        href: "/generate?template=booking-description" },
-  { label: "📧 Email za goste",   href: "/generate?template=guest-welcome-email" },
-  { label: "📱 Instagram post",   href: "/generate?template=instagram-travel" },
-  { label: "🌐 Landing stran",    href: "/generate?template=landing-page" },
-  { label: "📍 Vodič destinacije",href: "/generate?template=destination-guide" },
+  { label: "📋 Opis sobe", href: "/generate?template=booking-description" },
+  { label: "📧 Email za goste", href: "/generate?template=guest-welcome-email" },
+  { label: "📱 Instagram post", href: "/generate?template=instagram-travel" },
+  { label: "🌐 Landing stran", href: "/generate?template=landing-page" },
+  { label: "📍 Vodič destinacije", href: "/generate?template=destination-guide" },
 ];
 
 interface Message {
@@ -20,13 +20,6 @@ const INITIAL_MESSAGE: Message = {
   role: "assistant",
   text: "Živjo! 👋 Sem vaš AI pomočnik. Povejte mi kaj potrebujete, ali izberite hitro akcijo spodaj:",
 };
-
-function parseAssistantResponse(text: string): { message: string; href?: string } {
-  // Iskanje URL-jev v odgovoru
-  const urlMatch = text.match(/href["']?\s*[:=]\s*["']([^"']+)["']/);
-  if (urlMatch) return { message: text.replace(/href.*/s, "").trim(), href: urlMatch[1] };
-  return { message: text };
-}
 
 export function FloatingAssistant() {
   const [open, setOpen] = useState(false);
@@ -119,11 +112,10 @@ export function FloatingAssistant() {
         type="button"
         onClick={() => setOpen(v => !v)}
         aria-label={open ? "Zapri pomočnika" : "Odpri AI pomočnika"}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
-          open
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${open
             ? "bg-gray-700 hover:bg-gray-600 rotate-45"
             : "bg-gradient-to-br from-blue-600 to-cyan-500 hover:scale-110 animate-pulse-slow"
-        }`}
+          }`}
         style={{ animationDuration: "3s" }}
       >
         {open ? (
@@ -165,11 +157,10 @@ export function FloatingAssistant() {
           <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-                  msg.role === "user"
+                <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${msg.role === "user"
                     ? "bg-blue-600 text-white rounded-br-sm"
                     : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-sm"
-                }`}>
+                  }`}>
                   {msg.text}
                 </div>
               </div>
@@ -179,7 +170,7 @@ export function FloatingAssistant() {
               <div className="flex justify-start">
                 <div className="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-2xl rounded-bl-sm">
                   <div className="flex gap-1">
-                    {[0,1,2].map(i => (
+                    {[0, 1, 2].map(i => (
                       <div key={i} className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                         style={{ animationDelay: `${i * 0.15}s` }} />
                     ))}

@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const mrz = await import("mrz");
-    const parse = typeof mrz.parse === "function" ? mrz.parse : (mrz.default as { parse?: (l: string[]) => unknown })?.parse;
+    const parse = typeof mrz.parse === "function" ? mrz.parse : null;
     if (parse) {
       const parsed = parse(lines) as {
         names?: string[];

@@ -10,12 +10,6 @@ interface FormField {
   options?: Array<{ value: string; label: string }>;
 }
 
-interface FormPluginConfig {
-  fields?: FormField[];
-  submitText?: string;
-  submitAction?: "submit" | "reset";
-}
-
 export const FormPlugin: PageBuilderPlugin = {
   id: "form",
   name: "Form Component",
@@ -23,9 +17,9 @@ export const FormPlugin: PageBuilderPlugin = {
   version: "1.0.0",
   author: "Page Builder",
   icon: "📋",
-  component: ({ config, onUpdate }: { config: Record<string, any>; onUpdate: (config: Record<string, any>) => void }) => {
-    const [formData, setFormData] = useState<Record<string, any>>({});
-    
+  component: ({ config, onUpdate }: { config: Record<string, unknown>; onUpdate: (config: Record<string, unknown>) => void }) => {
+    const [formData, setFormData] = useState<Record<string, unknown>>({});
+
     const fields = config.fields || [
       { id: "name", type: "text", label: "Name", placeholder: "Enter your name", required: true },
       { id: "email", type: "email", label: "Email", placeholder: "Enter your email" },
@@ -47,7 +41,7 @@ export const FormPlugin: PageBuilderPlugin = {
                 {field.label}
                 {field.required && <span className="text-red-500">*</span>}
               </label>
-              
+
               {field.type === "text" && (
                 <input
                   type="text"
@@ -58,7 +52,7 @@ export const FormPlugin: PageBuilderPlugin = {
                   required={field.required}
                 />
               )}
-              
+
               {field.type === "email" && (
                 <input
                   type="email"
@@ -69,7 +63,7 @@ export const FormPlugin: PageBuilderPlugin = {
                   required={field.required}
                 />
               )}
-              
+
               {field.type === "textarea" && (
                 <textarea
                   className="w-full p-2 border rounded"
@@ -80,7 +74,7 @@ export const FormPlugin: PageBuilderPlugin = {
                   required={field.required}
                 />
               )}
-              
+
               {field.type === "select" && (
                 <select
                   className="w-full p-2 border rounded"
@@ -97,7 +91,7 @@ export const FormPlugin: PageBuilderPlugin = {
                   ))}
                 </select>
               )}
-              
+
               {field.type === "checkbox" && (
                 <div className="flex items-center">
                   <input
@@ -114,7 +108,7 @@ export const FormPlugin: PageBuilderPlugin = {
               )}
             </div>
           ))}
-          
+
           <button
             type="submit"
             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

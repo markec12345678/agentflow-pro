@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import { PageBuilderPlugin } from "./context/PluginContext";
 
-interface TextPluginConfig {
-  defaultText?: string;
-  fontSize?: number;
-  color?: string;
-}
-
 export const TextPlugin: PageBuilderPlugin = {
   id: "text",
   name: "Text Component",
@@ -14,7 +8,7 @@ export const TextPlugin: PageBuilderPlugin = {
   version: "1.0.0",
   author: "Page Builder",
   icon: "📝",
-  component: ({ config, onUpdate }: { config: Record<string, any>; onUpdate: (config: Record<string, any>) => void }) => {
+  component: ({ config, onUpdate }: { config: Record<string, unknown>; onUpdate: (config: Record<string, unknown>) => void }) => {
     const [text, setText] = useState(config.text || "");
 
     return (

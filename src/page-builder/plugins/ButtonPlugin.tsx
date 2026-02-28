@@ -16,7 +16,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
   version: "1.0.0",
   author: "Page Builder",
   icon: "🔘",
-  component: ({ config, onUpdate }: { config: Record<string, any>; onUpdate: (config: Record<string, any>) => void }) => {
+  component: ({ config, onUpdate }: { config: Record<string, unknown>; onUpdate: (config: Record<string, unknown>) => void }) => {
     const [text, setText] = useState(config.text || "Click me");
     const [variant, setVariant] = useState<ButtonPluginConfig["variant"]>(config.variant || "primary");
     const [size, setSize] = useState<ButtonPluginConfig["size"]>(config.size || "md");
@@ -38,7 +38,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
               placeholder="Click me"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Variant
@@ -54,7 +54,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
               <option value="outline">Outline</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Size
@@ -69,7 +69,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
               <option value="lg">Large</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Link URL
@@ -82,7 +82,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
               placeholder="https://example.com"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Target
@@ -97,7 +97,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
               <option value="_parent">Parent Window</option>
             </select>
           </div>
-          
+
           <button
             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             onClick={() => onUpdate({ ...config, text, variant, size, href, target })}

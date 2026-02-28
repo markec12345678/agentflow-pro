@@ -66,7 +66,7 @@ export class AirbnbAPI {
     this.apiKey = apiKey;
   }
 
-  async getProperties(location?: string, limit: number = 50): Promise<AirbnbProperty[]> {
+  async getProperties(location?: string, _limit: number = 50): Promise<AirbnbProperty[]> {
     // Mock implementation - integrate with real Airbnb API
     return [
       {
@@ -117,8 +117,8 @@ export class AirbnbAPI {
     },
     checkIn: Date,
     checkOut: Date,
-    guests: number = 1
-  ): Promise<any> {
+    _guests: number = 1
+  ): Promise<{ id: string; propertyId: string; status: string; totalPrice: number; currency: string }> {
     // Mock implementation
     return {
       id: `AIR_${Date.now()}`,
@@ -261,9 +261,9 @@ export class UnifiedBookingManager {
     checkOut: Date,
     guests: number
   ): Promise<{
-    bookingCom: any[];
+    bookingCom: Array<{ total_price?: number; price?: number }>;
     airbnb: AirbnbProperty[];
-    comparison: any;
+    comparison: { bookingCom: { min: number; max: number; average: number }; airbnb: { min: number; max: number; average: number }; recommendation: string };
   }> {
     const [bookingComResults, airbnbResults] = await Promise.all([
       this.bookingComAPI.checkAvailability('mock-property', checkIn, checkOut, guests),
@@ -393,9 +393,9 @@ export class UnifiedBookingManager {
     };
   }
 
-  private comparePrices(bookingComResults: any[], airbnbResults: AirbnbProperty[]): any {
-    // Price comparison logic
-    const bookingComPrices = bookingComResults.map(r => r.total_price || 0);
+  private comparePrices(bookingComResults: Array<{ total_price?: number; price?: number }>, airbnbResults: AirbnbProperty[]): { bookingCom: { min: number; max: number; average: number }; airbnb: { min: number; max: number; average: number }; recommendation: string } {
+    // Price comparison logic (BookingCom uses price or total_price)
+    const bookingComPrices = bookingComResults.map(r => r.total_price ?? r.price ?? 0);
     const airbnbPrices = airbnbResults.map(p => p.roomTypes[0]?.price?.nightly || 0);
 
     return {
@@ -405,9 +405,9 @@ export class UnifiedBookingManager {
         average: bookingComPrices.reduce((a, b) => a + b, 0) / bookingComPrices.length
       },
       airbnb: {
-        min: Math.min(...airbnbPrices),
-        max: Math.max(...airbnbPrices),
-        average: airbnbPrices.reduce((a, b) => a + b, 0) / airbnbPrices.length
+        min: airbnbPrices.length ? Math.min(...airbnbPrices) : 0,
+        max: airbnbPrices.length ? Math.max(...airbnbPrices) : 0,
+        average: airbnbPrices.length ? airbnbPrices.reduce((a, b) => a + b, 0) / airbnbPrices.length : 0
       },
       recommendation: this.getBestValueRecommendation(bookingComResults, airbnbResults)
     };
@@ -415,7 +415,7 @@ export class UnifiedBookingManager {
 
   private getBestValueRecommendation(bookingComResults: any[], airbnbResults: AirbnbProperty[]): string {
     const bookingComAvg = bookingComResults.reduce((sum, r) => sum + (r.total_price || 0), 0) / bookingComResults.length;
-    const airbnbAvg = airbnbResults.reduce((sum, p) => sum + (p.roomTypes[0]?.price?.nightly || 0), 0) / airbnbResults.length;
+    const airbnbAvg = airbnbResults.reduce((sum, p) => sum + (p.roomTypes[0]?.price?.nightly ?? 0), 0) / (airbnbResults.length || 1);
 
     if (airbnbAvg < bookingComAvg) {
       return 'Airbnb offers better value';
@@ -427,16 +427,16 @@ export class UnifiedBookingManager {
   }
 
   private detectAvailabilityConflicts(
-    bookingComReservations: any[],
+    bookingComReservations: Array<{ check_in?: string; check_out?: string }>,
     airbnbAvailability: AirbnbAvailability[]
-  ): any[] {
+  ): Array<{ date: string; type: string; channels: string[] }> {
     // Detect double-bookings and availability conflicts
-    const conflicts: any[] = [];
+    const conflicts: Array<{ date: string; type: string; channels: string[] }> = [];
 
     // Mock conflict detection logic
     const bookingDates = bookingComReservations.map(r => ({
-      checkIn: new Date(r.check_in),
-      checkOut: new Date(r.check_out)
+      checkIn: new Date(r.check_in ?? 0),
+      checkOut: new Date(r.check_out ?? 0)
     }));
 
     for (const availability of airbnbAvailability) {

@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import { PageBuilderPlugin } from "./context/PluginContext";
 
-interface ImagePluginConfig {
-  src?: string;
-  alt?: string;
-  width?: number;
-  height?: number;
-}
-
 export const ImagePlugin: PageBuilderPlugin = {
   id: "image",
   name: "Image Component",
@@ -15,7 +8,7 @@ export const ImagePlugin: PageBuilderPlugin = {
   version: "1.0.0",
   author: "Page Builder",
   icon: "🖼️",
-  component: ({ config, onUpdate }: { config: Record<string, any>; onUpdate: (config: Record<string, any>) => void }) => {
+  component: ({ config, onUpdate }: { config: Record<string, unknown>; onUpdate: (config: Record<string, unknown>) => void }) => {
     const [src, setSrc] = useState(config.src || "");
     const [alt, setAlt] = useState(config.alt || "");
     const [width, setWidth] = useState(config.width || 300);
@@ -36,7 +29,7 @@ export const ImagePlugin: PageBuilderPlugin = {
               placeholder="https://example.com/image.jpg"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Alt Text
@@ -49,7 +42,7 @@ export const ImagePlugin: PageBuilderPlugin = {
               placeholder="Image description"
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -63,7 +56,7 @@ export const ImagePlugin: PageBuilderPlugin = {
                 placeholder="300"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Height
@@ -77,7 +70,7 @@ export const ImagePlugin: PageBuilderPlugin = {
               />
             </div>
           </div>
-          
+
           <button
             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             onClick={() => onUpdate({ ...config, src, alt, width, height })}

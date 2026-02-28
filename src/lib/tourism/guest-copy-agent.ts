@@ -31,7 +31,7 @@ export async function runGuestCopyAgent(input: CopyAgentInput): Promise<CopyAgen
     retrievalContext,
     fallbackFaqAnswer,
     policyResult,
-    language = "sl",
+    language: _language = "sl",
     apiKey: overrideApiKey,
   } = input;
 

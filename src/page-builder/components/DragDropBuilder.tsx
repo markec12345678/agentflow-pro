@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { DragDropContext, DndProvider } from "react-dnd";
+import { useCallback } from "react";
+import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { usePlugins } from "../context/PluginContext";
 
 interface PageComponent {
   id: string;
   type: "header" | "text" | "image" | "button" | "form" | "gallery";
-  content: Record<string, any>;
-  styles: Record<string, any>;
+  content: Record<string, unknown>;
+  styles: Record<string, unknown>;
   position: { x: number; y: number };
 }
 
@@ -119,7 +119,7 @@ export function DragDropBuilder({
                     </div>
                   ) : (
                     <div className="relative">
-                      {components.map((component, index) => (
+                      {components.map((component, _index) => (
                         <div
                           key={component.id}
                           role="button"

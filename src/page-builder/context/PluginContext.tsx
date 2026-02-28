@@ -8,7 +8,7 @@ export interface PageBuilderPlugin {
   author: string;
   icon: string;
   component: ReactNode;
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   isActive: boolean;
 }
 

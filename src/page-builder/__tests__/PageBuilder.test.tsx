@@ -4,8 +4,8 @@ import { ImagePlugin } from '../plugins/ImagePlugin';
 import { ButtonPlugin } from '../plugins/ButtonPlugin';
 import { FormPlugin } from '../plugins/FormPlugin';
 
-// Mock WebSocket for testing
-const mockWebSocket = {
+// Mock WebSocket for testing (reserved for future WebSocket tests)
+const _mockWebSocket = {
   send: jest.fn(),
   on: jest.fn(),
   close: jest.fn(),
@@ -36,7 +36,7 @@ describe('PageBuilder', () => {
 
   test('renders plugin library correctly', () => {
     render(<div><TextPlugin config={{}} /></div>);
-    
+
     expect(mockPluginContext.getAllPlugins).toHaveBeenCalled();
     expect(screen.getByText('Text Component')).toBeInTheDocument();
     expect(screen.getByText('Image Component')).toBeInTheDocument();
@@ -46,20 +46,20 @@ describe('PageBuilder', () => {
 
   test('can select and configure plugins', () => {
     const { getAllPlugins } = mockPluginContext;
-    const plugins = getAllPlugins();
-    
+    getAllPlugins();
+
     // Test text plugin selection
     fireEvent.click(screen.getByText('Text Component'));
     expect(mockPluginContext.getPlugin).toHaveBeenCalledWith('text');
-    
+
     // Test image plugin selection
     fireEvent.click(screen.getByText('Image Component'));
     expect(mockPluginContext.getPlugin).toHaveBeenCalledWith('image');
-    
+
     // Test button plugin selection
     fireEvent.click(screen.getByText('Button Component'));
     expect(mockPluginContext.getPlugin).toHaveBeenCalledWith('button');
-    
+
     // Test form plugin selection
     fireEvent.click(screen.getByText('Form Component'));
     expect(mockPluginContext.getPlugin).toHaveBeenCalledWith('form');
@@ -67,7 +67,7 @@ describe('PageBuilder', () => {
 
   test('plugin configuration works', () => {
     const onUpdate = jest.fn();
-    
+
     render(
       <div>
         <TextPlugin config={{}} onUpdate={onUpdate} />

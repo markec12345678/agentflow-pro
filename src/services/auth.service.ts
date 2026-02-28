@@ -4,12 +4,10 @@ import { randomBytes } from 'crypto';
 import {
   User,
   Session,
-  AuthResponse,
   LoginRequest,
   RegisterRequest,
   AuthError,
   UserRole,
-  Permission,
   SUBSCRIPTION_PLANS,
   PLAN_LIMITS
 } from '../types/user';
@@ -117,7 +115,7 @@ export class AuthService {
   static verifyToken(token: string): { userId: string; email: string; role: string } {
     try {
       return jwt.verify(token, this.JWT_SECRET) as { userId: string; email: string; role: string };
-    } catch (error) {
+    } catch (_error) {
       throw new AuthError('INVALID_TOKEN', 'Invalid or expired token');
     }
   }
@@ -163,7 +161,7 @@ export class AuthService {
   static validateSession(token: string): { userId: string; email: string; role: string } {
     try {
       return this.verifyToken(token);
-    } catch (error) {
+    } catch (_error) {
       throw new AuthError('INVALID_SESSION', 'Invalid or expired session');
     }
   }
@@ -260,7 +258,7 @@ export class AuthService {
   /**
    * Create user from registration data
    */
-  static async createUserFromRegistration(data: RegisterRequest, hashedPassword: string): Omit<User, 'id' | 'createdAt' | 'updatedAt'> {
+  static async createUserFromRegistration(data: RegisterRequest, _hashedPassword: string): Omit<User, 'id' | 'createdAt' | 'updatedAt'> {
     const now = new Date();
     const defaultRole = this.getDefaultRole('user');
     const planId = data.planId || SUBSCRIPTION_PLANS.TRIAL;
@@ -370,7 +368,7 @@ export class AuthService {
   static verifyPasswordResetToken(token: string): { email: string; type: string } {
     try {
       return jwt.verify(token, this.JWT_SECRET) as { email: string; type: string };
-    } catch (error) {
+    } catch (_error) {
       throw new AuthError('INVALID_TOKEN', 'Invalid or expired reset token');
     }
   }

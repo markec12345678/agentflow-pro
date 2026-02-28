@@ -110,10 +110,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 8000);
-    fetch("/api/profile", { signal: ctrl.signal })
+    fetch("/api/dashboard/boot", { signal: ctrl.signal })
       .then(r => r.json())
-      .then((data: { onboarding?: { industry?: string } }) => {
-        setUserIndustry(data?.onboarding?.industry ?? null);
+      .then((data: { profile?: { onboarding?: { industry?: string } } }) => {
+        setUserIndustry(data?.profile?.onboarding?.industry ?? null);
       })
       .catch(() => setUserIndustry(null))
       .finally(() => clearTimeout(t));

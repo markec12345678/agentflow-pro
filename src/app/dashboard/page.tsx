@@ -22,6 +22,17 @@ interface Checkpoint {
   workflow: { id: string; name: string };
 }
 
+// ─── Boot data types ───────────────────────────────────────────────────────────
+interface BootData {
+  profile?: { onboarding?: { industry?: string } };
+  usage?: { agentRuns: number; limit: number; planId: string; creditsUsed: number; creditsLimit: number };
+  activePropertyId?: string | null;
+  hasProperty?: boolean;
+  hasContent?: boolean;
+  recentContent?: ContentItem[];
+  checkpoints?: Checkpoint[];
+}
+
 // ─── Onboarding Checklist ─────────────────────────────────────────────────────
 const CHECKLIST_STEPS = [
   { id: "register", label: "Ustvarili ste račun", done: true },
@@ -31,11 +42,11 @@ const CHECKLIST_STEPS = [
   { id: "landing", label: "Ustvarite landing stran", href: "/generate?template=landing-page" },
 ];
 
-function OnboardingChecklist() {
+function OnboardingChecklist({ boot }: { boot?: BootData | null }) {
   const [dismissed, setDismissed] = useState(false);
   const [completed, setCompleted] = useState<string[]>(["register"]);
-  const [hasProperty, setHasProperty] = useState<boolean | null>(null);
-  const [hasContent, setHasContent] = useState<boolean | null>(null);
+  const hasProperty = boot?.hasProperty ?? null;
+  const hasContent = boot?.hasContent ?? null;
 
   const resolvedDone = (id: string) => {
     if (id === "property") return hasProperty === true;
@@ -50,16 +61,6 @@ function OnboardingChecklist() {
       const dis = localStorage.getItem("agentflow-checklist-dismissed");
       if (dis) setDismissed(true);
     } catch { }
-  }, []);
-
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/tourism/properties").then((r) => r.json()),
-      fetch("/api/content/history?limit=1").then((r) => r.json()),
-    ]).then(([propData, contentData]) => {
-      setHasProperty(Array.isArray(propData?.properties) && propData.properties.length > 0);
-      setHasContent(Array.isArray(contentData?.posts) && contentData.posts.length > 0);
-    }).catch(() => { });
   }, []);
 
   const markDone = (id: string) => {
@@ -121,30 +122,10 @@ function OnboardingChecklist() {
 }
 
 // ─── Tourism Today Widget (P0 Receptionist UX) ─────────────────────────────────
-function TourismTodayWidget() {
-  const [industry, setIndustry] = useState<string | null>(null);
-  const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 8000);
-    Promise.all([
-      fetch("/api/profile", { signal: ctrl.signal }).then((r) => r.json()),
-      fetch("/api/user/active-property", { signal: ctrl.signal }).then((r) => r.json()),
-    ])
-      .then(([profileData, activeData]) => {
-        setIndustry(profileData?.onboarding?.industry ?? null);
-        setActivePropertyId(activeData?.activePropertyId ?? null);
-      })
-      .catch(() => {
-        setIndustry(null);
-        setActivePropertyId(null);
-      })
-      .finally(() => clearTimeout(t));
-  }, []);
-
-  const showToday =
-    industry === "tourism" || industry === "travel-agency";
+function TourismTodayWidget({ boot }: { boot?: BootData | null }) {
+  const industry = boot?.profile?.onboarding?.industry ?? null;
+  const activePropertyId = boot?.activePropertyId ?? null;
+  const showToday = industry === "tourism" || industry === "travel-agency";
 
   if (!showToday) return null;
 
@@ -179,34 +160,16 @@ function QuickCard({
 }
 
 // ─── Recent Content ───────────────────────────────────────────────────────────
-function RecentContent() {
-  const [items, setItems] = useState<ContentItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/content/history?limit=5")
-      .then(r => r.json())
-      .then((data: { posts?: Array<{ id: string; title?: string | null; topic?: string | null; pipelineStage?: string | null; type?: string; content?: string; createdAt: string }> }) => {
-        const raw = data.posts ?? [];
-        const list: ContentItem[] = raw.slice(0, 5).map(p => ({
-          id: p.id,
-          type: (p.type ?? p.topic ?? p.pipelineStage ?? "blog") as string,
-          content: (p.title ?? p.content ?? p.topic ?? "").slice(0, 60),
-          createdAt: p.createdAt,
-        }));
-        setItems(list);
-      })
-      .catch(() => setItems([]))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return (
-    <div className="space-y-3">
-      {[1, 2, 3].map(i => (
-        <div key={i} className="h-14 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-      ))}
-    </div>
-  );
+function RecentContent({ items, loading }: { items: ContentItem[]; loading?: boolean }) {
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-14 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+        ))}
+      </div>
+    );
+  }
 
   if (items.length === 0) return (
     <div className="text-center py-8 text-gray-400">
@@ -245,27 +208,7 @@ function RecentContent() {
 }
 
 // ─── KPI Widgets + Usage Progress ──────────────────────────────────────────────
-interface UsageSummary {
-  agentRuns: number;
-  limit: number;
-  planId: string;
-  creditsUsed: number;
-  creditsLimit: number;
-  canRunAgent?: boolean;
-}
-
-function UsageKPICards() {
-  const [usage, setUsage] = useState<UsageSummary | null>(null);
-
-  useEffect(() => {
-    fetch("/api/usage")
-      .then(r => r.json())
-      .then((data: UsageSummary) => {
-        if (data.agentRuns !== undefined) setUsage(data);
-      })
-      .catch(() => { });
-  }, []);
-
+function UsageKPICards({ usage }: { usage?: BootData["usage"] | null }) {
   if (!usage) return null;
 
   const planLabels: Record<string, string> = {
@@ -331,8 +274,8 @@ function SeasonalBanner() {
 }
 
 // ─── Approval Queue ───────────────────────────────────────────────────────────
-function ApprovalQueue() {
-  const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
+function ApprovalQueue({ initialCheckpoints }: { initialCheckpoints: Checkpoint[] }) {
+  const [checkpoints, setCheckpoints] = useState<Checkpoint[]>(initialCheckpoints);
 
   const fetchCheckpoints = useCallback(() => {
     fetch("/api/workflows/checkpoint")
@@ -341,7 +284,9 @@ function ApprovalQueue() {
       .catch(() => setCheckpoints([]));
   }, []);
 
-  useEffect(() => { fetchCheckpoints(); }, [fetchCheckpoints]);
+  useEffect(() => {
+    setCheckpoints(initialCheckpoints);
+  }, [initialCheckpoints]);
 
   const handle = (id: string, action: "approve" | "reject") => {
     fetch(`/api/workflows/checkpoint/${action}`, {
@@ -378,6 +323,14 @@ function ApprovalQueue() {
 export default function DashboardPage() {
   const { data: session } = useSession();
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [boot, setBoot] = useState<BootData | null>(null);
+
+  useEffect(() => {
+    fetch("/api/dashboard/boot")
+      .then((r) => r.json())
+      .then((data: BootData) => setBoot(data))
+      .catch(() => setBoot({}));
+  }, []);
 
   const firstName = session?.user?.name?.split(" ")[0] ?? session?.user?.email?.split("@")[0] ?? "tam";
 
@@ -387,6 +340,9 @@ export default function DashboardPage() {
     if (h < 17) return "Dober dan";
     return "Dober večer";
   };
+
+  const recentItems: ContentItem[] = boot?.recentContent ?? [];
+  const checkpoints: Checkpoint[] = Array.isArray(boot?.checkpoints) ? boot.checkpoints : [];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -401,19 +357,19 @@ export default function DashboardPage() {
         </div>
 
         {/* KPI + Usage */}
-        <UsageKPICards />
+        <UsageKPICards usage={boot?.usage} />
 
         {/* Seasonal Banner */}
         <SeasonalBanner />
 
         {/* Approval Queue */}
-        <ApprovalQueue />
+        <ApprovalQueue initialCheckpoints={checkpoints} />
 
         {/* Onboarding Checklist */}
-        <OnboardingChecklist />
+        <OnboardingChecklist boot={boot} />
 
         {/* Tourism Today - prihod/odhod za receptorje */}
-        <TourismTodayWidget />
+        <TourismTodayWidget boot={boot} />
 
         {/* 3 Main Actions */}
         <div className="grid sm:grid-cols-3 gap-5 mb-10">
@@ -465,7 +421,7 @@ export default function DashboardPage() {
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">📁 Zadnja vsebina</h2>
             <Link href="/content" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">Vse →</Link>
           </div>
-          <RecentContent />
+          <RecentContent items={recentItems} loading={boot === null} />
         </div>
 
         {/* Advanced toggle */}

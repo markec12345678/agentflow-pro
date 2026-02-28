@@ -162,7 +162,7 @@ export class UserService {
     });
 
     // Remove password from response
-    const { passwordHash, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
 
     return {
       user: userWithoutPassword,
@@ -243,7 +243,7 @@ export class UserService {
     }
 
     // Remove password from response
-    const { passwordHash, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     return userWithoutPassword as User;
   }
 
@@ -266,7 +266,7 @@ export class UserService {
     });
 
     // Remove password from response
-    const { passwordHash, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     return userWithoutPassword as User;
   }
 
@@ -327,7 +327,7 @@ export class UserService {
         where: { email },
         data: { emailVerified: true }
       });
-    } catch (error) {
+    } catch (_error) {
       throw new AuthError('INVALID_VERIFICATION_TOKEN', 'Invalid or expired verification token');
     }
   }
@@ -372,7 +372,7 @@ export class UserService {
       await this.prisma.session.deleteMany({
         where: { userId: user.id }
       }).catch(() => { /* Ignore if Session schema differs */ });
-    } catch (error) {
+    } catch (_error) {
       throw new AuthError('INVALID_RESET_TOKEN', 'Invalid or expired reset token');
     }
   }
@@ -524,7 +524,7 @@ export class UserService {
     }
 
     // Remove password from response
-    const { passwordHash, ...userWithoutPassword } = user;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     return userWithoutPassword as User;
   }
 

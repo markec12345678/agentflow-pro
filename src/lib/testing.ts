@@ -189,7 +189,7 @@ export const mockBilling = {
 
 // Test utilities
 export class TestUtils {
-  static createMockRequest(data: any, method = 'POST') {
+  static createMockRequest(data: unknown, method = 'POST'): { json: () => Promise<unknown>; method: string; headers: Map<string, string> } {
     return {
       json: async () => data,
       method,
@@ -197,30 +197,28 @@ export class TestUtils {
         ['content-type', 'application/json'],
         ['authorization', 'Bearer mock-token']
       ])
-    } as any;
+    };
   }
 
-  static createMockResponse() {
-    const data: any = {
+  static createMockResponse(): { status: number; headers: Map<string, string>; json: (d: unknown) => Promise<unknown>; text: (d: unknown) => Promise<string> } {
+    return {
       status: 200,
       headers: new Map(),
-      json: async (data: any) => data,
-      text: async (data: any) => JSON.stringify(data)
+      json: async (d: unknown) => d,
+      text: async (d: unknown) => JSON.stringify(d)
     };
-    
-    return data;
   }
 
   static async waitFor(condition: () => boolean, timeout = 5000): Promise<void> {
     const startTime = Date.now();
-    
+
     while (Date.now() - startTime < timeout) {
       if (condition()) {
         return;
       }
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     throw new Error(`Condition not met within ${timeout}ms`);
   }
 
@@ -255,13 +253,13 @@ export class TestFixtures {
     console.log('Seeding test data...');
   }
 
-  static async createTestUser(userData: Partial<any> = {}): Promise<any> {
+  static async createTestUser(userData: Partial<Record<string, unknown>> = {}): Promise<Record<string, unknown>> {
     const user = {
       ...mockUsers.testUser,
       ...userData,
       id: TestUtils.generateRandomString()
     };
-    
+
     return user;
   }
 
@@ -271,16 +269,16 @@ export class TestFixtures {
       ...agentData,
       id: TestUtils.generateRandomString()
     };
-    
+
     return agent;
   }
 
-  static async createTestWorkflow(workflowData: Partial<any> = {}): Promise<any> {
+  static async createTestWorkflow(workflowData: Partial<Record<string, unknown>> = {}): Promise<Record<string, unknown>> {
     const workflow = {
       ...mockWorkflows.propertyDescription,
       ...workflowData
     };
-    
+
     return workflow;
   }
 }
@@ -291,28 +289,28 @@ export class PerformanceTests {
     const start = Date.now();
     const result = await fn();
     const time = Date.now() - start;
-    
+
     return { result, time };
   }
 
-  static async measureMemoryUsage(fn: () => Promise<any>): Promise<{ result: any; memory: number }> {
+  static async measureMemoryUsage(fn: () => Promise<unknown>): Promise<{ result: unknown; memory: number }> {
     const before = process.memoryUsage().heapUsed;
     const result = await fn();
     const after = process.memoryUsage().heapUsed;
     const memory = after - before;
-    
+
     return { result, memory };
   }
 
   static async runLoadTest(
-    fn: () => Promise<any>,
+    fn: () => Promise<unknown>,
     concurrency: number,
     iterations: number
   ): Promise<{ totalTime: number; averageTime: number; successRate: number }> {
     const startTime = Date.now();
-    const promises: Promise<any>[] = [];
+    const promises: Promise<unknown>[] = [];
     let successCount = 0;
-    
+
     for (let i = 0; i < iterations; i++) {
       promises.push(
         fn()
@@ -323,15 +321,15 @@ export class PerformanceTests {
             // Handle errors
           })
       );
-      
+
       if (promises.length >= concurrency) {
         await Promise.allSettled(promises.splice(0, concurrency));
       }
     }
-    
+
     await Promise.allSettled(promises);
     const totalTime = Date.now() - startTime;
-    
+
     return {
       totalTime,
       averageTime: totalTime / iterations,
@@ -370,7 +368,7 @@ export class IntegrationTests {
     };
   }
 
-  static async createMockStripe(): Promise<any> {
+  static async createMockStripe(): Promise<Record<string, unknown>> {
     // Create mock Stripe instance
     return {
       customers: {

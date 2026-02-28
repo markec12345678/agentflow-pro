@@ -255,7 +255,7 @@ export class StripeService {
 
   async cancelSubscription(subscriptionId: string, immediate = false): Promise<Stripe.Subscription> {
     try {
-      const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
+      await getStripe().subscriptions.retrieve(subscriptionId);
 
       if (immediate) {
         return await getStripe().subscriptions.cancel(subscriptionId);

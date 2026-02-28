@@ -542,23 +542,25 @@ model VerificationToken {
 
 // Tourism models
 model Reservation {
-  id         String    @id @default(cuid())
-  propertyId String
-  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  guestId    String?
-  guest      Guest?    @relation(fields: [guestId], references: [id], onDelete: SetNull)
-  roomId     String?
-  checkIn    DateTime
-  checkOut   DateTime
-  status     String    @default("confirmed") // confirmed, cancelled, pending
-  channel    String? // direct, booking.com, airbnb, etc.
-  totalPrice Float?
-  deposit    Float? // zahtevana akontacija
-  touristTax Float? // turistična taksa (skupni znesek)
-  notes      String?
-  payments   Payment[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  propertyId          String
+  property            Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guestId             String?
+  guest               Guest?    @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  roomId              String?
+  checkIn             DateTime
+  checkOut            DateTime
+  status              String    @default("confirmed") // confirmed, cancelled, pending
+  channel             String? // direct, booking.com, airbnb, etc.
+  totalPrice          Float?
+  deposit             Float? // zahtevana akontacija
+  touristTax          Float? // turistična taksa (skupni znesek)
+  notes               String?
+  checkInToken        String?   @unique // za check-in povezavo (eTurizem)
+  eturizemSubmittedAt DateTime?
+  payments            Payment[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   @@index([propertyId, checkIn])
   @@index([status])
