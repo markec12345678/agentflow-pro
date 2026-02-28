@@ -212,10 +212,10 @@ function GenerateWizard() {
             <div key={s.n} className="flex items-center">
               <div
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${step === s.n
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : step > s.n
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-200 dark:bg-gray-700 text-gray-500"
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : step > s.n
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-500"
                   }`}
               >
                 <span>{step > s.n ? "✓" : s.n}</span>
@@ -286,8 +286,8 @@ function GenerateWizard() {
                           type="button"
                           onClick={() => setFields(prev => ({ ...prev, season: opt.label }))}
                           className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 flex items-center gap-1 ${fields.season === opt.label
-                              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                              : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-300"
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                            : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-300"
                             }`}
                         >
                           <span>{opt.emoji}</span>
@@ -329,8 +329,8 @@ function GenerateWizard() {
                         type="button"
                         onClick={() => setLanguage(lang.id)}
                         className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 ${language === lang.id
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                            : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-300"
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                          : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-300"
                           }`}
                       >
                         {lang.label}
@@ -378,8 +378,8 @@ function GenerateWizard() {
                       {[0, 1, 2].map(i => (
                         <div
                           key={i}
-                          className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"
-                          style={{ animationDelay: `${i * 0.15}s` }}
+                          className="bounce-dot-delay w-3 h-3 bg-blue-500 rounded-full animate-bounce"
+                          style={{ ["--delay" as string]: `${i * 0.15}s` }}
                         />
                       ))}
                     </div>

@@ -126,8 +126,8 @@ export function DragDropBuilder({
                           tabIndex={0}
                           onClick={() => onComponentSelect(component.id)}
                           className={`absolute border rounded p-2 bg-white dark:bg-gray-800 cursor-pointer ${selectedComponent === component.id
-                              ? "border-blue-500 ring-2 ring-blue-200"
-                              : "border-gray-300 dark:border-gray-600"
+                            ? "border-blue-500 ring-2 ring-blue-200"
+                            : "border-gray-300 dark:border-gray-600"
                             }`}
                           style={{
                             left: `${component.position.x}px`,
@@ -158,23 +158,26 @@ export function DragDropBuilder({
                 {selectedComponent && (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="dragdrop-content" className="block text-sm font-medium text-gray-700 mb-1">
                         Vsebina
                       </label>
                       <textarea
+                        id="dragdrop-content"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         rows={4}
                         value={components.find(c => c.id === selectedComponent)?.content?.text || ""}
                         onChange={(e) => updateComponent(selectedComponent, {
                           content: { text: e.target.value }
                         })}
+                        aria-label="Vsebina komponente"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="dragdrop-posx" className="block text-sm font-medium text-gray-700 mb-1">
                         Položaj X
                       </label>
                       <input
+                        id="dragdrop-posx"
                         type="number"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         value={components.find(c => c.id === selectedComponent)?.position?.x || 0}
@@ -184,13 +187,15 @@ export function DragDropBuilder({
                             x: parseInt(e.target.value)
                           }
                         })}
+                        aria-label="Položaj X"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="dragdrop-posy" className="block text-sm font-medium text-gray-700 mb-1">
                         Položaj Y
                       </label>
                       <input
+                        id="dragdrop-posy"
                         type="number"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         value={components.find(c => c.id === selectedComponent)?.position?.y || 0}
@@ -200,6 +205,7 @@ export function DragDropBuilder({
                             y: parseInt(e.target.value)
                           }
                         })}
+                        aria-label="Položaj Y"
                       />
                     </div>
                     <button

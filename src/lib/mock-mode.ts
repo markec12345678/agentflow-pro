@@ -9,6 +9,7 @@ function hasRequiredApiKeys(): boolean {
     process.env.SERPAPI_API_KEY,
     process.env.CONTEXT7_API_KEY,
     process.env.OPENAI_API_KEY,
+    process.env.GEMINI_API_KEY,
     process.env.FIRECRAWL_API_KEY,
   ];
   return keys.some((k) => k && k.length > 0);

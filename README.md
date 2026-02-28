@@ -166,6 +166,7 @@ AgentFlow Pro uses Model Context Protocol (MCP) servers for AI-assisted developm
 
 | MCP | Purpose | Env Variable |
 |-----|---------|--------------|
+| **Neon** | Database – SQL, schema | OAuth ali `NEON_API_KEY` |
 | Memory | Knowledge graph & context | — |
 | GitHub | Repo management | `GITHUB_TOKEN` |
 | Git | Version control | — |

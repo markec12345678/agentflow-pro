@@ -8,7 +8,7 @@
 2. Uporabi Memory MCP ob začetku vsake seje
 3. Small steps pristop (max 1 file naenkrat)
 4. Git commit po vsaki večji spremembi
-5. Testiraj pred commitom
+5. Testiraj pred commitom (avtomatsko: Husky pre-commit zažene `npm run precommit`; če pade, popravi in ponovi)
 
 ### MCP Usage Rules
 

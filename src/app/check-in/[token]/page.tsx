@@ -19,7 +19,6 @@ const DOC_TYPES = [
 
 export default function CheckInPage() {
   const params = useParams();
-  const router = useRouter();
   const token = params.token as string;
   const [status, setStatus] = useState<"loading" | "form" | "success" | "error">("loading");
   const [guestName, setGuestName] = useState("");
@@ -32,6 +31,7 @@ export default function CheckInPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [mrzPaste, setMrzPaste] = useState("");
 
   useEffect(() => {
     if (!token) {
@@ -58,7 +58,7 @@ export default function CheckInPage() {
   }, [token]);
 
   const handleParseMrz = async () => {
-    const lines = mrzPaste.split(/[\r\n]+/).map((l) => l.trim()).filter(Boolean);
+    const lines = mrzPaste.split(/[\r\n]+/).map((l: string) => l.trim()).filter(Boolean);
     if (lines.length < 2) return;
     try {
       const res = await fetch("/api/tourism/eturizem/parse-mrz", {
@@ -153,25 +153,50 @@ export default function CheckInPage() {
           Izpolnite podatke iz osebnega dokumenta za prijavo v nastanitev.
         </p>
 
+        <div className="mb-6 p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+          <label htmlFor="checkin-mrz" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Prilepi MRZ vrstice (2–3 vrstice)
+          </label>
+          <textarea
+            id="checkin-mrz"
+            value={mrzPaste}
+            onChange={(e) => setMrzPaste(e.target.value)}
+            placeholder="Prilepi 2–3 MRZ vrstice iz dokumenta..."
+            rows={3}
+            aria-label="MRZ vrstice iz dokumenta"
+            className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1.5 text-xs font-mono"
+          />
+          <button
+            type="button"
+            onClick={handleParseMrz}
+            className="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            Parsiraj in izpolni
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="checkin-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Datum rojstva *
             </label>
             <input
+              id="checkin-date"
               type="date"
               value={form.dateOfBirth}
               onChange={(e) => setForm((f) => ({ ...f, dateOfBirth: e.target.value }))}
               required
+              aria-label="Datum rojstva"
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="checkin-country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Država (ISO 2) *
             </label>
             <input
+              id="checkin-country"
               type="text"
               value={form.countryCode}
               onChange={(e) =>
@@ -180,17 +205,20 @@ export default function CheckInPage() {
               placeholder="SI"
               maxLength={2}
               required
+              aria-label="Država ISO koda"
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="checkin-doctype" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Vrsta dokumenta *
             </label>
             <select
+              id="checkin-doctype"
               value={form.documentType}
               onChange={(e) => setForm((f) => ({ ...f, documentType: e.target.value }))}
+              aria-label="Vrsta dokumenta"
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
             >
               {DOC_TYPES.map((t) => (
@@ -202,25 +230,29 @@ export default function CheckInPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="checkin-docid" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Številka dokumenta *
             </label>
             <input
+              id="checkin-docid"
               type="text"
               value={form.documentId}
               onChange={(e) => setForm((f) => ({ ...f, documentId: e.target.value }))}
               required
+              aria-label="Številka dokumenta"
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="checkin-gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Spol
             </label>
             <select
+              id="checkin-gender"
               value={form.gender}
               onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+              aria-label="Spol"
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
             >
               <option value="M">Moški</option>

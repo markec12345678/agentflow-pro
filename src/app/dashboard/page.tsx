@@ -90,7 +90,7 @@ function OnboardingChecklist() {
         <button onClick={dismiss} className="text-gray-400 hover:text-gray-600 text-xl leading-none" aria-label="Zapri">×</button>
       </div>
       <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mb-5">
-        <div className="bg-blue-600 h-2 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+        <div className="progress-fill bg-blue-600 h-2 rounded-full transition-all duration-500" style={{ ["--progress" as string]: `${pct}%` }} />
       </div>
       <div className="space-y-3">
         {CHECKLIST_STEPS.map(step => {
@@ -280,14 +280,14 @@ function UsageKPICards() {
         <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Agent runovi</p>
         <p className="text-xl font-bold text-gray-900 dark:text-white">{usage.agentRuns} / {usage.limit}</p>
         <div className="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${runsPct}%` }} />
+          <div className="progress-fill h-full bg-blue-500 rounded-full transition-all" style={{ ["--progress" as string]: `${runsPct}%` }} />
         </div>
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-100 dark:border-gray-700 p-4">
         <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Credits</p>
         <p className="text-xl font-bold text-gray-900 dark:text-white">{usage.creditsUsed} / {usage.creditsLimit}</p>
         <div className="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${creditsPct}%` }} />
+          <div className="progress-fill h-full bg-green-500 rounded-full transition-all" style={{ ["--progress" as string]: `${creditsPct}%` }} />
         </div>
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-100 dark:border-gray-700 p-4 flex flex-col justify-center">

@@ -252,20 +252,24 @@ export default function CompetitorsPage() {
           <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-3">Predlog cene (AI)</h2>
           <div className="flex flex-wrap gap-3 items-end">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Od</label>
+              <label htmlFor="competitors-checkin" className="block text-xs text-gray-500 mb-1">Od</label>
               <input
+                id="competitors-checkin"
                 type="date"
                 value={recCheckIn}
                 onChange={(e) => setRecCheckIn(e.target.value)}
+                aria-label="Datum prihoda"
                 className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Do</label>
+              <label htmlFor="competitors-checkout" className="block text-xs text-gray-500 mb-1">Do</label>
               <input
+                id="competitors-checkout"
                 type="date"
                 value={recCheckOut}
                 onChange={(e) => setRecCheckOut(e.target.value)}
+                aria-label="Datum odhoda"
                 className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
               />
             </div>

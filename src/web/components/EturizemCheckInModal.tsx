@@ -153,13 +153,15 @@ export function EturizemCheckInModal({ arrival, onClose, onSuccess }: EturizemCh
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="eturizem-dob" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Datum rojstva *
               </label>
               <input
+                id="eturizem-dob"
                 type="date"
                 value={form.dateOfBirth}
                 onChange={(e) => setForm((f) => ({ ...f, dateOfBirth: e.target.value }))}
+                aria-label="Datum rojstva"
                 className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
               />
             </div>
@@ -215,12 +217,14 @@ export function EturizemCheckInModal({ arrival, onClose, onSuccess }: EturizemCh
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="eturizem-gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Spol
             </label>
             <select
+              id="eturizem-gender"
               value={form.gender}
               onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+              aria-label="Spol"
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
             >
               <option value="M">Moški</option>

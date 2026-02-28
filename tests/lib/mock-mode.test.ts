@@ -20,6 +20,7 @@ describe("mock-mode", () => {
   it("isMockMode returns true when no API keys set and MOCK_MODE not true", () => {
     process.env.MOCK_MODE = "false";
     delete process.env.OPENAI_API_KEY;
+    delete process.env.GEMINI_API_KEY;
     delete process.env.SERPAPI_API_KEY;
     delete process.env.CONTEXT7_API_KEY;
     delete process.env.FIRECRAWL_API_KEY;
@@ -29,6 +30,13 @@ describe("mock-mode", () => {
   it("isMockMode returns false when OPENAI_API_KEY is set", () => {
     process.env.MOCK_MODE = "false";
     process.env.OPENAI_API_KEY = "sk-xxx";
+    expect(isMockMode()).toBe(false);
+  });
+
+  it("isMockMode returns false when only GEMINI_API_KEY is set", () => {
+    process.env.MOCK_MODE = "false";
+    delete process.env.OPENAI_API_KEY;
+    process.env.GEMINI_API_KEY = "AIza-test";
     expect(isMockMode()).toBe(false);
   });
 

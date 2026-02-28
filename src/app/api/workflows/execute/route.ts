@@ -60,11 +60,22 @@ export async function POST(request: NextRequest) {
       (context ?? {}) as Record<string, unknown>
     );
 
-    if (progress.status === "completed" && userId) {
-      await recordAgentRun(userId, "workflow", {
-        workflowId: workflowId ?? progress.workflowId,
-        creditsConsumed: 4,
-      });
+    if (userId) {
+      if (progress.status === "completed") {
+        await recordAgentRun(userId, "workflow", {
+          workflowId: workflowId ?? progress.workflowId,
+          creditsConsumed: 4,
+          status: "completed",
+        });
+      } else if (progress.status === "error") {
+        await recordAgentRun(userId, "workflow", {
+          workflowId: workflowId ?? progress.workflowId,
+          status: "failed",
+          output: progress.errors?.[0]
+            ? { error: progress.errors[0].message }
+            : undefined,
+        });
+      }
     }
 
     if (progress.status === "completed") {

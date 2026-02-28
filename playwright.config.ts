@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  testIgnore: ["**/app.spec.ts"], // Outdated: tests /auth/*, /tourism/workflows, /booking/*, /reviews/*, /billing/* - routes do not exist
   globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

@@ -174,12 +174,14 @@ export default function BulkGeneratePage() {
 
           {/* Šablona */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
-            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
+            <label htmlFor="bulk-prompt" className="font-semibold text-gray-900 dark:text-white mb-4 block">
               Šablona vsebine
-            </h2>
+            </label>
             <select
+              id="bulk-prompt"
               value={promptId}
               onChange={(e) => setPromptId(e.target.value)}
+              aria-label="Šablona vsebine"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               {TOURISM_PROMPTS.map((p) => (
@@ -202,8 +204,8 @@ export default function BulkGeneratePage() {
                   type="button"
                   onClick={() => toggleLanguage(l.id)}
                   className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 ${languages.includes(l.id)
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                      : "border-gray-200 dark:border-gray-600 text-gray-600 hover:border-blue-300"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                    : "border-gray-200 dark:border-gray-600 text-gray-600 hover:border-blue-300"
                     }`}
                 >
                   {l.label}

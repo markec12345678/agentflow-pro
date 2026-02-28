@@ -35,6 +35,7 @@ const TOURISM_NAV = [
 
 // ─── Napredno (skrito) ────────────────────────────────────────────────────────
 const ADVANCED_NAV = [
+  { icon: "📊", label: "Insights", href: "/dashboard/insights" },
   { icon: "⚡", label: "Workflow Builder", href: "/workflows" },
   { icon: "🌐", label: "Page Builder", href: "/dashboard/page-builder" },
   { icon: "💬", label: "Chat z agenti", href: "/chat" },

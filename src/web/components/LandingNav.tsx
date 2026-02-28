@@ -92,9 +92,6 @@ export function LandingNav() {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  const solutionsExpanded = openDropdown === "solutions" ? "true" : "false";
-  const mobileExpanded = mobileMenuOpen ? "true" : "false";
-
   return (
     <>
       <nav
@@ -115,7 +112,7 @@ export function LandingNav() {
                   AgentFlow Pro
                 </span>
                 <span className="-mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                  AI Content Platform
+                  Vsebina + koledar
                 </span>
               </div>
             </Link>
@@ -126,28 +123,33 @@ export function LandingNav() {
                 onMouseEnter={() => setOpenDropdown("solutions")}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
-                <button
-                  id="solutions-trigger"
-                  aria-expanded={solutionsExpanded as "true" | "false"}
-                  aria-haspopup="true"
-                  aria-controls="solutions-menu"
-                  className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
-                >
-                  {NAV_CONFIG.solutions.label}
-                  <svg
-                    className="h-4 w-4 transition-transform"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                {openDropdown === "solutions" ? (
+                  <button
+                    id="solutions-trigger"
+                    aria-expanded="true"
+                    aria-haspopup="true"
+                    aria-controls="solutions-menu"
+                    className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
+                    {NAV_CONFIG.solutions.label}
+                    <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                ) : (
+                  <button
+                    id="solutions-trigger"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    aria-controls="solutions-menu"
+                    className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
+                  >
+                    {NAV_CONFIG.solutions.label}
+                    <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                )}
                 {openDropdown === "solutions" && (
                   <div
                     id="solutions-menu"
@@ -200,26 +202,35 @@ export function LandingNav() {
                 onMouseEnter={() => setOpenDropdown("resources")}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
-                <button className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400">
-                  {NAV_CONFIG.resources.label}
-                  <svg
-                    className="h-4 w-4 transition-transform"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                {openDropdown === "resources" ? (
+                  <button
+                    aria-expanded="true"
+                    aria-haspopup="true"
+                    aria-controls="resources-menu"
+                    className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
+                    {NAV_CONFIG.resources.label}
+                    <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                ) : (
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    aria-controls="resources-menu"
+                    className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
+                  >
+                    {NAV_CONFIG.resources.label}
+                    <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                )}
                 {openDropdown === "resources" && (
                   <div
                     id="resources-menu"
-                    role="listbox"
+                    role="group"
                     aria-label="Resources"
                     className="absolute left-0 top-full z-50 mt-3 w-72 rounded-2xl border border-gray-200/50 bg-white p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 dark:border-gray-700/50 dark:bg-gray-800"
                   >
@@ -294,43 +305,31 @@ export function LandingNav() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                aria-expanded={mobileExpanded}
-                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? (
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+              {mobileMenuOpen ? (
+                <button
+                  type="button"
+                  aria-expanded="true"
+                  aria-label="Close menu"
+                  className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                ) : (
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  aria-expanded="false"
+                  aria-label="Open menu"
+                  className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+                  onClick={() => setMobileMenuOpen(true)}
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
-                )}
-              </button>
+                </button>
+              )}
             </div>
           </div>
           <div className="border-b border-gray-200 bg-gray-50/50 py-2 dark:border-gray-800 dark:bg-gray-900/50">

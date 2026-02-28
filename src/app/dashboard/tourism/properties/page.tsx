@@ -393,6 +393,7 @@ export default function TourismPropertiesPage() {
                     <select
                       value={form.type}
                       onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
+                      aria-label="Tip nastanitve"
                       className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100"
                     >
                       <option value="">Tip</option>

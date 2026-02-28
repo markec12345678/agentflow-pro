@@ -92,6 +92,22 @@ export const CASE_STUDIES: CaseStudy[] = [
     metric: "60%",
     metricLabel: "content production time saved",
   },
+  {
+    id: "dmo-direct-bookings",
+    company: "Bela Krajina DMO",
+    industry: "Tourism",
+    role: "Head of Digital",
+    quote:
+      "AgentFlow cut our content workload from 20 hours a week to 6. Pre-arrival emails and review requests go out automatically. Direct bookings from our site rose 28% in the first quarter.",
+    challenge:
+      "Our DMO promotes a rural region with 40+ accommodations. We needed localized content for each area, multi-language pre-arrival emails, and review prompts—but had no budget for a content team.",
+    solution:
+      "We use AgentFlow's tourism templates: pre-arrival emails with local tips, post-stay review requests linking to Booking.com and Google. Bulk Generate creates area guides in SL, EN, DE. The email scheduler sends tailored messages based on reservation data.",
+    outcome:
+      "Content creation dropped from 20 to 6 hours per week. 28% more direct bookings in Q1. Accommodation owners report higher review rates. We now run seasonal campaigns (wine routes, cycling) without outsourcing copy.",
+    metric: "28%",
+    metricLabel: "increase in direct bookings",
+  },
 ];
 
 export function getCaseStudyById(id: string): CaseStudy | undefined {

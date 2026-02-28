@@ -27,7 +27,9 @@
 Before committing, run:
 
 ```bash
-./scripts/pre-commit.sh
+npm run precommit
+# Ali ročno: node scripts/pre-commit.js
+# Husky avtomatsko zažene precommit ob git commit
 ```
 
 Or use the npm script:

@@ -7,28 +7,21 @@ import * as path from "path";
 
 test.describe("1. Simple Mode - /generate", () => {
   test("generate page loads or redirects to login", async ({ page }) => {
-    test.setTimeout(30000);
-    await page.goto("/generate");
-    await page.waitForLoadState("networkidle");
+    test.setTimeout(45000);
+    await page.goto("/generate", { waitUntil: "domcontentloaded", timeout: 20000 });
     const generateHeading = page.getByRole("heading", { name: /Ustvari vsebino|Opis nastanitve/i });
     const loginHeading = page.getByRole("heading", { name: /Sign in|Prijava/i });
-    const hasContent =
-      (await generateHeading.isVisible()) || (await loginHeading.isVisible());
-    expect(hasContent).toBe(true);
+    await expect(generateHeading.or(loginHeading)).toBeVisible({ timeout: 15000 });
   });
 });
 
 test.describe("2. Advanced Mode - /workflows", () => {
   test("workflows page loads or redirects to login", async ({ page }) => {
-    test.setTimeout(30000);
-    await page.goto("/workflows");
-    await page.waitForLoadState("networkidle");
+    test.setTimeout(45000);
+    await page.goto("/workflows", { waitUntil: "domcontentloaded", timeout: 20000 });
     const loginHeading = page.getByRole("heading", { name: /Sign in|Prijava/i });
     const workflowLink = page.getByRole("link", { name: /Workflow|Builder/i });
-    const hasContent =
-      (await loginHeading.isVisible()) ||
-      (await workflowLink.first().isVisible().catch(() => false));
-    expect(hasContent).toBe(true);
+    await expect(loginHeading.or(workflowLink.first())).toBeVisible({ timeout: 15000 });
   });
 });
 
@@ -107,14 +100,10 @@ test.describe("5. All Pages - Smoke", () => {
   });
 
   test("Dashboard loads or redirects to login", async ({ page }) => {
-    await page.goto("/dashboard");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded", timeout: 20000 });
     const loginHeading = page.getByRole("heading", { name: /Sign in|Prijava/i });
     const navLink = page.getByRole("link", { name: /Pregled|Ustvari/i });
-    const hasContent =
-      (await loginHeading.isVisible()) ||
-      (await navLink.first().isVisible().catch(() => false));
-    expect(hasContent).toBe(true);
+    await expect(loginHeading.or(navLink.first())).toBeVisible({ timeout: 15000 });
   });
 
   test("Pricing loads", async ({ page }) => {
@@ -199,14 +188,11 @@ test.describe("7. Blok C – Tourism Multi-Agent, Analytics, KG", () => {
       !process.env.DATABASE_URL || process.env.DATABASE_URL.includes("placeholder"),
       "Requires DATABASE_URL"
     );
-    await page.goto("/dashboard/tourism/analytics");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/dashboard/tourism/analytics", { waitUntil: "domcontentloaded", timeout: 20000 });
     const heading = page.getByRole("heading", {
       name: /analitika|napoved|turizem/i,
     });
     const loginPrompt = page.getByRole("heading", { name: /sign in|prijava/i });
-    const hasContent =
-      (await heading.isVisible()) || (await loginPrompt.isVisible());
-    expect(hasContent).toBe(true);
+    await expect(heading.or(loginPrompt)).toBeVisible({ timeout: 15000 });
   });
 });

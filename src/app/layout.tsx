@@ -26,22 +26,22 @@ export const metadata: Metadata = {
     },
   },
   title: {
-    default: "AgentFlow Pro – AI vsebina za turizem",
+    default: "AgentFlow Pro: Edina AI platforma, ki ustvari vsebino IN sinhronizira rezervacije",
     template: "%s | AgentFlow Pro",
   },
   description:
-    "AI platforma za ustvarjanje turistične vsebine. Opisi nastanitev, emaili za goste, landing strani – v slovenščini, angleščini, nemščini in več.",
+    "AI platforma za turizem: ustvarja opise nastanitev, emaile za goste in landing strani; sinhronizira rezervacije iz Booking.com, Airbnb in PMS. Multi-jezik, SEO optimizirano.",
   keywords: ["AI", "turizem", "vsebina", "hotel", "agentflow", "booking"],
   authors: [{ name: "AgentFlow Pro" }],
   openGraph: {
-    title: "AgentFlow Pro – AI vsebina za turizem",
-    description: "Ustvari profesionalno turistično vsebino v sekundah. Multi-jezik, SEO optimizirano.",
+    title: "AgentFlow Pro: Edina AI platforma, ki ustvari vsebino IN sinhronizira rezervacije",
+    description: "Vsebina + sinhronizacija rezervacij. Opisi, emaili, landing strani – multi-jezik.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AgentFlow Pro – AI vsebina za turizem",
-    description: "Ustvari profesionalno turistično vsebino v sekundah.",
+    title: "AgentFlow Pro: Edina AI platforma, ki ustvari vsebino IN sinhronizira rezervacije",
+    description: "Od AI besedila do polnega koledarja – vse v enem orodju za turizem.",
   },
 };
 

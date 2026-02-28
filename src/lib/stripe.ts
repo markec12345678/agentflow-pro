@@ -5,10 +5,16 @@
 
 import Stripe from 'stripe';
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
-});
+// Lazy Stripe init – app runs without STRIPE_SECRET_KEY; billing routes throw when used
+let stripeInstance: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!stripeInstance) {
+    const key = process.env.STRIPE_SECRET_KEY?.trim();
+    if (!key) throw new Error("Stripe is not configured. Add STRIPE_SECRET_KEY to enable billing.");
+    stripeInstance = new Stripe(key, { apiVersion: '2024-06-20' });
+  }
+  return stripeInstance;
+}
 
 // Subscription plans configuration
 export const SUBSCRIPTION_PLANS = {
@@ -155,7 +161,7 @@ export class StripeService {
   // Customer management
   async createCustomer(email: string, name: string): Promise<Stripe.Customer> {
     try {
-      const customer = await stripe.customers.create({
+      const customer = await getStripe().customers.create({
         email,
         name,
         metadata: {
@@ -170,7 +176,7 @@ export class StripeService {
 
   async getCustomer(stripeCustomerId: string): Promise<Stripe.Customer> {
     try {
-      const customer = await stripe.customers.retrieve(stripeCustomerId);
+      const customer = await getStripe().customers.retrieve(stripeCustomerId);
       return customer as Stripe.Customer;
     } catch (error) {
       throw new Error(`Failed to retrieve customer: ${error}`);
@@ -179,7 +185,7 @@ export class StripeService {
 
   async updateCustomer(stripeCustomerId: string, updates: Partial<{ name: string; email: string }>): Promise<Stripe.Customer> {
     try {
-      const customer = await stripe.customers.update(stripeCustomerId, updates);
+      const customer = await getStripe().customers.update(stripeCustomerId, updates);
       return customer;
     } catch (error) {
       throw new Error(`Failed to update customer: ${error}`);
@@ -194,8 +200,8 @@ export class StripeService {
   ): Promise<Stripe.Subscription> {
     try {
       const plan = SUBSCRIPTION_PLANS[planId];
-      
-      const subscription = await stripe.subscriptions.create({
+
+      const subscription = await getStripe().subscriptions.create({
         customer: stripeCustomerId,
         items: [{ price: plan.id }],
         trial_period_days: trialPeriodDays,
@@ -215,7 +221,7 @@ export class StripeService {
 
   async getSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
     try {
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
       return subscription;
     } catch (error) {
       throw new Error(`Failed to retrieve subscription: ${error}`);
@@ -228,9 +234,9 @@ export class StripeService {
   ): Promise<Stripe.Subscription> {
     try {
       const plan = SUBSCRIPTION_PLANS[planId];
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
 
-      const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+      const updatedSubscription = await getStripe().subscriptions.update(subscriptionId, {
         items: [{
           id: subscription.items.data[0].id,
           price: plan.id
@@ -249,12 +255,12 @@ export class StripeService {
 
   async cancelSubscription(subscriptionId: string, immediate = false): Promise<Stripe.Subscription> {
     try {
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-      
+      const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
+
       if (immediate) {
-        return await stripe.subscriptions.cancel(subscriptionId);
+        return await getStripe().subscriptions.cancel(subscriptionId);
       } else {
-        return await stripe.subscriptions.update(subscriptionId, {
+        return await getStripe().subscriptions.update(subscriptionId, {
           cancel_at_period_end: true
         });
       }
@@ -265,7 +271,7 @@ export class StripeService {
 
   async pauseSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
     try {
-      const subscription = await stripe.subscriptions.update(subscriptionId, {
+      const subscription = await getStripe().subscriptions.update(subscriptionId, {
         pause_collection: {
           behavior: 'keep_as_draft'
         }
@@ -278,7 +284,7 @@ export class StripeService {
 
   async resumeSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
     try {
-      const subscription = await stripe.subscriptions.update(subscriptionId, {
+      const subscription = await getStripe().subscriptions.update(subscriptionId, {
         pause_collection: null
       });
       return subscription;
@@ -293,7 +299,7 @@ export class StripeService {
     paymentMethodId: string
   ): Promise<Stripe.PaymentMethod> {
     try {
-      const paymentMethod = await stripe.paymentMethods.attach(paymentMethodId, {
+      const paymentMethod = await getStripe().paymentMethods.attach(paymentMethodId, {
         customer: stripeCustomerId
       });
       return paymentMethod;
@@ -304,7 +310,7 @@ export class StripeService {
 
   async getPaymentMethods(stripeCustomerId: string): Promise<Stripe.PaymentMethod[]> {
     try {
-      const paymentMethods = await stripe.paymentMethods.list({
+      const paymentMethods = await getStripe().paymentMethods.list({
         customer: stripeCustomerId,
         type: 'card'
       });
@@ -319,7 +325,7 @@ export class StripeService {
     paymentMethodId: string
   ): Promise<Stripe.Customer> {
     try {
-      const customer = await stripe.customers.update(stripeCustomerId, {
+      const customer = await getStripe().customers.update(stripeCustomerId, {
         invoice_settings: {
           default_payment_method: paymentMethodId
         }
@@ -336,7 +342,7 @@ export class StripeService {
     description?: string
   ): Promise<Stripe.Invoice> {
     try {
-      const invoice = await stripe.invoices.create({
+      const invoice = await getStripe().invoices.create({
         customer: stripeCustomerId,
         description,
         metadata: {
@@ -351,7 +357,7 @@ export class StripeService {
 
   async finalizeInvoice(invoiceId: string): Promise<Stripe.Invoice> {
     try {
-      const invoice = await stripe.invoices.finalizeInvoice(invoiceId);
+      const invoice = await getStripe().invoices.finalizeInvoice(invoiceId);
       return invoice;
     } catch (error) {
       throw new Error(`Failed to finalize invoice: ${error}`);
@@ -360,7 +366,7 @@ export class StripeService {
 
   async payInvoice(invoiceId: string): Promise<Stripe.Invoice> {
     try {
-      const invoice = await stripe.invoices.pay(invoiceId);
+      const invoice = await getStripe().invoices.pay(invoiceId);
       return invoice;
     } catch (error) {
       throw new Error(`Failed to pay invoice: ${error}`);
@@ -374,7 +380,7 @@ export class StripeService {
     timestamp?: number
   ): Promise<Stripe.UsageRecord> {
     try {
-      const usageRecord = await stripe.subscriptionItems.createUsageRecord(
+      const usageRecord = await getStripe().subscriptionItems.createUsageRecord(
         subscriptionItemId,
         {
           quantity,
@@ -398,7 +404,7 @@ export class StripeService {
   ): Promise<Stripe.Checkout.Session> {
     try {
       const plan = SUBSCRIPTION_PLANS[planId];
-      
+
       const sessionParams: Stripe.Checkout.SessionCreateParams = {
         customer: stripeCustomerId,
         payment_method_types: ['card'],
@@ -429,7 +435,7 @@ export class StripeService {
         };
       }
 
-      const session = await stripe.checkout.sessions.create(sessionParams);
+      const session = await getStripe().checkout.sessions.create(sessionParams);
       return session;
     } catch (error) {
       throw new Error(`Failed to create checkout session: ${error}`);
@@ -441,7 +447,7 @@ export class StripeService {
     returnUrl: string
   ): Promise<Stripe.BillingPortal.Session> {
     try {
-      const session = await stripe.billingPortal.sessions.create({
+      const session = await getStripe().billingPortal.sessions.create({
         customer: stripeCustomerId,
         return_url: returnUrl,
       });
@@ -458,7 +464,7 @@ export class StripeService {
     webhookSecret: string
   ): Promise<Stripe.Event> {
     try {
-      const event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+      const event = getStripe().webhooks.constructEvent(payload, signature, webhookSecret);
       return event;
     } catch (error) {
       throw new Error(`Webhook signature verification failed: ${error}`);

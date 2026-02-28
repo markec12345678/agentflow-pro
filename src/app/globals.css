@@ -92,6 +92,14 @@ body {
   .btn-responsive {
     @apply w-full px-6 py-3 sm:w-auto sm:px-8 sm:py-4;
   }
+
+  .progress-fill {
+    width: var(--progress, 0%);
+  }
+
+  .bounce-dot-delay {
+    animation-delay: var(--delay, 0s);
+  }
 }
 
 /* Mobile Navigation */

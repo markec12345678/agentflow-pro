@@ -318,7 +318,7 @@ export class TourismWorkflows {
     }
 
     const translatedContent: Record<string, string> = {};
-    
+
     // For each target language, use communication agent for translation
     for (const language of input.translationData.targetLanguages) {
       const translationTaskId = await this.orchestrator.queueTask('communication', {
@@ -330,7 +330,7 @@ export class TourismWorkflows {
       const translationResult = await this.orchestrator.getTask(translationTaskId);
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      translatedContent[language] = (translationResult?.result as any)?.content || 
+      translatedContent[language] = (translationResult?.result as any)?.content ||
         `Translated content for ${language}`;
     }
 

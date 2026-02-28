@@ -11,6 +11,7 @@ export interface RecordAgentRunOptions {
   input?: Record<string, unknown>;
   output?: Record<string, unknown>;
   creditsConsumed?: number;
+  status?: "completed" | "failed";
 }
 
 export async function recordAgentRun(
@@ -19,15 +20,16 @@ export async function recordAgentRun(
   options?: RecordAgentRunOptions
 ): Promise<void> {
   const credits = options?.creditsConsumed ?? (options?.workflowId ? 4 : 1);
+  const status = options?.status ?? "completed";
   await prisma.agentRun.create({
     data: {
       userId,
       agentType,
       workflowId: options?.workflowId ?? null,
-      status: "completed",
+      status,
       input: (options?.input ?? undefined) as Prisma.InputJsonValue | undefined,
       output: (options?.output ?? undefined) as Prisma.InputJsonValue | undefined,
-      creditsConsumed: credits,
+      creditsConsumed: status === "completed" ? credits : 0,
     },
   });
 }

@@ -4,6 +4,7 @@
  * Body: { propertyId, format: "csv" | "json", data: string }
  */
 
+import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";

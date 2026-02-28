@@ -411,20 +411,24 @@ export default function CalendarPage() {
           </div>
           <div className="p-4 flex flex-wrap gap-2 items-end">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Prihod</label>
+              <label htmlFor="calendar-calc-checkin" className="block text-xs text-gray-500 mb-1">Prihod</label>
               <input
+                id="calendar-calc-checkin"
                 type="date"
                 value={calcCheckIn}
                 onChange={(e) => setCalcCheckIn(e.target.value)}
+                aria-label="Datum prihoda"
                 className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Odhod</label>
+              <label htmlFor="calendar-calc-checkout" className="block text-xs text-gray-500 mb-1">Odhod</label>
               <input
+                id="calendar-calc-checkout"
                 type="date"
                 value={calcCheckOut}
                 onChange={(e) => setCalcCheckOut(e.target.value)}
+                aria-label="Datum odhoda"
                 className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
               />
             </div>
@@ -670,17 +674,21 @@ export default function CalendarPage() {
 
                 <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Znesek (€)</label>
+                    <label htmlFor="edit-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Znesek (€)</label>
                     <input
+                      id="edit-amount"
                       type="number"
                       value={editAmount || selectedDate.reservation.totalAmount}
                       onChange={(e) => setEditAmount(e.target.value)}
+                      placeholder="0"
+                      aria-label="Znesek v evrih"
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opombe (opcijsko)</label>
+                    <label htmlFor="edit-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opombe (opcijsko)</label>
                     <textarea
+                      id="edit-notes"
                       value={editNotes}
                       onChange={(e) => setEditNotes(e.target.value)}
                       placeholder="Opombe za rezervacijo"
@@ -784,10 +792,12 @@ export default function CalendarPage() {
             <h4 className="text-lg font-semibold mb-4">Dodaj plačilo</h4>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vrsta</label>
+                <label htmlFor="calendar-payment-type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vrsta</label>
                 <select
+                  id="calendar-payment-type"
                   value={newPayment.type}
                   onChange={(e) => setNewPayment((p) => ({ ...p, type: e.target.value as typeof p.type }))}
+                  aria-label="Vrsta plačila"
                   className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                 >
                   <option value="deposit">Akontacija</option>
@@ -797,20 +807,24 @@ export default function CalendarPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Znesek (€)</label>
+                <label htmlFor="new-payment-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Znesek (€)</label>
                 <input
+                  id="new-payment-amount"
                   type="number"
                   step="0.01"
                   min="0"
                   value={newPayment.amount}
                   onChange={(e) => setNewPayment((p) => ({ ...p, amount: e.target.value }))}
                   placeholder="0.00"
+                  aria-label="Znesek plačila v evrih"
                   className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Način</label>
+                <label htmlFor="new-payment-method" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Način</label>
                 <select
+                  id="new-payment-method"
+                  aria-label="Način plačila"
                   value={newPayment.method}
                   onChange={(e) => setNewPayment((p) => ({ ...p, method: e.target.value as typeof p.method }))}
                   className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
@@ -890,20 +904,22 @@ export default function CalendarPage() {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prihod</label>
+                  <label htmlFor="new-res-checkin" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prihod</label>
                   <input
+                    id="new-res-checkin"
                     type="date"
-                    aria-label="Prihod"
+                    aria-label="Datum prihoda"
                     value={newReservationForm.checkIn}
                     onChange={(e) => setNewReservationForm((f) => ({ ...f, checkIn: e.target.value }))}
                     className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Odhod</label>
+                  <label htmlFor="new-res-checkout" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Odhod</label>
                   <input
+                    id="new-res-checkout"
                     type="date"
-                    aria-label="Odhod"
+                    aria-label="Datum odhoda"
                     value={newReservationForm.checkOut}
                     onChange={(e) => setNewReservationForm((f) => ({ ...f, checkOut: e.target.value }))}
                     className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
@@ -922,12 +938,14 @@ export default function CalendarPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-pošta</label>
+                <label htmlFor="new-res-guest-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-pošta</label>
                 <input
+                  id="new-res-guest-email"
                   type="email"
                   value={newReservationForm.guestEmail}
                   onChange={(e) => setNewReservationForm((f) => ({ ...f, guestEmail: e.target.value }))}
                   placeholder="email@example.com"
+                  aria-label="E-pošta gosta"
                   className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                 />
               </div>
@@ -942,8 +960,9 @@ export default function CalendarPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kanal</label>
+                <label htmlFor="new-res-channel" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kanal</label>
                 <select
+                  id="new-res-channel"
                   value={newReservationForm.channel}
                   onChange={(e) => setNewReservationForm((f) => ({ ...f, channel: e.target.value }))}
                   className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
@@ -969,13 +988,15 @@ export default function CalendarPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Akontacija (€)</label>
+                  <label htmlFor="new-res-deposit" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Akontacija (€)</label>
                   <input
+                    id="new-res-deposit"
                     type="number"
                     step="0.01"
                     value={newReservationForm.deposit}
                     onChange={(e) => setNewReservationForm((f) => ({ ...f, deposit: e.target.value }))}
                     placeholder="0"
+                    aria-label="Akontacija v evrih"
                     className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                   />
                 </div>
@@ -992,11 +1013,13 @@ export default function CalendarPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opombe</label>
+                <label htmlFor="new-res-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opombe</label>
                 <textarea
+                  id="new-res-notes"
                   value={newReservationForm.notes}
                   onChange={(e) => setNewReservationForm((f) => ({ ...f, notes: e.target.value }))}
                   placeholder="Opombe za rezervacijo"
+                  aria-label="Opombe za rezervacijo"
                   rows={2}
                   className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                 />
@@ -1064,13 +1087,17 @@ export default function CalendarPage() {
               </label>
             </div>
             <div className="mb-3">
-              <input type="file" accept=".csv,.json,.txt" onChange={handleBulkFileSelect} className="text-sm" />
+              <label htmlFor="calendar-bulk-file" className="sr-only">Izberi datoteko za uvoz</label>
+              <input id="calendar-bulk-file" type="file" accept=".csv,.json,.txt" onChange={handleBulkFileSelect} className="text-sm" aria-label="Izberi datoteko za uvoz" />
             </div>
+            <label htmlFor="calendar-bulk-data" className="sr-only">Vnos podatkov za uvoz</label>
             <textarea
+              id="calendar-bulk-data"
               value={bulkData}
               onChange={(e) => setBulkData(e.target.value)}
               placeholder={bulkFormat === "csv" ? "2025-03-01, 2025-03-05, Janez Novak, janez@example.com, ..." : '{"reservations": [{"checkIn": "2025-03-01", "checkOut": "2025-03-05", "guestName": "Janez"}]}'}
               rows={8}
+              aria-label="Vnos podatkov za uvoz"
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 p-3 text-sm font-mono"
             />
             <div className="flex gap-2 mt-4">
@@ -1112,7 +1139,7 @@ export default function CalendarPage() {
           {icalFeedUrl && !icalLoading && (
             <>
               <div className="flex gap-2">
-                <input readOnly value={icalFeedUrl} className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
+                <input readOnly value={icalFeedUrl} aria-label="iCal URL za sinhronizacijo" title="iCal URL za sinhronizacijo koledarja" placeholder="iCal URL" className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
                 <button onClick={copyIcalUrl} className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">Kopiraj</button>
               </div>
               {icalInstructions && (
