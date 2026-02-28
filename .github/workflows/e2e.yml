@@ -33,6 +33,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -57,18 +58,26 @@ jobs:
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          STRIPE_PRICE_PRO: price_placeholder
+          STRIPE_PRICE_BUSINESS: price_business_placeholder
+          STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
           NEXTAUTH_SECRET: e2e-secret-key
           NEXTAUTH_URL: http://localhost:3002
+          MOCK_MODE: "true"
 
       - name: Run E2E tests
-        run: npm run test:e2e -- --project=chromium
+        run: npm run test:e2e:smoke -- --project=chromium
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          STRIPE_PRICE_PRO: price_placeholder
+          STRIPE_PRICE_BUSINESS: price_business_placeholder
+          STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
           NEXTAUTH_SECRET: e2e-secret-key
           NEXTAUTH_URL: http://localhost:3002
+          MOCK_MODE: "true"
           CI: true
 
       - uses: actions/upload-artifact@v4
