@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { PropertySelector } from "@/web/components/PropertySelector";
 
@@ -9,7 +10,7 @@ interface Communication {
   id: string;
   type: "pre-arrival" | "post-stay";
   channel?: "email" | "whatsapp";
-  status: "draft" | "scheduled" | "sent";
+  status: "draft" | "scheduled" | "sent" | "pending";
   content: string;
   scheduledFor: string | null;
   sentAt: string | null;
@@ -21,11 +22,18 @@ interface Communication {
 }
 
 export default function GuestCommunicationPage() {
+  const searchParams = useSearchParams();
   const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
   const [communications, setCommunications] = useState<Communication[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "pre-arrival" | "post-stay">("all");
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [bulkApproving, setBulkApproving] = useState(false);
+
+  useEffect(() => {
+    const prop = searchParams.get("propertyId");
+    if (prop) setActivePropertyId(prop);
+  }, [searchParams]);
 
   useEffect(() => {
     if (activePropertyId) {
@@ -51,6 +59,37 @@ export default function GuestCommunicationPage() {
   const filteredCommunications = communications.filter((c) =>
     activeTab === "all" ? true : c.type === activeTab
   );
+
+  const pendingPreArrivalCount = communications.filter(
+    (c) => c.type === "pre-arrival" && (c.status === "draft" || c.status === "pending")
+  ).length;
+
+  const handleBulkApprove = async () => {
+    if (!activePropertyId) {
+      toast.error("Izberite nastanitev");
+      return;
+    }
+    setBulkApproving(true);
+    try {
+      const res = await fetch("/api/tourism/guest-communication", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "bulk-approve",
+          propertyId: activePropertyId,
+          type: "pre-arrival",
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      toast.success(`Odobreno: ${data.approved ?? 0} pre-arrival`);
+      fetchCommunications();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Napaka");
+    } finally {
+      setBulkApproving(false);
+    }
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -144,8 +183,18 @@ export default function GuestCommunicationPage() {
 
       {/* Communications List */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-semibold">Email Kampanje</h2>
+          {activeTab === "pre-arrival" && pendingPreArrivalCount > 0 && (
+            <button
+              type="button"
+              onClick={handleBulkApprove}
+              disabled={bulkApproving || !activePropertyId}
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
+            >
+              {bulkApproving ? "Odobravanje…" : `Odobri vse (${pendingPreArrivalCount})`}
+            </button>
+          )}
         </div>
 
         {loading ? (
@@ -185,14 +234,18 @@ export default function GuestCommunicationPage() {
                           ? "bg-green-100 text-green-700"
                           : comm.status === "scheduled"
                             ? "bg-yellow-100 text-yellow-700"
-                            : "bg-gray-100 text-gray-700"
+                            : comm.status === "pending"
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+                              : "bg-gray-100 text-gray-700"
                           }`}
                       >
                         {comm.status === "sent"
                           ? "Poslano"
                           : comm.status === "scheduled"
                             ? "Načrtovano"
-                            : "Osnutek"}
+                            : comm.status === "pending"
+                              ? "V čakanju"
+                              : "Osnutek"}
                       </span>
                     </div>
                     <p className="font-medium text-gray-900 dark:text-white">

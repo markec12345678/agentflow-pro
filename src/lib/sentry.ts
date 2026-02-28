@@ -23,41 +23,18 @@ export const sentryConfig = {
   maxBreadcrumbs: 50,
   debug: false,
   
-  // Integrations
-  integrations: [
-    new Sentry.Integration({
-      enabled: true,
-      'sentry.react.react': {
-        enabled: true,
-        trackComponentUpdates: true,
-        trackSuspiciousFrames: true,
-        trackHookUpdates: true,
-      },
-      'sentry.logging.bunyan': {
-        level: 'error',
-      },
-      'sentry.metrics.gauge': {
-        enabled: true,
-      },
-      'sentry.metrics.node': {
-        enabled: true,
-      },
-      'sentry.metrics.react': {
-        enabled: true,
-      },
-    },
-  ],
+  // Integrations - use default Next.js integrations
   
   // Before send error
-  beforeSend: (event) => {
+  beforeSend: (event: Sentry.Event) => {
     // Filter out development errors
     if (process.env.NODE_ENV === 'development') {
       return null;
     }
     
     // Add custom context
-    event.context = {
-      ...event.context,
+    event.contexts = {
+      ...event.contexts,
       custom: {
         userId: event.user?.id,
         userAgent: event.request?.headers?.['user-agent'],
@@ -69,7 +46,7 @@ export const sentryConfig = {
   },
   
   // Before send breadcrumb
-  beforeSendBreadcrumb: (breadcrumb) => {
+  beforeSendBreadcrumb: (breadcrumb: Sentry.Breadcrumb) => {
     // Add custom breadcrumb data
     breadcrumb.data = {
       ...breadcrumb.data,
@@ -80,25 +57,8 @@ export const sentryConfig = {
   },
   
   // Custom tags
-  tags: ['agentflow-pro', 'tourism', 'ai', 'automation'],
-  
-  // Custom context
-  context: {
-    tags: ['agentflow-pro', 'tourism', 'ai', 'automation'],
-    user: {
-      id: string,
-      email: string,
-      plan: string,
-    },
-    server: {
-      name: string,
-      version: string,
-      environment: string,
-    },
-    runtime: {
-      name: string,
-      version: string,
-    },
+  initialScope: {
+    tags: { app: 'agentflow-pro', industry: 'tourism', type: 'ai' },
   },
 };
 
@@ -120,7 +80,7 @@ export class SentryService {
     }
 
     // Initialize Sentry with configuration
-    Sentry.init(sentryConfig);
+    Sentry.init(sentryConfig as Sentry.NodeOptions);
     this.isInitialized = true;
     
     console.log('Sentry initialized successfully');
@@ -134,8 +94,8 @@ export class SentryService {
     }
 
     Sentry.captureException(error, {
-      contexts: context ? [context] : undefined,
-      tags: ['custom-error'],
+      contexts: context ? { custom: context as Record<string, unknown> } : undefined,
+      tags: { 'error-type': 'custom-error' },
       extra: {
         error: {
           name: error.name,
@@ -155,31 +115,28 @@ export class SentryService {
 
     Sentry.withScope((scope) => {
       scope.setLevel(level);
-      if (context) {
+      if (context && typeof context === 'object') {
         Object.entries(context).forEach(([key, value]) => {
-          scope.setContext(key, value);
+          scope.setContext(key, value as Record<string, unknown>);
         });
       }
-      scope.setMessage(message);
-      scope.captureBreadcrumb({
+      Sentry.addBreadcrumb({
         category: 'custom',
         message,
         level,
-        timestamp: new Date().toISOString(),
       });
-      Sentry.captureMessage(message);
+      Sentry.captureMessage(message, level);
     });
   }
 
-  // Performance monitoring
+  // Performance monitoring (uses new Sentry v8 API)
   startTransaction(name: string): void {
     if (!this.isInitialized) {
       return;
     }
 
-    Sentry.startTransaction({
-      name,
-      op: 'transaction',
+    Sentry.startSpan({ name, op: 'transaction' }, () => {
+      // Span ends when callback completes
     });
   }
 
@@ -309,10 +266,12 @@ export class SentryService {
       data: context,
     });
 
-    Sentry.gauge(`system.${component}`, status === 'healthy' ? 1 : 0, {
-      tags: ['system-health'],
-      unit: 'status',
-    });
+    if ('gauge' in Sentry && typeof (Sentry as { gauge?: (...args: unknown[]) => void }).gauge === 'function') {
+      (Sentry as { gauge: (...args: unknown[]) => void }).gauge(`system.${component}`, status === 'healthy' ? 1 : 0, {
+        tags: ['system-health'],
+        unit: 'status',
+      });
+    }
   }
 
   // Database performance tracking
@@ -388,9 +347,6 @@ export class SentryService {
 
 // Export singleton instance
 export const sentryService = SentryService.getInstance();
-
-// Export configuration
-export { sentryConfig };
 
 // Error boundary component for React
 export class ErrorBoundary extends React.Component {

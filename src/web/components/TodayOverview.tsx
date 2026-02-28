@@ -53,6 +53,8 @@ export function TodayOverview({ propertyId }: TodayOverviewProps) {
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<"arrivals" | "departures" | "inHouse" | null>(null);
   const [eturizemModalArrival, setEturizemModalArrival] = useState<TodayItem | null>(null);
+  const [tomorrowCount, setTomorrowCount] = useState<number | null>(null);
+  const [sendingWelcome, setSendingWelcome] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -68,6 +70,32 @@ export function TodayOverview({ propertyId }: TodayOverviewProps) {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [propertyId]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (propertyId) params.set("propertyId", propertyId);
+    fetch(`/api/tourism/send-welcome-tomorrow?${params.toString()}`)
+      .then((r) => (r.ok ? r.json() : { count: 0 }))
+      .then((d) => setTomorrowCount(d.count))
+      .catch(() => setTomorrowCount(0));
+  }, [propertyId]);
+
+  const handleSendWelcomeTomorrow = async () => {
+    setSendingWelcome(true);
+    try {
+      const res = await fetch("/api/tourism/send-welcome-tomorrow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: propertyId ? JSON.stringify({ propertyId }) : "{}",
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && (json.queued > 0 || json.sent > 0)) {
+        setTomorrowCount((c) => Math.max(0, (c ?? 0) - (json.sent ?? json.queued ?? 0)));
+      }
+    } finally {
+      setSendingWelcome(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -126,6 +154,21 @@ export function TodayOverview({ propertyId }: TodayOverviewProps) {
             >
               Pošlji emaili →
             </Link>
+          </div>
+        )}
+        {tomorrowCount != null && tomorrowCount > 0 && (
+          <div className="rounded-lg bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 p-3 flex items-center justify-between gap-3">
+            <p className="text-sm text-teal-800 dark:text-teal-200">
+              Jutri prihaja {tomorrowCount} {tomorrowCount === 1 ? "gost" : "gostov"} – Pošlji dobrodošlico
+            </p>
+            <button
+              type="button"
+              onClick={handleSendWelcomeTomorrow}
+              disabled={sendingWelcome}
+              className="shrink-0 px-3 py-1.5 text-sm font-medium rounded-lg bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60 transition-colors"
+            >
+              {sendingWelcome ? "Pošiljanje…" : "Pošlji dobrodošlico"}
+            </button>
           </div>
         )}
         {!hasAny ? (

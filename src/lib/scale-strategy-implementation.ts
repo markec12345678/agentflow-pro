@@ -31,8 +31,8 @@ export interface ScalePhase {
 }
 
 export class ScaleStrategyImplementation {
-  private scalePhases: ScalePhase[];
-  private scaleInitiatives: ScaleInitiative[];
+  private scalePhases!: ScalePhase[];
+  private scaleInitiatives!: ScaleInitiative[];
 
   constructor() {
     this.initializeScaleInitiatives();
@@ -445,8 +445,6 @@ ${this.scalePhases[0].successCriteria.map((criteria, index) => `${index + 1}. ${
 **Duration**: 5 months
 **Success Confidence**: HIGH
 `;
-
-    return report;
   }
 
   generateScaleExecutionPlan(): string {

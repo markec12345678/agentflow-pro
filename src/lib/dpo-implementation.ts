@@ -29,8 +29,8 @@ export interface DPOResponsibilities {
 }
 
 export class DataProtectionOfficer {
-  private appointment: DPOAppointment;
-  private responsibilities: DPOResponsibilities[];
+  private appointment!: DPOAppointment;
+  private responsibilities!: DPOResponsibilities[];
 
   constructor() {
     this.initializeAppointment();

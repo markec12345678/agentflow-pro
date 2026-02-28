@@ -21,6 +21,7 @@ import { GlobalSearch } from "@/web/components/GlobalSearch";
 import { NotificationBell } from "@/web/components/NotificationBell";
 import { OnboardingWizard } from "@/web/components/OnboardingWizard";
 import { TodayOverview } from "@/web/components/TodayOverview";
+import { QuickActionsPanel } from "@/web/components/QuickActionsPanel";
 
 const FIRST_SESSION_STEPS = [
   { id: "property", label: "Dodaj nastanitev", href: "/dashboard/tourism/properties", done: false },
@@ -329,9 +330,17 @@ export default function TourismOverviewPage() {
         </div>
       )}
 
+      {isReceptionMode && (
+        <QuickActionsPanel propertyId={activePropertyId} isReceptionMode />
+      )}
+
       <div className={isReceptionMode ? "text-lg [&_h2]:text-xl [&_.text-sm]:text-base" : ""}>
         <TodayOverview propertyId={activePropertyId} />
       </div>
+
+      {!isReceptionMode && (
+        <QuickActionsPanel propertyId={activePropertyId} />
+      )}
 
       {activePropertyId && (occupancyData || revenueRangeData?.length || chartsLoading) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -362,7 +371,7 @@ export default function TourismOverviewPage() {
                     <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
                     <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                     <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-                    <Tooltip formatter={(v: number) => [`${v}%`, "Zasedenost"]} />
+                    <Tooltip formatter={(v: number | undefined) => [`${v != null ? v : 0}%`, "Zasedenost"]} />
                     <Bar dataKey="value" fill="#10b981" name="Zasedenost %" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -384,7 +393,7 @@ export default function TourismOverviewPage() {
                     <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
                     <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip formatter={(v: number) => [`€${v.toFixed(2)}`, "Prihodki"]} />
+                    <Tooltip formatter={(v: number | undefined) => [`€${(v ?? 0).toFixed(2)}`, "Prihodki"]} />
                     <Bar dataKey="revenue" fill="#3b82f6" name="Prihodki €" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>

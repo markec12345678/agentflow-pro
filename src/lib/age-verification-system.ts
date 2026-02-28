@@ -32,9 +32,9 @@ export interface ParentalConsentProcess {
 }
 
 export class AgeVerificationSystem {
-  private config: AgeVerificationConfig;
-  private verificationFlow: AgeVerificationFlow[];
-  private parentalConsentProcesses: ParentalConsentProcess[];
+  private config!: AgeVerificationConfig;
+  private verificationFlow!: AgeVerificationFlow[];
+  private parentalConsentProcesses!: ParentalConsentProcess[];
 
   constructor() {
     this.initializeConfig();

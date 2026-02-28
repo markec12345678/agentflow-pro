@@ -21,6 +21,7 @@ export interface GeographicTestResult {
   region: string;
   endpoint: string;
   averageLatency: number;
+  expectedLatency?: number;
   p95Latency: number;
   p99Latency: number;
   successRate: number;
@@ -46,7 +47,7 @@ export class GeographicPerformanceTester {
     this.config = config;
   }
 
-  async runGeographicTests(): Promise<GeographicPerformanceReport> {
+  async runGeographicTests(): Promise<string> {
     console.log('Starting geographic performance tests...');
     
     for (const region of this.config.regions) {
@@ -196,7 +197,7 @@ export class GeographicPerformanceTester {
     
     const latency = Date.now() - startTime;
     
-    const healthStatus = await page.evaluate(() => {
+    const healthStatus = await page.evaluate(async () => {
       try {
         const response = await fetch('/api/health');
         return response.ok;
@@ -466,7 +467,7 @@ Report Generated: ${new Date().toISOString()}
 
     // Regional recommendations
     this.results.forEach(result => {
-      if (result.averageLatency > result.expectedLatency * 2) {
+      if (result.expectedLatency != null && result.averageLatency > result.expectedLatency * 2) {
         recommendations.push(`REGIONAL: ${result.region} - Investigate network infrastructure`);
         recommendations.push(`REGIONAL: ${result.region} - Consider regional CDN deployment`);
       }

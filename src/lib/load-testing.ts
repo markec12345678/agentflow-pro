@@ -203,7 +203,7 @@ export class LoadTester {
       
       const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
       
-      const response = await page.evaluate(async (endpoint) => {
+      const response = await page.evaluate(async (endpoint: string) => {
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
@@ -248,7 +248,9 @@ export class LoadTester {
       peak: {
         rss: Math.max(initialMemory.rss, finalMemory.rss),
         heapUsed: Math.max(initialMemory.heapUsed, finalMemory.heapUsed),
-        heapTotal: Math.max(initialMemory.heapTotal, finalMemory.heapTotal)
+        heapTotal: Math.max(initialMemory.heapTotal, finalMemory.heapTotal),
+        external: Math.max(initialMemory.external ?? 0, finalMemory.external ?? 0),
+        arrayBuffers: Math.max(initialMemory.arrayBuffers ?? 0, finalMemory.arrayBuffers ?? 0)
       }
     };
     

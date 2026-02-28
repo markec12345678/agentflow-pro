@@ -3,6 +3,7 @@
  * Database models and business logic for subscription management
  */
 
+import type Stripe from 'stripe';
 import { prisma } from "@/database/schema";
 import { stripeService, PlanType, SUBSCRIPTION_PLANS, USAGE_PRICING } from './stripe';
 
@@ -450,9 +451,9 @@ export class BillingService {
 
     return {
       status: subscription.status,
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : undefined,
-      canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : undefined
+      currentPeriodEnd: new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000),
+      trialEnd: (subscription as { trial_end?: number }).trial_end ? new Date((subscription as unknown as { trial_end: number }).trial_end * 1000) : undefined,
+      canceledAt: (subscription as unknown as { canceled_at?: number }).canceled_at ? new Date((subscription as unknown as { canceled_at: number }).canceled_at * 1000) : undefined
     };
   }
 

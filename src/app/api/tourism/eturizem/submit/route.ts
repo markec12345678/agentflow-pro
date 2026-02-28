@@ -32,7 +32,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { reservationId: string };
+  const body = (await request.json().catch(() => ({}))) as {
+    reservationId: string;
+    guestUpdates?: {
+      dateOfBirth?: string;
+      countryCode?: string;
+      documentType?: string;
+      documentId?: string;
+      gender?: string;
+    };
+  };
   if (!body.reservationId?.trim()) {
     return NextResponse.json({ error: "reservationId is required" }, { status: 400 });
   }

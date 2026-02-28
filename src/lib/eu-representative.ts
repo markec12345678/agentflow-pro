@@ -46,9 +46,9 @@ export interface EURepresentativeServices {
 }
 
 export class EURepresentativeImplementation {
-  private representative: EURepresentative;
-  private agreement: EURepresentativeAgreement;
-  private services: EURepresentativeServices[];
+  private representative!: EURepresentative;
+  private agreement!: EURepresentativeAgreement;
+  private services!: EURepresentativeServices[];
 
   constructor() {
     this.initializeRepresentative();

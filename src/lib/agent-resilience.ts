@@ -36,6 +36,7 @@ export class CircuitBreaker {
   private failureCount = 0;
   private lastFailureTime: Date | null = null;
   private successCount = 0;
+  private circuitBreakerTrips = 0;
 
   constructor(private config: CircuitBreakerConfig) {}
 
@@ -144,8 +145,12 @@ export class AgentResilienceTester {
       }, agentType);
 
       const responseTime = Date.now() - startTime;
-      
-      if (result.status === 'completed') {
+      const resultObj = result as { status?: string; error?: string } | string;
+      const success = typeof resultObj === 'object' && resultObj !== null
+        ? resultObj.status === 'completed'
+        : true;
+
+      if (success) {
         metrics.successfulCalls++;
         metrics.averageResponseTime = (metrics.averageResponseTime + responseTime) / 2;
       } else {
@@ -156,9 +161,9 @@ export class AgentResilienceTester {
       return {
         agentType,
         testType: 'agent_execution',
-        success: result.status === 'completed',
+        success,
         responseTime,
-        error: result.error,
+        error: typeof resultObj === 'object' && resultObj !== null ? resultObj.error : undefined,
         metrics: { ...metrics }
       };
     } catch (error) {

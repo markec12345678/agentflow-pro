@@ -44,9 +44,9 @@ export interface LegalApprovalWorkflow {
 }
 
 export class LegalReviewApproval {
-  private reviewItems: LegalReviewItem[];
-  private reviewProcesses: LegalReviewProcess[];
-  private approvalWorkflows: LegalApprovalWorkflow[];
+  private reviewItems!: LegalReviewItem[];
+  private reviewProcesses!: LegalReviewProcess[];
+  private approvalWorkflows!: LegalApprovalWorkflow[];
 
   constructor() {
     this.initializeReviewItems();

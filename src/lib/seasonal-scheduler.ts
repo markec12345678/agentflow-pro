@@ -41,7 +41,7 @@ export interface AutomationRule {
 }
 
 export interface RuleCondition {
-  type: 'date_range' | 'temperature' | 'occupancy_rate' | 'event';
+  type: 'date_range' | 'temperature' | 'occupancy_rate' | 'event' | 'weather_based' | 'event_based' | 'occupancy_based';
   operator: 'equals' | 'greater_than' | 'less_than' | 'between';
   value: any;
   unit?: string;
@@ -164,7 +164,7 @@ export class SeasonalContentScheduler {
     const schedule = this.getActiveSchedule();
     if (!schedule) return;
 
-    const currentSeason = this.getCurrentSeason();
+    const currentSeason = SeasonalContentScheduler.getCurrentSeason();
     const currentDate = new Date();
 
     for (const rule of schedule.automationRules) {
@@ -324,7 +324,7 @@ export class SeasonalContentScheduler {
 
   private getCurrentTemperature(): number {
     // Mock temperature - integrate with real weather API
-    const season = this.getCurrentSeason();
+    const season = SeasonalContentScheduler.getCurrentSeason();
     const seasonTemps = {
       spring: 15,
       summer: 25,
@@ -370,7 +370,7 @@ export class SeasonalContentScheduler {
   }
 
   generateSeasonalContentIdeas(season: 'spring' | 'summer' | 'autumn' | 'winter'): string[] {
-    const themes = this.getSeasonThemes(season);
-    return themes.themes.map(theme => `${theme} vacation ideas for ${season}`);
+    const themes = SeasonalContentScheduler.getSeasonThemes(season);
+    return themes.themes.map((theme: string) => `${theme} vacation ideas for ${season}`);
   }
 }

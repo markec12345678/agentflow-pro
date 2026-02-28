@@ -8,6 +8,7 @@ export interface BookingComPartnershipData {
   companyWebsite: string;
   companyDescription: string;
   contactPerson: string;
+  contactTitle?: string;
   contactEmail: string;
   contactPhone: string;
   companyAddress: string;

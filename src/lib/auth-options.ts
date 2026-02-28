@@ -7,7 +7,7 @@ import { getUser } from "@/lib/auth-users";
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   trustHost: true,
   providers: [
     ...(googleClientId && googleClientSecret
@@ -146,4 +146,4 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: { signIn: "/login" },
-};
+} as NextAuthOptions;

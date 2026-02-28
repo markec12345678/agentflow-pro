@@ -119,10 +119,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       .finally(() => clearTimeout(t));
   }, []);
 
-  // Privzeta Tourism stran za tourism uporabnike
+  // Privzeta Tourism stran za tourism uporabnike („Danes“ kot vhod)
   useEffect(() => {
     if (pathname === "/dashboard" && (userIndustry === "tourism" || userIndustry === "travel-agency")) {
-      router.replace("/dashboard/tourism");
+      try {
+        const reception = typeof window !== "undefined" && localStorage.getItem("agentflow-reception-mode") === "1";
+        router.replace(reception ? "/dashboard/tourism?mode=reception" : "/dashboard/tourism");
+      } catch {
+        router.replace("/dashboard/tourism");
+      }
     }
   }, [pathname, userIndustry, router]);
 
@@ -278,12 +283,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Mobile bottom nav */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-2 flex items-center justify-around">
-          {[
-            { icon: "🏠", label: "Domov", href: "/dashboard" },
-            { icon: "✍️", label: "Ustvari", href: "/generate" },
-            { icon: "📁", label: "Vsebina", href: "/content" },
-            { icon: "⚙️", label: "Nastavitve", href: "/settings" },
-          ].map(item => (
+          {(() => {
+            const base = [
+              showTourismHub
+                ? { icon: "📅", label: "Danes", href: "/dashboard/tourism?mode=reception" }
+                : { icon: "🏠", label: "Domov", href: "/dashboard" },
+              { icon: "✍️", label: "Ustvari", href: "/generate" },
+              { icon: "📁", label: "Vsebina", href: "/content" },
+              { icon: "⚙️", label: "Nastavitve", href: "/settings" },
+            ];
+            return base;
+          })().map(item => (
             <Link
               key={item.href}
               href={item.href}

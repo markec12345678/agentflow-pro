@@ -45,9 +45,9 @@ export interface RevenueProjections {
 }
 
 export class RevenueProjectionsImplementation {
-  private revenueScenarios: RevenueScenario[];
-  private pricingTiers: PricingTier[];
-  private dailyMetrics: DailyMetric[];
+  private revenueScenarios!: RevenueScenario[];
+  private pricingTiers!: PricingTier[];
+  private dailyMetrics!: DailyMetric[];
 
   constructor() {
     this.initializeRevenueScenarios();

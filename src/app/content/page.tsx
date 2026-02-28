@@ -51,14 +51,14 @@ export default function ContentPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
-  useEffect(() => {
+  const refetch = useCallback(() => {
     setLoading(true);
     const params = new URLSearchParams();
     params.set("sort", sortBy);
     params.set("order", sortOrder);
     if (filterType !== "vse") params.set("type", filterType);
     if (filterSource !== "vse") params.set("source", filterSource);
-    fetch(`/api/content/history?${params.toString()}`)
+    return fetch(`/api/content/history?${params.toString()}`)
       .then(r => r.json())
       .then(data => {
         if (data.posts) setPosts(data.posts);
@@ -66,6 +66,10 @@ export default function ContentPage() {
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
   }, [filterType, filterSource, sortBy, sortOrder]);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {

@@ -127,6 +127,18 @@ export async function GET(request: NextRequest) {
           },
         });
         if (!existing) {
+          const baseUrl =
+            process.env.NEXTAUTH_URL ??
+            (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3002");
+          const checkInLink =
+            r.checkInToken != null
+              ? `${baseUrl}/check-in/${r.checkInToken}`
+              : null;
+          const checkInSection =
+            checkInLink != null
+              ? `\n\nComplete your self check-in online before arrival:\n${checkInLink}\n\n`
+              : "\n\n";
+
           await prisma.guestCommunication.create({
             data: {
               propertyId: r.propertyId,
@@ -134,7 +146,7 @@ export async function GET(request: NextRequest) {
               type: "check-in-instructions",
               channel: "email",
               subject: `Check-in tomorrow – ${propertyName}`,
-              content: `Dear ${guestName},\n\nYour check-in is tomorrow. Here are your instructions...\n\nCheck-in: ${format(r.checkIn, "yyyy-MM-dd")}\n\nBest regards,\n${propertyName}`,
+              content: `Dear ${guestName},\n\nYour check-in is tomorrow.${checkInSection}Check-in date: ${format(r.checkIn, "yyyy-MM-dd")}\n\nBest regards,\n${propertyName}`,
               status: "pending",
               variables: { reservationId: r.id },
             },

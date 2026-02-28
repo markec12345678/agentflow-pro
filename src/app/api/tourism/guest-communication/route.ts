@@ -169,6 +169,41 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { id, status, sentAt } = body;
 
+    const action = body.action; // 'bulk-approve' or single update
+    if (action === "bulk-approve") {
+      const { propertyId: bulkPropertyId, type: bulkType } = body;
+      if (!bulkPropertyId) {
+        return NextResponse.json(
+          { error: "propertyId is required for bulk-approve" },
+          { status: 400 }
+        );
+      }
+
+      const session = await getServerSession(authOptions);
+      const userId = getUserId(session);
+      if (!userId) {
+        return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+      }
+
+      const property = await getPropertyForUser(bulkPropertyId, userId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      }
+
+      const where: { propertyId: string; status: { in: string[] }; type?: string } = {
+        propertyId: bulkPropertyId,
+        status: { in: ["draft", "pending"] },
+      };
+      if (bulkType) where.type = bulkType;
+
+      const result = await prisma.guestCommunication.updateMany({
+        where,
+        data: { status: "pending" },
+      });
+
+      return NextResponse.json({ approved: result.count });
+    }
+
     const communication = await prisma.guestCommunication.update({
       where: { id },
       data: {

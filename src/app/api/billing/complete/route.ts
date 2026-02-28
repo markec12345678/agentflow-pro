@@ -176,9 +176,9 @@ async function createSubscription(data: {
         subscriptionId: subscription.id,
         customerId: customer.id,
         status: subscription.status,
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-        trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : undefined,
-        clientSecret: subscription.latest_invoice?.payment_intent?.client_secret
+        currentPeriodEnd: new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000),
+        trialEnd: (subscription as unknown as { trial_end?: number }).trial_end ? new Date((subscription as unknown as { trial_end: number }).trial_end * 1000) : undefined,
+        clientSecret: (subscription.latest_invoice as { payment_intent?: { client_secret?: string } } | null)?.payment_intent?.client_secret
       }
     });
   } catch (error) {
@@ -208,7 +208,7 @@ async function updateSubscription(data: {
         subscriptionId: subscription.id,
         status: subscription.status,
         planId: subscription.items.data[0].price.metadata?.planId,
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000)
+        currentPeriodEnd: new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000)
       }
     });
   } catch (error) {

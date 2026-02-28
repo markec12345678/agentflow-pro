@@ -44,9 +44,9 @@ export interface LegalDocumentationTemplate {
 }
 
 export class CriticalGDPRImplementation {
-  private consultationRequest: LegalConsultationRequest;
-  private criticalMeasures: CriticalComplianceMeasure[];
-  private documentationTemplates: LegalDocumentationTemplate[];
+  private consultationRequest!: LegalConsultationRequest;
+  private criticalMeasures!: CriticalComplianceMeasure[];
+  private documentationTemplates!: LegalDocumentationTemplate[];
 
   constructor() {
     this.initializeConsultationRequest();

@@ -15,6 +15,8 @@ interface Notification {
 
 interface NotificationSidePanelProps {
   propertyId?: string | null;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const STORAGE_KEY = "agentflow-notifications-panel-open";

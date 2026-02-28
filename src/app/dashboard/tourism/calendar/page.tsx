@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { format, addMonths, subMonths, addDays } from "date-fns";
 import { sl } from "date-fns/locale";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ interface CalendarStats {
 }
 
 export default function CalendarPage() {
+  const searchParams = useSearchParams();
   const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calendar, setCalendar] = useState<CalendarDay[]>([]);
@@ -73,6 +75,7 @@ export default function CalendarPage() {
   const [bulkData, setBulkData] = useState("");
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkResult, setBulkResult] = useState<{ imported: number; skipped: number; errors: { row: number; message: string }[] } | null>(null);
+  const [bulkDragOver, setBulkDragOver] = useState(false);
   const [paymentsData, setPaymentsData] = useState<{
     payments: { id: string; type: string; amount: number; method: string | null; paidAt: string }[];
     totalPaid: number;
@@ -85,6 +88,7 @@ export default function CalendarPage() {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [newPayment, setNewPayment] = useState({ type: "deposit" as "deposit" | "balance" | "tourist_tax" | "extra", amount: "", method: "cash" as "cash" | "card" | "transfer" });
   const [addPaymentLoading, setAddPaymentLoading] = useState(false);
+  const [simpleReservationMode, setSimpleReservationMode] = useState(true);
 
   const fetchCalendar = useCallback(async () => {
     setLoading(true);
@@ -109,6 +113,14 @@ export default function CalendarPage() {
       fetchCalendar();
     }
   }, [activePropertyId, currentDate, fetchCalendar]);
+
+  useEffect(() => {
+    if (searchParams.get("open") === "new") {
+      setShowNewReservation(true);
+    }
+    const prop = searchParams.get("propertyId");
+    if (prop) setActivePropertyId(prop);
+  }, [searchParams]);
 
   useEffect(() => {
     const rid = selectedDate?.reservation?.id;
@@ -208,6 +220,16 @@ export default function CalendarPage() {
     e.target.value = "";
   };
 
+  const handleBulkDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setBulkDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setBulkData(String(reader.result ?? ""));
+    reader.readAsText(file);
+  };
+
   const fetchCalculatedPrice = () => {
     if (!activePropertyId || !calcCheckIn || !calcCheckOut) {
       toast.error("Izberite nastanitev in vnesite prihod ter odhod");
@@ -276,6 +298,24 @@ export default function CalendarPage() {
       setCreateReservationLoading(false);
     }
   };
+
+  // Auto-fetch price when checkIn/checkOut change (debounced)
+  useEffect(() => {
+    if (!activePropertyId || !newReservationForm.checkIn || !newReservationForm.checkOut) return;
+    const t = setTimeout(() => {
+      fetch(
+        `/api/tourism/calculate-price?propertyId=${activePropertyId}&checkIn=${encodeURIComponent(newReservationForm.checkIn)}&checkOut=${encodeURIComponent(newReservationForm.checkOut)}`
+      )
+        .then((r) => r.json())
+        .then((d) => {
+          if (!d.error && d.finalPrice != null) {
+            setNewReservationForm((f) => ({ ...f, totalAmount: String(d.finalPrice) }));
+          }
+        })
+        .catch(() => { });
+    }, 600);
+    return () => clearTimeout(t);
+  }, [activePropertyId, newReservationForm.checkIn, newReservationForm.checkOut]);
 
   const fetchPriceForNewReservation = async () => {
     if (!activePropertyId || !newReservationForm.checkIn || !newReservationForm.checkOut) {
@@ -899,7 +939,17 @@ export default function CalendarPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Nova rezervacija</h3>
-              <button onClick={() => { setShowNewReservation(false); setCreateConflict(null); }} className="text-gray-500 hover:text-gray-700 text-xl leading-none">×</button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSimpleReservationMode((v) => !v)}
+                  className="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  aria-pressed={!simpleReservationMode}
+                >
+                  {simpleReservationMode ? "Enostavni" : "Napredni"} način
+                </button>
+                <button onClick={() => { setShowNewReservation(false); setCreateConflict(null); }} className="text-gray-500 hover:text-gray-700 text-xl leading-none">×</button>
+              </div>
             </div>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
@@ -949,81 +999,102 @@ export default function CalendarPage() {
                   className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefon</label>
-                <input
-                  type="tel"
-                  value={newReservationForm.guestPhone}
-                  onChange={(e) => setNewReservationForm((f) => ({ ...f, guestPhone: e.target.value }))}
-                  placeholder="+386 ..."
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="new-res-channel" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kanal</label>
-                <select
-                  id="new-res-channel"
-                  value={newReservationForm.channel}
-                  onChange={(e) => setNewReservationForm((f) => ({ ...f, channel: e.target.value }))}
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
-                  aria-label="Kanal rezervacije"
-                >
-                  <option value="direct">Direct</option>
-                  <option value="booking.com">Booking.com</option>
-                  <option value="airbnb">Airbnb</option>
-                  <option value="expedia">Expedia</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
+              {!simpleReservationMode && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Celotna cena (€)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefon</label>
+                  <input
+                    type="tel"
+                    value={newReservationForm.guestPhone}
+                    onChange={(e) => setNewReservationForm((f) => ({ ...f, guestPhone: e.target.value }))}
+                    placeholder="+386 ..."
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                  />
+                </div>
+              )}
+              {!simpleReservationMode && (
+                <>
+                  <div>
+                    <label htmlFor="new-res-channel" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kanal</label>
+                    <select
+                      id="new-res-channel"
+                      value={newReservationForm.channel}
+                      onChange={(e) => setNewReservationForm((f) => ({ ...f, channel: e.target.value }))}
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                      aria-label="Kanal rezervacije"
+                    >
+                      <option value="direct">Direct</option>
+                      <option value="booking.com">Booking.com</option>
+                      <option value="airbnb">Airbnb</option>
+                      <option value="expedia">Expedia</option>
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Celotna cena (€)</label>
+                      <input
+                        type="number"
+                        aria-label="Celotna cena (€)"
+                        step="0.01"
+                        value={newReservationForm.totalAmount}
+                        onChange={(e) => setNewReservationForm((f) => ({ ...f, totalAmount: e.target.value }))}
+                        placeholder="0"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="new-res-deposit" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Akontacija (€)</label>
+                      <input
+                        id="new-res-deposit"
+                        type="number"
+                        step="0.01"
+                        value={newReservationForm.deposit}
+                        onChange={(e) => setNewReservationForm((f) => ({ ...f, deposit: e.target.value }))}
+                        placeholder="0"
+                        aria-label="Akontacija v evrih"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Turistična taksa (€)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={newReservationForm.touristTax}
+                        onChange={(e) => setNewReservationForm((f) => ({ ...f, touristTax: e.target.value }))}
+                        placeholder="0"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+              {simpleReservationMode && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Celotna cena (€) – avtomatsko</label>
                   <input
                     type="number"
-                    aria-label="Celotna cena (€)"
                     step="0.01"
                     value={newReservationForm.totalAmount}
                     onChange={(e) => setNewReservationForm((f) => ({ ...f, totalAmount: e.target.value }))}
-                    placeholder="0"
+                    placeholder="Izračunano ob vnosu datumov"
                     className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                   />
                 </div>
+              )}
+              {!simpleReservationMode && (
                 <div>
-                  <label htmlFor="new-res-deposit" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Akontacija (€)</label>
-                  <input
-                    id="new-res-deposit"
-                    type="number"
-                    step="0.01"
-                    value={newReservationForm.deposit}
-                    onChange={(e) => setNewReservationForm((f) => ({ ...f, deposit: e.target.value }))}
-                    placeholder="0"
-                    aria-label="Akontacija v evrih"
+                  <label htmlFor="new-res-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opombe</label>
+                  <textarea
+                    id="new-res-notes"
+                    value={newReservationForm.notes}
+                    onChange={(e) => setNewReservationForm((f) => ({ ...f, notes: e.target.value }))}
+                    placeholder="Opombe za rezervacijo"
+                    aria-label="Opombe za rezervacijo"
+                    rows={2}
                     className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Turistična taksa (€)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={newReservationForm.touristTax}
-                    onChange={(e) => setNewReservationForm((f) => ({ ...f, touristTax: e.target.value }))}
-                    placeholder="0"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="new-res-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opombe</label>
-                <textarea
-                  id="new-res-notes"
-                  value={newReservationForm.notes}
-                  onChange={(e) => setNewReservationForm((f) => ({ ...f, notes: e.target.value }))}
-                  placeholder="Opombe za rezervacijo"
-                  aria-label="Opombe za rezervacijo"
-                  rows={2}
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
-                />
-              </div>
+              )}
             </div>
             {createConflict && (
               <div className="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
@@ -1086,9 +1157,16 @@ export default function CalendarPage() {
                 JSON
               </label>
             </div>
-            <div className="mb-3">
-              <label htmlFor="calendar-bulk-file" className="sr-only">Izberi datoteko za uvoz</label>
-              <input id="calendar-bulk-file" type="file" accept=".csv,.json,.txt" onChange={handleBulkFileSelect} className="text-sm" aria-label="Izberi datoteko za uvoz" />
+            <div
+              className={`mb-3 rounded-xl border-2 border-dashed p-6 transition-colors ${bulkDragOver ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-600"}`}
+              onDragOver={(e) => { e.preventDefault(); setBulkDragOver(true); }}
+              onDragLeave={() => setBulkDragOver(false)}
+              onDrop={handleBulkDrop}
+            >
+              <label htmlFor="calendar-bulk-file" className="cursor-pointer block text-center text-sm text-gray-600 dark:text-gray-400">
+                Povleci in spusti datoteko sem ali <span className="text-blue-600 dark:text-blue-400 font-medium">izberi datoteko</span>
+              </label>
+              <input id="calendar-bulk-file" type="file" accept=".csv,.json,.txt" onChange={handleBulkFileSelect} className="sr-only" aria-label="Izberi datoteko za uvoz" />
             </div>
             <label htmlFor="calendar-bulk-data" className="sr-only">Vnos podatkov za uvoz</label>
             <textarea

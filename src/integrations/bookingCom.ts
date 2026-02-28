@@ -269,8 +269,8 @@ export class MockBookingComAPI extends BookingComAPI {
       {
         property_id: propertyId,
         room_type_id: 'room-1',
-        check_in: this.formatDate(checkIn),
-        check_out: this.formatDate(checkOut),
+        check_in: this.formatDateForAPI(checkIn),
+        check_out: this.formatDateForAPI(checkOut),
         available: true,
         price: 120 * nights,
         currency: 'EUR',

@@ -29,7 +29,7 @@ export interface SalesMaterial {
   deliverables: string[];
 }
 
-export interface MarketingSalesImplementation {
+export interface MarketingSalesReport {
   marketing: MarketingMaterial[];
   sales: SalesMaterial[];
   overall: {
@@ -44,8 +44,8 @@ export interface MarketingSalesImplementation {
 }
 
 export class MarketingSalesImplementation {
-  private marketingMaterials: MarketingMaterial[];
-  private salesMaterials: SalesMaterial[];
+  private marketingMaterials!: MarketingMaterial[];
+  private salesMaterials!: SalesMaterial[];
 
   constructor() {
     this.initializeMarketingMaterials();
@@ -342,7 +342,7 @@ export class MarketingSalesImplementation {
     ];
   }
 
-  generateMarketingSalesImplementation(): MarketingSalesImplementation {
+  generateMarketingSalesImplementation(): MarketingSalesReport {
     const totalMarketing = this.marketingMaterials.length;
     const totalSales = this.salesMaterials.length;
     const totalMaterials = totalMarketing + totalSales;
@@ -445,7 +445,7 @@ ${implementation.sales
 ## 🎯 **DETAILED MARKETING MATERIALS**
 
 ### **1. Tourism-Focused Landing Page** 🎯
-- **Status**: ${implementation.marketingMaterials.find(m => m.type === 'landing-page')?.status || 'planned'}
+- **Status**: ${implementation.marketing.find(m => m.type === 'landing-page')?.status || 'planned'}
 - **Owner**: Marketing Lead
 - **Estimated Hours**: 40
 - **Priority**: High
@@ -460,7 +460,7 @@ ${implementation.sales
   - A/B testing framework
 
 ### **2. Product Demo Video (3-5 min)** 🎥
-- **Status**: ${implementation.marketingMaterials.find(m => m.type === 'demo-video')?.status || 'planned'}
+- **Status**: ${implementation.marketing.find(m => m.type === 'demo-video')?.status || 'planned'}
 - **Owner**: Product Marketing Lead
 - **Estimated Hours**: 60
 - **Priority**: High
@@ -474,7 +474,7 @@ ${implementation.sales
   - Thumbnail and metadata optimization
 
 ### **3. Customer Case Studies (3-5 beta customers)** 📊
-- **Status**: ${implementation.marketingMaterials.find(m => m.type === 'case-studies')?.status || 'planned'}
+- **Status**: ${implementation.marketing.find(m => m.type === 'case-studies')?.status || 'planned'}
 - **Owner**: Content Marketing Lead
 - **Estimated Hours**: 80
 - **Priority**: High
@@ -489,7 +489,7 @@ ${implementation.sales
   - Distribution strategy
 
 ### **4. Pricing Page (Clear Comparison)** 💰
-- **Status**: ${implementation.marketingMaterials.find(m => m.type === 'pricing-page')?.status || 'planned'}
+- **Status**: ${implementation.marketing.find(m => m.type === 'pricing-page')?.status || 'planned'}
 - **Owner**: Product Marketing Lead
 - **Estimated Hours**: 30
 - **Priority**: High
@@ -503,7 +503,7 @@ ${implementation.sales
   - Mobile optimization
 
 ### **5. FAQ and Documentation Hub** 📚
-- **Status**: ${implementation.marketingMaterials.find(m => m.type === 'documentation')?.status || 'planned'}
+- **Status**: ${implementation.marketing.find(m => m.type === 'documentation')?.status || 'planned'}
 - **Owner**: Technical Writer
 - **Estimated Hours**: 50
 - **Priority**: Medium
@@ -518,7 +518,7 @@ ${implementation.sales
   - Multi-language support preparation
 
 ### **6. Tourism Industry Blog Posts (10+ topics)** ✍️
-- **Status**: ${implementation.marketingMaterials.find(m => m.type === 'blog-posts')?.status || 'planned'}
+- **Status**: ${implementation.marketing.find(m => m.type === 'blog-posts')?.status || 'planned'}
 - **Owner**: Content Marketing Lead
 - **Estimated Hours**: 100
 - **Priority**: Medium
@@ -533,7 +533,7 @@ ${implementation.sales
   - Content calendar development
 
 ### **7. Social Media Templates and Content** 📱
-- **Status**: ${implementation.marketingMaterials.find(m => m.type === 'social-media')?.status || 'planned'}
+- **Status**: ${implementation.marketing.find(m => m.type === 'social-media')?.status || 'planned'}
 - **Owner**: Social Media Manager
 - **Estimated Hours**: 40
 - **Priority**: Medium
@@ -548,7 +548,7 @@ ${implementation.sales
   - Engagement tracking setup
 
 ### **8. Email Marketing Sequences** 📧
-- **Status**: ${implementation.marketingMaterials.find(m => m.type === 'email-sequences')?.status || 'planned'}
+- **Status**: ${implementation.marketing.find(m => m.type === 'email-sequences')?.status || 'planned'}
 - **Owner**: Email Marketing Lead
 - **Estimated Hours**: 45
 - **Priority**: High
@@ -567,7 +567,7 @@ ${implementation.sales
 ## 💼 **DETAILED SALES MATERIALS**
 
 ### **1. Investor/Partner Pitch Deck** 📊
-- **Status**: ${implementation.salesMaterials.find(m => m.type === 'pitch-deck')?.status || 'planned'}
+- **Status**: ${implementation.sales.find(m => m.type === 'pitch-deck')?.status || 'planned'}
 - **Owner**: CEO/Founder
 - **Estimated Hours**: 80
 - **Priority**: High
@@ -584,7 +584,7 @@ ${implementation.sales
   - Speaker notes and talking points
 
 ### **2. Executive One-Pager (PDF)** 📄
-- **Status**: ${implementation.salesMaterials.find(m => m.type === 'one-pager')?.status || 'planned'}
+- **Status**: ${implementation.sales.find(m => m.type === 'one-pager')?.status || 'planned'}
 - **Owner**: Marketing Lead
 - **Estimated Hours**: 20
 - **Priority**: High
@@ -599,7 +599,7 @@ ${implementation.sales
   - Digital sharing version
 
 ### **3. Sales Demo Script** 🎭
-- **Status**: ${implementation.salesMaterials.find(m => m.type === 'demo-script')?.status || 'planned'}
+- **Status**: ${implementation.sales.find(m => m.type === 'demo-script')?.status || 'planned'}
 - **Owner**: Sales Lead
 - **Estimated Hours**: 30
 - **Priority**: High
@@ -614,7 +614,7 @@ ${implementation.sales
   - Training materials for sales team
 
 ### **4. Competitive Comparison Matrix** ⚔️
-- **Status**: ${implementation.salesMaterials.find(m => m.type === 'competitive-matrix')?.status || 'planned'}
+- **Status**: ${implementation.sales.find(m => m.type === 'competitive-matrix')?.status || 'planned'}
 - **Owner**: Product Marketing Lead
 - **Estimated Hours**: 40
 - **Priority**: Medium
@@ -629,7 +629,7 @@ ${implementation.sales
   - Competitive intelligence updates
 
 ### **5. Customer ROI Calculator** 💹
-- **Status**: ${implementation.salesMaterials.find(m => m.type === 'roi-calculator')?.status || 'planned'}
+- **Status**: ${implementation.sales.find(m => m.type === 'roi-calculator')?.status || 'planned'}
 - **Owner**: Product Marketing Lead
 - **Estimated Hours**: 50
 - **Priority**: High
@@ -644,7 +644,7 @@ ${implementation.sales
   - Web embeddable version
 
 ### **6. Enterprise Contract Templates** 📋
-- **Status**: ${implementation.salesMaterials.find(m => m.type === 'contract-templates')?.status || 'planned'}
+- **Status**: ${implementation.sales.find(m => m.type === 'contract-templates')?.status || 'planned'}
 - **Owner**: Legal/Operations Lead
 - **Estimated Hours**: 60
 - **Priority**: High

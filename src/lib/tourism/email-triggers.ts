@@ -6,6 +6,13 @@
 import { prisma } from "@/database/schema";
 import { format } from "date-fns";
 
+function getBaseUrl(): string {
+  return (
+    process.env.NEXTAUTH_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3002")
+  );
+}
+
 /** Trigger booking confirmation email when a new reservation is created. */
 export async function triggerBookingConfirmation(
   reservationId: string,
@@ -32,6 +39,11 @@ export async function triggerBookingConfirmation(
         ? String(reservation.totalPrice)
         : "—";
 
+    const checkInSection =
+      reservation.checkInToken != null
+        ? `\n\nSelf check-in (eTurizem): ${getBaseUrl()}/check-in/${reservation.checkInToken}\n\n`
+        : "\n\n";
+
     const content = `Dear ${guestName},
 
 Thank you for your reservation at ${propertyName}.
@@ -40,8 +52,7 @@ Thank you for your reservation at ${propertyName}.
 - Check-in: ${checkInStr}
 - Check-out: ${checkOutStr}
 - Total: ${totalPrice}
-
-We look forward to welcoming you.
+${checkInSection}We look forward to welcoming you.
 
 Best regards,
 ${propertyName}`;

@@ -262,7 +262,8 @@ export class LocalSEOOptimizer {
     }
 
     // Location presence
-    const hasLocation = this.locationModifiers[businessData.location.country.toLowerCase()]?.some(modifier =>
+    const locMods = this.locationModifiers as Record<string, string[]>;
+    const hasLocation = locMods[businessData.location.country.toLowerCase()]?.some(modifier =>
       title.toLowerCase().includes(modifier)
     );
     if (!hasLocation) {
@@ -271,7 +272,8 @@ export class LocalSEOOptimizer {
     }
 
     // Keyword presence
-    const hasKeywords = this.tourismKeywords[businessData.category]?.some(keyword =>
+    const tourKeywords = this.tourismKeywords as Record<string, string[]>;
+    const hasKeywords = tourKeywords[businessData.category]?.some(keyword =>
       title.toLowerCase().includes(keyword)
     );
     if (!hasKeywords) {
@@ -311,7 +313,8 @@ export class LocalSEOOptimizer {
     }
 
     // Local references
-    const hasLocalRefs = this.locationModifiers[businessData.location.country.toLowerCase()]?.some(modifier =>
+    const locMods = this.locationModifiers as Record<string, string[]>;
+    const hasLocalRefs = locMods[businessData.location.country.toLowerCase()]?.some(modifier =>
       description.toLowerCase().includes(modifier)
     );
     if (!hasLocalRefs) {
@@ -334,8 +337,10 @@ export class LocalSEOOptimizer {
   }
 
   private async analyzeKeywords(businessData: LocalSEOData): Promise<KeywordAnalysis> {
-    const categoryKeywords = this.tourismKeywords[businessData.category] || [];
-    const locationKeywords = this.locationModifiers[businessData.location.country.toLowerCase()] || [];
+    const tourKeywords = this.tourismKeywords as Record<string, string[]>;
+    const categoryKeywords = tourKeywords[businessData.category] || [];
+    const locMods = this.locationModifiers as Record<string, string[]>;
+    const locationKeywords = locMods[businessData.location.country.toLowerCase()] || [];
     
     const primaryKeywords = categoryKeywords.slice(0, 5);
     const secondaryKeywords = categoryKeywords.slice(5, 10);
@@ -419,7 +424,7 @@ export class LocalSEOOptimizer {
       mobileFriendly: true, // Assume mobile-friendly
       pageSpeed: 85, // Mock: 85/100 Google PageSpeed
       schemaMarkup: true, // Check for structured data
-      sslCertificate: businessData.website.startsWith('https'),
+      sslCertificate: businessData.location.website?.startsWith('https') ?? false,
       xmlSitemaps: true, // Assume sitemap exists
       robotsTxt: true // Assume robots.txt exists
     };
@@ -477,7 +482,8 @@ export class LocalSEOOptimizer {
     const totalWords = words.length;
     const density: Record<string, number> = {};
 
-    const categoryKeywords = this.tourismKeywords[businessData.category] || [];
+    const tourKeywords = this.tourismKeywords as Record<string, string[]>;
+    const categoryKeywords = tourKeywords[businessData.category] || [];
     
     categoryKeywords.forEach(keyword => {
       const keywordLower = keyword.toLowerCase();

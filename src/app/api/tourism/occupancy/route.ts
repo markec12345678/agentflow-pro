@@ -152,6 +152,10 @@ export async function GET(request: NextRequest) {
     }
     const ytdOccupancy = ytdDays.length > 0 ? Math.round(ytdSum / ytdDays.length) : 0;
 
+    const today = computeOccupancyForDate(todayReservations, propertyIds, baseDate);
+    const todayPlus1 = computeOccupancyForDate(todayReservations, propertyIds, addDays(baseDate, 1));
+    const todayPlus2 = computeOccupancyForDate(todayReservations, propertyIds, addDays(baseDate, 2));
+
     return NextResponse.json({
       date: format(baseDate, "yyyy-MM-dd"),
       today: { ...today, label: "Danes" },

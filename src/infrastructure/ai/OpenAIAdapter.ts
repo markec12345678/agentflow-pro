@@ -2,7 +2,7 @@
  * Infrastructure: OpenAI-compatible LLM adapter
  */
 
-import { generateText } from "ai";
+import { generateText, Output } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import type { ILanguageModel, GenerateTextResult } from "@/domain/ai";
 import type { AiContext } from "@/domain/ai";
@@ -35,7 +35,7 @@ export class OpenAIAdapter implements ILanguageModel {
       system: systemPrompt || undefined,
       prompt: userContent,
       temperature: ctx.temperature ?? 0.6,
-      maxTokens: ctx.maxTokens ?? 2048,
+      maxOutputTokens: ctx.maxTokens ?? 2048,
       abortSignal: options?.abortSignal,
     });
 

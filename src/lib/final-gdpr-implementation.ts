@@ -59,11 +59,11 @@ export interface PrivacyPolicyReview {
 }
 
 export class FinalGDPRImplementation {
-  private legalAudit: LegalAuditRequirement;
-  private dataProcessingAgreements: DataProcessingAgreement[];
-  private consentManagementSystem: ConsentManagementSystem;
-  private dataBreachProcedures: DataBreachProcedure[];
-  private privacyPolicyReview: PrivacyPolicyReview;
+  private legalAudit!: LegalAuditRequirement;
+  private dataProcessingAgreements!: DataProcessingAgreement[];
+  private consentManagementSystem!: ConsentManagementSystem;
+  private dataBreachProcedures!: DataBreachProcedure[];
+  private privacyPolicyReview!: PrivacyPolicyReview;
 
   constructor() {
     this.initializeLegalAudit();

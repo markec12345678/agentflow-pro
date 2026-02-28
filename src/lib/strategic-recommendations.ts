@@ -30,8 +30,8 @@ export interface BetaProgrammeStrategy {
 }
 
 export class StrategicRecommendations {
-  private recommendations: StrategicRecommendation[];
-  private betaProgramme: BetaProgrammeStrategy[];
+  private recommendations!: StrategicRecommendation[];
+  private betaProgramme!: BetaProgrammeStrategy[];
 
   constructor() {
     this.initializeRecommendations();

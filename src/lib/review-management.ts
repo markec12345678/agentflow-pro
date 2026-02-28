@@ -314,7 +314,8 @@ export class GuestReviewManager {
       sentimentDistribution,
       responseRate,
       averageResponseTime,
-      platformBreakdown
+      platformBreakdown,
+      trendData: [] as ReviewAnalytics['trendData']
     };
   }
 
@@ -341,7 +342,7 @@ export class GuestReviewManager {
     return Math.min(baseScore + lengthBonus, 1.0);
   }
 
-  private categorizeReview(review: Omit<GuestReview, 'categories'>): ReviewCategory[] {
+  private categorizeReview(review: Pick<GuestReview, 'content'>): ReviewCategory[] {
     const categories: ReviewCategory[] = [];
     const content = review.content.toLowerCase();
 

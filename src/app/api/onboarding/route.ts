@@ -24,6 +24,8 @@ interface OnboardingBody {
   work_type?: string;
   role?: string;
   workspace_name?: string;
+  location?: string;
+  property_type?: string;
   blog_url?: string;
   style_guide?: string;
   visual_guidelines?: string;
@@ -106,6 +108,30 @@ export async function POST(request: Request) {
       },
     });
     indexOnboarding(row.id, row);
+
+    const industry = body.industry ?? "";
+    const isTourism = industry === "tourism" || industry === "travel-agency";
+
+    if (isTourism && userId) {
+      const name = body.workspace_name?.trim() || "Moja nastanitev";
+      const location = body.location?.trim() || null;
+      const propType = body.property_type?.trim() || null;
+      try {
+        const property = await prisma.property.create({
+          data: {
+            userId,
+            name,
+            location,
+            type: propType,
+            basePrice: null,
+            currency: "EUR",
+          },
+        });
+        return NextResponse.json({ ok: true, propertyId: property.id });
+      } catch (propErr) {
+        console.error("Onboarding: property create failed", propErr);
+      }
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

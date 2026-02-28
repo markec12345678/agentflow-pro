@@ -39,9 +39,9 @@ export interface ProductionValidationSprint {
 }
 
 export class HonestFeedbackStrategicPivot {
-  private feedbackAssessments: HonestFeedbackAssessment[];
-  private strategicPivot: StrategicPivot;
-  private validationSprint: ProductionValidationSprint[];
+  private feedbackAssessments!: HonestFeedbackAssessment[];
+  private strategicPivot!: StrategicPivot;
+  private validationSprint!: ProductionValidationSprint[];
 
   constructor() {
     this.initializeFeedbackAssessments();
@@ -826,8 +826,6 @@ To: Customer success and business validation
 **Duration**: 12 weeks
 **Success Confidence**: HIGH
 `;
-
-    return plan;
   }
 
   generateValidationDashboard(): string {
@@ -1069,8 +1067,6 @@ To: Customer success and business validation
 **Success Confidence**: HIGH
 **Next Update**: Daily
 `;
-
-    return dashboard;
   }
 
   async generateHonestFeedbackDocuments(): Promise<void> {

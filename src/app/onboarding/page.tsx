@@ -7,20 +7,20 @@ import { useSession } from "next-auth/react";
 
 // ─── Tipi nastanitev ──────────────────────────────────────────────────────────
 const PROPERTY_TYPES = [
-  { id: "hotel",    icon: "🏨", label: "Hotel" },
-  { id: "hostel",   icon: "🛏️", label: "Hostel" },
-  { id: "apartma",  icon: "🏠", label: "Apartma / Hiša" },
-  { id: "vila",     icon: "🌿", label: "Vila / Resort" },
-  { id: "kamp",     icon: "⛺", label: "Kamp / Glamping" },
+  { id: "hotel", icon: "🏨", label: "Hotel" },
+  { id: "hostel", icon: "🛏️", label: "Hostel" },
+  { id: "apartma", icon: "🏠", label: "Apartma / Hiša" },
+  { id: "vila", icon: "🌿", label: "Vila / Resort" },
+  { id: "kamp", icon: "⛺", label: "Kamp / Glamping" },
   { id: "agencija", icon: "✈️", label: "Turistična agencija" },
 ];
 
 // ─── Kaj potrebuješ najprej ───────────────────────────────────────────────────
 const FIRST_NEEDS = [
-  { id: "booking-description", icon: "📋", label: "Opis nastanitve",    desc: "Za Booking.com, Airbnb..." },
-  { id: "guest-welcome-email", icon: "📧", label: "Email za goste",     desc: "Dobrodošlica, info..." },
-  { id: "destination-guide",   icon: "📍", label: "Vodič destinacije",  desc: "SEO blog, Google..." },
-  { id: "instagram-travel",    icon: "📱", label: "Social media post",  desc: "Instagram, Facebook..." },
+  { id: "booking-description", icon: "📋", label: "Opis nastanitve", desc: "Za Booking.com, Airbnb..." },
+  { id: "guest-welcome-email", icon: "📧", label: "Email za goste", desc: "Dobrodošlica, info..." },
+  { id: "destination-guide", icon: "📍", label: "Vodič destinacije", desc: "SEO blog, Google..." },
+  { id: "instagram-travel", icon: "📱", label: "Social media post", desc: "Instagram, Facebook..." },
 ];
 
 // ─── Jeziki ───────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ export default function OnboardingPage() {
   const handleFinish = async () => {
     setSaving(true);
     try {
-      await fetch("/api/onboarding", {
+      const res = await fetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -90,6 +90,18 @@ export default function OnboardingPage() {
           role: "hotel-marketing",
         }),
       });
+      const data = (await res.json().catch(() => ({}))) as { propertyId?: string };
+      if (res.ok && data.propertyId) {
+        try {
+          await fetch("/api/user/active-property", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ propertyId: data.propertyId }),
+          });
+        } catch {
+          // fire-and-forget, ne blokira redirect
+        }
+      }
       // Pojdi direktno na generate z izbranim templat-om
       const url = firstNeed
         ? `/generate?template=${firstNeed}&name=${encodeURIComponent(propertyName)}&location=${encodeURIComponent(location)}&lang=${language}`
@@ -113,12 +125,11 @@ export default function OnboardingPage() {
         <div className="mb-6 text-center">
           <p className="text-blue-300 text-sm mb-3">Korak {step} od {totalSteps}</p>
           <div className="flex gap-2 justify-center">
-            {[1,2,3].map(n => (
+            {[1, 2, 3].map(n => (
               <div
                 key={n}
-                className={`h-2 rounded-full transition-all duration-500 ${
-                  n <= step ? "bg-blue-400 w-16" : "bg-white/20 w-8"
-                }`}
+                className={`h-2 rounded-full transition-all duration-500 ${n <= step ? "bg-blue-400 w-16" : "bg-white/20 w-8"
+                  }`}
               />
             ))}
           </div>
@@ -212,11 +223,10 @@ export default function OnboardingPage() {
                         key={lang.id}
                         type="button"
                         onClick={() => setLanguage(lang.id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 ${
-                          language === lang.id
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 ${language === lang.id
                             ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                             : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-300"
-                        }`}
+                          }`}
                       >
                         {lang.label}
                       </button>
@@ -283,70 +293,69 @@ export default function OnboardingPage() {
                 </>
               ) : (
                 <>
-              <div className="text-center mb-8">
-                <div className="text-5xl mb-3">🎯</div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Kaj boste naredili najprej?
-                </h2>
-                <p className="text-gray-500 dark:text-gray-400 mt-2">
-                  AI bo takoj generiral primer za <strong>{propertyName}</strong>
-                </p>
-              </div>
+                  <div className="text-center mb-8">
+                    <div className="text-5xl mb-3">🎯</div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      Kaj boste naredili najprej?
+                    </h2>
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">
+                      AI bo takoj generiral primer za <strong>{propertyName}</strong>
+                    </p>
+                  </div>
 
-              <div className="space-y-3 mb-8">
-                {FIRST_NEEDS.map(need => (
-                  <button
-                    key={need.id}
-                    type="button"
-                    onClick={() => setFirstNeed(need.id)}
-                    className={`w-full flex items-center gap-4 p-4 border-2 rounded-2xl text-left transition-all ${
-                      firstNeed === need.id
-                        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                        : "border-gray-200 dark:border-gray-700 hover:border-blue-300"
-                    }`}
-                  >
-                    <span className="text-3xl">{need.icon}</span>
-                    <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">{need.label}</p>
-                      <p className="text-sm text-gray-500">{need.desc}</p>
-                    </div>
-                    {firstNeed === need.id && (
-                      <span className="ml-auto text-blue-500 text-xl">✓</span>
-                    )}
-                  </button>
-                ))}
-              </div>
+                  <div className="space-y-3 mb-8">
+                    {FIRST_NEEDS.map(need => (
+                      <button
+                        key={need.id}
+                        type="button"
+                        onClick={() => setFirstNeed(need.id)}
+                        className={`w-full flex items-center gap-4 p-4 border-2 rounded-2xl text-left transition-all ${firstNeed === need.id
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                            : "border-gray-200 dark:border-gray-700 hover:border-blue-300"
+                          }`}
+                      >
+                        <span className="text-3xl">{need.icon}</span>
+                        <div>
+                          <p className="font-semibold text-gray-900 dark:text-white">{need.label}</p>
+                          <p className="text-sm text-gray-500">{need.desc}</p>
+                        </div>
+                        {firstNeed === need.id && (
+                          <span className="ml-auto text-blue-500 text-xl">✓</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
 
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="px-5 py-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium transition-colors"
-                >
-                  ← Nazaj
-                </button>
-                <button
-                  type="button"
-                  onClick={handleFinish}
-                  disabled={saving}
-                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-xl transition-all flex items-center justify-center gap-2"
-                >
-                  {saving ? (
-                    <>
-                      <span className="animate-spin">⏳</span>
-                      Nalagam...
-                    </>
-                  ) : (
-                    <>
-                      🚀 Začnimo!
-                    </>
-                  )}
-                </button>
-              </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setStep(2)}
+                      className="px-5 py-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium transition-colors"
+                    >
+                      ← Nazaj
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleFinish}
+                      disabled={saving}
+                      className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-xl transition-all flex items-center justify-center gap-2"
+                    >
+                      {saving ? (
+                        <>
+                          <span className="animate-spin">⏳</span>
+                          Nalagam...
+                        </>
+                      ) : (
+                        <>
+                          🚀 Začnimo!
+                        </>
+                      )}
+                    </button>
+                  </div>
 
-              <p className="text-center text-xs text-gray-400 mt-4">
-                Brez kreditne kartice • 7 dni brezplačno
-              </p>
+                  <p className="text-center text-xs text-gray-400 mt-4">
+                    Brez kreditne kartice • 7 dni brezplačno
+                  </p>
                 </>
               )}
             </div>

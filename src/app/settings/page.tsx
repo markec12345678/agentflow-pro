@@ -49,6 +49,13 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordSaving, setPasswordSaving] = useState(false);
+  const [receptionMode, setReceptionMode] = useState(false);
+
+  useEffect(() => {
+    try {
+      setReceptionMode(localStorage.getItem("agentflow-reception-mode") === "1");
+    } catch { }
+  }, []);
 
   useEffect(() => {
     const linkedin = searchParams.get("linkedin");
@@ -206,6 +213,26 @@ export default function SettingsPage() {
           >
             Admin →
           </Link>
+        </div>
+
+        <h2 className="mb-4 text-xl font-semibold text-white">Reception / Tourism</h2>
+        <div className="mb-8 flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-4 max-w-md">
+          <input
+            id="reception-mode"
+            type="checkbox"
+            checked={receptionMode}
+            onChange={(e) => {
+              const v = e.target.checked;
+              setReceptionMode(v);
+              try {
+                localStorage.setItem("agentflow-reception-mode", v ? "1" : "0");
+              } catch { }
+            }}
+            className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+          />
+          <label htmlFor="reception-mode" className="text-sm text-gray-300 cursor-pointer">
+            Reception način – poenostavljen pregled „Danes“ ob vsakem obisku dashboarda
+          </label>
         </div>
 
         <h2 className="mb-4 text-xl font-semibold text-white">Sprememba gesla</h2>

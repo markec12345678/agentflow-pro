@@ -33,8 +33,8 @@ export interface StripeProductionVerification {
 }
 
 export class StripeProductionVerification {
-  private productionChecks: StripeProductionCheck[];
-  private verification: StripeProductionVerification;
+  private productionChecks!: StripeProductionCheck[];
+  private verification!: StripeProductionVerification;
 
   constructor() {
     this.initializeProductionChecks();

@@ -23,6 +23,7 @@ export interface ValidationRule {
   type: 'required' | 'format' | 'length' | 'regex' | 'date_range' | 'email' | 'phone';
   rule: string;
   errorMessage: string;
+  autoFixable?: boolean;
 }
 
 export interface ComplianceCheck {
@@ -383,7 +384,7 @@ Last updated: {lastUpdated}`,
           severity: rule.field === 'required' ? 'critical' : 'medium',
           description: rule.errorMessage,
           suggestion: this.getValidationSuggestion(rule),
-          autoFixable: rule.type === 'format' && rule.autoFixable
+          autoFixable: !!(rule.type === 'format' && rule.autoFixable)
         });
         score -= 10;
       }

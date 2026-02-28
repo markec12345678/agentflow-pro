@@ -55,10 +55,10 @@ export interface DunningManagementAction {
 }
 
 export class StripeProductionImplementation {
-  private productionActions: StripeProductionAction[];
-  private pciAssessmentActions: PCIAssessmentAction[];
-  private refundTestingActions: RefundTestingAction[];
-  private dunningManagementActions: DunningManagementAction[];
+  private productionActions!: StripeProductionAction[];
+  private pciAssessmentActions!: PCIAssessmentAction[];
+  private refundTestingActions!: RefundTestingAction[];
+  private dunningManagementActions!: DunningManagementAction[];
 
   constructor() {
     this.initializeProductionActions();

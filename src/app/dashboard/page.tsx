@@ -264,7 +264,7 @@ function SeasonalBanner() {
         <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">Ustvarite sezonsko kampanjo z enim klikom.</p>
       </div>
       <Link
-        href="/generate?template=seasonal-campaign"
+        href="/generate?template=seasonal-campaign&auto=1"
         className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium text-sm whitespace-nowrap"
       >
         Ustvari kampanjo →

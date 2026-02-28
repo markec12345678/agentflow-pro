@@ -120,11 +120,11 @@ export interface AILimitationDisclaimers {
 }
 
 export class AIAgentProductionValidation {
-  private outputValidation: OutputValidationLayer;
-  private costMonitoring: CostMonitoringSystem;
-  private circuitBreaker: CircuitBreakerConfig;
-  private humanInLoop: HumanInLoopSystem;
-  private aiLimitations: AILimitationDisclaimers;
+  private outputValidation!: OutputValidationLayer;
+  private costMonitoring!: CostMonitoringSystem;
+  private circuitBreaker!: CircuitBreakerConfig;
+  private humanInLoop!: HumanInLoopSystem;
+  private aiLimitations!: AILimitationDisclaimers;
 
   constructor() {
     this.initializeOutputValidation();
