@@ -36,6 +36,15 @@ test.describe("3. Database - Save workflow & Dashboard", () => {
     test.setTimeout(60000);
     page.on("dialog", (dialog) => dialog.accept());
 
+    // /workflows requires auth - login with seeded E2E user first
+    await page.goto("/login");
+    await page.getByLabel(/email/i).fill("e2e@test.com");
+    await page.getByLabel(/password/i).fill("e2e-secret");
+    const signInBtn = page.getByRole("button", { name: /sign in|prijava|login/i });
+    await expect(signInBtn).toBeEnabled({ timeout: 5000 }); // wait for CSRF token
+    await signInBtn.click();
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
+
     await page.goto("/workflows");
     await page.waitForTimeout(1500);
 
