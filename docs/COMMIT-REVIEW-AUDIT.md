@@ -25,6 +25,8 @@
 | `/api/auth/test-login` | Varno | Samo v dev (`NODE_ENV !== production`) |
 | `/api/webhooks/stripe` | Varno | Preverjanje `stripe-signature` |
 | `/api/tourism/email-scheduler` | Zaščiteno | CRON_SECRET / Vercel cron |
+| `/api/cron/db-cleanup` | Zaščiteno | CRON_SECRET / Vercel cron |
+| `/api/cron/pms-sync-all` | Zaščiteno | CRON_SECRET / Vercel cron |
 | Stripe webhook | Varno | Preverjanje podpisa |
 
 ### Konfiguracija
@@ -53,5 +55,5 @@ Večina API rut uporablja `getServerSession(authOptions)`. Manjkajoča avtorizac
 
 ## Testi
 
-- `npm run precommit`: ✅ 44 suites, 301 tests passed
+- `npm run precommit`: ✅ Vsi Jest testi pass; vključuje lint + unit testi
 - Lint: ✅ 0 errors (188 warnings)

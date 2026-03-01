@@ -5,6 +5,14 @@
     {
       "path": "/api/tourism/email-scheduler",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/db-cleanup",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/pms-sync-all",
+      "schedule": "0 6,12,18 * * *"
     }
   ]
 }

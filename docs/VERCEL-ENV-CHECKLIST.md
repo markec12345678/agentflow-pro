@@ -45,6 +45,7 @@ Po povezavi: vsak `git push` na `master` sproži nov deploy.
 | `GITHUB_TOKEN` | GitHub PAT za Code Agent | GitHub → Settings → Developer settings |
 | `FIRECRAWL_API_KEY` | Firecrawl API key | [firecrawl.dev](https://firecrawl.dev) |
 | `CONTEXT7_API_KEY` | Context7 API key | context7.com |
+| `CRON_SECRET` | Zaščita cron endpointov (db-cleanup, pms-sync-all, email-scheduler) | `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` – **brez presledkov ali novo vrstic** pri vnašanju v Vercel |
 
 **Preveri:** `npm run verify:production-env` (ob vsakem dodajanju env spremenljivk v .env.local)
 
@@ -92,8 +93,6 @@ Brez teh spremenljivk: registracija/reset/povabila delujejo, vendar uporabnik ne
 | `LANGSMITH_TRACING` | `true` za trace agentov |
 | `LANGSMITH_API_KEY` | API ključ iz smith.langchain.com |
 | `LANGSMITH_PROJECT` | Ime projekta (npr. agentflow-pro) |
-
----
 
 ## Po dodajanju
 

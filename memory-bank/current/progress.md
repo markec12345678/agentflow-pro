@@ -89,6 +89,7 @@
 - [x] Phase 8.3: production-launch-checklist razširjen z 8.3.1–8.3.5
 
 ## Recently Completed
+- [x] Vercel Cron Jobs – db-cleanup, pms-sync-all, skupni cron-auth; DEPLOYMENT.md
 - [x] RLS v praksi – withRlsContext v canvas API; migracija za userId v policy
 - [x] Qdrant indeksiranje – lib/vector-indexer.ts; auto-index ob Onboarding, UserTemplate, BlogPost
 - [x] RAG v chat – semantic search nad indeksiranimi dokumenti; kontekst v system prompt
@@ -96,7 +97,7 @@
 ## Metrics
 - Tasks Complete: 154/155 (99%)
 - Days Elapsed: 1/14
-- Tests Passing: 58/58 (100%)
+- Tests Passing: 329/329 (100%)
 - MCP Servers Used: 14/16
 - Agents Complete: 4/4 (100%)
 - Knowledge Graph: ✅ Complete
