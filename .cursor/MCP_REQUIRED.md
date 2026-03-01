@@ -197,10 +197,22 @@ See `.env.example` in project root.
 
 ---
 
+## GITHUB_TOKEN za GitHub MCP
+
+**Trenutno:** Projektna `.cursor/mcp.json` ne vsebuje GitHub bloka – uporablja se **globalna** konfiguracija iz `~/.cursor/mcp.json` (s tokenom). GitHub MCP deluje brez dodatne nastavitve.
+
+**Če želiš project-level GitHub MCP:** Dodaj v `.env`:
+```
+GITHUB_TOKEN=ghp_tvojPersonalAccessToken
+```
+(ustvari token: GitHub → Settings → Developer settings → Personal access tokens; scope: `repo`). Nato v projektno `mcp.json` dodaj blok z `"env": {"GITHUB_TOKEN": "${GITHUB_TOKEN}"}`.
+
+**Alternativa:** Sistemska spremenljivka `GITHUB_TOKEN` (npr. Windows: `setx GITHUB_TOKEN "ghp_xxx"`). Cursor razreši `${GITHUB_TOKEN}` iz okolja ali `.env`.
+
 ## Troubleshooting
 
 | Simptom | Rešitev |
 |---------|---------|
-| GitHub MCP: "Tool not found" | Preveri Cursor Settings → MCP, ali se `github` naloži. Restart Cursorja. Preveri, da je `GITHUB_TOKEN` v `.env`. |
+| GitHub MCP: "Tool not found" | Preveri Cursor Settings → MCP, ali se `github` naloži. Restart Cursorja. Če project mcp.json nima GitHub: uporabi globalno (`~/.cursor/mcp.json` z tokenom). |
 | Strežnik se ne zagnje (Windows) | Če `npx` direktno odpove, v globalni `~/.cursor/mcp.json` uporabi `"command": "cmd"` z `"args": ["/c", "npx", "-y", "@modelcontextprotocol/server-github"]`. |
-| Env placeholder se ne razreši | Cursor bere `.env` iz project root. Zagotovi, da je `.env` v isti mapi kot `package.json`. |
+| Env placeholder se ne razreši | Cursor bere `.env` iz project root. Zagotovi, da je `GITHUB_TOKEN=` v `.env` (ali sistemska spremenljivka). |
