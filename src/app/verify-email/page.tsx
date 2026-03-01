@@ -7,15 +7,11 @@ import Link from "next/link";
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(token ? "loading" : "error");
+  const [message, setMessage] = useState(token ? "" : "Manjka žeton za potrditev.");
 
   useEffect(() => {
-    if (!token) {
-      setStatus("error");
-      setMessage("Manjka žeton za potrditev.");
-      return;
-    }
+    if (!token) return;
 
     fetch("/api/auth/verify-email", {
       method: "POST",

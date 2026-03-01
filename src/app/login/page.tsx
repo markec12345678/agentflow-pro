@@ -51,33 +51,31 @@ function TestLoginButton({
 function LoginForm() {
   useSession();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => {
+    const urlEmail = searchParams?.get("email");
+    return urlEmail ? decodeURIComponent(urlEmail) : "";
+  });
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => {
+    const err = searchParams?.get("error");
+    return err === "CredentialsSignin" ? "Napačen email ali geslo" : "";
+  });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("agentflow-remember-me");
+        if (saved !== null) return saved === "1";
+      } catch {
+        /* ignore */
+      }
+    }
+    return true;
+  });
   const [googleEnabled, setGoogleEnabled] = useState(false);
   const [testMsg, setTestMsg] = useState("");
   const [csrfToken, setCsrfToken] = useState("");
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("agentflow-remember-me");
-      if (saved !== null) setRememberMe(saved === "1");
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  useEffect(() => {
-    const err = searchParams?.get("error");
-    if (err === "CredentialsSignin") {
-      setError("Napačen email ali geslo");
-    }
-    const urlEmail = searchParams?.get("email");
-    if (urlEmail) setEmail(decodeURIComponent(urlEmail));
-  }, [searchParams]);
 
   useEffect(() => {
     fetch("/api/auth/providers")

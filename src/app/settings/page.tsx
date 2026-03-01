@@ -66,6 +66,15 @@ export default function SettingsPage() {
   const [receptionMode, setReceptionMode] = useState(false);
   const [userIndustry, setUserIndustry] = useState<string | null>(null);
   const [showAdvancedKeys, setShowAdvancedKeys] = useState(false);
+  const [billing, setBilling] = useState<{
+    subscription: { planId?: string; status?: string; currentPeriodEnd?: string } | null;
+  } | null>(null);
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [billingAction, setBillingAction] = useState<"idle" | "checkout" | "cancel">("idle");
+  const [mailchimpCampaigns, setMailchimpCampaigns] = useState<Array<{ id: string; status?: string; subject_line?: string; create_time?: string; send_time?: string }> | null>(null);
+  const [mailchimpCampaignsLoading, setMailchimpCampaignsLoading] = useState(false);
+  const [hubspotCompanies, setHubspotCompanies] = useState<Array<{ id?: string; name?: string; domain?: string; industry?: string }>> | null>(null);
+  const [hubspotCompaniesLoading, setHubspotCompaniesLoading] = useState(false);
 
   useEffect(() => {
     try {
@@ -98,8 +107,9 @@ export default function SettingsPage() {
       fetch("/api/auth/connections").then((r) => r.json()),
       fetch("/api/onboarding").then((r) => r.json()),
       fetch("/api/usage/alerts").then((r) => r.json()),
+      fetch("/api/billing").then((r) => r.json()),
     ])
-      .then(([keysData, connData, onboardingData, alertsData]) => {
+      .then(([keysData, connData, onboardingData, alertsData, billingData]) => {
         if (!keysData.error) {
           setKeys(keysData);
           setFormData({});
@@ -123,6 +133,10 @@ export default function SettingsPage() {
         }
         if (alertsData?.success && alertsData?.data?.alerts) {
           setUsageAlerts(alertsData.data.alerts);
+        }
+        if (!billingData?.error) {
+          const sub = billingData?.subscription ?? (billingData?.planId != null ? billingData : null);
+          setBilling({ subscription: sub });
         }
       })
       .catch(() => { })
@@ -232,6 +246,134 @@ export default function SettingsPage() {
           >
             Admin →
           </Link>
+        </div>
+
+        <h2 className="mb-4 text-xl font-semibold text-white">Naročnina</h2>
+        <div className="mb-8 rounded-lg border border-gray-700 bg-gray-800 p-4 max-w-md space-y-3">
+          {billing === null ? (
+            <p className="text-gray-400 text-sm">Podatki o naročnini niso na voljo.</p>
+          ) : billing?.subscription ? (
+            <>
+              <p className="text-gray-300 text-sm">
+                <span className="text-gray-500">Plan:</span>{" "}
+                {(billing.subscription as { planId?: string }).planId ?? "—"}
+              </p>
+              <p className="text-gray-300 text-sm">
+                <span className="text-gray-500">Status:</span>{" "}
+                {(billing.subscription as { status?: string }).status ?? "—"}
+              </p>
+              <p className="text-gray-300 text-sm">
+                <span className="text-gray-500">Odnova:</span>{" "}
+                {(billing.subscription as { currentPeriodEnd?: string }).currentPeriodEnd
+                  ? new Date((billing.subscription as { currentPeriodEnd: string }).currentPeriodEnd).toLocaleDateString()
+                  : "—"}
+              </p>
+              <div className="flex flex-wrap gap-2 pt-2">
+                <button
+                  type="button"
+                  disabled={billingAction !== "idle"}
+                  onClick={async () => {
+                    setBillingAction("checkout");
+                    setMessage(null);
+                    try {
+                      const res = await fetch("/api/billing", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "checkout", planId: "pro" }),
+                      });
+                      const data = await res.json();
+                      if (data?.url) {
+                        window.location.href = data.url;
+                        return;
+                      }
+                      setMessage(data?.error ?? "Checkout ni uspel.");
+                    } catch {
+                      setMessage("Checkout ni uspel.");
+                    } finally {
+                      setBillingAction("idle");
+                    }
+                  }}
+                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {billingAction === "checkout" ? "Preusmerjanje..." : "Nadgradi / Upgrade"}
+                </button>
+                <button
+                  type="button"
+                  disabled={billingAction !== "idle"}
+                  onClick={async () => {
+                    if (!confirm("Prekiniti naročnino? Do konca plačanega obdobja boste še imeli dostop.")) return;
+                    setBillingAction("cancel");
+                    setMessage(null);
+                    try {
+                      const res = await fetch("/api/billing", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "cancel", immediately: false }),
+                      });
+                      const data = await res.json();
+                      if (res.ok && data?.canceled) {
+                        setMessage("Naročnina bo prekinjena ob koncu obdobja.");
+                        const refetch = await fetch("/api/billing").then((r) => r.json());
+                        if (!refetch?.error) {
+                          const sub = refetch.subscription ?? (refetch.planId != null ? refetch : null);
+                          setBilling({ subscription: sub });
+                        }
+                      } else {
+                        setMessage(data?.error ?? "Preklic ni uspel.");
+                      }
+                    } catch {
+                      setMessage("Preklic ni uspel.");
+                    } finally {
+                      setBillingAction("idle");
+                    }
+                  }}
+                  className="rounded-lg border border-red-600 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-600/20 disabled:opacity-50"
+                >
+                  {billingAction === "cancel" ? "Preklicujem..." : "Prekini naročnino"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-400 text-sm">Nimate aktivne naročnine.</p>
+              <button
+                type="button"
+                disabled={billingAction !== "idle"}
+                onClick={async () => {
+                  setBillingAction("checkout");
+                  setMessage(null);
+                  try {
+                    const res = await fetch("/api/billing", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ action: "checkout", planId: "pro" }),
+                    });
+                    const data = await res.json();
+                    if (data?.url) {
+                      window.location.href = data.url;
+                      return;
+                    }
+                    setMessage(data?.error ?? "Checkout ni uspel.");
+                  } catch {
+                    setMessage("Checkout ni uspel.");
+                  } finally {
+                    setBillingAction("idle");
+                  }
+                }}
+                className="mt-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {billingAction === "checkout" ? "Preusmerjanje..." : "Nadgradi / Upgrade"}
+              </button>
+            </>
+          )}
+          <div className="pt-2">
+            <Link
+              href="/pricing"
+              className="text-sm text-indigo-400 hover:text-indigo-300"
+            >
+              Ogled cen in načrtov →
+            </Link>
+          </div>
         </div>
 
         <h2 className="mb-4 text-xl font-semibold text-white">Reception / Tourism</h2>
@@ -425,6 +567,8 @@ export default function SettingsPage() {
           )}
           <div className="flex flex-wrap gap-2 items-end">
             <select
+              title="Tip opozorila"
+              aria-label="Tip opozorila (Agent runs, API calls, Storage, Cost)"
               value={newAlertType}
               onChange={(e) => setNewAlertType(e.target.value)}
               className="rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white text-sm"
@@ -436,6 +580,7 @@ export default function SettingsPage() {
             </select>
             <input
               type="number"
+              aria-label="Prag opozorila (npr. 100)"
               value={newAlertThreshold}
               onChange={(e) => setNewAlertThreshold(e.target.value)}
               placeholder="Prag (npr. 100)"
