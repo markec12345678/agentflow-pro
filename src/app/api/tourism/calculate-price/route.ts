@@ -10,15 +10,7 @@ import { parseISO } from "date-fns";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
 import { calculatePrice, type SeasonRatesJson } from "@/lib/tourism/pricing-engine";
 import { authOptions } from "@/lib/auth-options";
-
-function getUserId(session: {
-  user?: { userId?: string; email?: string | null };
-} | null): string | null {
-  if (!session?.user) return null;
-  return (
-    (session.user as { userId?: string }).userId ?? session.user.email ?? null
-  );
-}
+import { getUserId } from "@/lib/auth-users";
 
 export async function GET(request: NextRequest) {
   try {

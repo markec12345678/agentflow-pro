@@ -290,10 +290,10 @@ export default function HomePage() {
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-sm">
-                  Firecrawl
+                  Spletna raziskava
                 </span>
                 <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-sm">
-                  SerpAPI
+                  Tržna analiza
                 </span>
               </div>
             </div>
@@ -307,10 +307,10 @@ export default function HomePage() {
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-sm">
-                  Context7
+                  AI vsebina
                 </span>
                 <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-sm">
-                  LLM
+                  SEO optimizacija
                 </span>
               </div>
             </div>
@@ -320,14 +320,14 @@ export default function HomePage() {
               <div className="text-4xl mb-4">💻</div>
               <h3 className="text-xl font-bold mb-2">Code Agent</h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                Code generation, reviews, auto PR creation
+                Generiranje kode, pregledi, avtomatske predloge sprememb
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-sm">
-                  GitHub MCP
+                  Pregled kode
                 </span>
                 <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-sm">
-                  Code Review
+                  Avtomatska objava
                 </span>
               </div>
             </div>
@@ -337,14 +337,14 @@ export default function HomePage() {
               <div className="text-4xl mb-4">🚀</div>
               <h3 className="text-xl font-bold mb-2">Deploy Agent</h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                One-click deploy to Vercel, Netlify with rollback
+                Enoklik objava spletne strani z možnostjo povrnitve
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-sm">
-                  Vercel
+                  Objava spletne strani
                 </span>
                 <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-sm">
-                  Netlify
+                  Avtomatska objava
                 </span>
               </div>
             </div>

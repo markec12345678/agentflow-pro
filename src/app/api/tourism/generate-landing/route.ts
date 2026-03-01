@@ -10,6 +10,7 @@ import { generateText, Output } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getLlmFromUserKeys } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { isMockMode } from "@/lib/mock-mode";
@@ -17,11 +18,6 @@ import { OpenAIAdapter, DataSanitizer, PrismaAiUsageLogger } from "@/infrastruct
 import { AiService } from "@/services/ai.service";
 
 const VALID_TEMPLATES = ["tourism-basic", "luxury-retreat", "family-friendly"] as const;
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 type LandingSection = { heading?: string; body?: string; items?: string[] };
 type LandingContent = Record<string, LandingSection>;

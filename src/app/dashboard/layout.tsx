@@ -18,6 +18,7 @@ const MAIN_NAV = [
 const TOURISM_NAV = [
   { name: "Pregled", href: "/dashboard/tourism" },
   { name: "Koledar", href: "/dashboard/tourism/calendar" },
+  { name: "Povpraševanja", href: "/dashboard/tourism/inbox" },
   { name: "Komunikacija", href: "/dashboard/tourism/guest-communication" },
   { name: "Generiraj", href: "/generate" },
   { name: "Predloge", href: "/dashboard/tourism/templates" },
@@ -120,9 +121,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, []);
 
   // Privzeta Tourism stran za tourism uporabnike („Danes“ kot vhod)
+  // Novi turistični uporabniki: privzeto vklopi reception mode (prvi obisk)
   useEffect(() => {
     if (pathname === "/dashboard" && (userIndustry === "tourism" || userIndustry === "travel-agency")) {
       try {
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("agentflow-reception-mode");
+          if (stored === null) {
+            localStorage.setItem("agentflow-reception-mode", "1");
+          }
+        }
         const reception = typeof window !== "undefined" && localStorage.getItem("agentflow-reception-mode") === "1";
         router.replace(reception ? "/dashboard/tourism?mode=reception" : "/dashboard/tourism");
       } catch {

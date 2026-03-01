@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { createAnswerFaqUseCase } from "@/domain/tourism/use-cases/answer-faq";
 import {
@@ -10,6 +11,10 @@ import {
 import { generateFaqSchema } from "@/lib/tourism/faq-schema";
 import { DEFAULT_FAQS } from "@/data/tourism-faqs";
 import { getLlmApiKey } from "@/config/env";
+import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
+import { checkRateLimitByIp } from "@/lib/rate-limit";
+import { getPropertyForUser } from "@/lib/tourism/property-access";
 
 const PostBodySchema = z.object({
   question: z.string().min(1),
@@ -38,6 +43,23 @@ function buildAnswerFaqUseCase() {
 // POST /api/tourism/faq - chatbot response
 export async function POST(request: NextRequest) {
   try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      request.headers.get("x-real-ip") ??
+      "unknown";
+    const rateLimit = checkRateLimitByIp(ip, 60_000, 60);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again later.", retryAfter: rateLimit.retryAfter },
+        {
+          status: 429,
+          headers: rateLimit.retryAfter
+            ? { "Retry-After": String(rateLimit.retryAfter) }
+            : undefined,
+        }
+      );
+    }
+
     const body = await request.json();
     const parsed = PostBodySchema.safeParse(body);
     if (!parsed.success) {
@@ -48,6 +70,23 @@ export async function POST(request: NextRequest) {
     }
 
     const { question, propertyId, guestId, userId, customFaqs, useMultiAgent } = parsed.data;
+
+    // Auth: when propertyId or userId present, require session and validate access
+    const session = await getServerSession(authOptions);
+    const sessionUserId = session ? getUserId(session) : null;
+
+    if (propertyId && !sessionUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (userId && userId !== sessionUserId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    if (propertyId && sessionUserId) {
+      const ok = await getPropertyForUser(propertyId, sessionUserId);
+      if (!ok) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    }
 
     const faqs = [...DEFAULT_FAQS, ...(customFaqs || [])];
     const llm = getLlmApiKey();
@@ -66,6 +105,36 @@ export async function POST(request: NextRequest) {
         ? (await import("@/memory/app-backend")).getAppBackend()
         : undefined,
     });
+
+    // FAQ escalation: low confidence -> create Inquiry for director inbox
+    if (result.confidence < 0.7 && propertyId) {
+      try {
+        let guestName = "FAQ Guest";
+        let guestEmail = "faq@placeholder.local";
+        if (guestId) {
+          const guest = await prisma.guest.findUnique({
+            where: { id: guestId },
+            select: { name: true, email: true },
+          });
+          if (guest) {
+            guestName = guest.name || guestName;
+            guestEmail = guest.email || guestEmail;
+          }
+        }
+        await prisma.inquiry.create({
+          data: {
+            propertyId,
+            name: guestName,
+            email: guestEmail,
+            message: question.slice(0, 2000),
+            source: "faq_escalation",
+            ...(result.faqLogId ? { faqLogId: result.faqLogId } : {}),
+          },
+        });
+      } catch (e) {
+        console.warn("FAQ escalation Inquiry create failed:", e);
+      }
+    }
 
     return NextResponse.json(result);
   } catch (error) {

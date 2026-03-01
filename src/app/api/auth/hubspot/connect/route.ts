@@ -2,13 +2,8 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getHubSpotClientId } from "@/config/env";
-
-function getUserId(session: unknown): string | null {
-  const s = session as { user?: { userId?: string; email?: string | null } } | null;
-  if (!s?.user) return null;
-  return s.user.userId ?? (typeof s.user.email === "string" ? s.user.email : null);
-}
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);

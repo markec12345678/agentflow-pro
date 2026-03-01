@@ -2,12 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 // GET /api/tourism/guest-communication - list guest emails
 export async function GET(request: NextRequest) {

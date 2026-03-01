@@ -62,6 +62,9 @@ jobs:
           FIRECRAWL_API_KEY: fc_test_placeholder
           SERPAPI_API_KEY: serp_test_placeholder
 
+      - name: Check doc links
+        run: npm run check-links
+
       - name: Lint
         run: npm run lint
 

@@ -2,13 +2,9 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { triggerCanvasUpdate } from "@/lib/pusher";
 import { withRlsContext } from "@/lib/rls-context";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 async function canAccessBoard(userId: string, boardId: string): Promise<boolean> {
   const board = await prisma.campaignBoard.findUnique({ where: { id: boardId } });

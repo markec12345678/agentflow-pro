@@ -94,10 +94,10 @@ export function createAnswerFaqUseCase(deps: AnswerFaqDeps) {
         question: input.question,
         reservation: retrievalCtx.reservations?.[0]
           ? {
-              checkIn: retrievalCtx.reservations[0].checkIn,
-              checkOut: retrievalCtx.reservations[0].checkOut,
-              status: retrievalCtx.reservations[0].status,
-            }
+            checkIn: retrievalCtx.reservations[0].checkIn,
+            checkOut: retrievalCtx.reservations[0].checkOut,
+            status: retrievalCtx.reservations[0].status,
+          }
           : undefined,
         policyRules: undefined,
       });
@@ -111,13 +111,19 @@ export function createAnswerFaqUseCase(deps: AnswerFaqDeps) {
       });
 
       const elapsed = Date.now() - startMs;
-      await deps.faqLogRepo.log(input.question, elapsed, copyResult.confidence, propId);
+      const faqLogId = await deps.faqLogRepo.log(
+        input.question,
+        elapsed,
+        copyResult.confidence,
+        propId
+      );
 
       return {
         answer: copyResult.answer,
         confidence: copyResult.confidence,
         category: keywordMatch?.category ?? "multi-agent",
         source: "multi-agent",
+        faqLogId: faqLogId ?? undefined,
       };
     }
 
@@ -125,7 +131,7 @@ export function createAnswerFaqUseCase(deps: AnswerFaqDeps) {
     const bestMatch = findBestKeywordMatch(input.question, input.faqs);
     if (bestMatch) {
       const elapsed = Date.now() - startMs;
-      await deps.faqLogRepo.log(input.question, elapsed, 0.8, propId);
+      const faqLogId = await deps.faqLogRepo.log(input.question, elapsed, 0.8, propId);
 
       return {
         answer: bestMatch.answer,
@@ -137,12 +143,13 @@ export function createAnswerFaqUseCase(deps: AnswerFaqDeps) {
           .filter((f) => f !== bestMatch && f.category === bestMatch.category)
           .slice(0, 2)
           .map((f) => ({ question: f.question, answer: f.answer })),
+        faqLogId: faqLogId ?? undefined,
       };
     }
 
     // Fallback
     const elapsed = Date.now() - startMs;
-    await deps.faqLogRepo.log(input.question, elapsed, 0, propId);
-    return FALLBACK_ANSWER;
+    const faqLogId = await deps.faqLogRepo.log(input.question, elapsed, 0, propId);
+    return { ...FALLBACK_ANSWER, faqLogId: faqLogId ?? undefined };
   };
 }

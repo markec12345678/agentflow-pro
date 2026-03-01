@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getLlmFromUserKeys } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { isMockMode } from "@/lib/mock-mode";
@@ -14,11 +15,6 @@ import { OpenAIAdapter, DataSanitizer, PrismaAiUsageLogger } from "@/infrastruct
 import { AiService } from "@/services/ai.service";
 
 const VALID_LANGS = ["sl", "en", "de", "it", "hr"] as const;
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 export async function POST(req: NextRequest) {
   try {

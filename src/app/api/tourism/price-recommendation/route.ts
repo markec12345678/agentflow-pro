@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { parseISO, format } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
 import { calculatePrice } from "@/lib/tourism/pricing-engine";
@@ -16,11 +17,6 @@ import { OpenAIAdapter, DataSanitizer, PrismaAiUsageLogger } from "@/infrastruct
 import { getLlmFromUserKeys } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { isMockMode } from "@/lib/mock-mode";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 export async function GET(request: NextRequest) {
   try {

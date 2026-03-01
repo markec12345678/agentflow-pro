@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
 import {
   startOfDay,
@@ -17,11 +18,6 @@ import {
   format,
   eachDayOfInterval,
 } from "date-fns";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 type ReservationRow = { propertyId: string; totalPrice: number | null; checkIn: Date; checkOut: Date };
 

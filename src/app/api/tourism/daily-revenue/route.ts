@@ -6,13 +6,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getPropertyForUser, getPropertyIdsForUser } from "@/lib/tourism/property-access";
 import { startOfDay, addDays, format } from "date-fns";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 export async function GET(request: NextRequest) {
   try {

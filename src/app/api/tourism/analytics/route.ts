@@ -2,17 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
 import { subDays, format, parseISO } from "date-fns";
 import {
   computePredictive,
   type HistoricalPoint,
 } from "@/lib/tourism/predictive-analytics";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 // GET /api/tourism/analytics - get analytics data
 export async function GET(request: NextRequest) {

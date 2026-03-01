@@ -255,6 +255,7 @@ model Property {
   guests          Guest[]
   competitors     Competitor[]
   faqResponseLogs FaqResponseLog[]
+  inquiries       Inquiry[]
   amenities       Amenity[]
   policies        PropertyPolicy[]
   communications  GuestCommunication[]
@@ -709,10 +710,35 @@ model FaqResponseLog {
   confidence     Float
   propertyId     String?
   property       Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  inquiry        Inquiry?
   createdAt      DateTime  @default(now())
 
   @@index([propertyId, createdAt])
   @@map("faq_response_logs")
+}
+
+model Inquiry {
+  id         String          @id @default(cuid())
+  propertyId String
+  property   Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name       String
+  email      String
+  phone      String?
+  message    String          @db.Text
+  type       String          @default("general") // general | availability | group | offer
+  status     String          @default("new") // new | read | replied | closed
+  source     String          @default("manual") // manual | faq_escalation | form
+  checkIn    DateTime?
+  checkOut   DateTime?
+  guestCount Int?
+  faqLogId   String?         @unique
+  faqLog     FaqResponseLog? @relation(fields: [faqLogId], references: [id], onDelete: SetNull)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([propertyId, status])
+  @@index([propertyId, createdAt])
+  @@map("inquiries")
 }
 
 model GuestCommunication {

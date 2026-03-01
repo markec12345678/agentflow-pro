@@ -26,6 +26,7 @@
     "test:e2e:tourism": "playwright test tests/e2e/tourism tests/e2e/tourism-email tests/e2e/tourism-journey tests/e2e/copy-buttons --project=chromium",
     "test:e2e:checklist": "playwright test workflow-builder --project=chromium",
     "verify:production-env": "node scripts/verify-production-env.js",
+    "check-links": "node scripts/check-links.js",
     "predeploy": "node scripts/predeploy.js",
     "test:e2e:smoke": "playwright test smoke-checklist --project=chromium",
     "test:e2e:ui": "playwright test --ui",

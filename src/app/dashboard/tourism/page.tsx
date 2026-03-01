@@ -151,6 +151,7 @@ export default function TourismOverviewPage() {
   } | null>(null);
   const [revenueRangeData, setRevenueRangeData] = useState<{ date: string; revenue: number }[] | null>(null);
   const [chartsLoading, setChartsLoading] = useState(false);
+  const [newInquiryCount, setNewInquiryCount] = useState(0);
 
   useEffect(() => {
     fetch("/api/user/active-property")
@@ -328,6 +329,17 @@ export default function TourismOverviewPage() {
             ({dailyRevenue?.departureCount ?? 0} odhodov)
           </div>
         </div>
+      )}
+
+      {newInquiryCount > 0 && (
+        <Link
+          href={`/dashboard/tourism/inbox?status=new${activePropertyId ? `&propertyId=${activePropertyId}` : ""}`}
+          className="block rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+        >
+          <div className="text-sm font-medium text-amber-800 dark:text-amber-200 flex items-center gap-2">
+            <span>📥</span> Nova povpraševanja: {newInquiryCount}
+          </div>
+        </Link>
       )}
 
       {isReceptionMode && (

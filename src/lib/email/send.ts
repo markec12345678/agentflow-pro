@@ -124,3 +124,44 @@ export async function sendTeamInviteEmail(
   const html = buildTeamInviteEmailHtml(inviteLink, role);
   await sendEmail(to, "Povabilo v ekipo - AgentFlow Pro", html);
 }
+
+function escHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/\n/g, "<br />");
+}
+
+export function buildNewInquiryEmailHtml(
+  inquiry: { name: string; email: string; message: string; type?: string },
+  propertyName: string
+): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: sans-serif; padding: 20px; max-width: 500px;">
+  <h2>Novo povpraševanje</h2>
+  <p>Prejeli ste novo povpraševanje za nastanitev <strong>${escHtml(propertyName)}</strong>.</p>
+  <p><strong>Od:</strong> ${escHtml(inquiry.name)} &lt;${escHtml(inquiry.email)}&gt;</p>
+  ${inquiry.type ? `<p><strong>Tip:</strong> ${escHtml(inquiry.type)}</p>` : ""}
+  <p><strong>Sporočilo:</strong></p>
+  <p style="background: #f3f4f6; padding: 12px; border-radius: 8px;">${escHtml(inquiry.message)}</p>
+  <p style="color: #6b7280; font-size: 14px;">
+    <a href="${getBaseUrl()}/dashboard/tourism/inbox">Odpiri Director Inbox</a>
+  </p>
+</body>
+</html>`;
+}
+
+export async function sendNewInquiryNotification(
+  ownerEmail: string,
+  inquiry: { name: string; email: string; message: string; type?: string },
+  propertyName: string
+): Promise<void> {
+  const html = buildNewInquiryEmailHtml(inquiry, propertyName);
+  const subject = `Novo povpraševanje: ${inquiry.name} – ${propertyName}`;
+  await sendEmail(ownerEmail, subject, html);
+}

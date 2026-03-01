@@ -7,11 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
+import { getUserId } from "@/lib/auth-users";
 
 function parseCsv(text: string): { keyword: string; position?: number; volume?: number; difficulty?: number }[] {
   const rows: { keyword: string; position?: number; volume?: number; difficulty?: number }[] = [];
@@ -57,12 +53,31 @@ export async function POST(request: NextRequest) {
     let csvText: string;
     const contentTypeHeader = request.headers.get("content-type") ?? "";
 
+    const MAX_FILE_SIZE = 1024 * 1024; // 1 MB
+    const MAX_ROWS = 10_000;
+    const ALLOWED_MIME_TYPES = ["text/csv", "application/csv", "text/plain"];
+
     if (contentTypeHeader.includes("multipart/form-data")) {
       const formData = await request.formData();
       const file = formData.get("file") as File | null;
       if (!file) {
         return NextResponse.json(
           { error: "Missing file. Upload a CSV file or send CSV text in body." },
+          { status: 400 }
+        );
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: "File too large. Maximum size is 1 MB." },
+          { status: 413 }
+        );
+      }
+      const ext = file.name?.toLowerCase().slice(-4);
+      const isAllowedType =
+        ALLOWED_MIME_TYPES.includes(file.type) || ext === ".csv";
+      if (!isAllowedType) {
+        return NextResponse.json(
+          { error: "Invalid file type. Only CSV files are allowed." },
           { status: 400 }
         );
       }
@@ -75,6 +90,12 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
+      if (body.length > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: "Payload too large. Maximum size is 1 MB." },
+          { status: 413 }
+        );
+      }
       csvText = body;
     }
 
@@ -82,6 +103,14 @@ export async function POST(request: NextRequest) {
     if (rows.length === 0) {
       return NextResponse.json(
         { error: "No valid rows found. Expected: keyword, position, volume, difficulty" },
+        { status: 400 }
+      );
+    }
+    if (rows.length > MAX_ROWS) {
+      return NextResponse.json(
+        {
+          error: `Too many rows. Maximum ${MAX_ROWS} keywords per import. Split your file.`,
+        },
         { status: 400 }
       );
     }

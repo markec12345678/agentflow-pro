@@ -16,6 +16,20 @@ const PROVIDERS = [
   { key: "mailchimp", label: "Mailchimp", placeholder: "xxx-us19 (API key + datacenter)", href: "https://mailchimp.com/help/about-api-keys" },
 ] as const;
 
+const TOURISM_PROVIDERS = [
+  { key: "openai", label: "OpenAI", placeholder: "sk-...", href: "https://platform.openai.com/api-keys" },
+  { key: "firecrawl", label: "Firecrawl", placeholder: "fc_... (opcijsko)", href: "https://firecrawl.dev" },
+  { key: "mailchimp", label: "Mailchimp", placeholder: "xxx-us19 (opcijsko)", href: "https://mailchimp.com/help/about-api-keys" },
+] as const;
+
+const DEVELOPER_PROVIDERS = [
+  { key: "github", label: "GitHub", placeholder: "ghp_...", href: "https://github.com/settings/tokens" },
+  { key: "vercel", label: "Vercel", placeholder: "...", href: "https://vercel.com/account/tokens" },
+  { key: "netlify", label: "Netlify", placeholder: "nfp_...", href: "https://app.netlify.com/user/applications#personal-access-tokens" },
+  { key: "context7", label: "Context7", placeholder: "ctx7sk_...", href: "https://context7.com" },
+  { key: "serpapi", label: "SerpAPI", placeholder: "Get key at serpapi.com/manage-api-key", href: "https://serpapi.com/manage-api-key" },
+] as const;
+
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
@@ -50,6 +64,8 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [receptionMode, setReceptionMode] = useState(false);
+  const [userIndustry, setUserIndustry] = useState<string | null>(null);
+  const [showAdvancedKeys, setShowAdvancedKeys] = useState(false);
 
   useEffect(() => {
     try {
@@ -94,13 +110,16 @@ export default function SettingsPage() {
           hubspot: connData.hubspot ?? false,
           salesforce: connData.salesforce ?? false,
         });
-        if (!onboardingData.error && onboardingData.onboarding?.company_knowledge) {
+        if (!onboardingData.error && onboardingData.onboarding) {
+          setUserIndustry(onboardingData.onboarding.industry ?? null);
           const ck = onboardingData.onboarding.company_knowledge;
-          setCompanyKnowledge({
-            products: Array.isArray(ck.products) ? ck.products.join("\n") : "",
-            competitors: Array.isArray(ck.competitors) ? ck.competitors.join("\n") : "",
-            keyFacts: Array.isArray(ck.keyFacts) ? ck.keyFacts.join("\n") : "",
-          });
+          if (ck) {
+            setCompanyKnowledge({
+              products: Array.isArray(ck.products) ? ck.products.join("\n") : "",
+              competitors: Array.isArray(ck.competitors) ? ck.competitors.join("\n") : "",
+              keyFacts: Array.isArray(ck.keyFacts) ? ck.keyFacts.join("\n") : "",
+            });
+          }
         }
         if (alertsData?.success && alertsData?.data?.alerts) {
           setUsageAlerts(alertsData.data.alerts);
@@ -604,10 +623,22 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <h2 className="mb-4 text-xl font-semibold text-white">All API Keys</h2>
+        <h2 className="mb-4 text-xl font-semibold text-white">
+          {userIndustry === "tourism" || userIndustry === "travel-agency"
+            ? "API ključi za turizem"
+            : "All API Keys"}
+        </h2>
+        <p className="mb-4 text-gray-400 text-sm">
+          {userIndustry === "tourism" || userIndustry === "travel-agency"
+            ? "Odprite ključe za AI generiranje vsebin. OpenAI je obvezen za generiranje besedil."
+            : "Add your own API keys. Your workflows will use these keys instead of platform defaults. Keys are stored securely and never shared."}
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {PROVIDERS.map(({ key, label, placeholder, href }) => (
+          {(userIndustry === "tourism" || userIndustry === "travel-agency"
+            ? TOURISM_PROVIDERS
+            : PROVIDERS
+          ).map(({ key, label, placeholder, href }) => (
             <div
               key={key}
               className="rounded-lg border border-gray-700 bg-gray-800 p-4"
@@ -644,6 +675,49 @@ export default function SettingsPage() {
               )}
             </div>
           ))}
+
+          {(userIndustry === "tourism" || userIndustry === "travel-agency") && (
+            <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-4">
+              <button
+                type="button"
+                onClick={() => setShowAdvancedKeys((v) => !v)}
+                className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-300 transition-colors"
+              >
+                <span>{showAdvancedKeys ? "▲" : "▼"}</span>
+                <span>Napredne integracije (opcijsko)</span>
+              </button>
+              {showAdvancedKeys && (
+                <div className="mt-4 space-y-4">
+                  {DEVELOPER_PROVIDERS.map(({ key, label, placeholder, href }) => (
+                    <div key={key} className="rounded-lg border border-gray-600 bg-gray-800 p-4">
+                      <div className="mb-2 flex items-center justify-between">
+                        <label htmlFor={`dev-${key}`} className="block text-sm font-medium text-white">
+                          {label}
+                        </label>
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:text-blue-300">
+                          Get key →
+                        </a>
+                      </div>
+                      <input
+                        id={`dev-${key}`}
+                        type="password"
+                        value={formData[key] ?? ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, [key]: e.target.value }))
+                        }
+                        placeholder={keys[key] ? "••••••••" : placeholder}
+                        className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-hidden"
+                        autoComplete="off"
+                      />
+                      {keys[key] && (
+                        <p className="mt-1 text-xs text-gray-500">Current: {keys[key]}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {message && (
             <p

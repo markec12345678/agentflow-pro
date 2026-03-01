@@ -11,9 +11,9 @@ export class PrismaFaqLogRepository implements IFaqLogRepository {
     responseTimeMs: number,
     confidence: number,
     propertyId: string | null
-  ): Promise<void> {
+  ): Promise<string | void> {
     try {
-      await prisma.faqResponseLog.create({
+      const created = await prisma.faqResponseLog.create({
         data: {
           question: question.slice(0, 2000),
           responseTimeMs,
@@ -21,6 +21,7 @@ export class PrismaFaqLogRepository implements IFaqLogRepository {
           propertyId,
         },
       });
+      return created.id;
     } catch (e) {
       console.warn("FaqResponseLog create failed:", e);
     }
