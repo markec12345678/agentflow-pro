@@ -4,17 +4,13 @@
  * Body: { propertyId, format: "csv" | "json", data: string }
  */
 
-import { randomBytes } from "node:crypto";
+import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/lib/prisma";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 interface ReservationRow {
   checkIn: string;
