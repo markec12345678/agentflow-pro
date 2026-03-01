@@ -249,14 +249,14 @@ export default function DirectorPage() {
                       ? "Cene"
                       : a.eventType}
                 </span>
-                {a.eventType === "eturizem_pending" && a.metadata && typeof a.metadata === "object" && "count" in a.metadata && (
-                  <span>{(a.metadata as { count?: number }).count} prihodov brez eTurizem</span>
-                )}
-                {a.eventType === "property_pricing_suggested" && a.metadata && typeof a.metadata === "object" && "suggestedBasePrice" in a.metadata && (
-                  <span>
+                {a.eventType === "eturizem_pending" && a.metadata && typeof a.metadata === "object" && "count" in a.metadata
+                  ? <span>{(a.metadata as { count?: number }).count} prihodov brez eTurizem</span>
+                  : null}
+                {a.eventType === "property_pricing_suggested" && a.metadata && typeof a.metadata === "object" && "suggestedBasePrice" in a.metadata
+                  ? <span>
                     Predlog cene: €{(a.metadata as { suggestedBasePrice?: number }).suggestedBasePrice}
                   </span>
-                )}
+                  : null}
               </li>
             ))}
           </ul>

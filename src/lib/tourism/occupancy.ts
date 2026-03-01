@@ -4,7 +4,6 @@
  */
 
 import { addDays, eachDayOfInterval, startOfDay, startOfMonth, startOfYear } from "date-fns";
-import type { Prisma } from "../database/schema";
 
 export type ReservationRow = {
   propertyId: string;
@@ -55,7 +54,7 @@ export interface OccupancyForPropertyResult {
  * Compute occupancy for a single property. Used by API route and cron.
  */
 export async function getOccupancyForProperty(
-  prisma: { reservation: { findMany: (args: object) => Promise<ReservationRow[]>; aggregate: (args: object) => Promise<{ _sum: { totalPrice: number | null } }> } },
+  prisma: { reservation: { findMany: (args: object) => Promise<ReservationRow[]>; aggregate: (args: object) => Promise<{ _sum?: { totalPrice?: number | null } }> } },
   propertyIds: string[],
   baseDate: Date
 ): Promise<OccupancyForPropertyResult> {
@@ -142,11 +141,11 @@ export async function getOccupancyForProperty(
     todayPlus2: { ...todayPlus2 },
     mtd: {
       occupancyPercent: mtdOccupancy,
-      revenue: Math.round((mtdRevenueRes._sum.totalPrice ?? 0) * 100) / 100,
+      revenue: Math.round((mtdRevenueRes._sum?.totalPrice ?? 0) * 100) / 100,
     },
     ytd: {
       occupancyPercent: ytdOccupancy,
-      revenue: Math.round((ytdRevenueRes._sum.totalPrice ?? 0) * 100) / 100,
+      revenue: Math.round((ytdRevenueRes._sum?.totalPrice ?? 0) * 100) / 100,
     },
   };
 }

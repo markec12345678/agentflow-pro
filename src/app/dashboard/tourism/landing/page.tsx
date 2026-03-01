@@ -171,6 +171,7 @@ export default function TourismLandingPage() {
     features: "",
     priceFrom: "65",
     baseUrl: process.env.NEXT_PUBLIC_APP_URL || "https://yoursite.com",
+    propertyId: null as string | null,
   });
   const [languages, setLanguages] = useState<string[]>(["sl", "en"]);
   const [pages, setPages] = useState<PagesData | null>(null);

@@ -3,7 +3,7 @@
  * Resolves director, receptionist, dev to email/phone/webhook.
  */
 
-import type { PrismaClient } from "@/database/schema";
+import type { PrismaClient } from "../../prisma/generated/prisma/client";
 
 export type AlertRole = "director" | "receptionist" | "dev";
 

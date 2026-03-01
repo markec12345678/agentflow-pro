@@ -130,7 +130,7 @@ export default function TourismPropertiesPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Napaka");
-      setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR", seasonRates: { high: [], mid: [], low: [] } });
+      setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR", seasonRates: { high: [], mid: [], low: [] }, autoApprovalEnabled: false, autoApprovalChannels: [], autoApprovalMaxAmount: "" });
       fetchProperties(false);
       toast.success("Nastanitev dodana");
     } catch (err) {
@@ -219,7 +219,7 @@ export default function TourismPropertiesPage() {
 
   const cancelEdit = () => {
     setEditing(null);
-    setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR", seasonRates: { high: [], mid: [], low: [] } });
+    setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR", seasonRates: { high: [], mid: [], low: [] }, autoApprovalEnabled: false, autoApprovalChannels: [], autoApprovalMaxAmount: "" });
     setAmenities([]);
     setPolicies([]);
   };

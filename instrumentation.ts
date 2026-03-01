@@ -17,12 +17,13 @@ export async function onRequestError(
 ): Promise<void> {
   if (typeof Sentry.captureRequestError === "function") {
     const requestInfo = {
-      ...request,
+      path: request.path ?? "/",
       url: request.path ?? "/",
       method: request.method ?? "GET",
-      headers: new Headers(),
+      headers: {} as Record<string, string | string[] | undefined>,
     };
-    Sentry.captureRequestError(error, requestInfo as Parameters<typeof Sentry.captureRequestError>[1], context);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Sentry.captureRequestError(error, requestInfo as any, context as any);
   }
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const err = error instanceof Error ? error : new Error(String(error));

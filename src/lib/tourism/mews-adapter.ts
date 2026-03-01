@@ -162,9 +162,8 @@ export class MewsAdapter implements PmsAdapter {
         if (r.status === "pending") {
           const property = await prisma.property.findUnique({
             where: { id: config.propertyId },
-            select: { reservationAutoApprovalRules: true },
           });
-          const rules = property?.reservationAutoApprovalRules as AutoApprovalRules | null;
+          const rules = (property as { reservationAutoApprovalRules?: unknown } | null)?.reservationAutoApprovalRules as AutoApprovalRules | null;
           if (shouldAutoApprove(r, rules)) {
             await applyAutoApproval(reservationId);
           }

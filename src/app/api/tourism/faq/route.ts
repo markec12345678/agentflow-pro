@@ -15,6 +15,7 @@ import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 import { checkRateLimitByIp } from "@/lib/rate-limit";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
+import { prisma } from "@/database/schema";
 
 const PostBodySchema = z.object({
   question: z.string().min(1),

@@ -225,10 +225,12 @@ function InquiryDetailPanel({
   inquiry,
   onClose,
   onStatusChange,
+  onRefresh,
 }: {
   inquiry: Inquiry;
   onClose: () => void;
   onStatusChange: (id: string, status: "read" | "replied" | "closed") => void;
+  onRefresh?: () => Promise<void>;
 }) {
   const mailto = `mailto:${inquiry.email}?subject=Re: Povpraševanje`;
   const statusLabels: Record<string, string> = {
