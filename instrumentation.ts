@@ -22,8 +22,11 @@ export async function onRequestError(
       method: request.method ?? "GET",
       headers: {} as Record<string, string | string[] | undefined>,
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Sentry.captureRequestError(error, requestInfo as any, context as any);
+    Sentry.captureRequestError(
+      error,
+      requestInfo as unknown as Parameters<typeof Sentry.captureRequestError>[1],
+      context as unknown as Parameters<typeof Sentry.captureRequestError>[2]
+    );
   }
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const err = error instanceof Error ? error : new Error(String(error));
