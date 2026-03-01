@@ -16,7 +16,13 @@ export async function onRequestError(
   context: unknown
 ): Promise<void> {
   if (typeof Sentry.captureRequestError === "function") {
-    Sentry.captureRequestError(error, request, context);
+    const requestInfo = {
+      ...request,
+      url: request.path ?? "/",
+      method: request.method ?? "GET",
+      headers: new Headers(),
+    };
+    Sentry.captureRequestError(error, requestInfo as Parameters<typeof Sentry.captureRequestError>[1], context);
   }
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const err = error instanceof Error ? error : new Error(String(error));
