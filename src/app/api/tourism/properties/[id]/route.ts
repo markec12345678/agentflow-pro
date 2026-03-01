@@ -53,6 +53,7 @@ export async function PATCH(
     basePrice?: number;
     currency?: string;
     seasonRates?: { high?: { from: string; to: string; rate: number }[]; mid?: { from: string; to: string; rate: number }[]; low?: { from: string; to: string; rate: number }[] };
+    reservationAutoApprovalRules?: { enabled: boolean; channels?: string[]; maxAmount?: number };
   };
 
   const data: {
@@ -63,6 +64,7 @@ export async function PATCH(
     basePrice?: number | null;
     currency?: string | null;
     seasonRates?: object;
+    reservationAutoApprovalRules?: object;
   } = {};
   if (body.name !== undefined) data.name = body.name?.trim() || existing.name;
   if (body.location !== undefined) data.location = body.location?.trim() || null;
@@ -72,6 +74,8 @@ export async function PATCH(
     data.basePrice = typeof body.basePrice === "number" ? body.basePrice : null;
   if (body.currency !== undefined) data.currency = body.currency?.trim() || null;
   if (body.seasonRates !== undefined) data.seasonRates = body.seasonRates;
+  if (body.reservationAutoApprovalRules !== undefined)
+    data.reservationAutoApprovalRules = body.reservationAutoApprovalRules;
 
   const property = await prisma.property.update({
     where: { id },

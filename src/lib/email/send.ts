@@ -22,6 +22,11 @@ export async function sendEmail(
     return;
   }
 
+  if (process.env.DRY_RUN === "true") {
+    console.log("[DRY RUN] Email would be sent to:", to, "subject:", subject);
+    return;
+  }
+
   try {
     const res = await fetch(RESEND_API, {
       method: "POST",

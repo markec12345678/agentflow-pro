@@ -98,6 +98,30 @@ model UsageAlert {
   @@map("usage_alerts")
 }
 
+model SmartAlertLog {
+  id          String    @id @default(cuid())
+  eventType   String
+  entityId    String // propertyId or userId
+  channel     String
+  sentAt      DateTime  @default(now())
+  escalatedAt DateTime?
+  escalatedTo String?
+
+  @@index([eventType, entityId, sentAt])
+  @@map("smart_alert_logs")
+}
+
+model AlertEvent {
+  id        String   @id @default(cuid())
+  eventType String   @default("system_error")
+  entityId  String   @default("global")
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([eventType, createdAt])
+  @@map("alert_events")
+}
+
 model Workflow {
   id              String               @id @default(cuid())
   name            String
@@ -235,36 +259,37 @@ model LandingPage {
 }
 
 model Property {
-  id              String               @id @default(cuid())
-  userId          String?
-  name            String
-  location        String?
-  type            String?
-  capacity        Int?
-  description     String?
-  basePrice       Float?
-  currency        String?              @default("EUR")
-  seasonRates     Json? // { high: [{from,to,rate}], mid: [...], low: [...] }
-  rnoId           Int? // RNO ID nastanitvenega obrata (AJPES)
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
-  landingPages    LandingPage[]
-  userTemplates   UserTemplate[]
-  itineraries     Itinerary[]
-  reservations    Reservation[]
-  guests          Guest[]
-  competitors     Competitor[]
-  faqResponseLogs FaqResponseLog[]
-  inquiries       Inquiry[]
-  amenities       Amenity[]
-  policies        PropertyPolicy[]
-  communications  GuestCommunication[]
-  seoMetrics      SeoMetric[]
-  blockedDates    BlockedDate[]
-  pageDesigns     PageDesign[]         @relation("PageDesignProperties")
-  users           User[]
-  pmsConnections  PmsConnection[]
-  ajpesConnection AjpesConnection?
+  id                           String               @id @default(cuid())
+  userId                       String?
+  name                         String
+  location                     String?
+  type                         String?
+  capacity                     Int?
+  description                  String?
+  basePrice                    Float?
+  currency                     String?              @default("EUR")
+  seasonRates                  Json? // { high: [{from,to,rate}], mid: [...], low: [...] }
+  reservationAutoApprovalRules Json? // { enabled: boolean, channels?: string[], maxAmount?: number }
+  rnoId                        Int? // RNO ID nastanitvenega obrata (AJPES)
+  createdAt                    DateTime             @default(now())
+  updatedAt                    DateTime             @updatedAt
+  landingPages                 LandingPage[]
+  userTemplates                UserTemplate[]
+  itineraries                  Itinerary[]
+  reservations                 Reservation[]
+  guests                       Guest[]
+  competitors                  Competitor[]
+  faqResponseLogs              FaqResponseLog[]
+  inquiries                    Inquiry[]
+  amenities                    Amenity[]
+  policies                     PropertyPolicy[]
+  communications               GuestCommunication[]
+  seoMetrics                   SeoMetric[]
+  blockedDates                 BlockedDate[]
+  pageDesigns                  PageDesign[]         @relation("PageDesignProperties")
+  users                        User[]
+  pmsConnections               PmsConnection[]
+  ajpesConnection              AjpesConnection?
 
   @@map("properties")
 }

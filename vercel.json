@@ -11,8 +11,24 @@
       "schedule": "0 3 * * *"
     },
     {
+      "path": "/api/cron/property-pricing-check",
+      "schedule": "0 4 * * *"
+    },
+    {
       "path": "/api/cron/pms-sync-all",
-      "schedule": "0 6,12,18 * * *"
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/eturizem-reminder",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/smart-alerts",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/smart-alerts-errors",
+      "schedule": "0 5 * * *"
     }
   ]
 }

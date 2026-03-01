@@ -7,7 +7,7 @@
 ### 1. Nova baza (prazna)
 
 ```bash
-pnpm run db:migrate:deploy
+npm run db:migrate:deploy
 ```
 
 ### 2. Obstojeca baza (baseline)
@@ -24,7 +24,7 @@ npx prisma migrate resolve --applied 20260221000000_add_credits_and_integration
 Nato za **nove** migracije (še ne izvedene):
 
 ```bash
-pnpm run db:migrate:deploy
+npm run db:migrate:deploy
 ```
 
 ### 3. Development reset (brisanje vseh podatkov)

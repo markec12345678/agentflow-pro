@@ -20,8 +20,11 @@ interface Property {
   basePrice?: number | null;
   currency?: string | null;
   seasonRates?: { high?: SeasonRange[]; mid?: SeasonRange[]; low?: SeasonRange[] } | null;
+  reservationAutoApprovalRules?: { enabled?: boolean; channels?: string[]; maxAmount?: number } | null;
   createdAt: string;
 }
+
+const AUTO_APPROVAL_CHANNELS = ["mews", "booking.com", "direct", "airbnb"];
 
 const TYPES = ["apartma", "hisa", "hostel", "hotel", "kampa", "drugo"];
 
@@ -57,6 +60,9 @@ export default function TourismPropertiesPage() {
     basePrice: "",
     currency: "EUR",
     seasonRates: { high: [] as SeasonRange[], mid: [] as SeasonRange[], low: [] as SeasonRange[] },
+    autoApprovalEnabled: false,
+    autoApprovalChannels: [] as string[],
+    autoApprovalMaxAmount: "" as string | number,
   });
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -152,12 +158,18 @@ export default function TourismPropertiesPage() {
             mid: (form.seasonRates.mid || []).filter((r) => r.from && r.to && r.rate > 0),
             low: (form.seasonRates.low || []).filter((r) => r.from && r.to && r.rate > 0),
           },
+          reservationAutoApprovalRules: {
+            enabled: form.autoApprovalEnabled,
+            channels: form.autoApprovalChannels.length > 0 ? form.autoApprovalChannels : undefined,
+            maxAmount: form.autoApprovalMaxAmount !== "" && !Number.isNaN(Number(form.autoApprovalMaxAmount))
+              ? Number(form.autoApprovalMaxAmount) : undefined,
+          },
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Napaka");
       setEditing(null);
-      setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR", seasonRates: { high: [], mid: [], low: [] } });
+      setForm({ name: "", location: "", type: "", capacity: "", basePrice: "", currency: "EUR", seasonRates: { high: [], mid: [], low: [] }, autoApprovalEnabled: false, autoApprovalChannels: [], autoApprovalMaxAmount: "" });
       fetchProperties(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Napaka pri posodabljanju");
@@ -186,6 +198,7 @@ export default function TourismPropertiesPage() {
   const startEdit = (p: Property) => {
     setEditing(p.id);
     const sr = p.seasonRates as { high?: SeasonRange[]; mid?: SeasonRange[]; low?: SeasonRange[] } | null | undefined;
+    const rules = p.reservationAutoApprovalRules as { enabled?: boolean; channels?: string[]; maxAmount?: number } | null | undefined;
     setForm({
       name: p.name,
       location: p.location ?? "",
@@ -198,6 +211,9 @@ export default function TourismPropertiesPage() {
         mid: Array.isArray(sr?.mid) ? sr.mid : [],
         low: Array.isArray(sr?.low) ? sr.low : [],
       },
+      autoApprovalEnabled: rules?.enabled ?? false,
+      autoApprovalChannels: Array.isArray(rules?.channels) ? rules.channels : [],
+      autoApprovalMaxAmount: rules?.maxAmount != null ? rules.maxAmount : "",
     });
   };
 
@@ -638,6 +654,58 @@ export default function TourismPropertiesPage() {
                       ))}
                     </div>
                   </div>
+
+                  <div className="pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                    <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Samodejna odobritev rezervacij</h4>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">Ko PMS sync vnese rezervacijo s statusom »pending«, jo ob vklopljenih pravilih samodejno potrdi.</p>
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={form.autoApprovalEnabled}
+                          onChange={(e) => setForm((f) => ({ ...f, autoApprovalEnabled: e.target.checked }))}
+                          className="rounded border-neutral-300 dark:border-neutral-600"
+                        />
+                        <span className="text-sm">Vklopi samodejno odobritev</span>
+                      </label>
+                      {form.autoApprovalEnabled && (
+                        <>
+                          <div className="text-xs text-neutral-600 dark:text-neutral-400">Kanali (pustite prazno za vse):</div>
+                          <div className="flex flex-wrap gap-2">
+                            {AUTO_APPROVAL_CHANNELS.map((ch) => (
+                              <label key={ch} className="flex items-center gap-1 text-sm">
+                                <input
+                                  type="checkbox"
+                                  checked={form.autoApprovalChannels.includes(ch)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setForm((f) => ({ ...f, autoApprovalChannels: [...f.autoApprovalChannels, ch] }));
+                                    } else {
+                                      setForm((f) => ({ ...f, autoApprovalChannels: f.autoApprovalChannels.filter((c) => c !== ch) }));
+                                    }
+                                  }}
+                                  className="rounded border-neutral-300 dark:border-neutral-600"
+                                />
+                                {ch}
+                              </label>
+                            ))}
+                          </div>
+                          <div>
+                            <label className="text-xs text-neutral-600 dark:text-neutral-400">Max znesek (€, opcijsko – rezervacije nad znesek ostanejo pending):</label>
+                            <input
+                              type="number"
+                              value={form.autoApprovalMaxAmount}
+                              onChange={(e) => setForm((f) => ({ ...f, autoApprovalMaxAmount: e.target.value }))}
+                              placeholder="npr. 500"
+                              min={0}
+                              step={1}
+                              className="mt-1 w-24 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-sm"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
@@ -646,7 +714,7 @@ export default function TourismPropertiesPage() {
                       {p.name}
                     </div>
                     <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                      {[p.location, p.type, p.capacity ? p.capacity + " oseb" : null, p.basePrice != null ? (p.basePrice + " " + (p.currency || "EUR") + "/noč") : null].filter(Boolean).join(" · ") || "—"}
+                      {[p.location, p.type, p.capacity ? p.capacity + " oseb" : null, p.basePrice != null ? (p.basePrice + " " + (p.currency || "EUR") + "/noč") : null, (p.reservationAutoApprovalRules as { enabled?: boolean })?.enabled ? "Auto-odobritev ✓" : null].filter(Boolean).join(" · ") || "—"}
                     </div>
                   </div>
                   <div className="flex gap-2">

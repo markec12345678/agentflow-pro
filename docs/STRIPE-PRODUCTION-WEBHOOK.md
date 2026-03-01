@@ -48,7 +48,7 @@ Vercel → Deployments → ... → Redeploy
 ## Checklist (Blok B #4 – Stripe Live preverjanje)
 
 - [ ] Webhook endpoint ustvarjen v Stripe (Production)
-- [ ] Events: checkout.session.completed, customer.subscription.updated, customer.subscription.deleted
+- [ ] Events: checkout.session.completed, customer.subscription.updated, customer.subscription.deleted, invoice.payment_failed
 - [ ] STRIPE_WEBHOOK_SECRET dodan v Vercel (Production)
 - [ ] STRIPE_SECRET_KEY (sk_live_) in NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY (pk_live_) v Vercel
 - [ ] STRIPE_PRICE_* (Starter, Pro, Enterprise) nastavljeni v Vercel

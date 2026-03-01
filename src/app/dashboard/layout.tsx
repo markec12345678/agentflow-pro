@@ -9,6 +9,7 @@ import { NotificationSidePanel } from "@/web/components/NotificationSidePanel";
 // ─── Glavna navigacija ────────────────────────────────────────────────────────
 const MAIN_NAV = [
   { icon: "🏠", label: "Pregled", href: "/dashboard" },
+  { icon: "📋", label: "Director", href: "/dashboard/director" },
   { icon: "✍️", label: "Ustvari", href: "/generate" },
   { icon: "📁", label: "Vsebina", href: "/content" },
   { icon: "🏨", label: "Nastanitve", href: "/settings" },
@@ -16,6 +17,7 @@ const MAIN_NAV = [
 
 // ─── Turizem podmeni ──────────────────────────────────────────────────────────
 const TOURISM_NAV = [
+  { name: "Director", href: "/dashboard/director" },
   { name: "Pregled", href: "/dashboard/tourism" },
   { name: "Koledar", href: "/dashboard/tourism/calendar" },
   { name: "Povpraševanja", href: "/dashboard/tourism/inbox" },

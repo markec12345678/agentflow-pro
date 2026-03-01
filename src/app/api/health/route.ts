@@ -4,10 +4,19 @@ import { prisma } from "@/database/schema";
 export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      status: "ok",
+      database: "connected",
+      ok: true,
+    });
   } catch {
     return NextResponse.json(
-      { ok: false, error: "database" },
+      {
+        status: "error",
+        database: "error",
+        ok: false,
+        error: "database",
+      },
       { status: 503 }
     );
   }

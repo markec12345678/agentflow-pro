@@ -10,4 +10,18 @@ export async function register() {
   }
 }
 
-export const onRequestError = Sentry.captureRequestError;
+export async function onRequestError(
+  error: unknown,
+  request: { path?: string; method?: string },
+  context: unknown
+): Promise<void> {
+  if (typeof Sentry.captureRequestError === "function") {
+    Sentry.captureRequestError(error, request, context);
+  }
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    const err = error instanceof Error ? error : new Error(String(error));
+    import("@/alerts/log-system-error")
+      .then((m) => m.logSystemError(err, { path: request?.path }))
+      .catch(() => { });
+  }
+}
