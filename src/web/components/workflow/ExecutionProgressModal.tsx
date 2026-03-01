@@ -114,7 +114,7 @@ export function ExecutionProgressModal({
                       <summary className="cursor-pointer text-xs text-gray-400">
                         View output
                       </summary>
-                      <pre className="mt-1 max-h-32 overflow-auto rounded bg-gray-800 p-2 text-xs text-gray-300">
+                      <pre className="mt-1 max-h-32 overflow-auto rounded-sm bg-gray-800 p-2 text-xs text-gray-300">
                         {typeof r.output === "object"
                           ? JSON.stringify(r.output, null, 2)
                           : String(r.output)}

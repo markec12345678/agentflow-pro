@@ -252,7 +252,7 @@ export default function TourismItinerariesPage() {
                   type="button"
                   onClick={removeDay}
                   disabled={dayCount <= 1}
-                  className="px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-700 disabled:opacity-50"
+                  className="px-2 py-1 rounded-sm bg-neutral-200 dark:bg-neutral-700 disabled:opacity-50"
                 >
                   −
                 </button>
@@ -261,7 +261,7 @@ export default function TourismItinerariesPage() {
                   type="button"
                   onClick={addDay}
                   disabled={dayCount >= 14}
-                  className="px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-700 disabled:opacity-50"
+                  className="px-2 py-1 rounded-sm bg-neutral-200 dark:bg-neutral-700 disabled:opacity-50"
                 >
                   +
                 </button>
@@ -280,14 +280,14 @@ export default function TourismItinerariesPage() {
                           placeholder="Čas (npr. 09:00)"
                           value={act.time ?? ""}
                           onChange={(e) => updateActivity(dayIdx, actIdx, "time", e.target.value)}
-                          className="px-3 py-2 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
+                          className="px-3 py-2 rounded-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
                         />
                         <input
                           type="text"
                           placeholder="Naziv aktivnosti"
                           value={act.title}
                           onChange={(e) => updateActivity(dayIdx, actIdx, "title", e.target.value)}
-                          className="sm:col-span-2 px-3 py-2 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
+                          className="sm:col-span-2 px-3 py-2 rounded-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
                         />
                         <div className="flex gap-1">
                           <input
@@ -295,12 +295,12 @@ export default function TourismItinerariesPage() {
                             placeholder="Lokacija"
                             value={act.location ?? ""}
                             onChange={(e) => updateActivity(dayIdx, actIdx, "location", e.target.value)}
-                            className="flex-1 px-3 py-2 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
+                            className="flex-1 px-3 py-2 rounded-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
                           />
                           <button
                             type="button"
                             onClick={() => removeActivity(dayIdx, actIdx)}
-                            className="px-2 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                            className="px-2 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-sm"
                           >
                             ×
                           </button>
@@ -310,7 +310,7 @@ export default function TourismItinerariesPage() {
                           value={act.description ?? ""}
                           onChange={(e) => updateActivity(dayIdx, actIdx, "description", e.target.value)}
                           rows={1}
-                          className="sm:col-span-4 px-3 py-2 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
+                          className="sm:col-span-4 px-3 py-2 rounded-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
                         />
                       </div>
                     ))}

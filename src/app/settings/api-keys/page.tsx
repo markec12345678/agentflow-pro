@@ -111,7 +111,7 @@ export default function ApiKeysPage() {
 
         <div className="space-y-6">
           {/* Firecrawl */}
-          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
             <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
               Firecrawl API Key
               <span className="ml-2 text-xs text-gray-500">
@@ -138,7 +138,7 @@ export default function ApiKeysPage() {
           </div>
 
           {/* Context7 */}
-          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
             <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
               Context7 API Key
             </label>
@@ -162,7 +162,7 @@ export default function ApiKeysPage() {
           </div>
 
           {/* OpenAI */}
-          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
             <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
               OpenAI API Key
               <span className="ml-2 text-xs text-gray-500">(LLM, DALL-E)</span>
@@ -182,7 +182,7 @@ export default function ApiKeysPage() {
           </div>
 
           {/* Gemini */}
-          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
             <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
               Google Gemini API Key
               <span className="ml-2 text-xs text-gray-500">(LLM, brezplačna kvota)</span>
@@ -210,7 +210,7 @@ export default function ApiKeysPage() {
           </div>
 
           {/* GitHub */}
-          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
             <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
               GitHub Personal Access Token
               <span className="ml-2 text-xs text-gray-500">(100% free)</span>
@@ -235,7 +235,7 @@ export default function ApiKeysPage() {
           </div>
 
           {/* SerpAPI */}
-          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+          <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
             <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
               SerpAPI Key
               <span className="ml-2 text-xs text-gray-500">

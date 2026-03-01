@@ -2,7 +2,7 @@
  * AgentFlow Pro - Usage tracking
  */
 
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../prisma/generated/prisma/client";
 import { prisma } from "@/database/schema";
 import { getPlanLimits, type PlanId } from "@/stripe/plans";
 

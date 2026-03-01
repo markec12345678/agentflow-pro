@@ -180,7 +180,7 @@ export function TodayOverview({ propertyId }: TodayOverviewProps) {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <button
                 onClick={() => setExpanded(expanded === "arrivals" ? null : "arrivals")}
-                className="min-h-[120px] p-6 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-left hover:shadow-lg motion-safe:hover:scale-[1.02] transition-all duration-200"
+                className="min-h-[120px] p-6 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 text-white text-left hover:shadow-lg motion-safe:hover:scale-[1.02] transition-all duration-200"
                 aria-label={`Prihodov: ${data.counts.arrivals}`}
               >
                 <svg className="w-8 h-8 mb-2 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -191,7 +191,7 @@ export function TodayOverview({ propertyId }: TodayOverviewProps) {
               </button>
               <button
                 onClick={() => setExpanded(expanded === "departures" ? null : "departures")}
-                className="min-h-[120px] p-6 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white text-left hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                className="min-h-[120px] p-6 rounded-xl bg-linear-to-br from-orange-500 to-amber-600 text-white text-left hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
                 aria-label={`Odhodov: ${data.counts.departures}`}
               >
                 <svg className="w-8 h-8 mb-2 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -202,7 +202,7 @@ export function TodayOverview({ propertyId }: TodayOverviewProps) {
               </button>
               <button
                 onClick={() => setExpanded(expanded === "inHouse" ? null : "inHouse")}
-                className="min-h-[120px] p-6 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-left hover:shadow-lg motion-safe:hover:scale-[1.02] transition-all duration-200"
+                className="min-h-[120px] p-6 rounded-xl bg-linear-to-br from-blue-500 to-indigo-600 text-white text-left hover:shadow-lg motion-safe:hover:scale-[1.02] transition-all duration-200"
                 aria-label={`V nastanitvi: ${data.counts.inHouse}`}
               >
                 <svg className="w-8 h-8 mb-2 opacity-90" fill="currentColor" viewBox="0 0 24 24" aria-hidden>

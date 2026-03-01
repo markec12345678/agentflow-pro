@@ -31,6 +31,12 @@
 - [ ] Terminal odprt (Cmd + `)
 - [ ] Cursor Chat odprt (Cmd + L)
 
+### MCP Checklist
+
+1. Kopiraj `.env.example` v `.env`
+2. Vpiši `GITHUB_TOKEN`, `FIRECRAWL_API_KEY`, `CONTEXT7_API_KEY` v `.env`
+3. Restart Cursorja po spremembah `mcp.json`
+
 ---
 
 ## ZDAJ JE TVOJ POTEZ

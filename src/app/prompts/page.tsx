@@ -70,7 +70,7 @@ export default function PromptsPage() {
           {filtered.map((p) => (
             <div
               key={p.id}
-              className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow"
+              className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 shadow-xs hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <h3 className="font-semibold text-lg dark:text-white">

@@ -118,7 +118,7 @@ export default function OnboardingPage() {
   const pct = Math.round((step / totalSteps) * 100);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-900 via-indigo-900 to-purple-900 flex items-center justify-center p-4">
       <div className="max-w-xl w-full">
 
         {/* Progress */}
@@ -196,7 +196,7 @@ export default function OnboardingPage() {
                     onChange={e => setPropertyName(e.target.value)}
                     placeholder="npr. Hotel Krim, Apartma Bled..."
                     autoFocus
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors text-lg"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-hidden focus:border-blue-500 transition-colors text-lg"
                   />
                 </div>
 
@@ -209,7 +209,7 @@ export default function OnboardingPage() {
                     value={location}
                     onChange={e => setLocation(e.target.value)}
                     placeholder="npr. Bled, Kranjska Gora, Ljubljana..."
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors text-lg"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-hidden focus:border-blue-500 transition-colors text-lg"
                   />
                 </div>
 

@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "./generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -42,6 +42,7 @@ model User {
   contentHistory           ContentHistory[]
   searchConsoleConnections SearchConsoleConnection[]
   pageDesigns              PageDesign[]
+  usageAlerts              UsageAlert[]
 
   @@map("users")
 }
@@ -79,6 +80,22 @@ model Subscription {
   currentPeriodEnd     DateTime?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
+}
+
+model UsageAlert {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String
+  threshold   Int
+  current     Int       @default(0)
+  max         Int
+  isTriggered Boolean   @default(false)
+  triggeredAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@map("usage_alerts")
 }
 
 model Workflow {

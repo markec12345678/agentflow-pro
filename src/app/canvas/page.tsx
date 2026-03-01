@@ -200,7 +200,7 @@ function CanvasInner() {
             type="text"
             value={boardName}
             onChange={(e) => setBoardName(e.target.value)}
-            className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
+            className="w-full rounded-sm border border-gray-600 bg-gray-700 px-3 py-2 text-white"
           />
           <button
             type="button"

@@ -34,7 +34,7 @@
 
 ### Navigacija (`LandingNav.tsx`)
 
-- Fiksna navigacija s `backdrop-blur`, `shadow-lg`
+- Fiksna navigacija s `backdrop-blur-sm`, `shadow-lg`
 - Dropdown meniji: Rešitve, Vir
 - Linki: Cene, Demo, Prijava, Start Free Trial
 - Tailwind: `flex`, `gap-*`, `rounded-xl`, `text-gray-700`, ipd.

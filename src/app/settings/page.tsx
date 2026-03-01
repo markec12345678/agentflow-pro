@@ -228,7 +228,7 @@ export default function SettingsPage() {
                 localStorage.setItem("agentflow-reception-mode", v ? "1" : "0");
               } catch { }
             }}
-            className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+            className="h-4 w-4 rounded-sm border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
           />
           <label htmlFor="reception-mode" className="text-sm text-gray-300 cursor-pointer">
             Reception način – poenostavljen pregled „Danes“ ob vsakem obisku dashboarda
@@ -535,7 +535,7 @@ export default function SettingsPage() {
               }
               rows={3}
               placeholder="Product A, Product B, Product C"
-              className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-hidden"
             />
           </div>
           <div>
@@ -547,7 +547,7 @@ export default function SettingsPage() {
               }
               rows={3}
               placeholder="Competitor A, Competitor B"
-              className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-hidden"
             />
           </div>
           <div>
@@ -559,7 +559,7 @@ export default function SettingsPage() {
               }
               rows={3}
               placeholder="Founded 2020, HQ in Berlin"
-              className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-hidden"
             />
           </div>
           <button
@@ -636,7 +636,7 @@ export default function SettingsPage() {
                   setFormData((prev) => ({ ...prev, [key]: e.target.value }))
                 }
                 placeholder={keys[key] ? "••••••••" : placeholder}
-                className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-hidden"
                 autoComplete="off"
               />
               {keys[key] && (

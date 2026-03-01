@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { PageBuilderPlugin } from "./context/PluginContext";
+import { PageBuilderPlugin } from "../context/PluginContext";
 
 interface ButtonPluginConfig {
   text?: string;
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "outline-solid";
   size?: "sm" | "md" | "lg";
   href?: string;
   target?: "_blank" | "_self" | "_parent";
@@ -17,14 +17,14 @@ export const ButtonPlugin: PageBuilderPlugin = {
   author: "Page Builder",
   icon: "🔘",
   component: ({ config, onUpdate }: { config: Record<string, unknown>; onUpdate: (config: Record<string, unknown>) => void }) => {
-    const [text, setText] = useState(config.text || "Click me");
-    const [variant, setVariant] = useState<ButtonPluginConfig["variant"]>(config.variant || "primary");
-    const [size, setSize] = useState<ButtonPluginConfig["size"]>(config.size || "md");
-    const [href, setHref] = useState(config.href || "");
-    const [target, setTarget] = useState<ButtonPluginConfig["target"]>(config.target || "_self");
+    const [text, setText] = useState<string>(typeof config.text === "string" ? config.text : "Click me");
+    const [variant, setVariant] = useState<ButtonPluginConfig["variant"]>((config.variant as ButtonPluginConfig["variant"]) || "primary");
+    const [size, setSize] = useState<ButtonPluginConfig["size"]>((config.size as ButtonPluginConfig["size"]) || "md");
+    const [href, setHref] = useState((config.href as string) || "");
+    const [target, setTarget] = useState<ButtonPluginConfig["target"]>((config.target as ButtonPluginConfig["target"]) || "_self");
 
     return (
-      <div className="p-4 border rounded">
+      <div className="p-4 border rounded-sm">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -32,7 +32,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
             </label>
             <input
               type="text"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded-sm"
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Click me"
@@ -44,7 +44,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
               Variant
             </label>
             <select
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded-sm"
               value={variant}
               onChange={(e) => setVariant(e.target.value as ButtonPluginConfig["variant"])}
               title="Button Variant"
@@ -60,7 +60,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
               Size
             </label>
             <select
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded-sm"
               value={size}
               onChange={(e) => setSize(e.target.value as ButtonPluginConfig["size"])}
             >
@@ -76,7 +76,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
             </label>
             <input
               type="url"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded-sm"
               value={href}
               onChange={(e) => setHref(e.target.value)}
               placeholder="https://example.com"
@@ -88,7 +88,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
               Target
             </label>
             <select
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded-sm"
               value={target}
               onChange={(e) => setTarget(e.target.value as ButtonPluginConfig["target"])}
             >
@@ -99,7 +99,7 @@ export const ButtonPlugin: PageBuilderPlugin = {
           </div>
 
           <button
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-sm hover:bg-blue-600"
             onClick={() => onUpdate({ ...config, text, variant, size, href, target })}
           >
             Update Button
@@ -115,4 +115,5 @@ export const ButtonPlugin: PageBuilderPlugin = {
     href: "",
     target: "_self",
   },
+  isActive: true,
 };

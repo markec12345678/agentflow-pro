@@ -192,3 +192,15 @@ Globalna `~/.cursor/mcp.json` vsebuje vse zahtevane MCP serverje:
 ## Environment Variables
 
 See `.env.example` in project root.
+
+**Pravilo varnosti:** Tokeni in API ključi morajo biti izključno v `.env` (ki ni v repo) ali v sistemskih env spremenljivkah. Nikoli ne hardcodiraj tokenov v `mcp.json` – uporabi placeholdere `${GITHUB_TOKEN}`, `${FIRECRAWL_API_KEY}`, `${CONTEXT7_API_KEY}`.
+
+---
+
+## Troubleshooting
+
+| Simptom | Rešitev |
+|---------|---------|
+| GitHub MCP: "Tool not found" | Preveri Cursor Settings → MCP, ali se `github` naloži. Restart Cursorja. Preveri, da je `GITHUB_TOKEN` v `.env`. |
+| Strežnik se ne zagnje (Windows) | Če `npx` direktno odpove, v globalni `~/.cursor/mcp.json` uporabi `"command": "cmd"` z `"args": ["/c", "npx", "-y", "@modelcontextprotocol/server-github"]`. |
+| Env placeholder se ne razreši | Cursor bere `.env` iz project root. Zagotovi, da je `.env` v isti mapi kot `package.json`. |

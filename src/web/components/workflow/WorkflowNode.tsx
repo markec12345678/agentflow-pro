@@ -38,7 +38,7 @@ export function WorkflowNode(props: NodeProps) {
 
   return (
     <div
-      className={`nodrag nopan min-w-[140px] rounded-lg border-2 px-4 py-3 shadow-sm ${style}`}
+      className={`nodrag nopan min-w-[140px] rounded-lg border-2 px-4 py-3 shadow-xs ${style}`}
     >
       <Handle type="target" position={Position.Left} id="target" />
       <div className="font-medium">{label}</div>
@@ -59,7 +59,7 @@ export function WorkflowNode(props: NodeProps) {
       {nodeType === "Condition" ? (
         <>
           <Handle type="source" position={Position.Right} id="true" />
-          <Handle type="source" position={Position.Bottom} id="false" className="!left-1/2" />
+          <Handle type="source" position={Position.Bottom} id="false" className="left-1/2!" />
         </>
       ) : (
         <Handle type="source" position={Position.Right} id="source" />

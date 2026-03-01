@@ -3,7 +3,8 @@
  * Production error monitoring and performance tracking
  */
 
-import * as Sentry from '@sentry/nextjs';
+import React from "react";
+import * as Sentry from "@sentry/nextjs";
 
 // Sentry configuration for Next.js
 export const sentryConfig = {
@@ -11,27 +12,27 @@ export const sentryConfig = {
   environment: process.env.NODE_ENV,
   release: process.env.RELEASE_VERSION,
   dist: 'dist',
-  
+
   // Performance monitoring
   tracesSampleRate: 1.0,
   profilesSampleRate: 1.0,
-  
+
   // Session tracking
   replaysSessionSampleRate: 0.1,
-  
+
   // Error reporting
   maxBreadcrumbs: 50,
   debug: false,
-  
+
   // Integrations - use default Next.js integrations
-  
+
   // Before send error
   beforeSend: (event: Sentry.Event) => {
     // Filter out development errors
     if (process.env.NODE_ENV === 'development') {
       return null;
     }
-    
+
     // Add custom context
     event.contexts = {
       ...event.contexts,
@@ -41,10 +42,10 @@ export const sentryConfig = {
         url: event.request?.url,
       },
     };
-    
+
     return event;
   },
-  
+
   // Before send breadcrumb
   beforeSendBreadcrumb: (breadcrumb: Sentry.Breadcrumb) => {
     // Add custom breadcrumb data
@@ -52,10 +53,10 @@ export const sentryConfig = {
       ...breadcrumb.data,
       timestamp: new Date().toISOString(),
     };
-    
+
     return breadcrumb;
   },
-  
+
   // Custom tags
   initialScope: {
     tags: { app: 'agentflow-pro', industry: 'tourism', type: 'ai' },
@@ -82,7 +83,7 @@ export class SentryService {
     // Initialize Sentry with configuration
     Sentry.init(sentryConfig as Sentry.NodeOptions);
     this.isInitialized = true;
-    
+
     console.log('Sentry initialized successfully');
   }
 
@@ -244,7 +245,9 @@ export class SentryService {
       },
     });
 
-    Sentry.gauge(name, value, { unit, tags: ['performance'] });
+    if ('gauge' in Sentry && typeof (Sentry as { gauge?: (...args: unknown[]) => void }).gauge === 'function') {
+      (Sentry as { gauge: (n: string, v: number, o?: { unit?: string; tags?: string[] }) => void }).gauge(name, value, { unit, tags: ['performance'] });
+    }
   }
 
   // User action tracking
@@ -316,7 +319,7 @@ export class SentryService {
   trackRateLimit(limitType: string, current: number, max: number, context?: any): void {
     const percentage = (current / max) * 100;
     const level = percentage > 80 ? 'warning' : percentage > 60 ? 'info' : 'info';
-    
+
     Sentry.addBreadcrumb({
       category: 'rate-limit',
       message: `Rate limit: ${limitType} - ${current}/${max} (${percentage.toFixed(1)}%)`,
@@ -324,11 +327,13 @@ export class SentryService {
       data: context,
     });
 
-    Sentry.gauge(`rate-limit.${limitType}`, current, {
-      max,
-      unit: 'requests',
-      tags: ['rate-limit'],
-    });
+    if ('gauge' in Sentry && typeof (Sentry as { gauge?: (...args: unknown[]) => void }).gauge === 'function') {
+      (Sentry as { gauge: (n: string, v: number, o?: Record<string, unknown>) => void }).gauge(`rate-limit.${limitType}`, current, {
+        max,
+        unit: 'requests',
+        tags: ['rate-limit'],
+      });
+    }
   }
 
   // Get Sentry instance for advanced usage
@@ -349,21 +354,28 @@ export class SentryService {
 export const sentryService = SentryService.getInstance();
 
 // Error boundary component for React
-export class ErrorBoundary extends React.Component {
-  constructor(props: any) {
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     sentryService.captureException(error, {
       contexts: [
         {
-          type: 'react',
+          type: "react",
           componentStack: errorInfo.componentStack,
         },
       ],
@@ -372,13 +384,11 @@ export class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      return (
-        <div className="error-boundary">
-          <h2>Something went wrong.</h2>
-          <details>
-            {this.state.error?.toString()}
-          </details>
-        </div>
+      return React.createElement(
+        "div",
+        { className: "error-boundary" },
+        React.createElement("h2", null, "Something went wrong."),
+        React.createElement("details", null, this.state.error?.toString())
       );
     }
 
@@ -390,7 +400,7 @@ export class ErrorBoundary extends React.Component {
 export function usePerformanceTracking(componentName: string) {
   React.useEffect(() => {
     sentryService.trackUserAction(`Component mounted: ${componentName}`);
-    
+
     return () => {
       sentryService.trackUserAction(`Component unmounted: ${componentName}`);
     };
@@ -404,10 +414,10 @@ export function useErrorTracking() {
   }, []);
 }
 
-// Performance tracking hook
-export function usePerformanceTracking() {
-  return React.useCallback((operation: string, duration: number, context?: any) => {
-    sentryService.trackPerformanceMetric(operation, duration, 'ms', context);
+// Manual performance metric tracking hook
+export function usePerformanceMetric() {
+  return React.useCallback((operation: string, duration: number, context?: Record<string, unknown>) => {
+    sentryService.trackPerformanceMetric(operation, duration, "ms", context);
   }, []);
 }
 

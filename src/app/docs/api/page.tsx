@@ -26,7 +26,7 @@ export default function ApiDocsPage() {
             Authentication
           </h2>
           <p className="mb-4 text-gray-600 dark:text-gray-400">
-            Include your API key in the <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">Authorization</code> header:
+            Include your API key in the <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">Authorization</code> header:
           </p>
           <pre className="rounded-lg bg-gray-900 p-4 text-sm text-gray-100 overflow-x-auto">
             {`Authorization: Bearer afp_your_api_key_here`}

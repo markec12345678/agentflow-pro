@@ -216,7 +216,7 @@ function AnalyticsPage() {
         <>
           {/* Success metrics (Roadmap optional) */}
           {data.successMetrics && (
-            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
               <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="font-semibold">Uspešnost FAQ</h2>
                 <p className="text-sm text-gray-500 mt-1">
@@ -262,7 +262,7 @@ function AnalyticsPage() {
 
           {/* Predictive (Blok C #8) */}
           {data.predictive && (
-            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
               <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="font-semibold">📈 Napoved (naslednjih 30 dni)</h2>
                 <p className="text-sm text-gray-500 mt-1">
@@ -379,7 +379,7 @@ function AnalyticsPage() {
                       <div className="flex-1">
                         <div className="h-8 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
                           <div
-                            className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all absolute left-0 top-0"
+                            className="h-full bg-linear-to-r from-blue-500 to-cyan-500 transition-all absolute left-0 top-0"
                             style={{ width: `${data.summary.totalRevenue > 0 ? (month.revenue / data.summary.totalRevenue) * 100 : 0}%` }}
                           />
                         </div>
@@ -396,7 +396,7 @@ function AnalyticsPage() {
 
           {/* AI Content Stats */}
           <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
               <h2 className="font-semibold">🤖 AI Vsebina Statistika</h2>
             </div>
             <div className="p-4">
@@ -450,7 +450,7 @@ function AnalyticsPage() {
                     className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white flex items-center justify-center font-bold">
+                      <div className="w-8 h-8 rounded-full bg-linear-to-r from-blue-500 to-cyan-500 text-white flex items-center justify-center font-bold">
                         {index + 1}
                       </div>
                       <div>
@@ -475,7 +475,7 @@ function AnalyticsPage() {
               onClick={() => {
                 toast.success("Poročilo generirano! Prenos se je začel.");
               }}
-              className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 transition-opacity"
+              className="px-6 py-3 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 transition-opacity"
             >
               📥 Prenesi Poročilo (PDF)
             </button>
@@ -519,7 +519,7 @@ function SummaryCard({
   positive?: boolean;
 }) {
   return (
-    <div className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+    <div className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs">
       <div className="flex items-center justify-between mb-2">
         <span className="text-2xl">{icon}</span>
         {trend && (

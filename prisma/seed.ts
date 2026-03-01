@@ -2,9 +2,14 @@
  * Prisma seed - E2E user for testing
  * e2e@test.com / e2e-secret (passwordHash from bcryptjs)
  */
-const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcryptjs");
-const prisma = new PrismaClient();
+import "dotenv/config";
+import { PrismaClient } from "./generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import bcrypt from "bcryptjs";
+
+const url = process.env.DATABASE_URL ?? "";
+const adapter = new PrismaPg({ connectionString: url || "postgresql://localhost:5432/placeholder" });
+const prisma = new PrismaClient({ adapter });
 
 const ANONYMOUS_USER_ID = "anonymous-user-id";
 const E2E_PASSWORD_HASH = bcrypt.hashSync("e2e-secret", 10);
@@ -186,4 +191,6 @@ main()
     console.error(e);
     process.exit(1);
   })
-  .finally(() => prisma.$disconnect());
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

@@ -110,7 +110,7 @@ export default function GuestCommunicationPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link
           href="/dashboard/tourism/generate?prompt=pre-arrival-email"
-          className="p-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">✉️</div>
           <div className="font-semibold">Nov Pre-Arrival Email</div>
@@ -119,7 +119,7 @@ export default function GuestCommunicationPage() {
 
         <Link
           href="/dashboard/tourism/generate?prompt=post-stay-review"
-          className="p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-linear-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">⭐</div>
           <div className="font-semibold">Prošnja za Oceno</div>
@@ -128,7 +128,7 @@ export default function GuestCommunicationPage() {
 
         <button
           onClick={() => setCreateModalOpen(true)}
-          className="p-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-opacity text-left"
+          className="p-4 rounded-xl bg-linear-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-opacity text-left"
         >
           <div className="text-2xl mb-2">📱</div>
           <div className="font-semibold">Pošlji sporočilo</div>
@@ -137,7 +137,7 @@ export default function GuestCommunicationPage() {
 
         <Link
           href="#faq-section"
-          className="p-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">💬</div>
           <div className="font-semibold">FAQ Chatbot</div>
@@ -275,7 +275,7 @@ export default function GuestCommunicationPage() {
 
       {/* FAQ Chatbot Section */}
       <div id="faq-section" className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
           <h2 className="font-semibold flex items-center gap-2">
             <span>💬</span> FAQ Chatbot za Goste
           </h2>

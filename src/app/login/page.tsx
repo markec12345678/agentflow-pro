@@ -41,7 +41,7 @@ function TestLoginButton({
       type="button"
       onClick={test}
       disabled={loading}
-      className="mt-2 w-full rounded border border-amber-300 bg-amber-50 py-1 text-xs text-amber-800 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-200"
+      className="mt-2 w-full rounded-sm border border-amber-300 bg-amber-50 py-1 text-xs text-amber-800 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-200"
     >
       {loading ? "Testiram..." : "Test prijave (dev)"}
     </button>
@@ -114,7 +114,7 @@ function LoginForm() {
 
   return (
     <main className="flex min-h-screen items-center justify-center p-8 relative z-40">
-      <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800 relative z-50">
+      <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 relative z-50">
         <h1 className="mb-4 text-xl font-bold dark:text-white">Sign in</h1>
         {error && error.includes("Google") && (
           <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
@@ -163,7 +163,7 @@ function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               required
-              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
+              className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
             />
           </div>
           <div>
@@ -184,12 +184,12 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 required
-                className="w-full rounded border border-gray-300 bg-white px-3 py-2 pr-10 text-gray-900 placeholder:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
+                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 pr-10 text-gray-900 placeholder:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm p-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                 aria-label={showPassword ? "Skrij geslo" : "Prikaži geslo"}
               >
                 {showPassword ? (
@@ -218,7 +218,7 @@ function LoginForm() {
                   /* ignore */
                 }
               }}
-              className="rounded border-gray-300 text-indigo-600 dark:border-gray-600 dark:bg-gray-700"
+              className="rounded-sm border-gray-300 text-indigo-600 dark:border-gray-600 dark:bg-gray-700"
             />
             <span className="text-sm text-gray-600 dark:text-gray-400">Ostani prijavljen</span>
           </label>
@@ -230,7 +230,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={!csrfToken}
-            className="w-full rounded bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="w-full rounded-sm bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
           >
             Sign in
           </button>
@@ -264,13 +264,13 @@ function LoginForm() {
 function LoginSkeleton() {
   return (
     <main className="flex min-h-screen items-center justify-center p-8">
-      <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800 animate-pulse">
-        <div className="h-6 bg-gray-200 rounded w-24 mb-4 dark:bg-gray-600" />
-        <div className="h-10 bg-gray-200 rounded mb-4 dark:bg-gray-600" />
-        <div className="h-4 bg-gray-200 rounded w-full mb-4 dark:bg-gray-600" />
-        <div className="h-10 bg-gray-200 rounded mb-4 dark:bg-gray-600" />
-        <div className="h-4 bg-gray-200 rounded w-full mb-4 dark:bg-gray-600" />
-        <div className="h-10 bg-gray-200 rounded dark:bg-gray-600" />
+      <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 animate-pulse">
+        <div className="h-6 bg-gray-200 rounded-sm w-24 mb-4 dark:bg-gray-600" />
+        <div className="h-10 bg-gray-200 rounded-sm mb-4 dark:bg-gray-600" />
+        <div className="h-4 bg-gray-200 rounded-sm w-full mb-4 dark:bg-gray-600" />
+        <div className="h-10 bg-gray-200 rounded-sm mb-4 dark:bg-gray-600" />
+        <div className="h-4 bg-gray-200 rounded-sm w-full mb-4 dark:bg-gray-600" />
+        <div className="h-10 bg-gray-200 rounded-sm dark:bg-gray-600" />
       </div>
     </main>
   );

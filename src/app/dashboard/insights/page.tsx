@@ -38,7 +38,7 @@ export default function InsightsPage() {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="animate-pulse space-y-6">
-          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-sm w-1/3" />
           <div className="grid grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
               <div
@@ -106,7 +106,7 @@ export default function InsightsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-xs">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             Skupaj izvedb
           </div>
@@ -114,7 +114,7 @@ export default function InsightsPage() {
             {data.totalExecutions}
           </div>
         </div>
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-xs">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             Uspešnih
           </div>
@@ -122,7 +122,7 @@ export default function InsightsPage() {
             {data.successCount}
           </div>
         </div>
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-xs">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             Stopnja napak
           </div>
@@ -135,7 +135,7 @@ export default function InsightsPage() {
             {data.failureRate}%
           </div>
         </div>
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-xs">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             Ocenjen prihranjen čas
           </div>

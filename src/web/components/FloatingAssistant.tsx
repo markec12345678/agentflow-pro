@@ -114,7 +114,7 @@ export function FloatingAssistant() {
         aria-label={open ? "Zapri pomočnika" : "Odpri AI pomočnika"}
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${open
             ? "bg-gray-700 hover:bg-gray-600 rotate-45"
-            : "bg-gradient-to-br from-blue-600 to-cyan-500 hover:scale-110 animate-pulse-slow"
+            : "bg-linear-to-br from-blue-600 to-cyan-500 hover:scale-110 animate-pulse-slow"
           }`}
         style={{ animationDuration: "3s" }}
       >
@@ -133,7 +133,7 @@ export function FloatingAssistant() {
           style={{ maxHeight: "70vh" }}>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-500">
+          <div className="flex items-center justify-between px-4 py-3 bg-linear-to-r from-blue-600 to-cyan-500">
             <div className="flex items-center gap-2">
               <span className="text-xl">🤖</span>
               <div>
@@ -145,7 +145,7 @@ export function FloatingAssistant() {
               <button
                 type="button"
                 onClick={reset}
-                className="text-xs text-blue-100 hover:text-white transition-colors px-2 py-1 rounded"
+                className="text-xs text-blue-100 hover:text-white transition-colors px-2 py-1 rounded-sm"
                 title="Začni znova"
               >
                 ↺
@@ -209,13 +209,13 @@ export function FloatingAssistant() {
                 onKeyDown={handleKey}
                 placeholder="Vprašajte me karkoli..."
                 disabled={loading}
-                className="flex-1 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 disabled:opacity-60 transition-colors"
+                className="flex-1 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-hidden focus:border-blue-500 disabled:opacity-60 transition-colors"
               />
               <button
                 type="button"
                 onClick={() => sendMessage(input)}
                 disabled={!input.trim() || loading}
-                className="w-10 h-10 flex items-center justify-center bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all flex-shrink-0"
+                className="w-10 h-10 flex items-center justify-center bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all shrink-0"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

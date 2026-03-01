@@ -1,0 +1,37 @@
+/**
+ * Verify e2e@test.com exists and password e2e-secret works.
+ * Run: npx tsx scripts/verify-e2e-login.ts
+ */
+import "dotenv/config";
+import { PrismaClient } from "../prisma/generated/prisma/client.js";
+import { PrismaPg } from "@prisma/adapter-pg";
+import bcrypt from "bcryptjs";
+
+const url = process.env.DATABASE_URL ?? "postgresql://localhost:5432/placeholder";
+const adapter = new PrismaPg({ connectionString: url });
+const prisma = new PrismaClient({ adapter });
+
+async function main() {
+  const u = await prisma.user.findUnique({
+    where: { email: "e2e@test.com" },
+    select: { id: true, email: true, passwordHash: true },
+  });
+  if (!u || !u.passwordHash) {
+    console.log("USER_NOT_FOUND: e2e@test.com ne obstaja v bazi.");
+    console.log("Zaženi: npx prisma db seed");
+    process.exit(1);
+  }
+  const ok = bcrypt.compareSync("e2e-secret", u.passwordHash);
+  if (ok) {
+    console.log("OK: Uporabnik obstaja, geslo e2e-secret velja.");
+  } else {
+    console.log("FAIL: Geslo e2e-secret se ne ujema z hash v bazi.");
+    console.log("Zaženi: npx prisma db seed (posodobi hash)");
+    process.exit(1);
+  }
+  await prisma.$disconnect();
+}
+main().catch((e: Error) => {
+  console.error("Database error:", e.message);
+  process.exit(1);
+});

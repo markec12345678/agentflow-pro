@@ -12,12 +12,12 @@ jest.mock("@/lib/orchestrator-factory", () => ({
 }));
 
 const mockWorkflowFindUnique = jest.fn().mockResolvedValue(null);
-jest.mock("@prisma/client", () => ({
-  PrismaClient: jest.fn().mockImplementation(() => ({
+jest.mock("@/database/schema", () => ({
+  prisma: {
     workflow: { findUnique: (...args: unknown[]) => mockWorkflowFindUnique(...args) },
     workflowCheckpoint: { create: jest.fn().mockResolvedValue({ id: "cp1" }) },
-  })),
-  Workflow: {},
+  },
+  PLAN_LIMITS: { starter: {}, pro: {}, enterprise: {} },
 }));
 
 describe("executeWorkflow (legacy)", () => {

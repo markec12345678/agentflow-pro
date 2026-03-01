@@ -66,7 +66,7 @@ export default function PersonalizePage() {
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mb-8">
           Paste a template with placeholders like{" "}
-          <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">
+          <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">
             {"{{name}}"}
           </code>{" "}
           and a JSON array of data. Get personalized content for each row.

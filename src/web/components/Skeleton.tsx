@@ -8,7 +8,7 @@ interface SkeletonProps {
 export function Skeleton({ className = "", style }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse rounded bg-neutral-100 dark:bg-neutral-800 ${className}`}
+      className={`animate-pulse rounded-sm bg-neutral-100 dark:bg-neutral-800 ${className}`}
       style={style}
       aria-hidden
     />
@@ -46,7 +46,7 @@ export function SkeletonList({ count = 3, className = "" }: { count?: number; cl
           key={i}
           className="flex items-center gap-4 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700"
         >
-          <Skeleton className="h-10 w-10 shrink-0 rounded" />
+          <Skeleton className="h-10 w-10 shrink-0 rounded-sm" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-3 w-1/2" />

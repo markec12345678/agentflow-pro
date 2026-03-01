@@ -555,7 +555,7 @@ export default function TourismLandingPage() {
                       type="checkbox"
                       checked={languages.includes(l.code)}
                       onChange={() => toggleLang(l.code)}
-                      className="rounded"
+                      className="rounded-sm"
                     />
                     <span className="text-sm">{l.label}</span>
                   </label>
@@ -567,7 +567,7 @@ export default function TourismLandingPage() {
                 type="checkbox"
                 checked={autoSave}
                 onChange={(e) => setAutoSave(e.target.checked)}
-                className="rounded"
+                className="rounded-sm"
               />
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 Shrani avtomatsko po generiranju
@@ -578,7 +578,7 @@ export default function TourismLandingPage() {
                 type="button"
                 onClick={handleGenerate}
                 disabled={loading}
-                className="min-h-[44px] px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="min-h-[44px] px-4 py-3 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 {loading ? "Generiram..." : "Generiraj Zdaj"}
               </button>

@@ -102,7 +102,7 @@ export function StatusIndicator({
       </div>
 
       {/* Icon */}
-      <span className="flex-shrink-0 text-xl">{config.icon}</span>
+      <span className="shrink-0 text-xl">{config.icon}</span>
     </div>
   );
 }

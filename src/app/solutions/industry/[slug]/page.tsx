@@ -16,7 +16,7 @@ export default async function SolutionIndustryPage({
 
   return (
     <main className="min-h-screen">
-      <section className="relative py-20 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 overflow-hidden">
+      <section className="relative py-20 px-4 bg-linear-to-br from-blue-900 via-purple-900 to-indigo-900 overflow-hidden">
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h1 className="text-5xl font-bold text-white mb-6">
             {industry.headline}

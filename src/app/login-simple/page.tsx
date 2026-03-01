@@ -30,10 +30,10 @@ export default function LoginSimplePage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center p-8">
-      <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800">
+      <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <h1 className="mb-4 text-xl font-bold dark:text-white">Sign in (simple)</h1>
         {error && (
-          <p className="mb-3 rounded bg-red-100 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">
+          <p className="mb-3 rounded-sm bg-red-100 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">
             {error}
           </p>
         )}
@@ -51,7 +51,7 @@ export default function LoginSimplePage() {
                 type="email"
                 required
                 defaultValue="e2e@test.com"
-                className="w-full rounded border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             <div>
@@ -64,13 +64,13 @@ export default function LoginSimplePage() {
                 type="password"
                 required
                 defaultValue="e2e-secret"
-                className="w-full rounded border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             <button
               type="submit"
               disabled={!ready}
-              className="w-full rounded bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="w-full rounded-sm bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
             >
               Sign in
             </button>

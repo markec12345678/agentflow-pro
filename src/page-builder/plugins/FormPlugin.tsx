@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PageBuilderPlugin } from "./context/PluginContext";
+import { PageBuilderPlugin } from "../context/PluginContext";
 
 interface FormField {
   id: string;
@@ -20,7 +20,12 @@ export const FormPlugin: PageBuilderPlugin = {
   component: ({ config, onUpdate }: { config: Record<string, unknown>; onUpdate: (config: Record<string, unknown>) => void }) => {
     const [formData, setFormData] = useState<Record<string, unknown>>({});
 
-    const fields = config.fields || [
+    const getFieldValue = (id: string): string => {
+      const v = formData[id];
+      return typeof v === "string" || typeof v === "number" ? String(v) : "";
+    };
+
+    const fields = Array.isArray(config.fields) ? (config.fields as FormField[]) : [
       { id: "name", type: "text", label: "Name", placeholder: "Enter your name", required: true },
       { id: "email", type: "email", label: "Email", placeholder: "Enter your email" },
       { id: "message", type: "textarea", label: "Message", placeholder: "Enter your message" },
@@ -33,7 +38,7 @@ export const FormPlugin: PageBuilderPlugin = {
     };
 
     return (
-      <div className="p-4 border rounded">
+      <div className="p-4 border rounded-sm">
         <form onSubmit={handleSubmit} className="space-y-4">
           {fields.map((field) => (
             <div key={field.id} className="mb-4">
@@ -45,8 +50,8 @@ export const FormPlugin: PageBuilderPlugin = {
               {field.type === "text" && (
                 <input
                   type="text"
-                  className="w-full p-2 border rounded"
-                  value={formData[field.id] || ""}
+                  className="w-full p-2 border rounded-sm"
+                  value={getFieldValue(field.id)}
                   onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
                   placeholder={field.placeholder}
                   required={field.required}
@@ -56,8 +61,8 @@ export const FormPlugin: PageBuilderPlugin = {
               {field.type === "email" && (
                 <input
                   type="email"
-                  className="w-full p-2 border rounded"
-                  value={formData[field.id] || ""}
+                  className="w-full p-2 border rounded-sm"
+                  value={getFieldValue(field.id)}
                   onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
                   placeholder={field.placeholder}
                   required={field.required}
@@ -66,8 +71,8 @@ export const FormPlugin: PageBuilderPlugin = {
 
               {field.type === "textarea" && (
                 <textarea
-                  className="w-full p-2 border rounded"
-                  value={formData[field.id] || ""}
+                  className="w-full p-2 border rounded-sm"
+                  value={getFieldValue(field.id)}
                   onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
                   placeholder={field.placeholder}
                   rows={4}
@@ -77,14 +82,14 @@ export const FormPlugin: PageBuilderPlugin = {
 
               {field.type === "select" && (
                 <select
-                  className="w-full p-2 border rounded"
-                  value={formData[field.id] || ""}
+                  className="w-full p-2 border rounded-sm"
+                  value={getFieldValue(field.id)}
                   onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
                   required={field.required}
                   title={field.label}
                   aria-label={field.label}
                 >
-                  {field.options?.map((option) => (
+                  {(field as FormField).options?.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -97,7 +102,7 @@ export const FormPlugin: PageBuilderPlugin = {
                   <input
                     type="checkbox"
                     className="mr-2"
-                    value={formData[field.id] || ""}
+                    value={getFieldValue(field.id)}
                     onChange={(e) => setFormData({ ...formData, [field.id]: e.target.checked })}
                     required={field.required}
                   />
@@ -111,9 +116,9 @@ export const FormPlugin: PageBuilderPlugin = {
 
           <button
             type="submit"
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-sm hover:bg-blue-600"
           >
-            {config.submitText || "Submit"}
+            {typeof config.submitText === "string" ? config.submitText : "Submit"}
           </button>
         </form>
       </div>
@@ -123,4 +128,5 @@ export const FormPlugin: PageBuilderPlugin = {
     fields: [],
     submitText: "Submit",
   },
+  isActive: true,
 };

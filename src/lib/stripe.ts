@@ -11,7 +11,7 @@ function getStripe(): Stripe {
   if (!stripeInstance) {
     const key = process.env.STRIPE_SECRET_KEY?.trim();
     if (!key) throw new Error("Stripe is not configured. Add STRIPE_SECRET_KEY to enable billing.");
-    stripeInstance = new Stripe(key, { apiVersion: '2024-06-20' });
+    stripeInstance = new Stripe(key, { apiVersion: '2026-01-28.clover' });
   }
   return stripeInstance;
 }
@@ -373,25 +373,37 @@ export class StripeService {
     }
   }
 
-  // Usage and metering
+  // Usage and metering (Stripe Node v18+ removed createUsageRecord; use REST API directly)
   async createUsageRecord(
     subscriptionItemId: string,
     quantity: number,
     timestamp?: number
-  ): Promise<Stripe.UsageRecord> {
-    try {
-      const usageRecord = await getStripe().subscriptionItems.createUsageRecord(
-        subscriptionItemId,
-        {
-          quantity,
-          timestamp: timestamp || Math.floor(Date.now() / 1000),
-          action: 'increment'
-        }
-      );
-      return usageRecord;
-    } catch (error) {
-      throw new Error(`Failed to create usage record: ${error}`);
+  ): Promise<{ id: string; object: string; quantity: number; timestamp: number; subscription_item: string }> {
+    const key = process.env.STRIPE_SECRET_KEY?.trim();
+    if (!key) throw new Error("Stripe is not configured.");
+    const ts = timestamp ?? Math.floor(Date.now() / 1000);
+    const params = new URLSearchParams({
+      quantity: String(quantity),
+      timestamp: String(ts),
+      action: 'increment'
+    });
+    const res = await fetch(
+      `https://api.stripe.com/v1/subscription_items/${subscriptionItemId}/usage_records`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${key}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params.toString()
+      }
+    );
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Failed to create usage record: ${err}`);
     }
+    const data = (await res.json()) as { id: string; object: string; quantity: number; timestamp: number; subscription_item: string };
+    return data;
   }
 
   // Checkout sessions

@@ -164,7 +164,7 @@ export default function CheckInPage() {
             placeholder="Prilepi 2–3 MRZ vrstice iz dokumenta..."
             rows={3}
             aria-label="MRZ vrstice iz dokumenta"
-            className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1.5 text-xs font-mono"
+            className="w-full rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1.5 text-xs font-mono"
           />
           <button
             type="button"

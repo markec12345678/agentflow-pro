@@ -141,7 +141,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const navLinkClass = (href: string) =>
     `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive(href)
-      ? "bg-blue-600 text-white shadow-sm"
+      ? "bg-blue-600 text-white shadow-xs"
       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
     }`;
 
@@ -166,7 +166,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Hiter gumb Ustvari */}
       <Link
         href="/generate"
-        className="flex items-center justify-center gap-2 w-full py-2.5 mb-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm"
+        className="flex items-center justify-center gap-2 w-full py-2.5 mb-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-all shadow-xs"
       >
         <span>+</span>
         <span>Nova vsebina</span>
@@ -329,10 +329,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Bližnjice na tipkovnici
             </h3>
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">g</kbd> <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">d</kbd> → Dashboard</li>
-              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">g</kbd> <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">c</kbd> → Vsebina</li>
-              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">g</kbd> <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">n</kbd> → Nova vsebina</li>
-              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">?</kbd> → Prikaži/skrij to pomoč</li>
+              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-sm">g</kbd> <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-sm">d</kbd> → Dashboard</li>
+              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-sm">g</kbd> <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-sm">c</kbd> → Vsebina</li>
+              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-sm">g</kbd> <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-sm">n</kbd> → Nova vsebina</li>
+              <li><kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-sm">?</kbd> → Prikaži/skrij to pomoč</li>
             </ul>
             <button
               type="button"

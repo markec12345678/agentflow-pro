@@ -196,7 +196,7 @@ export default function ContentGridPage() {
                           e.key === "Enter" && saveEdit()
                         }
                         autoFocus
-                        className="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     ) : (
                       <button
@@ -218,7 +218,7 @@ export default function ContentGridPage() {
                           e.key === "Enter" && saveEdit()
                         }
                         autoFocus
-                        className="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     ) : (
                       <button

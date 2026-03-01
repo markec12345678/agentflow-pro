@@ -63,12 +63,12 @@ export function AppNav() {
     }`;
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-gray-800 bg-gray-900/95 backdrop-blur">
+    <nav className="sticky top-0 z-40 border-b border-gray-800 bg-gray-900/95 backdrop-blur-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
 
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2 text-white font-bold text-lg flex-shrink-0">
+          <Link href="/dashboard" className="flex items-center gap-2 text-white font-bold text-lg shrink-0">
             <span className="text-xl">🤖</span>
             <span className="hidden sm:inline">AgentFlow</span>
             <span className="text-blue-400">Pro</span>
@@ -149,7 +149,7 @@ export function AppNav() {
                   onClick={() => setUserOpen(v => !v)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-sm font-bold text-white">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-cyan-500 text-sm font-bold text-white">
                     {session?.user?.email?.[0]?.toUpperCase() ?? "?"}
                   </span>
                   <span className="text-sm hidden lg:inline">{firstName || "Račun"}</span>

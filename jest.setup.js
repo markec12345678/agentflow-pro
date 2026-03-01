@@ -35,25 +35,31 @@ process.env.NEXTAUTH_SECRET = 'test-secret'
 process.env.NEXTAUTH_URL = 'http://localhost:3002'
 process.env.MOCK_MODE = 'true'
 
-// Mock Prisma
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn().mockImplementation(() => ({
-    user: {
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-    workflow: {
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-    $disconnect: jest.fn(),
-  })),
+// Mock Prisma (Prisma 7: mock database/schema which exports prisma)
+const mockPrisma = {
+  user: {
+    findUnique: jest.fn(),
+    findMany: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    upsert: jest.fn(),
+  },
+  workflow: {
+    findUnique: jest.fn(),
+    findMany: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  },
+  workflowCheckpoint: {
+    create: jest.fn().mockResolvedValue({ id: 'cp1' }),
+  },
+  $disconnect: jest.fn(),
+}
+jest.mock('@/database/schema', () => ({
+  prisma: mockPrisma,
+  PLAN_LIMITS: { starter: {}, pro: {}, enterprise: {} },
 }))
 
 // Mock agent modules

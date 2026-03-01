@@ -93,7 +93,7 @@ export default function PublicApiPage() {
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mb-8">
           Create API keys for external systems to call the AgentFlow Pro API.
-          Use <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">Authorization: Bearer &lt;key&gt;</code> in requests.
+          Use <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded-sm">Authorization: Bearer &lt;key&gt;</code> in requests.
         </p>
 
         <div className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg mb-8">
@@ -122,7 +122,7 @@ export default function PublicApiPage() {
               <p className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
                 Copy your key now. It won&apos;t be shown again.
               </p>
-              <code className="block break-all text-sm text-amber-900 dark:text-amber-100 bg-amber-100 dark:bg-amber-900/40 p-2 rounded">
+              <code className="block break-all text-sm text-amber-900 dark:text-amber-100 bg-amber-100 dark:bg-amber-900/40 p-2 rounded-sm">
                 {newKey}
               </code>
             </div>

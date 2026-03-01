@@ -4,22 +4,28 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getTourismWorkflows, TourismWorkflowInput, TourismWorkflowOutput } from '@/workflows/tourism-workflows';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
+import { getTourismWorkflows, TourismWorkflowInput } from '@/workflows/tourism-workflows';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const body: TourismWorkflowInput = await request.json();
     const tourismWorkflows = getTourismWorkflows();
-    
+
     const result = await tourismWorkflows.executeWorkflow(body);
-    
+
     return NextResponse.json(result);
   } catch (error) {
     console.error('Tourism workflow error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );

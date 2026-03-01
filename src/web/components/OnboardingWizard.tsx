@@ -126,7 +126,7 @@ export function OnboardingWizard({ forceOpen, onComplete }: OnboardingWizardProp
         {/* Progress Bar */}
         <div className="h-1 bg-gray-200 dark:bg-gray-700">
           <div
-            className="h-full bg-gradient-to-r from-blue-600 to-cyan-500 transition-all duration-300"
+            className="h-full bg-linear-to-r from-blue-600 to-cyan-500 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -154,7 +154,7 @@ export function OnboardingWizard({ forceOpen, onComplete }: OnboardingWizardProp
           {/* Action Button */}
           <button
             onClick={handleAction}
-            className="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold hover:opacity-90 transition-opacity"
+            className="w-full sm:w-auto px-8 py-3 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold hover:opacity-90 transition-opacity"
           >
             {step.action}
           </button>

@@ -168,7 +168,7 @@ function WorkflowCanvasInner({ workflow, onWorkflowChange }: WorkflowCanvasInner
             key={t}
             draggable
             onDragStart={(e) => onDragStart(e, t)}
-            className="mb-2 cursor-grab rounded border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+            className="mb-2 cursor-grab rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm shadow-xs hover:bg-gray-50"
           >
             {t}
           </div>

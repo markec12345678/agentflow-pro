@@ -95,7 +95,7 @@ export function DragDropBuilder({
                           onComponentsChange([...components, newComp]);
                           onComponentSelect(newComp.id);
                         }}
-                        className="mt-2 w-full py-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded"
+                        className="mt-2 w-full py-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-sm"
                       >
                         Dodaj na platno
                       </button>
@@ -135,11 +135,13 @@ export function DragDropBuilder({
                             width: "200px",
                           }}
                         >
-                          <div className="text-xs bg-gray-100 px-2 py-1 rounded mb-1">
+                          <div className="text-xs bg-gray-100 px-2 py-1 rounded-sm mb-1">
                             {component.type}
                           </div>
                           <div className="font-medium">
-                            {component.content?.text || component.type}
+                            {typeof component.content?.text === "string"
+                              ? component.content.text
+                              : component.type}
                           </div>
                         </div>
                       ))}
@@ -165,7 +167,12 @@ export function DragDropBuilder({
                         id="dragdrop-content"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         rows={4}
-                        value={components.find(c => c.id === selectedComponent)?.content?.text || ""}
+                        value={
+                          (() => {
+                            const t = components.find(c => c.id === selectedComponent)?.content?.text;
+                            return typeof t === "string" ? t : "";
+                          })()
+                        }
                         onChange={(e) => updateComponent(selectedComponent, {
                           content: { text: e.target.value }
                         })}
@@ -181,12 +188,15 @@ export function DragDropBuilder({
                         type="number"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         value={components.find(c => c.id === selectedComponent)?.position?.x || 0}
-                        onChange={(e) => updateComponent(selectedComponent, {
-                          position: {
-                            ...components.find(c => c.id === selectedComponent)?.position,
-                            x: parseInt(e.target.value)
-                          }
-                        })}
+                        onChange={(e) => {
+                          const pos = components.find(c => c.id === selectedComponent)?.position;
+                          updateComponent(selectedComponent, {
+                            position: {
+                              x: parseInt(e.target.value) || 0,
+                              y: pos?.y ?? 0
+                            }
+                          });
+                        }}
                         aria-label="Položaj X"
                       />
                     </div>
@@ -199,12 +209,15 @@ export function DragDropBuilder({
                         type="number"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         value={components.find(c => c.id === selectedComponent)?.position?.y || 0}
-                        onChange={(e) => updateComponent(selectedComponent, {
-                          position: {
-                            ...components.find(c => c.id === selectedComponent)?.position,
-                            y: parseInt(e.target.value)
-                          }
-                        })}
+                        onChange={(e) => {
+                          const pos = components.find(c => c.id === selectedComponent)?.position;
+                          updateComponent(selectedComponent, {
+                            position: {
+                              x: pos?.x ?? 0,
+                              y: parseInt(e.target.value) || 0
+                            }
+                          });
+                        }}
                         aria-label="Položaj Y"
                       />
                     </div>

@@ -1,80 +1,29 @@
 {
   "mcpServers": {
-    "neon": {
-      "type": "http",
-      "url": "https://mcp.neon.tech/mcp"
-    },
-    "memory": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ]
-    },
+    "neon": { "type": "http", "url": "https://mcp.neon.tech/mcp" },
+    "memory": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-memory"] },
     "github": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-github"
-      ],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      }
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
     },
-    "git": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-server-git"
-      ]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp"
-      ]
-    },
+    "git": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-git"] },
+    "playwright": { "command": "npx", "args": ["-y", "@playwright/mcp"] },
     "firecrawl": {
       "command": "npx",
-      "args": [
-        "-y",
-        "firecrawl-mcp"
-      ],
-      "env": {
-        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
-      }
+      "args": ["-y", "firecrawl-mcp"],
+      "env": { "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}" }
     },
     "context7": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@context7/mcp-server"
-      ],
-      "env": {
-        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
-      }
+      "args": ["-y", "@context7/mcp-server"],
+      "env": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" }
     },
-    "vercel": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@vercel/mcp"
-      ]
-    },
-    "docker": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@docker/mcp-server"
-      ]
-    },
+    "vercel": { "command": "npx", "args": ["-y", "@vercel/mcp"] },
+    "docker": { "command": "npx", "args": ["-y", "@docker/mcp-server"] },
     "sequential-thinking": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ]
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     }
   }
 }

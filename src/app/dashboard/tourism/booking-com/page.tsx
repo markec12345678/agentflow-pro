@@ -63,7 +63,7 @@ export default function BookingComPage() {
               Obiski: partner.booking.com → Sign up, preberi pogoje
             </li>
             <li>
-              Priprava: uporabi <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">src/lib/booking-com-partnership.ts</code> → <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">generatePartnershipApplication()</code>
+              Priprava: uporabi <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">src/lib/booking-com-partnership.ts</code> → <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">generatePartnershipApplication()</code>
             </li>
             <li>
               Dokumenti: poslovna registracija, GDPR, tehnična specifikacija

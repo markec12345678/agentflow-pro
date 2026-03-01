@@ -48,6 +48,11 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
 
+      - name: Ensure properties.description exists
+        run: echo "ALTER TABLE properties ADD COLUMN IF NOT EXISTS description TEXT;" | npx prisma db execute --stdin
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+
       - name: Seed E2E user
         run: npm run db:seed
         env:

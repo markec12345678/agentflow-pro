@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PageBuilderPlugin } from "./context/PluginContext";
+import { PageBuilderPlugin } from "../context/PluginContext";
 
 export const ImagePlugin: PageBuilderPlugin = {
   id: "image",
@@ -9,13 +9,13 @@ export const ImagePlugin: PageBuilderPlugin = {
   author: "Page Builder",
   icon: "🖼️",
   component: ({ config, onUpdate }: { config: Record<string, unknown>; onUpdate: (config: Record<string, unknown>) => void }) => {
-    const [src, setSrc] = useState(config.src || "");
-    const [alt, setAlt] = useState(config.alt || "");
-    const [width, setWidth] = useState(config.width || 300);
-    const [height, setHeight] = useState(config.height || 200);
+    const [src, setSrc] = useState<string>(typeof config.src === "string" ? config.src : "");
+    const [alt, setAlt] = useState<string>(typeof config.alt === "string" ? config.alt : "");
+    const [width, setWidth] = useState<number>(typeof config.width === "number" ? config.width : 300);
+    const [height, setHeight] = useState<number>(typeof config.height === "number" ? config.height : 200);
 
     return (
-      <div className="p-4 border rounded">
+      <div className="p-4 border rounded-sm">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -23,7 +23,7 @@ export const ImagePlugin: PageBuilderPlugin = {
             </label>
             <input
               type="url"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded-sm"
               value={src}
               onChange={(e) => setSrc(e.target.value)}
               placeholder="https://example.com/image.jpg"
@@ -36,7 +36,7 @@ export const ImagePlugin: PageBuilderPlugin = {
             </label>
             <input
               type="text"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded-sm"
               value={alt}
               onChange={(e) => setAlt(e.target.value)}
               placeholder="Image description"
@@ -50,7 +50,7 @@ export const ImagePlugin: PageBuilderPlugin = {
               </label>
               <input
                 type="number"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded-sm"
                 value={width}
                 onChange={(e) => setWidth(Number(e.target.value))}
                 placeholder="300"
@@ -63,7 +63,7 @@ export const ImagePlugin: PageBuilderPlugin = {
               </label>
               <input
                 type="number"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded-sm"
                 value={height}
                 onChange={(e) => setHeight(Number(e.target.value))}
                 placeholder="200"
@@ -72,7 +72,7 @@ export const ImagePlugin: PageBuilderPlugin = {
           </div>
 
           <button
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-sm hover:bg-blue-600"
             onClick={() => onUpdate({ ...config, src, alt, width, height })}
           >
             Update Image
@@ -87,4 +87,5 @@ export const ImagePlugin: PageBuilderPlugin = {
     width: 300,
     height: 200,
   },
+  isActive: true,
 };

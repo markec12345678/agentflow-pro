@@ -8,7 +8,8 @@ import type {
   IAiUsageLogger,
   AiContext,
 } from "@/domain/ai";
-import { estimateCost } from "@/infrastructure/ai";
+import { estimateCost, OpenAIAdapter } from "@/infrastructure/ai";
+import { Output } from "ai";
 
 export interface GenerateWithLoggingOptions {
   userId?: string | null;

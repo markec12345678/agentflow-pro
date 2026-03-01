@@ -323,7 +323,7 @@ export default function ChatPage() {
               id="planExecute"
               checked={planExecute}
               onChange={(e) => setPlanExecute(e.target.checked)}
-              className="rounded border-gray-600 bg-gray-700 text-purple-500 focus:ring-purple-500"
+              className="rounded-sm border-gray-600 bg-gray-700 text-purple-500 focus:ring-purple-500"
             />
             <label htmlFor="planExecute" className="text-sm text-gray-400">
               Multi-agent plan (razčleni v sub-goals, izvedi Research/Content/Code/Deploy agente)
@@ -354,7 +354,7 @@ export default function ChatPage() {
               onChange={(e) => setInput(e.target.value)}
               disabled={status !== "ready"}
               placeholder="Napiši prompt..."
-              className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
+              className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-hidden focus:border-blue-500 disabled:opacity-50"
             />
             <button
               type="submit"

@@ -48,6 +48,14 @@ test-results/
 playwright-report/
 screenshots/
 
+# Prisma generated
+prisma/generated/
+
+# Chat logs and docs (not for repo)
+*.chat
+gpt4all-*.chat
+*.pdf
+
 # Misc
 *.tgz
 .cache

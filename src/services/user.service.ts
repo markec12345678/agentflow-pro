@@ -7,6 +7,8 @@ import {
   RegisterRequest,
   UpdateUserRequest,
   ChangePasswordRequest,
+  UsageAlert,
+  Team,
 } from "../types/user";
 
 export class UserService {
@@ -37,64 +39,58 @@ export class UserService {
     // Create user data
     const userData = await AuthService.createUserFromRegistration(data, hashedPassword);
 
-    // Save user to database
+    // Save user to database (Prisma User: email, name, passwordHash, role, trialEndsAt, emailVerified)
     const user = await this.prisma.user.create({
       data: {
         email: userData.email,
         passwordHash: hashedPassword,
         name: userData.name,
-        role: userData.role.name,
-        planId: userData.plan.id,
-        status: userData.status.status,
-        emailVerified: userData.emailVerified,
-        settings: userData.settings,
-        usage: userData.usage,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        role: (userData.role.id === "admin" ? "ADMIN" : userData.role.id === "editor" ? "EDITOR" : "VIEWER") as "ADMIN" | "EDITOR" | "VIEWER",
+        emailVerified: userData.emailVerified ? new Date() : null,
+        trialEndsAt: userData.status.trialEndsAt ?? undefined,
       },
       select: {
         id: true,
         email: true,
         name: true,
-        avatar: true,
         role: true,
-        plan: true,
-        status: true,
         createdAt: true,
         updatedAt: true,
-        lastLoginAt: true,
         emailVerified: true,
-        teamId: true,
-        settings: true,
-        usage: true,
-        billing: true,
       }
     });
 
-    // Create session
-    const session = AuthService.createSession(user, '127.0.0.1', 'User-Agent');
+    // Create subscription (planId, status)
+    await this.prisma.subscription.create({
+      data: {
+        userId: user.id,
+        planId: userData.plan.id,
+        status: userData.status.status,
+        currentPeriodEnd: userData.status.trialEndsAt ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
+    });
 
-    // Save session to database
+    // Create session (Prisma Session: sessionToken, userId, expires)
+    const session = AuthService.createSession(
+      { ...user, role: { id: "user", name: "User", permissions: [], level: 1 } } as unknown as User,
+      "127.0.0.1",
+      "User-Agent"
+    );
+
     await this.prisma.session.create({
       data: {
         id: session.id,
         userId: user.id,
-        token: session.token,
-        refreshToken: session.refreshToken,
-        expiresAt: session.expiresAt,
-        createdAt: session.createdAt,
-        lastAccessAt: session.lastAccessAt,
-        ipAddress: session.ipAddress,
-        userAgent: session.userAgent,
-        isActive: session.isActive,
-      }
+        sessionToken: session.token,
+        expires: session.expiresAt,
+      },
     });
 
     // Send email verification
     await this.sendEmailVerification(user.email);
 
     return {
-      user,
+      user: user as unknown as User,
       session,
       token: session.token,
       refreshToken: session.refreshToken,
@@ -114,20 +110,11 @@ export class UserService {
     // Find user
     const user = await this.prisma.user.findUnique({
       where: { email: data.email },
-      include: {
-        role: true,
-        plan: true,
-        billing: true,
-      }
+      include: { subscription: true },
     });
 
-    if (!user) {
+    if (!user || !user.passwordHash) {
       throw new AuthError('INVALID_CREDENTIALS', 'Invalid email or password');
-    }
-
-    // Check if user is active
-    if (user.status !== 'active' && user.status !== 'trialing') {
-      throw new AuthError('ACCOUNT_SUSPENDED', 'Account is not active');
     }
 
     // Verify password
@@ -136,36 +123,29 @@ export class UserService {
       throw new AuthError('INVALID_CREDENTIALS', 'Invalid email or password');
     }
 
-    // Create session
-    const session = AuthService.createSession(user, ipAddress, userAgent);
+    // Create session (cast: Prisma user shape differs from User type)
+    const session = AuthService.createSession(user as unknown as User, ipAddress, userAgent);
 
-    // Save session to database
     await this.prisma.session.create({
       data: {
         id: session.id,
         userId: user.id,
-        token: session.token,
-        refreshToken: session.refreshToken,
-        expiresAt: session.expiresAt,
-        createdAt: session.createdAt,
-        lastAccessAt: session.lastAccessAt,
-        ipAddress: session.ipAddress,
-        userAgent: session.userAgent,
-        isActive: session.isActive,
-      }
+        sessionToken: session.token,
+        expires: session.expiresAt,
+      },
     });
 
-    // Update last login
+    // Update last login (if User model has lastLoginAt - omit if not in schema)
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { lastLoginAt: new Date() }
+      data: { updatedAt: new Date() },
     });
 
     // Remove password from response
     const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
 
     return {
-      user: userWithoutPassword,
+      user: userWithoutPassword as unknown as User,
       session,
       token: session.token,
       refreshToken: session.refreshToken,
@@ -173,49 +153,47 @@ export class UserService {
   }
 
   /**
-   * Logout user
+   * Logout user (delete session by sessionToken; Prisma Session has no isActive)
    */
-  async logout(token: string): Promise<void> {
-    await this.prisma.session.updateMany({
-      where: { token },
-      data: { isActive: false }
+  async logout(sessionToken: string): Promise<void> {
+    await this.prisma.session.deleteMany({
+      where: { sessionToken },
     });
   }
 
   /**
    * Refresh token
+   * Note: Prisma Session only has sessionToken, userId, expires - no refreshToken.
+   * For now we find by sessionToken (if passed) and re-issue; otherwise throw.
    */
   async refreshToken(refreshToken: string): Promise<{ token: string; refreshToken: string }> {
-    // Find session with refresh token
+    // Prisma Session has no refreshToken - look up by sessionToken (caller may pass session token)
     const session = await this.prisma.session.findFirst({
       where: {
-        refreshToken,
-        isActive: true,
-        expiresAt: { gt: new Date() }
+        sessionToken: refreshToken,
+        expires: { gt: new Date() },
       },
-      include: { user: true }
+      include: { user: true },
     });
 
     if (!session) {
       throw new AuthError('INVALID_REFRESH_TOKEN', 'Invalid or expired refresh token');
     }
 
-    // Generate new tokens
     const newToken = AuthService.generateToken({
       userId: session.userId,
       email: session.user.email,
-      role: session.user.role
+      role: typeof session.user.role === 'string' ? session.user.role : (session.user.role as { name: string }).name,
     });
     const newRefreshToken = AuthService.generateRefreshToken();
 
-    // Update session
+    // Update session with new token
     await this.prisma.session.update({
       where: { id: session.id },
       data: {
-        token: newToken,
-        refreshToken: newRefreshToken,
-        lastAccessAt: new Date(),
-      }
+        sessionToken: newToken,
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
     });
 
     return {
@@ -230,44 +208,34 @@ export class UserService {
   async getUserById(userId: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        role: true,
-        plan: true,
-        billing: true,
-        team: true,
-      }
+      include: { subscription: true },
     });
 
     if (!user) {
       return null;
     }
 
-    // Remove password from response
     const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
-    return userWithoutPassword as User;
+    return userWithoutPassword as unknown as User;
   }
 
   /**
    * Update user profile
    */
   async updateUser(userId: string, data: UpdateUserRequest): Promise<User> {
+    const updateData: { name?: string; image?: string; updatedAt: Date } = { updatedAt: new Date() };
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.avatar !== undefined) updateData.image = data.avatar;
+    // settings stored in UserSettings - Prisma User has no settings field; omit for now
+
     const user = await this.prisma.user.update({
       where: { id: userId },
-      data: {
-        ...data,
-        updatedAt: new Date(),
-      },
-      include: {
-        role: true,
-        plan: true,
-        billing: true,
-        team: true,
-      }
+      data: updateData,
+      include: { subscription: true },
     });
 
-    // Remove password from response
     const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
-    return userWithoutPassword as User;
+    return userWithoutPassword as unknown as User;
   }
 
   /**
@@ -280,11 +248,10 @@ export class UserService {
       select: { passwordHash: true }
     });
 
-    if (!user) {
+    if (!user || !user.passwordHash) {
       throw new AuthError('USER_NOT_FOUND', 'User not found');
     }
 
-    // Verify current password
     const isCurrentPasswordValid = await AuthService.verifyPassword(
       data.currentPassword,
       user.passwordHash
@@ -306,14 +273,8 @@ export class UserService {
       }
     });
 
-    // Invalidate all sessions except current
-    await this.prisma.session.updateMany({
-      where: {
-        userId,
-        isActive: true,
-      },
-      data: { isActive: false }
-    });
+    // Delete all sessions (Prisma Session has no isActive)
+    await this.prisma.session.deleteMany({ where: { userId } });
   }
 
   /**
@@ -325,7 +286,7 @@ export class UserService {
 
       await this.prisma.user.update({
         where: { email },
-        data: { emailVerified: true }
+        data: { emailVerified: new Date() },
       });
     } catch (_error) {
       throw new AuthError('INVALID_VERIFICATION_TOKEN', 'Invalid or expired verification token');
@@ -378,99 +339,62 @@ export class UserService {
   }
 
   /**
-   * Create team
+   * Create team (Prisma Team: name, ownerId only; TeamMember: userId, teamId, role)
    */
   async createTeam(userId: string, data: { name: string; slug: string; description?: string }): Promise<Team> {
     const team = await this.prisma.team.create({
       data: {
         name: data.name,
-        slug: data.slug,
-        description: data.description,
         ownerId: userId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        settings: {
-          allowInvites: true,
-          requireApproval: false,
-          defaultRole: 'member',
-          sharedWorkflows: false,
-          sharedAgents: false,
-          billing: {
-            type: 'individual',
-            splitCosts: false,
-            budgetAlerts: false,
-          },
-        },
-        usage: {
-          currentMonth: {
-            month: new Date().toISOString().slice(0, 7),
-            agentRuns: 0,
-            apiCalls: 0,
-            storageGB: 0,
-            workflows: 0,
-            teamMembers: 0,
-            cost: 0,
-          },
-          members: [],
-        },
       },
       include: {
-        members: {
-          include: { user: true }
-        }
-      }
+        members: { include: { user: true } },
+        owner: true,
+      },
     });
 
-    // Add owner as team member
     await this.prisma.teamMember.create({
       data: {
         userId,
         teamId: team.id,
         role: 'owner',
-        permissions: ['admin'],
-        invitedAt: new Date(),
-        joinedAt: new Date(),
-        status: 'active',
-      }
+      },
     });
 
-    // Update user's teamId
     await this.prisma.user.update({
       where: { id: userId },
-      data: { teamId: team.id }
+      data: { activeTeamId: team.id },
     });
 
-    return team as Team;
+    return team as unknown as Team;
   }
 
   /**
-   * Invite team member
+   * Invite team member (creates Invite record; Prisma TeamMember requires userId)
    */
   async inviteTeamMember(teamId: string, data: { email: string; role: string; permissions?: string[] }): Promise<void> {
-    // Check if user is already a team member
     const existingMember = await this.prisma.teamMember.findFirst({
       where: {
         teamId,
-        user: { email: data.email }
-      }
+        user: { email: data.email },
+      },
     });
 
     if (existingMember) {
       throw new AuthError('ALREADY_MEMBER', 'User is already a team member');
     }
 
-    // Create invitation
-    await this.prisma.teamMember.create({
+    const token = AuthService.generateRefreshToken();
+    await this.prisma.invite.create({
       data: {
         teamId,
+        email: data.email,
         role: data.role,
-        permissions: data.permissions || ['member'],
-        invitedAt: new Date(),
-        status: 'pending',
-      }
+        token,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
     });
 
-    // Send invitation email
     await this.sendTeamInvitation(data.email, teamId, data.role);
   }
 
@@ -498,11 +422,10 @@ export class UserService {
         current: 0,
         max: data.threshold,
         isTriggered: false,
-        createdAt: new Date(),
-      }
+      },
     });
 
-    return alert as UsageAlert;
+    return alert as unknown as UsageAlert;
   }
 
   /**
@@ -511,21 +434,15 @@ export class UserService {
   async getUserByEmail(email: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      include: {
-        role: true,
-        plan: true,
-        billing: true,
-        team: true,
-      }
+      include: { subscription: true },
     });
 
     if (!user) {
       return null;
     }
 
-    // Remove password from response
     const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
-    return userWithoutPassword as User;
+    return userWithoutPassword as unknown as User;
   }
 
   /**
@@ -548,7 +465,7 @@ export class UserService {
       orderBy: { createdAt: 'desc' }
     });
 
-    return teams as Team[];
+    return teams as unknown as Team[];
   }
 
   /**

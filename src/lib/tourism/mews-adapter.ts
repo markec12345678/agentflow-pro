@@ -141,7 +141,7 @@ export class MewsAdapter implements PmsAdapter {
               status: r.status,
               totalPrice: r.totalPrice ?? undefined,
               channel: r.channel ?? "mews",
-              notes: externalMarker,
+              notes: `mews:${r.externalId}`,
             },
           });
           const { triggerBookingConfirmation } = await import("./email-triggers");

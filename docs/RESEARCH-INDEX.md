@@ -12,6 +12,7 @@ Kratki pregled raziskav v projektu. Katero uporabiti pri konkretnih odločitvah.
 | [AGENTFLOW-ECOSYSTEM-COMPARISON](AGENTFLOW-ECOSYSTEM-COMPARISON.md) | Akademska raziskava (agentični framework) | Arhitektura, tehnični roadmap | CTO, arhitekti, razvoj |
 | [RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP](RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP.md) | Internal comparison (koda vs. raziskava) | Gap raziskava vs. implementacija, roadmap | Product, development |
 | Od MVP do Robustnega SaaS (PDF) | PDF v `agentflow-pro/` | Produkcijska robustnost, arhitektura, hreflang, Booking.com, load test, LangSmith | Product, CTO, razvoj |
+| Od Avtomatizacije Nalog do Autonomnih Tokov (PDF) | Analiza kode, commitov | Strategija BPA, HITL nadgradnja, operativna priporočila | Product, CTO, razvoj |
 
 ---
 
@@ -28,6 +29,7 @@ Kratki pregled raziskav v projektu. Katero uporabiti pri konkretnih odločitvah.
 | Kaj popraviti v raziskavi? | RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP |
 | Kakšne so prioritete implementacije? | RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP |
 | Roadmap glede na raziskavo? | RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP |
+| Strategija avtomatizacije, BPA workflows, HITL nadgradnja? | Od Avtomatizacije Nalog (PDF) |
 
 ---
 
@@ -37,6 +39,7 @@ Kratki pregled raziskav v projektu. Katero uporabiti pri konkretnih odločitvah.
 - **AGENTFLOW-ECOSYSTEM-COMPARISON:** Arhitekturna primerjava, predlogi za Verifier, Planner, LangGraph, Qdrant. Za dolgoročno tehnično usmeritev.
 - **RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP:** Primerjava turistične raziskave z dejansko kodo; popravki dokumentacije; prioritiziran roadmap (HITL, multi-agent, čiščenje podatkov, PMS). Za načrtovanje in popravke.
 - **Od MVP do Robustnega SaaS (PDF):** Tehnična arhitektura, resilience, hreflang, Booking.com (4–8 tednov registracija), load testing, LangSmith, hibridni pricing. Za produkcijsko pripravljenost.
+- **Od Avtomatizacije Nalog do Autonomnih Tokov (PDF):** Analiza kode/commits; predlogi za Agentic BPA workflows, HITL nadgradnjo (zaupnostno gnan flow), operativno robustnost (CI/CD, setup, mocki). Za strategijo avtomatizacije.
 
 **Ločnica:** Za jasno mejo med implementiranim in načrtovanim glej [RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP](RAZISKAVA-VS-IMPLEMENTACIJA-ROADMAP.md) § 1.1.
 

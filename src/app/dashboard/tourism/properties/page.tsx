@@ -481,7 +481,7 @@ export default function TourismPropertiesPage() {
                                 toast.error(err instanceof Error ? err.message : "Napaka");
                               }
                             }}
-                            className="text-xs px-2 py-1 rounded bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                            className="text-xs px-2 py-1 rounded-sm bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700"
                           >
                             +{a}
                           </button>
@@ -570,7 +570,7 @@ export default function TourismPropertiesPage() {
                                     arr[i] = { ...arr[i], from: e.target.value };
                                     setForm((f) => ({ ...f, seasonRates: { ...f.seasonRates, [season]: arr } }));
                                   }}
-                                  className="flex-1 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-xs"
+                                  className="flex-1 rounded-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-xs"
                                   placeholder="Od"
                                 />
                                 <input
@@ -582,7 +582,7 @@ export default function TourismPropertiesPage() {
                                     arr[i] = { ...arr[i], to: e.target.value };
                                     setForm((f) => ({ ...f, seasonRates: { ...f.seasonRates, [season]: arr } }));
                                   }}
-                                  className="flex-1 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-xs"
+                                  className="flex-1 rounded-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-xs"
                                   placeholder="Do"
                                 />
                               </div>
@@ -599,7 +599,7 @@ export default function TourismPropertiesPage() {
                                   placeholder="Cena €"
                                   min={0}
                                   step={1}
-                                  className="w-20 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-xs"
+                                  className="w-20 rounded-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-xs"
                                 />
                                 {form.seasonRates[season]?.length > 1 && (
                                   <button
@@ -653,7 +653,7 @@ export default function TourismPropertiesPage() {
                     <button
                       type="button"
                       onClick={() => startEdit(p)}
-                      className="text-sm px-2 py-1 rounded border hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      className="text-sm px-2 py-1 rounded-sm border hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                       Uredi
                     </button>
@@ -661,7 +661,7 @@ export default function TourismPropertiesPage() {
                       type="button"
                       onClick={() => handleDelete(p.id)}
                       aria-label={`Izbriši nastanitev ${p.name}`}
-                      className="text-sm px-2 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                      className="text-sm px-2 py-1 rounded-sm border border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
                     >
                       Izbriši
                     </button>

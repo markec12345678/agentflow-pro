@@ -98,7 +98,7 @@ function OnboardingChecklist({ boot }: { boot?: BootData | null }) {
           const done = resolvedDone(step.id);
           return (
             <div key={step.id} className="flex items-center gap-3">
-              <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${done ? "bg-green-500 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-400"}`}>
+              <span className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${done ? "bg-green-500 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-400"}`}>
                 {done ? "✓" : ""}
               </span>
               <span className={`flex-1 text-sm ${done ? "line-through text-gray-400" : "text-gray-700 dark:text-gray-300"}`}>
@@ -195,7 +195,7 @@ function RecentContent({ items, loading }: { items: ContentItem[]; loading?: boo
               {typeLabel[item.type] ?? item.type} · {new Date(item.createdAt).toLocaleDateString("sl-SI")}
             </p>
           </div>
-          <Link href={`/content/${item.id}`} className="text-xs text-blue-500 hover:underline flex-shrink-0">
+          <Link href={`/content/${item.id}`} className="text-xs text-blue-500 hover:underline shrink-0">
             Odpri
           </Link>
         </div>
@@ -219,21 +219,21 @@ function UsageKPICards({ usage }: { usage?: BootData["usage"] | null }) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-100 dark:border-gray-700 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
         <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Agent runovi</p>
         <p className="text-xl font-bold text-gray-900 dark:text-white">{usage.agentRuns} / {usage.limit}</p>
         <div className="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
           <div className="progress-fill h-full bg-blue-500 rounded-full transition-all" style={{ ["--progress" as string]: `${runsPct}%` }} />
         </div>
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-100 dark:border-gray-700 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
         <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Credits</p>
         <p className="text-xl font-bold text-gray-900 dark:text-white">{usage.creditsUsed} / {usage.creditsLimit}</p>
         <div className="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
           <div className="progress-fill h-full bg-green-500 rounded-full transition-all" style={{ ["--progress" as string]: `${creditsPct}%` }} />
         </div>
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-100 dark:border-gray-700 p-4 flex flex-col justify-center">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 flex flex-col justify-center">
         <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Plan</p>
         <Link href="/settings" className="text-lg font-bold text-blue-600 dark:text-blue-400 hover:underline">
           {planLabels[usage.planId] ?? usage.planId}
@@ -257,7 +257,7 @@ function SeasonalBanner() {
   if (seasons.length === 0) return null;
   const s = seasons[0];
   return (
-    <div className="mb-8 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl border border-amber-200 dark:border-amber-800 p-4 flex items-center gap-4">
+    <div className="mb-8 bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl border border-amber-200 dark:border-amber-800 p-4 flex items-center gap-4">
       <span className="text-4xl">{s.emoji}</span>
       <div className="flex-1">
         <h3 className="font-semibold text-amber-800 dark:text-amber-200">{s.msg}</h3>
@@ -407,7 +407,7 @@ export default function DashboardPage() {
             <Link
               key={item.label}
               href={item.href}
-              className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 shadow hover:shadow-md transition-all text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-100 dark:border-gray-700"
+              className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 shadow-sm hover:shadow-md transition-all text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-100 dark:border-gray-700"
             >
               <span>{item.emoji}</span>
               <span>{item.label}</span>

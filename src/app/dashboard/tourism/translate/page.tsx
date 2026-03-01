@@ -87,7 +87,7 @@ export default function TourismTranslatePage() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Vstavi besedilo za prevod (npr. opis apartmaja)..."
-          className="w-full min-h-[160px] rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          className="w-full min-h-[160px] rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           disabled={loading}
         />
       </div>
@@ -100,7 +100,7 @@ export default function TourismTranslatePage() {
           <select
             value={sourceLang}
             onChange={(e) => setSourceLang(e.target.value)}
-            className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             disabled={loading}
           >
             {LANGS.map((l) => (
@@ -125,7 +125,7 @@ export default function TourismTranslatePage() {
                   checked={targetLangs.includes(l.code)}
                   onChange={() => toggleTarget(l.code)}
                   disabled={loading}
-                  className="rounded"
+                  className="rounded-sm"
                 />
                 <span className="text-sm">{l.label}</span>
               </label>
@@ -137,7 +137,7 @@ export default function TourismTranslatePage() {
       <button
         onClick={handleTranslate}
         disabled={loading || !content.trim() || targetLangs.length === 0}
-        className="w-full sm:w-auto min-h-[44px] px-4 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+        className="w-full sm:w-auto min-h-[44px] px-4 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
       >
         {loading ? "Prevedam..." : "Prevedi v izbrane jezike"}
       </button>
@@ -176,7 +176,7 @@ export default function TourismTranslatePage() {
                     type="button"
                     onClick={() => copyToClipboard(text, lang)}
                     aria-label={copied === lang ? "Kopirano" : `Kopiraj prevod ${label}`}
-                    className="text-sm px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-300 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    className="text-sm px-2 py-1 rounded-sm bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-300 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                   >
                     {copied === lang ? "Kopirano!" : "Kopiraj"}
                   </button>

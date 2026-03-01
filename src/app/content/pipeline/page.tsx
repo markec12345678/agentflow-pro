@@ -177,7 +177,7 @@ export default function ContentPipelinePage() {
                             key={s}
                             type="button"
                             onClick={() => movePost(post.id, s)}
-                            className="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                            className="text-xs px-2 py-1 rounded-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                           >
                             → {s}
                           </button>

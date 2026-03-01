@@ -299,7 +299,7 @@ export default function TourismOverviewPage() {
             }}
           />
           <Link href="/dashboard/tourism/generate" id="export-btn">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
               Novo Generiraj
             </span>
           </Link>
@@ -407,14 +407,14 @@ export default function TourismOverviewPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <Link
             href="/dashboard/tourism/guest-communication"
-            className="p-6 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 text-white hover:opacity-90 transition-opacity text-center"
+            className="p-6 rounded-xl bg-linear-to-r from-violet-600 to-blue-600 text-white hover:opacity-90 transition-opacity text-center"
           >
             <div className="text-4xl mb-3">💬</div>
             <div className="font-semibold text-xl">Komunikacija z Gosti</div>
           </Link>
           <Link
             href="/dashboard/tourism/calendar"
-            className="p-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 transition-opacity text-center"
+            className="p-6 rounded-xl bg-linear-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 transition-opacity text-center"
           >
             <div className="text-4xl mb-3">📅</div>
             <div className="font-semibold text-xl">Koledar & Zasedenost</div>
@@ -546,7 +546,7 @@ export default function TourismOverviewPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link
           href="/dashboard/tourism/guest-communication"
-          className="p-4 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-linear-to-r from-violet-600 to-blue-600 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">💬</div>
           <div className="font-semibold">Komunikacija z Gosti</div>
@@ -555,7 +555,7 @@ export default function TourismOverviewPage() {
 
         <Link
           href="/dashboard/tourism/calendar"
-          className="p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-linear-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">📅</div>
           <div className="font-semibold">Koledar & Zasedenost</div>
@@ -564,7 +564,7 @@ export default function TourismOverviewPage() {
 
         <Link
           href="/dashboard/tourism/analytics"
-          className="p-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">📊</div>
           <div className="font-semibold">Analitika & Poročila</div>
@@ -573,7 +573,7 @@ export default function TourismOverviewPage() {
 
         <Link
           href="/dashboard/tourism/data-cleanup"
-          className="p-4 rounded-xl bg-gradient-to-r from-slate-500 to-gray-600 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-linear-to-r from-slate-500 to-gray-600 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">🧹</div>
           <div className="font-semibold">Čiščenje podatkov</div>
@@ -582,7 +582,7 @@ export default function TourismOverviewPage() {
 
         <Link
           href="/dashboard/tourism/competitors"
-          className="p-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-linear-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">🎯</div>
           <div className="font-semibold">Spremljanje Tekmecev</div>
@@ -591,7 +591,7 @@ export default function TourismOverviewPage() {
 
         <Link
           href="/dashboard/tourism/booking-com"
-          className="p-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-white hover:opacity-90 transition-opacity"
+          className="p-4 rounded-xl bg-linear-to-r from-amber-500 to-yellow-600 text-white hover:opacity-90 transition-opacity"
         >
           <div className="text-2xl mb-2">🏨</div>
           <div className="font-semibold">Booking.com Partner</div>

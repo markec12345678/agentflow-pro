@@ -366,7 +366,7 @@ function GenerateWizard() {
                         value={fields[fieldId] ?? ""}
                         onChange={e => setFields(prev => ({ ...prev, [fieldId]: e.target.value }))}
                         placeholder={f.placeholder}
-                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-hidden focus:border-blue-500 transition-colors"
                       />
                     </div>
                   );

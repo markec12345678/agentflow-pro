@@ -15,7 +15,7 @@ export function PricingTable({ onSelectPlan, isLoading }: PricingTableProps) {
       {plans.map((plan) => (
         <div
           key={plan.id}
-          className={`rounded-xl border p-6 shadow-sm transition-shadow hover:shadow-md ${plan.id === "pro"
+          className={`rounded-xl border p-6 shadow-xs transition-shadow hover:shadow-md ${plan.id === "pro"
               ? "border-indigo-500 bg-indigo-50/50 ring-2 ring-indigo-500"
               : "border-gray-200 bg-white"
             }`}

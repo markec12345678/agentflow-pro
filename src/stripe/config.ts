@@ -12,7 +12,7 @@ export function getStripe(): Stripe {
     if (!key) {
       throw new Error("Stripe is not configured. Add STRIPE_SECRET_KEY to enable billing.");
     }
-    stripeInstance = new Stripe(key, { apiVersion: "2024-06-20" });
+    stripeInstance = new Stripe(key, { apiVersion: "2026-01-28.clover" });
   }
   return stripeInstance;
 }

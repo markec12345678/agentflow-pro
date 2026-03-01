@@ -123,7 +123,7 @@ export default function BillingDashboard() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-sm">
           {error}
         </div>
       )}
@@ -221,13 +221,13 @@ export default function BillingDashboard() {
               <div className="border rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
                 <div className="space-y-2">
-                  <button className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                  <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700">
                     Upgrade Plan
                   </button>
-                  <button className="w-full px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                  <button className="w-full px-4 py-2 border border-gray-300 rounded-sm hover:bg-gray-50">
                     View Invoices
                   </button>
-                  <button className="w-full px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                  <button className="w-full px-4 py-2 border border-gray-300 rounded-sm hover:bg-gray-50">
                     Payment Methods
                   </button>
                 </div>
@@ -277,15 +277,15 @@ export default function BillingDashboard() {
                 {usage && (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center p-4 border rounded">
+                      <div className="text-center p-4 border rounded-sm">
                         <div className="text-2xl font-bold text-blue-600">{usage.properties}</div>
                         <div className="text-sm text-gray-600">Properties</div>
                       </div>
-                      <div className="text-center p-4 border rounded">
+                      <div className="text-center p-4 border rounded-sm">
                         <div className="text-2xl font-bold text-green-600">{usage.content}</div>
                         <div className="text-sm text-gray-600">Content Items</div>
                       </div>
-                      <div className="text-center p-4 border rounded">
+                      <div className="text-center p-4 border rounded-sm">
                         <div className="text-2xl font-bold text-purple-600">{usage.aiGenerations}</div>
                         <div className="text-sm text-gray-600">AI Generations</div>
                       </div>
@@ -303,30 +303,30 @@ export default function BillingDashboard() {
             <div className="border rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Subscription Management</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded">
+                <div className="flex items-center justify-between p-4 border rounded-sm">
                   <div>
                     <h4 className="font-medium">Cancel Subscription</h4>
                     <p className="text-sm text-gray-600">Cancel your subscription at the end of the billing period</p>
                   </div>
-                  <button className="px-4 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50">
+                  <button className="px-4 py-2 border border-red-300 text-red-600 rounded-sm hover:bg-red-50">
                     Cancel Plan
                   </button>
                 </div>
-                <div className="flex items-center justify-between p-4 border rounded">
+                <div className="flex items-center justify-between p-4 border rounded-sm">
                   <div>
                     <h4 className="font-medium">Update Payment Method</h4>
                     <p className="text-sm text-gray-600">Add or update your payment method</p>
                   </div>
-                  <button className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                  <button className="px-4 py-2 border border-gray-300 rounded-sm hover:bg-gray-50">
                     Update Payment
                   </button>
                 </div>
-                <div className="flex items-center justify-between p-4 border rounded">
+                <div className="flex items-center justify-between p-4 border rounded-sm">
                   <div>
                     <h4 className="font-medium">Download Invoices</h4>
                     <p className="text-sm text-gray-600">Download your billing invoices</p>
                   </div>
-                  <button className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                  <button className="px-4 py-2 border border-gray-300 rounded-sm hover:bg-gray-50">
                     View Invoices
                   </button>
                 </div>

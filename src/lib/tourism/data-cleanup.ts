@@ -125,9 +125,10 @@ export async function findGuestDuplicatesByNameProperty(
 
 /** Find reservation anomalies: checkOut < checkIn, negative totalPrice. */
 export async function findReservationAnomalies(
-  propertyId?: string
+  propertyId?: string,
+  propertyIds?: string[]
 ): Promise<AnomalyReport[]> {
-  const where = propertyId ? { propertyId } : {};
+  const where = guestWhere(propertyId, propertyIds);
   const reservations = await prisma.reservation.findMany({
     where,
     select: { id: true, checkIn: true, checkOut: true, totalPrice: true },

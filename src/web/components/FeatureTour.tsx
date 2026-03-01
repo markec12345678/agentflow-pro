@@ -140,7 +140,7 @@ export function FeatureTour({
   const isLast = stepIndex === steps.length - 1;
 
   const tooltipContent = (
-    <div className="fixed left-1/2 -translate-x-1/2 bottom-[10vh] z-[10000] w-full max-w-md mx-4 bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6">
+    <div className="fixed left-1/2 -translate-x-1/2 bottom-[10vh] z-10000 w-full max-w-md mx-4 bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6">
       {step && (
         <>
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
@@ -191,7 +191,7 @@ export function FeatureTour({
     <>
       {/* Overlay - pointer-events-none so page buttons are clickable */}
       <div
-        className="fixed inset-0 z-[9999] pointer-events-none"
+        className="fixed inset-0 z-9999 pointer-events-none"
         role="dialog"
         aria-label="Feature tour"
         aria-modal="true"

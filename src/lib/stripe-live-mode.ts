@@ -36,8 +36,8 @@ export class StripeLiveModeManager {
   constructor() {
     this.config = this.loadConfig();
     this.stripe = new Stripe(this.config.secretKey, {
-      apiVersion: this.config.apiVersion,
-      typescript: true
+      apiVersion: this.config.apiVersion as "2026-01-28.clover",
+      typescript: true,
     });
   }
 
@@ -63,7 +63,7 @@ export class StripeLiveModeManager {
   }
 
   validateLiveModeReadiness(): LiveModeValidation {
-    const results = {
+    const results: LiveModeValidation = {
       isLiveMode: false,
       testModeFeatures: [],
       liveModeRequirements: [],
@@ -72,9 +72,9 @@ export class StripeLiveModeManager {
         webhooks: false,
         payments: false,
         subscriptions: false,
-        compliance: false
+        compliance: false,
       },
-      recommendations: []
+      recommendations: [],
     };
 
     // Check if currently in test mode
@@ -190,8 +190,8 @@ export class StripeLiveModeManager {
     // Update configuration
     this.config = liveConfig;
     this.stripe = new Stripe(liveConfig.secretKey, {
-      apiVersion: liveConfig.apiVersion,
-      typescript: true
+      apiVersion: liveConfig.apiVersion as "2026-01-28.clover",
+      typescript: true,
     });
 
     // Save configuration
@@ -235,8 +235,7 @@ export class StripeLiveModeManager {
           interval_count: 1
         },
         product_data: {
-          name: 'Starter Plan',
-          description: 'AgentFlow Pro Starter Plan'
+          name: "Starter Plan",
         }
       });
 
@@ -274,7 +273,7 @@ export class StripeLiveModeManager {
 
   generateLiveModeReport(): string {
     const validation = this.validateLiveModeReadiness();
-    
+
     let report = `# AgentFlow Pro - Stripe Live Mode Validation Report
 
 ## Current Configuration
@@ -363,16 +362,16 @@ Configuration file: stripe-config.json
 
   async runLiveModeValidation(): Promise<void> {
     console.log('Starting Stripe live mode validation...');
-    
+
     const report = this.generateLiveModeReport();
     console.log(report);
-    
+
     // Save report to file
     const fs = require('fs');
     fs.writeFileSync('stripe-live-mode-validation.md', report);
-    
+
     console.log('Stripe live mode validation completed. Report saved to stripe-live-mode-validation.md');
-    
+
     if (!this.validateLiveModeReadiness().isLiveMode) {
       console.log('\n⚠️ ACTION REQUIRED: Switch to live mode before production deployment');
       console.log('Run: npm run stripe:switch-to-live');

@@ -8,9 +8,9 @@ export default function HomePage() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 py-24 lg:py-32">
+      <section className="relative overflow-hidden bg-linear-to-br from-blue-900 via-blue-800 to-indigo-900 py-24 lg:py-32">
         <div className="container mx-auto px-4 text-center">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-xs">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-sm font-medium text-white/90">
               Specialized for Tourism & Hospitality
@@ -19,7 +19,7 @@ export default function HomePage() {
 
           <h1 className="mb-6 text-4xl font-bold leading-tight text-white md:text-6xl">
             Generate{" "}
-            <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
               booking descriptions
             </span>
             , destination guides, and campaigns — in seconds.
@@ -32,7 +32,7 @@ export default function HomePage() {
           <div className="mb-12 flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/onboarding"
-              className="group flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-400 px-8 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+              className="group flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 via-cyan-500 to-emerald-400 px-8 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl"
             >
               Start Free Trial
               <svg
@@ -54,7 +54,7 @@ export default function HomePage() {
               onClick={() =>
                 document.getElementById("demo-video")?.scrollIntoView({ behavior: "smooth" })
               }
-              className="rounded-xl border border-white/30 bg-white/10 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+              className="rounded-xl border border-white/30 bg-white/10 px-8 py-4 font-semibold text-white backdrop-blur-xs transition-colors hover:bg-white/20"
             >
               Watch 90-sec Demo
             </button>
@@ -289,10 +289,10 @@ export default function HomePage() {
                 Web scraping, market intelligence, competitor analysis
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-sm">
                   Firecrawl
                 </span>
-                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-sm">
                   SerpAPI
                 </span>
               </div>
@@ -306,10 +306,10 @@ export default function HomePage() {
                 Blog posts, social media, emails with SEO optimization
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-sm">
                   Context7
                 </span>
-                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-sm">
                   LLM
                 </span>
               </div>
@@ -323,10 +323,10 @@ export default function HomePage() {
                 Code generation, reviews, auto PR creation
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-sm">
                   GitHub MCP
                 </span>
-                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-sm">
                   Code Review
                 </span>
               </div>
@@ -340,10 +340,10 @@ export default function HomePage() {
                 One-click deploy to Vercel, Netlify with rollback
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded">
+                <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-sm">
                   Vercel
                 </span>
-                <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded">
+                <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-sm">
                   Netlify
                 </span>
               </div>
@@ -541,7 +541,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-900 to-purple-900">
+      <section className="py-20 px-4 bg-linear-to-r from-blue-900 to-purple-900">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Ready to Automate Your Business?

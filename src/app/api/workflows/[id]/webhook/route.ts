@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
 import crypto from "crypto";
-
-const prisma = new PrismaClient();
 
 // POST handler to create/reset a webhook token
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

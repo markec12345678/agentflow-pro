@@ -34,7 +34,7 @@ export function QuickActionsPanel({ propertyId, isReceptionMode }: QuickActionsP
     if (propertyId) params.set("propertyId", propertyId);
     fetch(`/api/tourism/today-overview?${params.toString()}`)
       .then((r) => (r.ok ? r.json() : {}))
-      .then((d) => setTodayArrivals(d.arrivals ?? []))
+      .then((d: { arrivals?: { guestPhone?: string | null }[] }) => setTodayArrivals(d?.arrivals ?? []))
       .catch(() => setTodayArrivals([]));
   }, [propertyId]);
 

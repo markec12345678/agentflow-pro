@@ -170,7 +170,7 @@ C:\Users\admin\projects\fullstack\agentflow-pro\
 │
 ├── prisma/
 │   ├── schema.prisma                # User, Subscription, Workflow, AgentRun
-│   ├── seed.js                      # E2E user seed
+│   ├── seed.ts                      # E2E user seed
 │   └── migrations/
 │
 ├── memory-bank/current/

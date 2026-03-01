@@ -15,10 +15,10 @@ interface GuestData {
 
 interface ArrivalItem {
   id: string;
-  guestId: string | null;
+  guestId?: string | null;
   guestName: string;
-  guest: GuestData | null;
-  eturizemSubmittedAt: string | null;
+  guest?: GuestData | null;
+  eturizemSubmittedAt?: string | null;
 }
 
 interface EturizemCheckInModalProps {

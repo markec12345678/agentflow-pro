@@ -214,31 +214,31 @@ export default function AdminPage() {
             {analytics ? (
               <div className="space-y-4 rounded-lg border border-gray-700 bg-gray-800 p-6">
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                  <div className="rounded bg-gray-700/50 p-4">
+                  <div className="rounded-sm bg-gray-700/50 p-4">
                     <p className="text-sm text-gray-400">MRR</p>
                     <p className="text-2xl font-bold text-green-400">${analytics.mrr}</p>
                   </div>
-                  <div className="rounded bg-gray-700/50 p-4">
+                  <div className="rounded-sm bg-gray-700/50 p-4">
                     <p className="text-sm text-gray-400">ARR</p>
                     <p className="text-2xl font-bold text-white">${analytics.arr}</p>
                   </div>
-                  <div className="rounded bg-gray-700/50 p-4">
+                  <div className="rounded-sm bg-gray-700/50 p-4">
                     <p className="text-sm text-gray-400">Active Subscriptions</p>
                     <p className="text-2xl font-bold text-white">{analytics.activeSubscriptions}</p>
                   </div>
-                  <div className="rounded bg-gray-700/50 p-4">
+                  <div className="rounded-sm bg-gray-700/50 p-4">
                     <p className="text-sm text-gray-400">Total Users</p>
                     <p className="text-2xl font-bold text-white">{analytics.totalUsers}</p>
                   </div>
-                  <div className="rounded bg-gray-700/50 p-4">
+                  <div className="rounded-sm bg-gray-700/50 p-4">
                     <p className="text-sm text-gray-400">New This Month</p>
                     <p className="text-2xl font-bold text-white">{analytics.newUsersThisMonth}</p>
                   </div>
-                  <div className="rounded bg-gray-700/50 p-4">
+                  <div className="rounded-sm bg-gray-700/50 p-4">
                     <p className="text-sm text-gray-400">Churned This Month</p>
                     <p className="text-2xl font-bold text-white">{analytics.churnedThisMonth}</p>
                   </div>
-                  <div className="rounded bg-gray-700/50 p-4">
+                  <div className="rounded-sm bg-gray-700/50 p-4">
                     <p className="text-sm text-gray-400">Churn Rate</p>
                     <p className="text-2xl font-bold text-white">{analytics.churnRate.toFixed(1)}%</p>
                   </div>
@@ -248,7 +248,7 @@ export default function AdminPage() {
                     <p className="mb-2 text-sm text-gray-400">Revenue by Plan</p>
                     <div className="space-y-2">
                       {analytics.byPlan.map((p) => (
-                        <div key={p.planId} className="flex justify-between rounded bg-gray-700/50 px-4 py-2">
+                        <div key={p.planId} className="flex justify-between rounded-sm bg-gray-700/50 px-4 py-2">
                           <span className="text-white">{p.planId}</span>
                           <span className="text-gray-400">{p.count} subs · ${p.mrr}/mo</span>
                         </div>
@@ -272,11 +272,11 @@ export default function AdminPage() {
                   Period: {new Date(usage.periodStart).toLocaleDateString()} – today
                 </p>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                  <div className="rounded bg-gray-700/50 p-4">
+                  <div className="rounded-sm bg-gray-700/50 p-4">
                     <p className="text-sm text-gray-400">Total Agent Runs</p>
                     <p className="text-2xl font-bold text-white">{usage.totalAgentRuns}</p>
                   </div>
-                  <div className="rounded bg-gray-700/50 p-4">
+                  <div className="rounded-sm bg-gray-700/50 p-4">
                     <p className="text-sm text-gray-400">Total Credits Used</p>
                     <p className="text-2xl font-bold text-white">{usage.totalCreditsUsed}</p>
                   </div>

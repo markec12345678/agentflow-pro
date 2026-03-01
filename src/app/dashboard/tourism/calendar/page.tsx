@@ -338,13 +338,13 @@ export default function CalendarPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "available":
-        return "bg-gradient-to-br from-emerald-400 to-teal-500 text-white";
+        return "bg-linear-to-br from-emerald-400 to-teal-500 text-white";
       case "booked":
-        return "bg-gradient-to-br from-rose-500 to-red-600 text-white";
+        return "bg-linear-to-br from-rose-500 to-red-600 text-white";
       case "check-in":
-        return "bg-gradient-to-br from-blue-500 to-indigo-600 text-white";
+        return "bg-linear-to-br from-blue-500 to-indigo-600 text-white";
       case "check-out":
-        return "bg-gradient-to-br from-amber-500 to-orange-600 text-white";
+        return "bg-linear-to-br from-amber-500 to-orange-600 text-white";
       case "blocked":
         return "bg-gray-500/80 text-white dark:bg-gray-600/90";
       default:
@@ -561,23 +561,23 @@ export default function CalendarPage() {
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-sm">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-gradient-to-br from-emerald-400 to-teal-500 dark:from-emerald-600 dark:to-teal-700" />
+          <div className="w-4 h-4 rounded-sm bg-linear-to-br from-emerald-400 to-teal-500 dark:from-emerald-600 dark:to-teal-700" />
           <span>Prosto</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-gradient-to-br from-rose-500 to-red-600 dark:from-rose-600 dark:to-red-700" />
+          <div className="w-4 h-4 rounded-sm bg-linear-to-br from-rose-500 to-red-600 dark:from-rose-600 dark:to-red-700" />
           <span>Zasedeno</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700" />
+          <div className="w-4 h-4 rounded-sm bg-linear-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700" />
           <span>Check-in</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-gradient-to-br from-amber-500 to-orange-600 dark:from-amber-600 dark:to-orange-700" />
+          <div className="w-4 h-4 rounded-sm bg-linear-to-br from-amber-500 to-orange-600 dark:from-amber-600 dark:to-orange-700" />
           <span>Check-out</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-gray-500/80" />
+          <div className="w-4 h-4 rounded-sm bg-gray-500/80" />
           <span>Blokirano</span>
         </div>
       </div>
@@ -827,7 +827,7 @@ export default function CalendarPage() {
 
       {/* Payment Modal (add payment) */}
       {paymentModalOpen && selectedDate?.reservation && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[60]">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-60">
           <div className="bg-white dark:bg-gray-800 rounded-xl max-w-sm w-full p-6">
             <h4 className="text-lg font-semibold mb-4">Dodaj plačilo</h4>
             <div className="space-y-3">
@@ -943,7 +943,7 @@ export default function CalendarPage() {
                 <button
                   type="button"
                   onClick={() => setSimpleReservationMode((v) => !v)}
-                  className="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="text-xs px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                   aria-pressed={!simpleReservationMode}
                 >
                   {simpleReservationMode ? "Enostavni" : "Napredni"} način
@@ -1224,13 +1224,13 @@ export default function CalendarPage() {
                 <div className="space-y-2 text-sm">
                   <p className="font-medium text-gray-700 dark:text-gray-300">Navodila po platformah:</p>
                   <div className="grid gap-2">
-                    <div className="p-2 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    <div className="p-2 rounded-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                       <span className="font-medium">Booking.com:</span> Rates &amp; Availability → Calendar Sync → Import by URL
                     </div>
-                    <div className="p-2 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    <div className="p-2 rounded-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                       <span className="font-medium">Airbnb:</span> Calendar → Sync calendars → Import
                     </div>
-                    <div className="p-2 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    <div className="p-2 rounded-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                       <span className="font-medium">Google Calendar:</span> Add calendar → From URL
                     </div>
                   </div>

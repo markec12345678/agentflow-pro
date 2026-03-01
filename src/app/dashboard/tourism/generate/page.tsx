@@ -405,7 +405,7 @@ export default function TourismGeneratePage() {
                       {Object.entries(coreResult.booking).map(([lang, text]) => (
                         <div key={lang} className="text-sm">
                           <span className="font-medium text-gray-600 dark:text-gray-400">{lang}:</span>
-                          <p className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded">{text}</p>
+                          <p className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded-sm">{text}</p>
                         </div>
                       ))}
                     </div>
@@ -433,7 +433,7 @@ export default function TourismGeneratePage() {
                     <h3 className="font-medium dark:text-white mb-2">SEO (meta, keywords)</h3>
                     <div className="space-y-2 text-sm">
                       {Object.entries(coreResult.seo).map(([lang, seo]) => (
-                        <div key={lang} className="p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                        <div key={lang} className="p-2 bg-gray-100 dark:bg-gray-700 rounded-sm">
                           <span className="font-medium">{lang}:</span> {seo.meta_title} | {seo.keywords?.slice(0, 4).join(", ")}
                         </div>
                       ))}

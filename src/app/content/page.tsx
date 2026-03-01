@@ -221,7 +221,7 @@ export default function ContentPage() {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     placeholder="Išči vsebino..."
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm"
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:border-blue-500 text-sm"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -313,20 +313,20 @@ export default function ContentPage() {
                   return (
                     <div
                       key={post.id}
-                      className={`flex items-center gap-4 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all border group ${isSelected ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-100 dark:border-gray-700"
+                      className={`flex items-center gap-4 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-xs hover:shadow-md transition-all border group ${isSelected ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-100 dark:border-gray-700"
                         }`}
                     >
-                      <label className="flex-shrink-0 cursor-pointer" title={`Izbira ${post.title ?? post.topic ?? "vsebine"}`}>
+                      <label className="shrink-0 cursor-pointer" title={`Izbira ${post.title ?? post.topic ?? "vsebine"}`}>
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelect(post.id)}
                           aria-label={`Izbira ${post.title ?? post.topic ?? "vsebine"}`}
-                          className="rounded border-gray-300 w-4 h-4"
+                          className="rounded-sm border-gray-300 w-4 h-4"
                         />
                       </label>
                       {/* Ikona */}
-                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-2xl">
+                      <div className="shrink-0 w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-2xl">
                         {info.icon}
                       </div>
 

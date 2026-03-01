@@ -94,7 +94,7 @@ export function GlobalSearch({ propertyId }: GlobalSearchProps) {
       >
         <span>🔍</span>
         <span className="hidden sm:inline">Išči...</span>
-        <span className="hidden md:inline text-xs bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded">
+        <span className="hidden md:inline text-xs bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-sm">
           ⌘K
         </span>
       </button>
@@ -113,7 +113,7 @@ export function GlobalSearch({ propertyId }: GlobalSearchProps) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Išči rezervacije, goste, nastanitve, vsebino..."
-            className="flex-1 bg-transparent outline-none text-gray-900 dark:text-white placeholder-gray-500"
+            className="flex-1 bg-transparent outline-hidden text-gray-900 dark:text-white placeholder-gray-500"
             autoFocus
           />
           <button

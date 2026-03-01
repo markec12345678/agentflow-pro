@@ -654,7 +654,7 @@ function WorkflowsPageInner() {
                             <summary className="cursor-pointer text-xs text-gray-400">
                               View output
                             </summary>
-                            <pre className="mt-1 max-h-24 overflow-auto rounded bg-gray-800 p-2 text-xs text-gray-300">
+                            <pre className="mt-1 max-h-24 overflow-auto rounded-sm bg-gray-800 p-2 text-xs text-gray-300">
                               {(() => {
                                 const str =
                                   typeof step.output === "object"
@@ -794,7 +794,7 @@ function WorkflowsPageInner() {
                 <input
                   type="text"
                   defaultValue={selectedNode.data?.label as string}
-                  className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-hidden"
                 />
               </div>
 
@@ -820,7 +820,7 @@ function WorkflowsPageInner() {
                           agentType: e.target.value as "research" | "content" | "code" | "deploy",
                         })
                       }
-                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-hidden"
                     >
                       <option value="research">Research Agent</option>
                       <option value="content">Content Agent</option>
@@ -838,7 +838,7 @@ function WorkflowsPageInner() {
                           requiresApproval: e.target.checked,
                         })
                       }
-                      className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
+                      className="rounded-sm border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
                     />
                     <label htmlFor="requiresApproval" className="text-sm text-gray-400">
                       Require approval before continuing
@@ -867,7 +867,7 @@ function WorkflowsPageInner() {
                       })
                     }
                     placeholder="e.g. Latest trends in AI"
-                    className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none placeholder:text-gray-500"
+                    className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-hidden placeholder:text-gray-500"
                   />
                 </div>
               )}
@@ -888,7 +888,7 @@ function WorkflowsPageInner() {
                           operator: e.target.value,
                         })
                       }
-                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-hidden"
                     >
                       <option value="eq">eq (equals)</option>
                       <option value="ne">ne (not equals)</option>
@@ -916,7 +916,7 @@ function WorkflowsPageInner() {
                         })
                       }
                       placeholder="{{nodeId_output}} or literal"
-                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none placeholder:text-gray-500"
+                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-hidden placeholder:text-gray-500"
                     />
                   </div>
                   <div>
@@ -935,7 +935,7 @@ function WorkflowsPageInner() {
                         })
                       }
                       placeholder="literal value"
-                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none placeholder:text-gray-500"
+                      className="w-full rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-hidden placeholder:text-gray-500"
                     />
                   </div>
                 </>
@@ -952,7 +952,7 @@ function WorkflowsPageInner() {
                     </span>
                     <input
                       type="checkbox"
-                      className="rounded border-gray-600 bg-gray-700"
+                      className="rounded-sm border-gray-600 bg-gray-700"
                     />
                   </div>
                   <div className="flex items-center justify-between">
@@ -960,7 +960,7 @@ function WorkflowsPageInner() {
                     <input
                       type="checkbox"
                       defaultChecked
-                      className="rounded border-gray-600 bg-gray-700"
+                      className="rounded-sm border-gray-600 bg-gray-700"
                     />
                   </div>
                   <div className="flex items-center justify-between">
@@ -969,7 +969,7 @@ function WorkflowsPageInner() {
                     </span>
                     <input
                       type="checkbox"
-                      className="rounded border-gray-600 bg-gray-700"
+                      className="rounded-sm border-gray-600 bg-gray-700"
                     />
                   </div>
                 </div>

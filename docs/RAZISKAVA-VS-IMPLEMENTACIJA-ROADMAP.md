@@ -2,7 +2,7 @@
 
 Združena logika iz primerjave obeh raziskav z dejansko implementacijo. Uporabi pri načrtovanju prioritet in popravljanju dokumentacije.
 
-**Vir:** Turistična raziskava (AgentFlow Pro semantika, MCP, GEO) + PDF *Od MVP do Robustnega SaaS* + projekt (HONEST-FEEDBACK).
+**Vir:** Turistična raziskava (AgentFlow Pro semantika, MCP, GEO) + PDF *Od MVP do Robustnega SaaS* + PDF *Od Avtomatizacije Nalog do Autonomnih Tokov* (analiza kode/commits, predlogi za BPA in HITL) + projekt (HONEST-FEEDBACK).
 
 ---
 
@@ -38,6 +38,9 @@ Raziskavi v nekaterih delih ne ustrezata implementaciji. Popravki za natančno o
 | Hotel MCP strežnik | Vizija | Dolgoročna smer – zunanji AI agenti kličejo hotelske podatke. |
 | Formula $R_e$ | Referenca | Konceptualno merilo, ne izmerjena vrednost. |
 | HITL chat flow | Implementirano | `hitl.ts` + chat route + ChatEscalation. `ai-agent-production-validation.ts` vsebuje konfiguracijo, ne runtime logiko. |
+| Personalization Agent | Implementirano | Vsebovan v Content Agent (brand ton, platform-specific prompts). |
+| Optimization Agent | Delno | Tourism analytics, predictive block; ni samostojen agent. |
+| Agentic BPA (Rezervacija do doživetja) | Načrtovano | PDF Od Avtomatizacije Nalog predlaga; povezava z Blok C #9 (gostinski multi-agent). |
 
 ---
 
@@ -142,6 +145,7 @@ Primerjava treh virov kaže na naslednje smiselne korake. Za podrobnosti glej PD
 | 5 | Load test (k6) | PDF | Glej [LOAD-TEST-K6.md](LOAD-TEST-K6.md). |
 | 6 | hreflang za SEO | PDF | Glej [HREFLANG-SEO.md](HREFLANG-SEO.md). |
 | 7 | Preverjanje resilience v runtime | PDF | Glej [RESILIENCE-VERIFICATION.md](RESILIENCE-VERIFICATION.md). |
+| 8 | CI/CD robustnost, interaktivni setup skripta (init/setup), vzdrževanje mockov | PDF Od Avtomatizacije Nalog | Hitrejši in zanesljivejši razvojni cikel. |
 
 ### Blok C: Srednjeročno (1–3 meseci)
 
@@ -151,6 +155,8 @@ Primerjava treh virov kaže na naslednje smiselne korake. Za podrobnosti glej PD
 | 9 | Gostinski multi-agent (Retrieval + Copy) | Turistična raziskava | Glej [GUEST-MULTI-AGENT.md](GUEST-MULTI-AGENT.md). |
 | 10 | KG v turistične entitete | Turistična raziskava | Glej [KG-TOURISM-ENTITIES.md](KG-TOURISM-ENTITIES.md). |
 | 11 | LangSmith ali podobno | PDF | Glej [LANGSMITH-SETUP.md](LANGSMITH-SETUP.md). |
+| 12 | HITL nadgradnja: zaupnostno gnan odobritveni flow (anomalije, pragi za rezervacije) | PDF Od Avtomatizacije Nalog | Dinamična odločitev, kdaj je človeška intervencija potrebna. |
+| 13 | Agentic BPA workflow "Rezervacija do gostovskega doživetja" | PDF Od Avtomatizacije Nalog | Avtomatizacija celotnega toka od rezervacije do po-bivaljske ankete; povezava z #9. |
 
 ### Blok D: Odloži (po beta / first customers)
 

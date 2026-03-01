@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PageBuilderPlugin } from "./context/PluginContext";
+import { PageBuilderPlugin } from "../context/PluginContext";
 
 export const TextPlugin: PageBuilderPlugin = {
   id: "text",
@@ -9,18 +9,18 @@ export const TextPlugin: PageBuilderPlugin = {
   author: "Page Builder",
   icon: "📝",
   component: ({ config, onUpdate }: { config: Record<string, unknown>; onUpdate: (config: Record<string, unknown>) => void }) => {
-    const [text, setText] = useState(config.text || "");
+    const [text, setText] = useState<string>(typeof config.text === "string" ? config.text : "");
 
     return (
-      <div className="p-4 border rounded">
+      <div className="p-4 border rounded-sm">
         <textarea
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded-sm"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Enter your text here..."
         />
         <button
-          className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-sm hover:bg-blue-600"
           onClick={() => onUpdate({ ...config, text })}
         >
           Update Text
@@ -33,4 +33,5 @@ export const TextPlugin: PageBuilderPlugin = {
     fontSize: 16,
     color: "#000000",
   },
+  isActive: true,
 };

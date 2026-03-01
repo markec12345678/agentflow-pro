@@ -154,7 +154,7 @@ export default function NotificationsPage() {
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{n.message}</p>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       <span className="text-xs text-gray-400">
                         {new Date(n.createdAt).toLocaleDateString("sl-SI")}
                       </span>

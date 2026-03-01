@@ -6,7 +6,7 @@ import {
   Session,
   LoginRequest,
   RegisterRequest,
-  AuthError,
+  AuthError as AuthErrorShape,
   UserRole,
   SUBSCRIPTION_PLANS,
   PLAN_LIMITS
@@ -129,12 +129,14 @@ export class AuthService {
 
   /**
    * Create session for user
+   * Accepts User or user-shaped object (e.g. from Prisma with role as string enum)
    */
-  static createSession(user: User, ipAddress: string, userAgent: string): Session {
+  static createSession(user: User | { id: string; email: string; role: string | { name: string } }, ipAddress: string, userAgent: string): Session {
+    const roleName = typeof user.role === 'string' ? user.role : user.role.name;
     const token = this.generateToken({
       userId: user.id,
       email: user.email,
-      role: user.role.name
+      role: roleName
     });
     const refreshToken = this.generateRefreshToken();
 
@@ -211,8 +213,8 @@ export class AuthService {
   /**
    * Validate registration data
    */
-  static validateRegistration(data: RegisterRequest): AuthError[] {
-    const errors: AuthError[] = [];
+  static validateRegistration(data: RegisterRequest): AuthErrorShape[] {
+    const errors: AuthErrorShape[] = [];
 
     // Email validation
     if (!data.email) {
@@ -241,8 +243,8 @@ export class AuthService {
   /**
    * Validate login data
    */
-  static validateLogin(data: LoginRequest): AuthError[] {
-    const errors: AuthError[] = [];
+  static validateLogin(data: LoginRequest): AuthErrorShape[] {
+    const errors: AuthErrorShape[] = [];
 
     if (!data.email) {
       errors.push({ code: 'EMAIL_REQUIRED', message: 'Email is required' });
@@ -258,16 +260,16 @@ export class AuthService {
   /**
    * Create user from registration data
    */
-  static async createUserFromRegistration(data: RegisterRequest, _hashedPassword: string): Omit<User, 'id' | 'createdAt' | 'updatedAt'> {
+  static async createUserFromRegistration(data: RegisterRequest, _hashedPassword: string): Promise<Omit<User, 'id' | 'createdAt' | 'updatedAt'>> {
     const now = new Date();
     const defaultRole = this.getDefaultRole('user');
-    const planId = data.planId || SUBSCRIPTION_PLANS.TRIAL;
+    const planId = (data.planId || SUBSCRIPTION_PLANS.TRIAL) as keyof typeof PLAN_LIMITS;
     const limits = PLAN_LIMITS[planId];
 
     return {
       email: data.email,
       name: data.name,
-      avatar: null,
+      avatar: undefined,
       role: defaultRole,
       plan: {
         id: planId,

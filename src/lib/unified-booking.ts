@@ -98,8 +98,8 @@ export class AirbnbAPI {
           serviceFee: 15,
           taxes: 22,
           seasonalPricing: {
-            summer: '+20%',
-            winter: '+10%'
+            summer: 1.2,
+            winter: 1.1
           }
         },
         availability: []
@@ -342,8 +342,8 @@ export class UnifiedBookingManager {
       success: !!result,
       bookingId: result?.id,
       channelId: 'booking.com',
-      confirmationCode: result?.confirmationCode,
-      totalPrice: result?.totalPrice,
+      confirmationCode: result?.id,
+      totalPrice: result?.total_price,
       currency: result?.currency,
       status: result?.status
     };

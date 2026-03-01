@@ -125,7 +125,7 @@ export default function BulkGeneratePage() {
 
         <div className="space-y-6">
           {/* Nastanitve */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
             <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
               Izberite nastanitve
             </h2>
@@ -143,7 +143,7 @@ export default function BulkGeneratePage() {
                     type="checkbox"
                     checked={selectedPropertyIds.size === properties.length}
                     onChange={toggleAllProperties}
-                    className="rounded"
+                    className="rounded-sm"
                   />
                   Izberi vse
                 </label>
@@ -157,7 +157,7 @@ export default function BulkGeneratePage() {
                         type="checkbox"
                         checked={selectedPropertyIds.has(p.id)}
                         onChange={() => toggleProperty(p.id)}
-                        className="rounded"
+                        className="rounded-sm"
                       />
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{p.name}</p>
@@ -173,7 +173,7 @@ export default function BulkGeneratePage() {
           </div>
 
           {/* Šablona */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
             <label htmlFor="bulk-prompt" className="font-semibold text-gray-900 dark:text-white mb-4 block">
               Šablona vsebine
             </label>
@@ -193,7 +193,7 @@ export default function BulkGeneratePage() {
           </div>
 
           {/* Jeziki */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
             <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
               Jeziki
             </h2>
@@ -228,7 +228,7 @@ export default function BulkGeneratePage() {
 
           {/* Rezultat */}
           {result && (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
               <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
                 Rezultat
               </h2>

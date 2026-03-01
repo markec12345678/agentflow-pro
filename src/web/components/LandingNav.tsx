@@ -104,7 +104,7 @@ export function LandingNav() {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between lg:h-20">
             <Link href="/" className="group flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 via-cyan-500 to-emerald-400 shadow-lg transition-shadow group-hover:shadow-xl">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 via-cyan-500 to-emerald-400 shadow-lg transition-shadow group-hover:shadow-xl">
                 <span className="text-lg font-bold text-white">🤖</span>
               </div>
               <div className="flex flex-col">
@@ -129,7 +129,7 @@ export function LandingNav() {
                     aria-expanded="true"
                     aria-haspopup="true"
                     aria-controls="solutions-menu"
-                    className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
+                    className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
                   >
                     {NAV_CONFIG.solutions.label}
                     <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,7 +142,7 @@ export function LandingNav() {
                     aria-expanded="false"
                     aria-haspopup="true"
                     aria-controls="solutions-menu"
-                    className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
+                    className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
                   >
                     {NAV_CONFIG.solutions.label}
                     <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +161,7 @@ export function LandingNav() {
                       <Link
                         key={item.name}
                         href={item.href}
-                        className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 group flex min-w-0 items-start gap-3 rounded-xl p-3.5 transition-all hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-cyan-50/50 dark:hover:from-blue-900/20 dark:hover:to-cyan-900/20"
+                        className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 group flex min-w-0 items-start gap-3 rounded-xl p-3.5 transition-all hover:bg-linear-to-r hover:from-blue-50/50 hover:to-cyan-50/50 dark:hover:from-blue-900/20 dark:hover:to-cyan-900/20"
                       >
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
@@ -169,7 +169,7 @@ export function LandingNav() {
                               {item.name}
                             </span>
                             {item.badge && (
-                              <span className="rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 px-2 py-0.5 text-xs font-medium text-white">
+                              <span className="rounded-full bg-linear-to-r from-emerald-500 to-cyan-500 px-2 py-0.5 text-xs font-medium text-white">
                                 {item.badge}
                               </span>
                             )}
@@ -238,7 +238,7 @@ export function LandingNav() {
                       <Link
                         key={item.name}
                         href={item.href}
-                        className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 group flex min-w-0 items-start gap-3 rounded-xl p-3.5 transition-all hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                        className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 group flex min-w-0 items-start gap-3 rounded-xl p-3.5 transition-all hover:bg-gray-50 dark:hover:bg-gray-700/50"
                       >
                         <div className="min-w-0 flex-1">
                           <div className="font-medium text-gray-900 dark:text-white">
@@ -285,17 +285,17 @@ export function LandingNav() {
               <div className="hidden items-center gap-3 lg:flex">
                 <Link
                   href="/login"
-                  className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 inline-block cursor-pointer px-4 py-2.5 font-medium text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+                  className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 inline-block cursor-pointer px-4 py-2.5 font-medium text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                 >
                   Prijava
                 </Link>
                 <div className="relative isolate">
-                  <span className="absolute -top-2 -right-2 z-10 rounded-full bg-red-500 px-2 py-1 text-xs font-bold text-white shadow animate-pulse">
+                  <span className="absolute -top-2 -right-2 z-10 rounded-full bg-red-500 px-2 py-1 text-xs font-bold text-white shadow-sm animate-pulse">
                     NEW
                   </span>
                   <Link
                     href="/onboarding"
-                    className={`group block overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-400 px-6 py-3 text-base font-bold text-white shadow-xl transition-all hover:shadow-2xl hover:brightness-110 ${scrolled ? "ring-2 ring-emerald-400/50" : ""}`}
+                    className={`group block overflow-hidden rounded-xl bg-linear-to-r from-blue-600 via-cyan-500 to-emerald-400 px-6 py-3 text-base font-bold text-white shadow-xl transition-all hover:shadow-2xl hover:brightness-110 ${scrolled ? "ring-2 ring-emerald-400/50" : ""}`}
                   >
                     <span className="relative z-10 flex items-center gap-2">
                       🔥 Start Free Trial
@@ -310,7 +310,7 @@ export function LandingNav() {
                   type="button"
                   aria-expanded="true"
                   aria-label="Close menu"
-                  className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+                  className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,7 +322,7 @@ export function LandingNav() {
                   type="button"
                   aria-expanded="false"
                   aria-label="Open menu"
-                  className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+                  className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
                   onClick={() => setMobileMenuOpen(true)}
                 >
                   <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,7 +366,7 @@ export function LandingNav() {
                     <Link
                       key={item.name}
                       href={item.href}
-                      className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] items-center justify-between rounded-xl p-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] items-center justify-between rounded-xl p-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <div>
@@ -433,7 +433,7 @@ export function LandingNav() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] items-center rounded-xl p-3.5 font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                    className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] items-center rounded-xl p-3.5 font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.name}
@@ -456,7 +456,7 @@ export function LandingNav() {
                 </span>
                 <Link
                   href="/onboarding"
-                  className="outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 group flex min-h-[44px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-400 py-3.5 font-semibold text-white shadow-lg"
+                  className="outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 group flex min-h-[44px] w-full items-center justify-center rounded-xl bg-linear-to-r from-blue-600 via-cyan-500 to-emerald-400 py-3.5 font-semibold text-white shadow-lg"
                   onClick={() => {
                     trackCTAClick("/onboarding");
                     setMobileMenuOpen(false);

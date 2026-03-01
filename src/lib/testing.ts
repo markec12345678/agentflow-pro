@@ -3,6 +3,8 @@
  * Jest unit tests and Playwright E2E tests setup
  */
 
+import { devices } from '@playwright/test';
+
 // Jest configuration for unit tests
 export const jestConfig = {
   preset: 'ts-jest',
@@ -341,19 +343,19 @@ export class PerformanceTests {
 // Integration test utilities
 export class IntegrationTests {
   static async setupTestEnvironment(): Promise<void> {
-    // Setup test environment variables
-    process.env.NODE_ENV = 'test';
+    // Setup test environment variables (NODE_ENV is read-only in types; cast for test setup)
+    (process.env as Record<string, string>).NODE_ENV = 'test';
     process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
     process.env.JWT_SECRET = 'test-secret';
     process.env.STRIPE_SECRET_KEY = 'sk_test_123';
   }
 
   static async teardownTestEnvironment(): Promise<void> {
-    // Cleanup test environment
-    delete process.env.NODE_ENV;
-    delete process.env.DATABASE_URL;
-    delete process.env.JWT_SECRET;
-    delete process.env.STRIPE_SECRET_KEY;
+    // Cleanup test environment (cast to allow delete on env vars set in tests)
+    const env = process.env as Record<string, string | undefined>;
+    delete env.DATABASE_URL;
+    delete env.JWT_SECRET;
+    delete env.STRIPE_SECRET_KEY;
   }
 
   static async createTestServer(): Promise<any> {
@@ -395,16 +397,3 @@ export class IntegrationTests {
   }
 }
 
-// Export all testing utilities
-export {
-  jestConfig,
-  playwrightConfig,
-  mockUsers,
-  mockAgents,
-  mockWorkflows,
-  mockBilling,
-  TestUtils,
-  TestFixtures,
-  PerformanceTests,
-  IntegrationTests
-};

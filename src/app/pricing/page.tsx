@@ -101,7 +101,7 @@ export default function PricingPage() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+      <section className="py-20 px-4 bg-linear-to-br from-blue-900 via-purple-900 to-indigo-900">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             Simple, Transparent Pricing
@@ -196,7 +196,7 @@ export default function PricingPage() {
                 <ul className="space-y-4 mb-8">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <span className="text-green-500 text-lg flex-shrink-0">
+                      <span className="text-green-500 text-lg shrink-0">
                         ✓
                       </span>
                       <span className="text-gray-700 dark:text-gray-300">
@@ -365,7 +365,7 @@ export default function PricingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-900 to-purple-900">
+      <section className="py-20 px-4 bg-linear-to-r from-blue-900 to-purple-900">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Ready to Get Started?

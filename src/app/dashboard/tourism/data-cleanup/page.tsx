@@ -33,7 +33,7 @@ function AnomalyBadge({ type }: { type: string }) {
     negative_price: "Negativna cena",
   };
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+    <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
       {labels[type] ?? type}
     </span>
   );

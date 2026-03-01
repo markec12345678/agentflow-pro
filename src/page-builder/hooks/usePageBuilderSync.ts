@@ -12,45 +12,50 @@ export function usePageBuilderSync(pageId: string) {
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [connectedUsers, setConnectedUsers] = useState<string[]>([]);
 
-  const { socket, isConnected } = useWebSocket();
+  const wsUrl = typeof window !== "undefined"
+    ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/api/page-builder/ws`
+    : "";
+  const { socket, isConnected } = useWebSocket(wsUrl);
 
   useEffect(() => {
-    if (!isConnected || !pageId) return;
+    if (!isConnected || !pageId || !socket) return;
 
+    const sock = socket as unknown as { emit: (ev: string, data?: unknown) => void; on: (ev: string, cb: (d: unknown) => void) => void };
     // Join page-specific room
-    socket.emit('join-page', { pageId });
+    sock.emit('join-page', { pageId });
 
     // Listen for sync events
-    socket.on('page-updated', (data: PageBuilderSync) => {
-      if (data.pageId === pageId) {
+    sock.on('page-updated', (data: unknown) => {
+      const d = data as PageBuilderSync;
+      if (d.pageId === pageId) {
         setLastSync(new Date().toISOString());
         setSyncStatus('synced');
       }
     });
 
-    socket.on('user-joined', (userId: string) => {
-      setConnectedUsers(prev => [...prev, userId]);
+    sock.on('user-joined', (userId: unknown) => {
+      setConnectedUsers(prev => [...prev, userId as string]);
     });
 
-    socket.on('user-left', (userId: string) => {
+    sock.on('user-left', (userId: unknown) => {
       setConnectedUsers(prev => prev.filter(id => id !== userId));
     });
 
-    socket.on('sync-error', (error: string) => {
+    sock.on('sync-error', (error: unknown) => {
       setSyncStatus('error');
       console.error('Page sync error:', error);
     });
 
     return () => {
-      socket.emit('leave-page');
+      sock.emit('leave-page');
     };
   }, [isConnected, socket, pageId]);
 
   const syncPage = useCallback(async () => {
     if (!pageId) return;
-    
+
     setSyncStatus('syncing');
-    
+
     try {
       const response = await fetch(`/api/page-builder/sync/${pageId}`, {
         method: 'POST',
@@ -66,9 +71,9 @@ export function usePageBuilderSync(pageId: string) {
       const result = await response.json();
       setLastSync(new Date().toISOString());
       setSyncStatus('synced');
-      
+
       // Broadcast to other users
-      socket.emit('page-updated', {
+      (socket as unknown as { emit: (ev: string, data?: unknown) => void })?.emit('page-updated', {
         pageId,
         lastModified: result.lastModified,
         isEditing: false,

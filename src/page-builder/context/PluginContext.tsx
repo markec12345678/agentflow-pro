@@ -7,7 +7,7 @@ export interface PageBuilderPlugin {
   version: string;
   author: string;
   icon: string;
-  component: ReactNode;
+  component: ReactNode | React.ComponentType<{ config: Record<string, unknown>; onUpdate: (config: Record<string, unknown>) => void }>;
   config: Record<string, unknown>;
   isActive: boolean;
 }
