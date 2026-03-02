@@ -63,6 +63,8 @@ export const ButtonPlugin: PageBuilderPlugin = {
               className="w-full p-2 border rounded-sm"
               value={size}
               onChange={(e) => setSize(e.target.value as ButtonPluginConfig["size"])}
+              aria-label="Button size"
+              title="Select button size"
             >
               <option value="sm">Small</option>
               <option value="md">Medium</option>
@@ -91,6 +93,8 @@ export const ButtonPlugin: PageBuilderPlugin = {
               className="w-full p-2 border rounded-sm"
               value={target}
               onChange={(e) => setTarget(e.target.value as ButtonPluginConfig["target"])}
+              aria-label="Link target"
+              title="Select link target"
             >
               <option value="_blank">New Window</option>
               <option value="_self">Same Window</option>

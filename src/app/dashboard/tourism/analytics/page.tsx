@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { TourismErrorBoundary, LoadingState, EmptyState } from "@/web/components/TourismErrorBoundary";
 import { toast } from "sonner";
 import { PropertySelector } from "@/web/components/PropertySelector";
+import "@/styles/progress-bars.css";
 
 interface ChannelStats {
   bookings: number;
@@ -379,8 +380,7 @@ function AnalyticsPage() {
                       <div className="flex-1">
                         <div className="h-8 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
                           <div
-                            className="h-full bg-linear-to-r from-blue-500 to-cyan-500 transition-all absolute left-0 top-0"
-                            style={{ width: `${data.summary.totalRevenue > 0 ? (month.revenue / data.summary.totalRevenue) * 100 : 0}%` }}
+                            className={`h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all absolute left-0 top-0 progress-width-${Math.round((data.summary.totalRevenue > 0 ? (month.revenue / data.summary.totalRevenue) * 100 / 5 : 0) * 5)}`}
                           />
                         </div>
                       </div>

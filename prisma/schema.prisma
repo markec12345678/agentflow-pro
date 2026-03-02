@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -44,6 +43,16 @@ model User {
   searchConsoleConnections SearchConsoleConnection[]
   pageDesigns              PageDesign[]
   usageAlerts              UsageAlert[]
+  alertEvents              AlertEvent[]
+  alertConfiguration      Json?
+  eturizemConfig           Json?
+  stripeConfig             Json?
+  sendGridConfig           Json?
+  sentryConfig             Json?
+  githubConfig             Json?
+  vercelConfig             Json?
+  firecrawlConfig          Json?
+  notificationPreferences Json?
 
   @@map("users")
 }
@@ -112,21 +121,57 @@ model SmartAlertLog {
   @@map("smart_alert_logs")
 }
 
-model AlertEvent {
-  id        String   @id @default(cuid())
-  eventType String   @default("system_error")
-  entityId  String   @default("global")
-  metadata  Json?
-  createdAt DateTime @default(now())
+model AlertRule {
+  id                  String   @id @default(cuid())
+  name                String
+  eventType           String
+  threshold           Float?   // null means "any"
+  severity            String   @default("medium") // low, medium, high, critical
+  enabled             Boolean  @default(true)
+  channels            String[] @default(["email"]) // email, sms, slack
+  cooldownMinutes     Int      @default(60)
+  escalateAfterMinutes Int?
+  escalateTo          String?
+  createdBy           String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  @@index([eventType, createdAt])
+  @@index([eventType, enabled])
+  @@map("alert_rules")
+}
+
+model AlertEvent {
+  id             String   @id @default(cuid())
+  type           String   @default("system_error")
+  title          String
+  message        String   @db.Text
+  severity       String   @default("medium") // low, medium, high, critical
+  status         String   @default("active") // active, acknowledged, dismissed
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  propertyId     String?
+  property       Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  metadata       Json?
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+  dismissedBy    String?
+  dismissedAt    DateTime?
+  createdAt      DateTime @default(now())
+
+  @@index([type, severity, status])
+  @@index([userId, createdAt])
+  @@index([propertyId, createdAt])
   @@map("alert_events")
 }
 
 model Workflow {
   id              String               @id @default(cuid())
   name            String
+  description     String?              @db.Text
   userId          String
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId      String?
+  property        Property?            @relation(fields: [propertyId], references: [id], onDelete: SetNull)
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   nodes           Json                 @default("[]")
@@ -134,10 +179,15 @@ model Workflow {
   metadata        Json?
   webhookToken    String?              @unique
   slackWebhookUrl String?
-  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status          String               @default("draft") // draft, active, archived
   checkpoints     WorkflowCheckpoint[]
   agentId         String?
   agent           Agent?               @relation(fields: [agentId], references: [id])
+  executions      WorkflowExecution[]
+
+  @@index([userId])
+  @@index([propertyId])
+  @@map("workflows")
 }
 
 model WorkflowCheckpoint {
@@ -270,6 +320,7 @@ model Property {
   basePrice                    Float?
   currency                     String?              @default("EUR")
   seasonRates                  Json? // { high: [{from,to,rate}], mid: [...], low: [...] }
+  pricingRules                 Json? // { weekendFactor: 1.2, minStay: 2, earlyBird: { days: 30, discount: 0.1 }, lastMinute: { days: 3, discount: 0.15 } }
   reservationAutoApprovalRules Json? // { enabled: boolean, channels?: string[], maxAmount?: number }
   rnoId                        Int? // RNO ID nastanitvenega obrata (AJPES)
   createdAt                    DateTime             @default(now())
@@ -291,8 +342,64 @@ model Property {
   users                        User[]
   pmsConnections               PmsConnection[]
   ajpesConnection              AjpesConnection?
+  rooms                        Room[]
+  reviews                      Review[]
+  workflows                    Workflow[]
+  alertEvents                  AlertEvent[]
+  eturizemId                   String?
+  eturizemSyncStatus           String?              @default("not_mapped") // not_mapped, pending, success, error
+  eturizemSyncedAt             DateTime?
+  eturizemLastError            String?
 
   @@map("properties")
+}
+
+model Review {
+  id             String    @id @default(cuid())
+  propertyId     String
+  property       Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  reservationId  String?   @unique
+  reservation    Reservation? @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  guestId        String?
+  guest          Guest?    @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  rating         Float
+  title          String?
+  content        String    @db.Text
+  platform       String    @default("direct") // booking, airbnb, google, direct
+  status         String    @default("pending") // pending, responded, escalated
+  sentiment      String?   // positive, neutral, negative
+  sentimentScore Float?
+  response       String?   @db.Text
+  respondedAt    DateTime?
+  respondedBy    String?
+  categories     Json?     // { cleanliness: 4, location: 5, ... }
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([propertyId, status])
+  @@index([platform])
+  @@map("reviews")
+}
+
+model Room {
+  id           String        @id @default(cuid())
+  propertyId   String
+  property     Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name         String // Room 101, Suite A, ...
+  type         String // single, double, suite, apartment
+  capacity     Int // number of persons
+  beds         Int? // number of beds
+  description  String?       @db.Text
+  basePrice    Float?
+  amenities    String[] // ["WiFi", "AC", "Balcony"]
+  photos       String[] // URLs to photos
+  seasonRates  Json? // { high: [{from,to,rate}], mid: [...], low: [...] }
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  blockedDates BlockedDate[]
+
+  @@index([propertyId])
+  @@map("rooms")
 }
 
 model AjpesConnection {
@@ -591,6 +698,7 @@ model Reservation {
   property            Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   guestId             String?
   guest               Guest?    @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  review              Review?
   roomId              String?
   checkIn             DateTime
   checkOut            DateTime
@@ -599,7 +707,7 @@ model Reservation {
   totalPrice          Float?
   deposit             Float? // zahtevana akontacija
   touristTax          Float? // turistična taksa (skupni znesek)
-  notes               String?
+  notes               String?   @db.Text
   checkInToken        String?   @unique // za check-in povezavo (eTurizem)
   eturizemSubmittedAt DateTime?
   payments            Payment[]
@@ -639,11 +747,17 @@ model Guest {
   documentType String? // vrstaDok: F,H,I,O,P,U,V,L
   documentId   String? // idStDok
   gender       String? // M / F
+  riskScore    String? // low / medium / high
+  isVip        Boolean   @default(false)
+  gdprConsent  Boolean   @default(false)
+  preferences  String?   @db.Text
+  notes        String?   @db.Text
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
   reservations   Reservation[]
   communications GuestCommunication[]
+  reviews        Review[]
 
   @@index([propertyId])
   @@map("guests")
@@ -777,10 +891,15 @@ model GuestCommunication {
   channel    String // email, sms, phone
   subject    String?
   content    String    @db.Text
-  status     String    @default("pending") // pending, sent, failed
-  variables  Json? // template variables
-  sentAt     DateTime?
-  createdAt  DateTime  @default(now())
+  status      String    @default("pending") // pending, sent, failed, scheduled
+  variables   Json? // template variables
+  language    String?   @default("sl")
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  openedAt    DateTime?
+  clickedAt   DateTime?
+  templateId  String?
+  createdAt   DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
   @@index([propertyId, type, status])
@@ -816,6 +935,7 @@ model BlockedDate {
   propertyId String
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   roomId     String?
+  room       Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
   date       DateTime
   reason     String?
   createdAt  DateTime @default(now())
@@ -875,4 +995,30 @@ model PageBuilderPage {
 
   @@index([userId])
   @@map("page_builder_pages")
+}
+
+model MCPBuilderState {
+  id             String   @id @default(cuid())
+  projectId      String   @unique
+  components      Json     @default("[]")
+  mcpConnections  Json     @default("{}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("mcp_builder_states")
+}
+
+model WorkflowExecution {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  status     String   @default("pending") // pending, running, completed, failed
+  logs       Json?    // Execution step logs
+  result     Json?    // Final output
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([workflowId])
+  @@map("workflow_executions")
 }

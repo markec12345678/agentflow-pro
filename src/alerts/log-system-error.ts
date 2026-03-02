@@ -13,10 +13,10 @@ export async function logSystemError(
   try {
     await prisma.alertEvent.create({
       data: {
-        eventType: "system_error",
-        entityId: "global",
+        type: "system_error",
+        title: "System Error",
+        message: error.message,
         metadata: {
-          message: error.message,
           name: error.name,
           ...metadata,
         },

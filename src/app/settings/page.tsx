@@ -73,7 +73,7 @@ export default function SettingsPage() {
   const [billingAction, setBillingAction] = useState<"idle" | "checkout" | "cancel">("idle");
   const [mailchimpCampaigns, setMailchimpCampaigns] = useState<Array<{ id: string; status?: string; subject_line?: string; create_time?: string; send_time?: string }> | null>(null);
   const [mailchimpCampaignsLoading, setMailchimpCampaignsLoading] = useState(false);
-  const [hubspotCompanies, setHubspotCompanies] = useState<Array<{ id?: string; name?: string; domain?: string; industry?: string }>> | null>(null);
+  const [hubspotCompanies, setHubspotCompanies] = useState<Array<{ id?: string; name?: string; domain?: string; industry?: string }>> | null > (null);
   const [hubspotCompaniesLoading, setHubspotCompaniesLoading] = useState(false);
 
   useEffect(() => {
@@ -654,6 +654,61 @@ export default function SettingsPage() {
               </button>
             </div>
             <p className="text-xs text-gray-500">Dodajte Mailchimp API ključ zgoraj (All API Keys).</p>
+            <div className="mt-3 pt-3 border-t border-gray-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium">Kampanje</span>
+                <button
+                  type="button"
+                  disabled={mailchimpCampaignsLoading}
+                  onClick={async () => {
+                    setMessage(null);
+                    setMailchimpCampaignsLoading(true);
+                    try {
+                      const res = await fetch("/api/mailchimp/campaigns");
+                      const data = await res.json();
+                      if (data.error) {
+                        setMessage(typeof data.error === "string" ? data.error : data.error?.message ?? "Napaka");
+                        return;
+                      }
+                      setMailchimpCampaigns(data.campaigns ?? []);
+                    } catch {
+                      setMessage("Napaka pri nalaganju kampanj.");
+                    } finally {
+                      setMailchimpCampaignsLoading(false);
+                    }
+                  }}
+                  className="text-sm text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                >
+                  {mailchimpCampaignsLoading ? "Nalagam..." : "Naloži kampanje"}
+                </button>
+              </div>
+              {mailchimpCampaigns && (
+                <div className="overflow-x-auto max-h-48 overflow-y-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="text-gray-500">
+                        <th className="py-1 pr-2">Predmet</th>
+                        <th className="py-1 pr-2">Status</th>
+                        <th className="py-1">Datum</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mailchimpCampaigns.length === 0 ? (
+                        <tr><td colSpan={3} className="py-2 text-gray-500">Ni kampanj</td></tr>
+                      ) : (
+                        mailchimpCampaigns.map((c) => (
+                          <tr key={c.id} className="border-t border-gray-700/50">
+                            <td className="py-1 pr-2 text-gray-300 truncate max-w-[120px]" title={c.subject_line}>{c.subject_line ?? "—"}</td>
+                            <td className="py-1 pr-2 text-gray-400">{c.status ?? "—"}</td>
+                            <td className="py-1 text-gray-500">{c.send_time || c.create_time ? new Date(c.send_time || c.create_time || "").toLocaleDateString() : "—"}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
           <div className="rounded-lg border border-gray-700 bg-gray-800 p-4">
             <div className="flex items-center justify-between mb-2">
@@ -682,6 +737,59 @@ export default function SettingsPage() {
               </button>
             </div>
             <p className="text-xs text-gray-500">Povežite HubSpot v Publish Connections zgoraj.</p>
+            <div className="mt-3 pt-3 border-t border-gray-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium">Podjetja</span>
+                <button
+                  type="button"
+                  disabled={hubspotCompaniesLoading}
+                  onClick={async () => {
+                    setMessage(null);
+                    setHubspotCompaniesLoading(true);
+                    try {
+                      const res = await fetch("/api/hubspot/companies");
+                      const data = await res.json();
+                      if (data.error) {
+                        setMessage(typeof data.error === "string" ? data.error : data.error?.message ?? "Napaka");
+                        return;
+                      }
+                      setHubspotCompanies(data.companies ?? []);
+                    } catch {
+                      setMessage("Napaka pri nalaganju podjetij.");
+                    } finally {
+                      setHubspotCompaniesLoading(false);
+                    }
+                  }}
+                  className="text-sm text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                >
+                  {hubspotCompaniesLoading ? "Nalagam..." : "Naloži podjetja"}
+                </button>
+              </div>
+              {hubspotCompanies && (
+                <div className="overflow-x-auto max-h-48 overflow-y-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="text-gray-500">
+                        <th className="py-1 pr-2">Ime</th>
+                        <th className="py-1">Domena</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {hubspotCompanies.length === 0 ? (
+                        <tr><td colSpan={2} className="py-2 text-gray-500">Ni podjetij</td></tr>
+                      ) : (
+                        hubspotCompanies.map((c) => (
+                          <tr key={c.id ?? c.name ?? ""} className="border-t border-gray-700/50">
+                            <td className="py-1 pr-2 text-gray-300">{c.name ?? "—"}</td>
+                            <td className="py-1 text-gray-400">{c.domain ?? "—"}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

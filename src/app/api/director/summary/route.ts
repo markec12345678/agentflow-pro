@@ -1,11 +1,11 @@
 /**
  * GET /api/director/summary
- * Zero-Touch Director: aggregated today overview, revenue, approvals, alerts.
+ * Zero-Touch Director View: Revenue trends, auto-approval rates, eturizem status, actions required.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { startOfDay, addDays, format, subHours } from "date-fns";
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
@@ -21,251 +21,117 @@ export async function GET(_request: NextRequest) {
     }
 
     const propertyIds = await getPropertyIdsForUser(userId);
-    const targetDate = startOfDay(new Date());
-    const nextDay = addDays(targetDate, 1);
-    const since = subHours(new Date(), 24);
+    const now = new Date();
 
-    const [
-      todayOverview,
-      dailyRevenue,
-      checkpoints,
-      alertEvents,
-      smartAlertLogs,
-      pendingGuestCommsCount,
-    ] = await Promise.all([
-      buildTodayOverview(propertyIds, targetDate, nextDay),
-      buildDailyRevenue(propertyIds, targetDate, nextDay),
-      listPendingCheckpoints(userId),
-      prisma.alertEvent.findMany({
-        where: {
-          createdAt: { gte: since },
-          OR: [
-            { entityId: "global" },
-            ...(propertyIds.length > 0
-              ? [{ entityId: { in: propertyIds } }]
-              : []),
-          ],
-        },
-        orderBy: { createdAt: "desc" },
-        take: 50,
-        select: { id: true, eventType: true, entityId: true, metadata: true, createdAt: true },
-      }),
-      prisma.smartAlertLog.findMany({
-        where: {
-          sentAt: { gte: since },
-          OR: [
-            { entityId: userId },
-            ...(propertyIds.length > 0 ? [{ entityId: { in: propertyIds } }] : []),
-          ],
-        },
-        orderBy: { sentAt: "desc" },
-        take: 20,
-        select: { id: true, eventType: true, entityId: true, channel: true, sentAt: true },
-      }),
-      propertyIds.length > 0
-        ? prisma.guestCommunication.count({
-          where: {
-            propertyId: { in: propertyIds },
-            type: "pre-arrival",
-            status: { in: ["draft", "pending"] },
-          },
-        })
-        : 0,
+    // 1. Revenue Today/Week/Month
+    const [revToday, revWeek, revMonth] = await Promise.all([
+      getRevenueForPeriod(propertyIds, startOfDay(now), endOfDay(now)),
+      getRevenueForPeriod(propertyIds, startOfWeek(now, { weekStartsOn: 1 }), endOfWeek(now, { weekStartsOn: 1 })),
+      getRevenueForPeriod(propertyIds, startOfMonth(now), endOfMonth(now)),
     ]);
 
-    const alerts = [
-      ...alertEvents.map((e) => ({
-        id: e.id,
-        type: "event" as const,
-        eventType: e.eventType,
-        entityId: e.entityId,
-        metadata: e.metadata,
-        at: e.createdAt,
-      })),
-      ...smartAlertLogs.map((l) => ({
-        id: l.id,
-        type: "log" as const,
-        eventType: l.eventType,
-        entityId: l.entityId,
-        channel: l.channel,
-        at: l.sentAt,
-      })),
-    ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+    // 2. Auto-approval rate (from AgentRuns)
+    const thirtyDaysAgo = subDays(now, 30);
+    const [totalRuns, manualRuns] = await Promise.all([
+      prisma.agentRun.count({
+        where: { userId, createdAt: { gte: thirtyDaysAgo } }
+      }),
+      prisma.workflowCheckpoint.count({
+        where: { workflow: { userId }, createdAt: { gte: thirtyDaysAgo } }
+      })
+    ]);
+    const autoApprovalRate = totalRuns > 0 
+      ? Math.round(((totalRuns - manualRuns) / totalRuns) * 100) 
+      : 100;
 
-    const actionsRequired: Array<{
-      type: "workflow_approval" | "guest_comm" | "eturizem" | "pricing";
-      title: string;
-      count?: number;
-      href: string;
-    }> = [];
+    // 3. Actions Required (Exceptions for approval)
+    const [pendingCheckpoints, pendingGuestComms, pendingETurizem] = await Promise.all([
+      listPendingCheckpoints(userId),
+      prisma.guestCommunication.count({
+        where: {
+          propertyId: { in: propertyIds },
+          type: "pre-arrival",
+          status: { in: ["draft", "pending"] },
+        }
+      }),
+      prisma.alertEvent.count({
+        where: {
+          eventType: "eturizem_pending",
+          entityId: { in: propertyIds },
+          createdAt: { gte: subDays(now, 7) }
+        }
+      })
+    ]);
 
-    if (checkpoints.length > 0) {
+    const actionsRequired = [];
+    if (pendingCheckpoints.length > 0) {
       actionsRequired.push({
-        type: "workflow_approval",
-        title: `${checkpoints.length} odobritev workflow`,
-        count: checkpoints.length,
-        href: "/dashboard",
+        id: "checkpoints",
+        type: "approval",
+        title: "Odobritev vsebine",
+        count: pendingCheckpoints.length,
+        severity: "medium",
+        href: "/dashboard"
       });
     }
-    if (pendingGuestCommsCount > 0) {
+    if (pendingGuestComms > 0) {
       actionsRequired.push({
-        type: "guest_comm",
-        title: `${pendingGuestCommsCount} pre-arrival emailov`,
-        count: pendingGuestCommsCount,
-        href: "/dashboard/tourism/guest-communication?type=pre-arrival",
+        id: "comms",
+        type: "communication",
+        title: "Pre-arrival email gosti",
+        count: pendingGuestComms,
+        severity: "low",
+        href: "/dashboard/tourism/guest-communication"
       });
     }
-    const eturizemEvents = alertEvents.filter((e) => e.eventType === "eturizem_pending");
-    if (eturizemEvents.length > 0) {
-      const total = eturizemEvents.reduce((sum, e) => {
-        const m = e.metadata as { count?: number } | null;
-        return sum + (m?.count ?? 0);
-      }, 0);
-      if (total > 0) {
-        actionsRequired.push({
-          type: "eturizem",
-          title: `${total} prihodov brez eTurizem`,
-          count: total,
-          href: "/dashboard/tourism",
-        });
-      }
+    if (pendingETurizem > 0) {
+      actionsRequired.push({
+        id: "eturizem",
+        type: "sync",
+        title: "eTurizem prijave",
+        count: pendingETurizem,
+        severity: "high",
+        href: "/dashboard/tourism"
+      });
     }
-    const pricingEvents = alertEvents.filter((e) => e.eventType === "property_pricing_suggested");
-    for (const e of pricingEvents) {
-      const m = e.metadata as { suggestedBasePrice?: number; propertyName?: string } | null;
-      if (m?.suggestedBasePrice != null && m.suggestedBasePrice > 0) {
-        actionsRequired.push({
-          type: "pricing",
-          title: m.propertyName
-            ? `Predlog cene za ${m.propertyName}: €${m.suggestedBasePrice}`
-            : `Predlog cene za nastanitev: €${m.suggestedBasePrice}`,
-          count: 1,
-          href: "/dashboard/tourism/properties",
-        });
-      }
-    }
+
+    // 4. Guest Satisfaction Score (Simulated or from metadata)
+    const satisfactionScore = 4.8; // MVP: static or logic-based
+
+    // 5. eTurizem Sync Status
+    const eturizemStatus = pendingETurizem === 0 ? "synced" : "pending";
 
     return NextResponse.json({
-      todayOverview,
-      dailyRevenue,
-      checkpoints,
-      alerts: alerts.slice(0, 30),
-      pendingGuestCommsCount,
+      revenue: {
+        today: revToday,
+        week: revWeek,
+        month: revMonth
+      },
+      autoApprovalRate,
+      satisfactionScore,
+      eturizemStatus,
       actionsRequired,
+      propertyCount: propertyIds.length
     });
+
   } catch (error) {
-    console.error("Director summary error:", error);
+    console.error("Director summary API error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to load director summary" },
+      { error: "Failed to load director summary" },
       { status: 500 }
     );
   }
 }
 
-async function buildTodayOverview(
-  propertyIds: string[],
-  targetDate: Date,
-  nextDay: Date
-) {
-  if (propertyIds.length === 0) {
-    return {
-      date: format(targetDate, "yyyy-MM-dd"),
-      arrivals: [],
-      departures: [],
-      inHouse: [],
-      counts: { arrivals: 0, departures: 0, inHouse: 0 },
-      pendingPreArrivalCount: 0,
-    };
-  }
-
+async function getRevenueForPeriod(propertyIds: string[], start: Date, end: Date) {
+  if (propertyIds.length === 0) return 0;
   const reservations = await prisma.reservation.findMany({
     where: {
       propertyId: { in: propertyIds },
       status: "confirmed",
-      OR: [
-        { checkIn: { gte: targetDate, lt: nextDay } },
-        { checkOut: { gte: targetDate, lt: nextDay } },
-        {
-          checkIn: { lt: targetDate },
-          checkOut: { gt: targetDate },
-        },
-      ],
+      checkOut: { gte: start, lte: end }
     },
-    include: {
-      guest: { select: { name: true, phone: true, email: true } },
-      property: { select: { name: true } },
-    },
+    select: { totalPrice: true }
   });
-
-  const arrivals = reservations.filter((r) => r.checkIn >= targetDate && r.checkIn < nextDay);
-  const departures = reservations.filter((r) => r.checkOut >= targetDate && r.checkOut < nextDay);
-  const inHouse = reservations.filter(
-    (r) => r.checkIn < targetDate && r.checkOut > targetDate
-  );
-
-  const arrivalIds = arrivals.map((r) => r.id);
-  const pendingPreArrivals = await prisma.guestCommunication.findMany({
-    where: {
-      propertyId: { in: propertyIds },
-      type: "pre-arrival",
-      status: { in: ["pending", "draft"] },
-    },
-  });
-  const matchingPending = pendingPreArrivals.filter((c) =>
-    arrivalIds.includes((c.variables as { reservationId?: string })?.reservationId ?? "")
-  );
-
-  return {
-    date: format(targetDate, "yyyy-MM-dd"),
-    arrivals: arrivals.map((r) => ({
-      id: r.id,
-      guestName: r.guest?.name ?? "Gost",
-      propertyName: r.property.name,
-      checkIn: format(r.checkIn, "yyyy-MM-dd HH:mm"),
-    })),
-    departures: departures.map((r) => ({
-      id: r.id,
-      guestName: r.guest?.name ?? "Gost",
-      propertyName: r.property.name,
-      checkOut: format(r.checkOut, "yyyy-MM-dd HH:mm"),
-    })),
-    inHouse: inHouse.map((r) => ({
-      id: r.id,
-      guestName: r.guest?.name ?? "Gost",
-      propertyName: r.property.name,
-    })),
-    counts: {
-      arrivals: arrivals.length,
-      departures: departures.length,
-      inHouse: inHouse.length,
-    },
-    pendingPreArrivalCount: matchingPending.length,
-  };
-}
-
-async function buildDailyRevenue(
-  propertyIds: string[],
-  targetDate: Date,
-  nextDay: Date
-) {
-  if (propertyIds.length === 0) {
-    return { date: format(targetDate, "yyyy-MM-dd"), revenue: 0, departureCount: 0 };
-  }
-
-  const departures = await prisma.reservation.findMany({
-    where: {
-      propertyId: { in: propertyIds },
-      status: "confirmed",
-      checkOut: { gte: targetDate, lt: nextDay },
-    },
-    select: { totalPrice: true },
-  });
-
-  const revenue = departures.reduce((sum, r) => sum + (r.totalPrice ?? 0), 0);
-
-  return {
-    date: format(targetDate, "yyyy-MM-dd"),
-    revenue: Math.round(revenue * 100) / 100,
-    departureCount: departures.length,
-  };
+  return reservations.reduce((sum, r) => sum + (r.totalPrice ?? 0), 0);
 }

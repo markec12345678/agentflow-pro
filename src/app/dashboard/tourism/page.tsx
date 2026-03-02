@@ -1,633 +1,555 @@
 "use client";
 
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
+import React, { useState } from "react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { PROMPTS } from "@/data/prompts";
-import { FeatureTour, TOURISM_STEPS } from "@/web/components/FeatureTour";
-import { PropertySelector } from "@/web/components/PropertySelector";
-import { Skeleton } from "@/web/components/Skeleton";
-import { GlobalSearch } from "@/web/components/GlobalSearch";
-import { NotificationBell } from "@/web/components/NotificationBell";
-import { OnboardingWizard } from "@/web/components/OnboardingWizard";
-import { TodayOverview } from "@/web/components/TodayOverview";
-import { QuickActionsPanel } from "@/web/components/QuickActionsPanel";
+  PropertyCard,
+  PropertyGrid,
+  SeasonalShowcase,
+  PropertyDetail,
+} from "@/components/tourism/PropertyCard";
+import {
+  SeasonalCalendar,
+  AvailabilityHeatmap,
+  SeasonalPricingCalendar,
+} from "@/components/tourism/SeasonalCalendar";
+import {
+  TourismContext,
+  SeasonalIndicator,
+} from "@/components/tourism/TourismContext";
+import Link from "next/link";
 
-const FIRST_SESSION_STEPS = [
-  { id: "property", label: "Dodaj nastanitev", href: "/dashboard/tourism/properties", done: false },
-  { id: "content", label: "Generiraj prvo vsebino", href: "/generate", done: false },
-  { id: "template", label: "Shrani template", href: "/dashboard/tourism/templates", done: false },
+// Mock data for demonstration
+const mockProperties = [
+  {
+    id: "1",
+    name: "Sunset Beach Resort",
+    location: "Bled, Slovenia",
+    type: "hotel",
+    price: 180,
+    rating: 4.8,
+    reviews: 245,
+    features: ["wifi", "pool", "breakfast", "spa", "gym"],
+    imageUrl: "/images/properties/hotel-summer.jpg",
+    season: "summer",
+    occupancyStatus: "available",
+    description:
+      "Luxurious beachfront resort with stunning sunset views, infinity pool, and world-class spa facilities.",
+  },
+  {
+    id: "2",
+    name: "Alpine Chalet",
+    location: "Kranjska Gora, Slovenia",
+    type: "villa",
+    price: 250,
+    rating: 4.9,
+    reviews: 187,
+    features: ["wifi", "pool", "parking", "breakfast"],
+    imageUrl: "/images/properties/villa-winter.jpg",
+    season: "winter",
+    occupancyStatus: "booked",
+    description:
+      "Cozy alpine chalet with fireplace, private hot tub, and breathtaking mountain views.",
+  },
+  {
+    id: "3",
+    name: "City Center Apartments",
+    location: "Ljubljana, Slovenia",
+    type: "apartment",
+    price: 120,
+    rating: 4.6,
+    reviews: 312,
+    features: ["wifi", "parking", "breakfast"],
+    imageUrl: "/images/properties/apartment-summer.jpg",
+    season: "summer",
+    occupancyStatus: "available",
+    description:
+      "Modern apartments in the heart of Ljubljana with easy access to all major attractions.",
+  },
+  {
+    id: "4",
+    name: "Lake View Camping",
+    location: "Bohinj, Slovenia",
+    type: "camping",
+    price: 65,
+    rating: 4.7,
+    reviews: 198,
+    features: ["wifi", "parking", "pets"],
+    imageUrl: "/images/properties/camping-summer.jpg",
+    season: "summer",
+    occupancyStatus: "pending",
+    description:
+      "Eco-friendly camping site with direct lake access and stunning alpine views.",
+  },
 ];
 
-function FirstSessionChecklist({
-  hasProperty,
-  hasContent,
-  hasTemplate,
-  loading,
-}: {
-  hasProperty: boolean;
-  hasContent: boolean;
-  hasTemplate: boolean;
-  loading: boolean;
-}) {
-  const [dismissed, setDismissed] = useState(false);
-  const allDone = hasProperty && hasContent && hasTemplate;
-  const doneCount = [hasProperty, hasContent, hasTemplate].filter(Boolean).length;
+const mockReservations = [
+  { date: "2023-07-15", status: "booked", price: 180 },
+  { date: "2023-07-16", status: "booked", price: 180 },
+  { date: "2023-07-20", status: "pending", price: 180 },
+  { date: "2023-07-25", status: "available", price: 200 },
+];
 
-  useEffect(() => {
-    try {
-      const dis = localStorage.getItem("agentflow-first-session-dismissed");
-      if (dis) setDismissed(true);
-    } catch { }
-  }, []);
+const mockAvailability = [
+  { month: 6, year: 2023, availability: 95 },
+  { month: 7, year: 2023, availability: 85 },
+  { month: 8, year: 2023, availability: 75 },
+  { month: 9, year: 2023, availability: 65 },
+];
 
-  const dismiss = () => {
-    setDismissed(true);
-    try {
-      localStorage.setItem("agentflow-first-session-dismissed", "1");
-    } catch { }
-  };
+const mockPricing = [
+  { month: 6, year: 2023, basePrice: 150, peakPrice: 220, currentPrice: 180 },
+  { month: 7, year: 2023, basePrice: 160, peakPrice: 240, currentPrice: 200 },
+  { month: 8, year: 2023, basePrice: 170, peakPrice: 260, currentPrice: 220 },
+  { month: 9, year: 2023, basePrice: 140, peakPrice: 200, currentPrice: 160 },
+];
 
-  if (loading || dismissed || allDone) return null;
+export default function TourismDashboard() {
+  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<
+    "properties" | "calendar" | "analytics"
+  >("properties");
 
-  const steps = [
-    { ...FIRST_SESSION_STEPS[0], done: hasProperty },
-    { ...FIRST_SESSION_STEPS[1], done: hasContent },
-    { ...FIRST_SESSION_STEPS[2], done: hasTemplate },
-  ];
+  const selectedPropertyData = mockProperties.find(
+    (p) => p.id === selectedProperty,
+  );
 
   return (
-    <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-          Začni v 3 korakih
-        </h3>
+    <div className="tourism-dashboard">
+      {/* Dashboard Header */}
+      <div className="dashboard-header">
+        <div className="header-left">
+          <h1 className="dashboard-title">🌍 Tourism Management</h1>
+          <TourismContext
+            location="Slovenia"
+            season="summer"
+            propertyType="hotel"
+          />
+        </div>
+        <div className="header-right">
+          <Link href="/dashboard" className="btn-tourism btn-tourism-secondary">
+            ← Back to Dashboard
+          </Link>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="dashboard-tabs">
         <button
-          onClick={dismiss}
-          className="text-gray-400 hover:text-gray-600 text-lg leading-none"
-          aria-label="Zapri"
+          className={`tab-button ${activeTab === "properties" ? "active" : ""}`}
+          onClick={() => setActiveTab("properties")}
         >
-          ×
+          <span>🏨 Properties</span>
+        </button>
+        <button
+          className={`tab-button ${activeTab === "calendar" ? "active" : ""}`}
+          onClick={() => setActiveTab("calendar")}
+        >
+          <span>📅 Calendar</span>
+        </button>
+        <button
+          className={`tab-button ${activeTab === "analytics" ? "active" : ""}`}
+          onClick={() => setActiveTab("analytics")}
+        >
+          <span>📊 Analytics</span>
         </button>
       </div>
-      <div className="flex flex-wrap gap-3">
-        {steps.map((s) => (
-          <Link
-            key={s.id}
-            href={s.href}
-            className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${s.done
-              ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
-              : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-400"
-              }`}
-          >
-            <span className={s.done ? "" : "opacity-50"}>{s.done ? "✓" : "○"}</span>
-            {s.label}
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-const TOURISM_PROMPTS = PROMPTS.filter((p) => p.category === "tourism").map(
-  (p) => ({ id: p.id, name: p.name, desc: p.description })
-);
+      {/* Tab Content */}
+      <div className="tab-content">
+        {activeTab === "properties" && (
+          <div className="properties-tab">
+            {/* Seasonal Showcase */}
+            <SeasonalShowcase
+              season="summer"
+              properties={mockProperties.filter((p) => p.season === "summer")}
+              title="🌞 Summer Highlights"
+            />
 
-const PROMPT_EMOJI: Record<string, string> = {
-  "booking-description": "📋",
-  "airbnb-story": "🏠",
-  "destination-guide": "🗺️",
-  "seasonal-campaign": "🎄",
-  "instagram-travel": "📱",
-};
+            {/* All Properties */}
+            <div className="section-header">
+              <h2>All Properties</h2>
+              <div className="section-actions">
+                <button className="btn-tourism btn-tourism-primary">
+                  + Add Property
+                </button>
+              </div>
+            </div>
 
-interface UserTemplate {
-  id: string;
-  name: string;
-  basePrompt: string;
-  customVars: Record<string, string> | null;
-  language: string | null;
-  updatedAt: string;
-}
+            <PropertyGrid
+              properties={mockProperties}
+              onPropertyClick={setSelectedProperty}
+            />
+          </div>
+        )}
 
-export default function TourismOverviewPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const isReceptionMode = searchParams.get("mode") === "reception";
+        {activeTab === "calendar" && (
+          <div className="calendar-tab">
+            <div className="calendar-grid">
+              <div className="calendar-section">
+                <SeasonalCalendar
+                  season="summer"
+                  year={2023}
+                  month={7}
+                  reservations={mockReservations}
+                />
+              </div>
+              <div className="analytics-section">
+                <AvailabilityHeatmap
+                  season="summer"
+                  availabilityData={mockAvailability}
+                />
+                <SeasonalPricingCalendar
+                  season="summer"
+                  pricingData={mockPricing}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
-  useEffect(() => {
-    try {
-      if (localStorage.getItem("agentflow-reception-mode") === "1" && !isReceptionMode) {
-        router.replace("/dashboard/tourism?mode=reception", { scroll: false });
-      }
-    } catch {
-      // SSR or localStorage unavailable
-    }
-  }, [isReceptionMode, router]);
-  const [contentCount, setContentCount] = useState(0);
-  const [templateCount, setTemplateCount] = useState(0);
-  const [propertyCount, setPropertyCount] = useState(0);
-  const [recentTemplates, setRecentTemplates] = useState<UserTemplate[]>([]);
-  const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [statsError, setStatsError] = useState<string | null>(null);
-  const [dailyRevenue, setDailyRevenue] = useState<{ revenue: number; departureCount: number } | null>(null);
-  const [occupancyData, setOccupancyData] = useState<{
-    today: { occupancyPercent: number; revenue: number };
-    todayPlus1: { occupancyPercent: number; revenue: number };
-    todayPlus2: { occupancyPercent: number; revenue: number };
-    mtd: { occupancyPercent: number; revenue: number };
-    ytd: { occupancyPercent: number; revenue: number };
-  } | null>(null);
-  const [revenueRangeData, setRevenueRangeData] = useState<{ date: string; revenue: number }[] | null>(null);
-  const [chartsLoading, setChartsLoading] = useState(false);
-  const [newInquiryCount, setNewInquiryCount] = useState(0);
+        {activeTab === "analytics" && (
+          <div className="analytics-tab">
+            <div className="analytics-grid">
+              {/* Seasonal Performance */}
+              <div className="analytics-card">
+                <h3>📈 Seasonal Performance</h3>
+                <div className="performance-metrics">
+                  <div className="metric">
+                    <span className="metric-value">85%</span>
+                    <span className="metric-label">Occupancy Rate</span>
+                  </div>
+                  <div className="metric">
+                    <span className="metric-value">€180</span>
+                    <span className="metric-label">Avg. Daily Rate</span>
+                  </div>
+                  <div className="metric">
+                    <span className="metric-value">4.7</span>
+                    <span className="metric-label">Guest Rating</span>
+                  </div>
+                </div>
+              </div>
 
-  useEffect(() => {
-    fetch("/api/user/active-property")
-      .then((r) => r.json())
-      .then((data) => setActivePropertyId(data.activePropertyId ?? null))
-      .catch(() => setActivePropertyId(null));
-  }, []);
+              {/* Revenue Overview */}
+              <div className="analytics-card">
+                <h3>💰 Revenue Overview</h3>
+                <div className="revenue-chart">
+                  <div className="revenue-bar" style={{ height: "75%" }}>
+                    <span className="revenue-value">€45,200</span>
+                    <span className="revenue-month">July</span>
+                  </div>
+                  <div className="revenue-bar" style={{ height: "65%" }}>
+                    <span className="revenue-value">€38,900</span>
+                    <span className="revenue-month">June</span>
+                  </div>
+                  <div className="revenue-bar" style={{ height: "85%" }}>
+                    <span className="revenue-value">€51,300</span>
+                    <span className="revenue-month">August</span>
+                  </div>
+                </div>
+              </div>
 
-  useEffect(() => {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 8000);
-    const templateUrl = activePropertyId
-      ? `/api/user/templates?category=tourism&propertyId=${encodeURIComponent(activePropertyId)}`
-      : "/api/user/templates?category=tourism";
-    Promise.all([
-      fetch("/api/content/history", { signal: ctrl.signal }).then((r) => r.json()),
-      fetch(templateUrl, { signal: ctrl.signal }).then((r) => r.json()),
-      fetch("/api/tourism/properties", { signal: ctrl.signal }).then((r) => r.json()).catch(() => ({ properties: [] })),
-    ])
-      .then(([contentRes, templateRes, propsRes]) => {
-        setStatsError(null);
-        const posts = contentRes?.posts ?? [];
-        const templates = templateRes?.templates ?? [];
-        const list = Array.isArray(templates) ? templates : [];
-        const properties = propsRes?.properties ?? [];
-        setContentCount(Array.isArray(posts) ? posts.length : 0);
-        setTemplateCount(list.length);
-        setPropertyCount(Array.isArray(properties) ? properties.length : 0);
-        setRecentTemplates(list.slice(0, 5));
-      })
-      .catch(() => {
-        setStatsError("Prišlo je do napake pri nalaganju. Poskusi znova.");
-        toast.error("Napaka pri nalaganju statistike ali template-ov.");
-      })
-      .finally(() => {
-        clearTimeout(t);
-        setStatsLoading(false);
-      });
-  }, [activePropertyId]);
-
-  // Dnevni promet (Reception)
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (activePropertyId) params.set("propertyId", activePropertyId);
-    fetch(`/api/tourism/daily-revenue?${params.toString()}`)
-      .then((r) => r.json())
-      .then((d) => setDailyRevenue({ revenue: d.revenue ?? 0, departureCount: d.departureCount ?? 0 }))
-      .catch(() => setDailyRevenue(null));
-  }, [activePropertyId]);
-
-  // Occupancy in revenue charts
-  useEffect(() => {
-    if (!activePropertyId) {
-      setOccupancyData(null);
-      setRevenueRangeData(null);
-      return;
-    }
-    setChartsLoading(true);
-    Promise.all([
-      fetch(`/api/tourism/occupancy?propertyId=${encodeURIComponent(activePropertyId)}`).then((r) => r.json()),
-      fetch(`/api/tourism/daily-revenue/range?propertyId=${encodeURIComponent(activePropertyId)}`).then((r) => r.json()),
-    ])
-      .then(([occRes, revRes]) => {
-        if (occRes.error) throw new Error(occRes.error);
-        if (revRes.error) throw new Error(revRes.error);
-        setOccupancyData({
-          today: occRes.today,
-          todayPlus1: occRes.todayPlus1,
-          todayPlus2: occRes.todayPlus2,
-          mtd: occRes.mtd,
-          ytd: occRes.ytd,
-        });
-        setRevenueRangeData(revRes.days ?? []);
-      })
-      .catch(() => {
-        setOccupancyData(null);
-        setRevenueRangeData(null);
-      })
-      .finally(() => setChartsLoading(false));
-  }, [activePropertyId]);
-
-  const getPromptName = (basePrompt: string) =>
-    TOURISM_PROMPTS.find((p) => p.id === basePrompt)?.name ?? basePrompt;
-
-  const savedHours = Math.round(contentCount * 0.5 + templateCount * 0.3);
-  const stats = [
-    { label: "Generiranih vsebin", value: String(contentCount), icon: "📄" },
-    { label: "Shranjenih template-ov", value: String(templateCount), icon: "💾" },
-    { label: "Jezikov", value: "5", icon: "🌍" },
-    { label: "Prihranjenih ur", value: `${savedHours}h`, icon: "⏱️" },
-  ];
-
-  return (
-    <div className={`p-4 sm:p-6 lg:p-8 space-y-8 overflow-x-hidden ${isReceptionMode ? "max-w-4xl mx-auto" : ""}`}>
-      {!isReceptionMode && (
-        <>
-          <OnboardingWizard />
-          <FeatureTour
-            steps={TOURISM_STEPS}
-            storageKey="agentflow-tourism-tour-seen"
-          />
-        </>
-      )}
-
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Tourism Hub
-          </h1>
-          <p
-            id="language-select"
-            className="text-gray-600 dark:text-gray-400 mt-1"
-          >
-            {isReceptionMode
-              ? "Recepcijski način – danes in hitre akcije"
-              : "Vsa orodja za turistične ponudnike na enem mestu. Multi-language (SL, EN, DE, IT, HR)."}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href={isReceptionMode ? "/dashboard/tourism" : "/dashboard/tourism?mode=reception"}
-            onClick={() => {
-              try {
-                if (isReceptionMode) {
-                  localStorage.removeItem("agentflow-reception-mode");
-                } else {
-                  localStorage.setItem("agentflow-reception-mode", "1");
-                }
-              } catch { /* ignore */ }
-            }}
-            className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-          >
-            {isReceptionMode ? "↩ Običajni način" : "🖥 Reception način"}
-          </Link>
-          <GlobalSearch propertyId={activePropertyId} />
-          <NotificationBell propertyId={activePropertyId} />
-          <PropertySelector
-            value={activePropertyId}
-            onChange={async (id) => {
-              const res = await fetch("/api/user/active-property", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ propertyId: id }),
-              });
-              if (res.ok) setActivePropertyId(id);
-            }}
-          />
-          <Link href="/dashboard/tourism/generate" id="export-btn">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-              Novo Generiraj
-            </span>
-          </Link>
-        </div>
+              {/* Guest Demographics */}
+              <div className="analytics-card">
+                <h3>👥 Guest Demographics</h3>
+                <div className="demographics-chart">
+                  <div className="demo-section">
+                    <h4>Nationalities</h4>
+                    <div className="demo-item">
+                      <span
+                        className="demo-color"
+                        style={{ backgroundColor: "#4CAF50" }}
+                      ></span>
+                      <span>Slovenia - 35%</span>
+                    </div>
+                    <div className="demo-item">
+                      <span
+                        className="demo-color"
+                        style={{ backgroundColor: "#2196F3" }}
+                      ></span>
+                      <span>Germany - 25%</span>
+                    </div>
+                    <div className="demo-item">
+                      <span
+                        className="demo-color"
+                        style={{ backgroundColor: "#FFC107" }}
+                      ></span>
+                      <span>Italy - 15%</span>
+                    </div>
+                  </div>
+                  <div className="demo-section">
+                    <h4>Age Groups</h4>
+                    <div className="demo-item">
+                      <span
+                        className="demo-color"
+                        style={{ backgroundColor: "#9C27B0" }}
+                      ></span>
+                      <span>25-34 - 40%</span>
+                    </div>
+                    <div className="demo-item">
+                      <span
+                        className="demo-color"
+                        style={{ backgroundColor: "#FF5722" }}
+                      ></span>
+                      <span>35-44 - 30%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {statsError && (
-        <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
-          <p className="text-red-700 dark:text-red-300">{statsError}</p>
-        </div>
-      )}
-
-      {!isReceptionMode && (
-        <FirstSessionChecklist
-          hasProperty={propertyCount > 0}
-          hasContent={contentCount > 0}
-          hasTemplate={templateCount > 0}
-          loading={statsLoading}
+      {/* Property Detail Modal */}
+      {selectedProperty && selectedPropertyData && (
+        <PropertyDetail
+          property={selectedPropertyData}
+          onClose={() => setSelectedProperty(null)}
         />
       )}
 
-      {(isReceptionMode || dailyRevenue !== null) && (
-        <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
-          <div className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
-            Danes: €{(dailyRevenue?.revenue ?? 0).toFixed(2)} prihodkov
-            ({dailyRevenue?.departureCount ?? 0} odhodov)
-          </div>
-        </div>
-      )}
+      <style jsx>{`
+        .tourism-dashboard {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: var(--tourism-spacing-lg);
+        }
 
-      {newInquiryCount > 0 && (
-        <Link
-          href={`/dashboard/tourism/inbox?status=new${activePropertyId ? `&propertyId=${activePropertyId}` : ""}`}
-          className="block rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
-        >
-          <div className="text-sm font-medium text-amber-800 dark:text-amber-200 flex items-center gap-2">
-            <span>📥</span> Nova povpraševanja: {newInquiryCount}
-          </div>
-        </Link>
-      )}
+        .dashboard-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: var(--tourism-spacing-lg);
+        }
 
-      {isReceptionMode && (
-        <QuickActionsPanel propertyId={activePropertyId} isReceptionMode />
-      )}
+        .header-left {
+          display: flex;
+          flex-direction: column;
+          gap: var(--tourism-spacing-sm);
+        }
 
-      <div className={isReceptionMode ? "text-lg [&_h2]:text-xl [&_.text-sm]:text-base" : ""}>
-        <TodayOverview propertyId={activePropertyId} />
-      </div>
+        .dashboard-title {
+          font-family: var(--tourism-font-secondary);
+          font-size: 28px;
+          font-weight: 600;
+          color: var(--tourism-dark);
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
 
-      {!isReceptionMode && (
-        <QuickActionsPanel propertyId={activePropertyId} />
-      )}
+        .dashboard-tabs {
+          display: flex;
+          gap: 4px;
+          margin-bottom: var(--tourism-spacing-lg);
+          border-bottom: 1px solid var(--tourism-light);
+        }
 
-      {activePropertyId && (occupancyData || revenueRangeData?.length || chartsLoading) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {chartsLoading ? (
-            <>
-              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 h-64">
-                <Skeleton className="h-full w-full" />
-              </div>
-              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 h-64">
-                <Skeleton className="h-full w-full" />
-              </div>
-            </>
-          ) : occupancyData ? (
-            <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden p-4">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Zasedenost</h3>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[
-                      { name: "Danes", value: occupancyData.today.occupancyPercent },
-                      { name: "Jutri", value: occupancyData.todayPlus1.occupancyPercent },
-                      { name: "Pojutrišnjem", value: occupancyData.todayPlus2.occupancyPercent },
-                      { name: "MTD", value: occupancyData.mtd.occupancyPercent },
-                      { name: "YTD", value: occupancyData.ytd.occupancyPercent },
-                    ]}
-                    margin={{ top: 8, right: 8, left: 0, bottom: 24 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                    <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-                    <Tooltip formatter={(v: number | undefined) => [`${v != null ? v : 0}%`, "Zasedenost"]} />
-                    <Bar dataKey="value" fill="#10b981" name="Zasedenost %" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          ) : null}
-          {revenueRangeData && revenueRangeData.length > 0 && !chartsLoading ? (
-            <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden p-4">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Prihodki (zadnjih 7 dni)</h3>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={revenueRangeData.map((d) => ({
-                      name: d.date.slice(5),
-                      revenue: d.revenue,
-                    }))}
-                    margin={{ top: 8, right: 8, left: 0, bottom: 24 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip formatter={(v: number | undefined) => [`€${(v ?? 0).toFixed(2)}`, "Prihodki"]} />
-                    <Bar dataKey="revenue" fill="#3b82f6" name="Prihodki €" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      )}
+        .tab-button {
+          padding: var(--tourism-spacing-sm) var(--tourism-spacing-md);
+          background: transparent;
+          border: none;
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--tourism-primary);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          position: relative;
+        }
 
-      {isReceptionMode && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <Link
-            href="/dashboard/tourism/guest-communication"
-            className="p-6 rounded-xl bg-linear-to-r from-violet-600 to-blue-600 text-white hover:opacity-90 transition-opacity text-center"
-          >
-            <div className="text-4xl mb-3">💬</div>
-            <div className="font-semibold text-xl">Komunikacija z Gosti</div>
-          </Link>
-          <Link
-            href="/dashboard/tourism/calendar"
-            className="p-6 rounded-xl bg-linear-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 transition-opacity text-center"
-          >
-            <div className="text-4xl mb-3">📅</div>
-            <div className="font-semibold text-xl">Koledar & Zasedenost</div>
-          </Link>
-        </div>
-      )}
+        .tab-button:hover {
+          color: var(--tourism-dark);
+        }
 
-      {!isReceptionMode && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statsLoading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4"
-              >
-                <Skeleton className="h-12 w-12 shrink-0 rounded-lg" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-7 w-12" />
-                  <Skeleton className="h-4 w-24" />
-                </div>
-              </div>
-            ))
-          ) : (
-            stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4"
-              >
-                <span className="text-3xl shrink-0" aria-hidden>
-                  {stat.icon}
-                </span>
-                <div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {stat.label}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
+        .tab-button.active {
+          color: var(--tourism-dark);
+          border-bottom: 2px solid var(--tourism-primary);
+        }
 
-      {!isReceptionMode && (
-        <>
-          <div
-            id="prompt-selector"
-            className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden"
-          >
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Hitri Začetek
-              </h2>
-              <Link
-                href="/dashboard/tourism/bulk-generate"
-                className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                📦 Bulk generiranje
-              </Link>
-            </div>
-            <div className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {TOURISM_PROMPTS.map((prompt) => (
-                  <Link
-                    key={prompt.id}
-                    href={`/dashboard/tourism/generate?prompt=${prompt.id}`}
-                    className="group p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all"
-                  >
-                    <div className="font-semibold text-gray-900 dark:text-white mb-1">
-                      {PROMPT_EMOJI[prompt.id] ? `${PROMPT_EMOJI[prompt.id]} ` : ""}
-                      {prompt.name}
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {prompt.desc}
-                    </div>
-                    <div className="mt-3 text-sm font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                      Odpri →
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
+        .tab-button.active::after {
+          content: "";
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: var(--tourism-primary);
+        }
 
-          {(statsLoading || recentTemplates.length > 0) && (
-            <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Nedavni Template-i
-                </h2>
-                <Link
-                  href="/dashboard/tourism/templates"
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  Vsi template-i →
-                </Link>
-              </div>
-              <div className="p-4 space-y-2">
-                {recentTemplates.map((template) => (
-                  <div
-                    key={template.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
-                  >
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        {template.name}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {getPromptName(template.basePrompt)}
-                      </div>
-                    </div>
-                    <Link
-                      href={`/dashboard/tourism/generate?template=${template.id}`}
-                      className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      Uporabi
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      )}
+        .tab-content {
+          min-height: 600px;
+        }
 
-      {/* New Feature Links */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link
-          href="/dashboard/tourism/guest-communication"
-          className="p-4 rounded-xl bg-linear-to-r from-violet-600 to-blue-600 text-white hover:opacity-90 transition-opacity"
-        >
-          <div className="text-2xl mb-2">💬</div>
-          <div className="font-semibold">Komunikacija z Gosti</div>
-          <div className="text-sm text-white/80">Pre-arrival, Post-stay, FAQ</div>
-        </Link>
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: var(--tourism-spacing-lg) 0;
+        }
 
-        <Link
-          href="/dashboard/tourism/calendar"
-          className="p-4 rounded-xl bg-linear-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 transition-opacity"
-        >
-          <div className="text-2xl mb-2">📅</div>
-          <div className="font-semibold">Koledar & Zasedenost</div>
-          <div className="text-sm text-white/80">Rezervacije, iCal sync</div>
-        </Link>
+        .section-header h2 {
+          font-family: var(--tourism-font-secondary);
+          font-size: 20px;
+          font-weight: 600;
+          color: var(--tourism-dark);
+          margin: 0;
+        }
 
-        <Link
-          href="/dashboard/tourism/analytics"
-          className="p-4 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
-        >
-          <div className="text-2xl mb-2">📊</div>
-          <div className="font-semibold">Analitika & Poročila</div>
-          <div className="text-sm text-white/80">Kanali, prihodki, trendi</div>
-        </Link>
+        .calendar-grid {
+          display: grid;
+          grid-template-columns: 1fr 300px;
+          gap: var(--tourism-spacing-lg);
+        }
 
-        <Link
-          href="/dashboard/tourism/data-cleanup"
-          className="p-4 rounded-xl bg-linear-to-r from-slate-500 to-gray-600 text-white hover:opacity-90 transition-opacity"
-        >
-          <div className="text-2xl mb-2">🧹</div>
-          <div className="font-semibold">Čiščenje podatkov</div>
-          <div className="text-sm text-white/80">Deduplikacija, anomalije</div>
-        </Link>
+        .calendar-section {
+          background: white;
+          border-radius: var(--tourism-radius-lg);
+          box-shadow: var(--tourism-shadow-md);
+          padding: var(--tourism-spacing-md);
+        }
 
-        <Link
-          href="/dashboard/tourism/competitors"
-          className="p-4 rounded-xl bg-linear-to-r from-orange-500 to-red-500 text-white hover:opacity-90 transition-opacity"
-        >
-          <div className="text-2xl mb-2">🎯</div>
-          <div className="font-semibold">Spremljanje Tekmecev</div>
-          <div className="text-sm text-white/80">Primerjava cen, trg</div>
-        </Link>
+        .analytics-section {
+          display: flex;
+          flex-direction: column;
+          gap: var(--tourism-spacing-lg);
+        }
 
-        <Link
-          href="/dashboard/tourism/booking-com"
-          className="p-4 rounded-xl bg-linear-to-r from-amber-500 to-yellow-600 text-white hover:opacity-90 transition-opacity"
-        >
-          <div className="text-2xl mb-2">🏨</div>
-          <div className="font-semibold">Booking.com Partner</div>
-          <div className="text-sm text-white/80">Connectivity / Affiliate prijava</div>
-        </Link>
-      </div>
+        .analytics-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: var(--tourism-spacing-lg);
+        }
 
-      <div className="rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 p-6 text-center">
-        <div className="text-4xl mb-3" aria-hidden>
-          📅
-        </div>
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-          iCal Sinhronizacija
-        </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Sinhronizirajte koledar z Airbnb, Booking.com in drugimi platformami.
-        </p>
-        <Link
-          href="/dashboard/tourism/calendar"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium transition-colors"
-        >
-          Nastavi iCal Sync →
-        </Link>
-      </div>
+        .analytics-card {
+          background: white;
+          border-radius: var(--tourism-radius-lg);
+          box-shadow: var(--tourism-shadow-md);
+          padding: var(--tourism-spacing-md);
+        }
+
+        .analytics-card h3 {
+          color: var(--tourism-primary);
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: var(--tourism-spacing-md);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .performance-metrics {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--tourism-spacing-md);
+        }
+
+        .metric {
+          text-align: center;
+        }
+
+        .metric-value {
+          font-family: var(--tourism-font-secondary);
+          font-size: 24px;
+          font-weight: 600;
+          color: var(--tourism-primary);
+          display: block;
+        }
+
+        .metric-label {
+          font-size: 12px;
+          color: var(--tourism-dark);
+          opacity: 0.7;
+        }
+
+        .revenue-chart {
+          display: flex;
+          align-items: flex-end;
+          gap: var(--tourism-spacing-sm);
+          height: 200px;
+          margin-top: var(--tourism-spacing-md);
+        }
+
+        .revenue-bar {
+          flex: 1;
+          background: linear-gradient(
+            to top,
+            var(--tourism-primary),
+            var(--tourism-secondary)
+          );
+          border-radius: var(--tourism-radius-sm);
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          padding: var(--tourism-spacing-xs);
+        }
+
+        .revenue-value {
+          font-size: 12px;
+          color: white;
+          font-weight: 600;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .revenue-month {
+          font-size: 10px;
+          color: rgba(255, 255, 255, 0.8);
+          margin-top: 2px;
+        }
+
+        .demographics-chart {
+          display: flex;
+          gap: var(--tourism-spacing-lg);
+          margin-top: var(--tourism-spacing-md);
+        }
+
+        .demo-section {
+          flex: 1;
+        }
+
+        .demo-section h4 {
+          font-size: 14px;
+          color: var(--tourism-primary);
+          margin-bottom: var(--tourism-spacing-xs);
+        }
+
+        .demo-item {
+          display: flex;
+          align-items: center;
+          gap: var(--tourism-spacing-xs);
+          font-size: 12px;
+          margin: var(--tourism-spacing-xs) 0;
+        }
+
+        .demo-color {
+          display: inline-block;
+          width: 12px;
+          height: 12px;
+          border-radius: 2px;
+        }
+
+        @media (max-width: 1024px) {
+          .calendar-grid {
+            grid-template-columns: 1fr;
+          }
+          .analytics-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .dashboard-header {
+            flex-direction: column;
+            gap: var(--tourism-spacing-md);
+            align-items: flex-start;
+          }
+          .dashboard-tabs {
+            overflow-x: auto;
+            padding-bottom: var(--tourism-spacing-sm);
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -10,6 +10,7 @@ const config: Config = {
     "./src/agents/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/workflows/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/styles/**/*.{css}",
   ],
   theme: {
     extend: {

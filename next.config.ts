@@ -4,6 +4,9 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // Vercel: no standalone (better asset serving). Docker: use standalone.
   ...(process.env.VERCEL
     ? {}

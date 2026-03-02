@@ -1,0 +1,258 @@
+:root {
+  /* Tourism Color Palette */
+  --tourism-primary: #007765;    /* Nature green */
+  --tourism-secondary: #FF8C42; /* Sunset orange */
+  --tourism-accent: #4A90E2;   /* Sky blue */
+  --tourism-light: #F5F9F8;    /* Light natural */
+  --tourism-dark: #1E3A32;     /* Forest green */
+  --tourism-summer: #FFD700;   /* Summer gold */
+  --tourism-winter: #ADD8E6;   /* Winter blue */
+  --tourism-spring: #98FB98;   /* Spring green */
+  --tourism-autumn: #FF7F50;   /* Autumn orange */
+
+  /* Tourism Typography */
+  --tourism-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --tourism-font-secondary: 'Playfair Display', serif;
+
+  /* Tourism Spacing */
+  --tourism-spacing-xs: 4px;
+  --tourism-spacing-sm: 8px;
+  --tourism-spacing-md: 16px;
+  --tourism-spacing-lg: 24px;
+  --tourism-spacing-xl: 32px;
+
+  /* Tourism Border Radius */
+  --tourism-radius-sm: 6px;
+  --tourism-radius-md: 12px;
+  --tourism-radius-lg: 18px;
+  --tourism-radius-xl: 24px;
+
+  /* Tourism Shadows */
+  --tourism-shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --tourism-shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --tourism-shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --tourism-shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
+}
+
+/* Tourism Button Styles */
+.btn-tourism {
+  padding: var(--tourism-spacing-sm) var(--tourism-spacing-md);
+  border-radius: var(--tourism-radius-md);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-family: var(--tourism-font-primary);
+}
+
+.btn-tourism-primary {
+  background-color: var(--tourism-primary);
+  color: white;
+  border: 1px solid var(--tourism-primary);
+}
+
+.btn-tourism-primary:hover {
+  background-color: #005f4e;
+  transform: translateY(-1px);
+  box-shadow: var(--tourism-shadow-md);
+}
+
+.btn-tourism-secondary {
+  background-color: var(--tourism-secondary);
+  color: white;
+  border: 1px solid var(--tourism-secondary);
+}
+
+.btn-tourism-secondary:hover {
+  background-color: #e67a35;
+  transform: translateY(-1px);
+}
+
+/* Seasonal Button Variants */
+.btn-summer {
+  background: linear-gradient(135deg, var(--tourism-summer), #FFB347);
+  color: var(--tourism-dark);
+}
+
+.btn-winter {
+  background: linear-gradient(135deg, var(--tourism-winter), #B0E0E6);
+  color: var(--tourism-dark);
+}
+
+.btn-spring {
+  background: linear-gradient(135deg, var(--tourism-spring), #90EE90);
+  color: var(--tourism-dark);
+}
+
+.btn-autumn {
+  background: linear-gradient(135deg, var(--tourism-autumn), #FF8C00);
+  color: white;
+}
+
+/* Tourism Card Styles */
+.card-tourism {
+  background: white;
+  border-radius: var(--tourism-radius-lg);
+  box-shadow: var(--tourism-shadow-md);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 119, 101, 0.1);
+}
+
+.card-tourism:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--tourism-shadow-lg);
+  border-color: rgba(0, 119, 101, 0.2);
+}
+
+/* Seasonal Badges */
+.badge-season {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--tourism-spacing-xs) var(--tourism-spacing-sm);
+  border-radius: var(--tourism-radius-xl);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-summer {
+  background-color: var(--tourism-summer);
+  color: var(--tourism-dark);
+}
+
+.badge-winter {
+  background-color: var(--tourism-winter);
+  color: var(--tourism-dark);
+}
+
+.badge-spring {
+  background-color: var(--tourism-spring);
+  color: var(--tourism-dark);
+}
+
+.badge-autumn {
+  background-color: var(--tourism-autumn);
+  color: white;
+}
+
+/* Tourism Typography */
+.heading-tourism {
+  font-family: var(--tourism-font-secondary);
+  color: var(--tourism-dark);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.subheading-tourism {
+  font-family: var(--tourism-font-primary);
+  color: var(--tourism-primary);
+  font-weight: 500;
+}
+
+/* Property Feature Badges */
+.feature-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--tourism-light);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--tourism-primary);
+  border: 1px solid rgba(0, 119, 101, 0.2);
+}
+
+/* Tourism Form Elements */
+.input-tourism {
+  border: 1px solid #E0E0E0;
+  border-radius: var(--tourism-radius-md);
+  padding: var(--tourism-spacing-sm) var(--tourism-spacing-md);
+  font-family: var(--tourism-font-primary);
+  transition: all 0.2s ease;
+}
+
+.input-tourism:focus {
+  outline: none;
+  border-color: var(--tourism-primary);
+  box-shadow: 0 0 0 2px rgba(0, 119, 101, 0.1);
+}
+
+/* Seasonal Animations */
+@keyframes summerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes winterShimmer {
+  0% { background-position: -200px; }
+  100% { background-position: 200px; }
+}
+
+/* Responsive Tourism Grid */
+.tourism-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--tourism-spacing-lg);
+}
+
+@media (max-width: 768px) {
+  .tourism-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tourism Utility Classes */
+.text-primary { color: var(--tourism-primary); }
+.text-secondary { color: var(--tourism-secondary); }
+.text-accent { color: var(--tourism-accent); }
+
+.bg-primary { background-color: var(--tourism-primary); }
+.bg-secondary { background-color: var(--tourism-secondary); }
+.bg-accent { background-color: var(--tourism-accent); }
+
+.border-primary { border-color: var(--tourism-primary); }
+.border-secondary { border-color: var(--tourism-secondary); }
+
+/* Tourism Icons */
+.tourism-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+}
+
+/* Seasonal Backgrounds */
+.bg-seasonal {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.bg-seasonal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: inherit;
+}
+
+.bg-summer {
+  background-image: url('/images/seasonal/summer-bg.jpg');
+}
+
+.bg-winter {
+  background-image: url('/images/seasonal/winter-bg.jpg');
+}
+
+.bg-spring {
+  background-image: url('/images/seasonal/spring-bg.jpg');
+}
+
+.bg-autumn {
+  background-image: url('/images/seasonal/autumn-bg.jpg');
+}
