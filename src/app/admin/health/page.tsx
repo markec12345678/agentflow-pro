@@ -423,8 +423,8 @@ export default function HealthPage() {
                       className={`progress-bar-fill blue progress-width-${Math.round(_systemMetrics.cpu.usage / 5) * 5}`}
                       role="progressbar"
                       aria-valuenow={_systemMetrics.cpu.usage}
-                      aria-valuemin="0"
-                      aria-valuemax="100"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
                       aria-label={`CPU usage: ${_systemMetrics.cpu.usage}%`}
                     />
                   </div>
@@ -455,8 +455,8 @@ export default function HealthPage() {
                       className={`progress-bar-fill green progress-width-${Math.round(_systemMetrics.memory.percentage / 5) * 5}`}
                       role="progressbar"
                       aria-valuenow={_systemMetrics.memory.percentage}
-                      aria-valuemin="0"
-                      aria-valuemax="100"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
                       aria-label={`Memory usage: ${_systemMetrics.memory.percentage}%`}
                     />
                   </div>
@@ -484,8 +484,8 @@ export default function HealthPage() {
                       } progress-width-${Math.round(_systemMetrics.disk.percentage / 5) * 5}`}
                       role="progressbar"
                       aria-valuenow={_systemMetrics.disk.percentage}
-                      aria-valuemin="0"
-                      aria-valuemax="100"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
                       aria-label={`Disk usage: ${_systemMetrics.disk.percentage}%`}
                     />
                   </div>

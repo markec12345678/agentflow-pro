@@ -302,8 +302,9 @@ export class WorkflowAdvisor {
     const nodeTimes: Record<string, number> = {};
     executionHistory.forEach(exec => {
       if (exec.nodeTimes) {
-        Object.entries(exec.nodeTimes).forEach(([nodeId, time]: [string, number]) => {
-          nodeTimes[nodeId] = (nodeTimes[nodeId] || 0) + time;
+        Object.entries(exec.nodeTimes).forEach(([nodeId, time]: [string, unknown]) => {
+          const timeValue = typeof time === 'number' ? time : parseFloat(time as string) || 0;
+          nodeTimes[nodeId] = (nodeTimes[nodeId] || 0) + timeValue;
         });
       }
     });

@@ -63,7 +63,7 @@ export default function AgentsDashboard() {
         router.push("/login?callbackUrl=/agents");
       } else if (status === "authenticated") {
         // Get user role from database
-        const userId = session?.user?.userId || session?.user?.id;
+        const userId = session?.user?.userId || (session?.user as any)?.id;
         let userRole = null;
         
         if (userId) {

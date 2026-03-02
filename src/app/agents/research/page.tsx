@@ -45,7 +45,7 @@ export default function ResearchAgentPage() {
     if (status === "unauthenticated") {
       router.push("/login?callbackUrl=/agents/research");
     } else if (status === "authenticated") {
-      const role = session?.user?.role;
+      const role = session?.user?.role || (session?.user as any)?.role;
       if (role !== "admin" && role !== "director") {
         toast.error("Dostop zavrnjen. Samo za vodstvo.");
         router.push("/agents");

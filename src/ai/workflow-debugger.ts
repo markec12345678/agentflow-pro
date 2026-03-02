@@ -67,8 +67,8 @@ export class WorkflowDebugger {
         endTime: nodeExec.endTime,
         executionTime: nodeExec.endTime - nodeExec.startTime,
         mcpCalls: nodeExec.mcpCalls || 0,
-        errors: nodeExec.errors || 0,
-        warnings: nodeExec.warnings || 0,
+        errors: Array.isArray(nodeExec.errors) ? nodeExec.errors.length : (nodeExec.errors || 0),
+        warnings: Array.isArray(nodeExec.warnings) ? nodeExec.warnings.length : (nodeExec.warnings || 0),
         memoryUsage: nodeExec.memoryUsage || 0
       };
 
@@ -100,7 +100,7 @@ export class WorkflowDebugger {
         dataSize: edgeExec.dataSize,
         transferTime: edgeExec.transferTime,
         status: edgeExec.status,
-        errors: edgeExec.errors || 0
+        errors: Array.isArray(edgeExec.errors) ? edgeExec.errors.length : (edgeExec.errors || 0),
       };
 
       edgeExec.errors?.forEach(error => {
@@ -167,7 +167,7 @@ export class WorkflowDebugger {
         id: `err-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
         type: 'error',
         nodeId: error.nodeId || 'unknown',
-        severity: error.severity,
+        severity: (error.severity === 'high' || error.severity === 'medium' || error.severity === 'low') ? error.severity : 'high',
         description: error.message,
         details: {
           timestamp: error.timestamp,
@@ -383,7 +383,7 @@ export class WorkflowDebugger {
         actions: agentRecommendations.slice(0, 3).map(rec => ({
           type: 'configuration',
           description: rec.description,
-          estimatedImpact: rec.potentialImprovement
+          estimatedImpact: (rec as any).potentialImprovement || 'medium',
         }))
       });
     }
@@ -456,7 +456,7 @@ export class WorkflowDebugger {
         type: node.type,
         position: node.position,
         status: nodeExec?.status || 'pending',
-        executionTime: nodeExec?.executionTime || 0,
+        executionTime: (nodeExec?.endTime && nodeExec?.startTime) ? (nodeExec.endTime - nodeExec.startTime) : 0,
         hasIssues: nodeIssues.length > 0,
         issueSeverity: nodeIssues.length > 0
           ? Math.max(...nodeIssues.map(i => this.severityToScore(i.severity)))
@@ -495,7 +495,7 @@ export class WorkflowDebugger {
           time: nodeExec.endTime,
           type: 'node_end',
           nodeId: nodeExec.nodeId,
-          description: `Node ${nodeExec.nodeId} completed (${nodeExec.executionTime}ms)`
+          description: `Node ${nodeExec.nodeId} completed (${(nodeExec.endTime && nodeExec.startTime) ? (nodeExec.endTime - nodeExec.startTime) : 0}ms)`
         }
       ])
       .sort((a, b) => a.time - b.time);
