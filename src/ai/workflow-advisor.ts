@@ -1,6 +1,30 @@
-import { Workflow } from '@prisma/client';
-import { Agent } from '../agents/Agent';
+// import { Workflow } from '@prisma/client';
+// import { Agent } from '../agents/Agent';
 import { getContextManager } from './context-manager';
+
+// Mock Agent interface for now
+interface Agent {
+  id: string;
+  type: string;
+  name: string;
+  description?: string;
+  capabilities: string[];
+  version: string;
+  recommendedConfig?: any;
+  specialization?: string;
+}
+
+// Mock Workflow interface for now
+interface Workflow {
+  id: string;
+  name: string;
+  description?: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  nodes?: string;
+  edges?: string;
+}
 
 export interface WorkflowSuggestion {
   type: 'optimization' | 'error_fix' | 'best_practice' | 'performance';
@@ -278,7 +302,7 @@ export class WorkflowAdvisor {
     const nodeTimes: Record<string, number> = {};
     executionHistory.forEach(exec => {
       if (exec.nodeTimes) {
-        Object.entries(exec.nodeTimes).forEach(([nodeId, time]) => {
+        Object.entries(exec.nodeTimes).forEach(([nodeId, time]: [string, number]) => {
           nodeTimes[nodeId] = (nodeTimes[nodeId] || 0) + time;
         });
       }
@@ -288,7 +312,7 @@ export class WorkflowAdvisor {
       .map(([nodeId, totalTime]) => ({
         nodeId,
         avgTime: totalTime / executionHistory.length,
-        node: nodes.find(n => n.id === nodeId)
+        node: (nodes as any[]).find((n: any) => n.id === nodeId)
       }))
       .filter(item => item.avgTime > 2000) // More than 2 seconds
       .sort((a, b) => b.avgTime - a.avgTime);

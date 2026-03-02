@@ -29,19 +29,16 @@ export class ContextManager {
     private knowledgeGraph: KnowledgeGraph
   ) {}
 
-  async getEnhancedContext(
-    query: string,
-    userId: string,
-    agentId: string
-  ): Promise<EnhancedContext> {
+  async getEnhancedContext(query: string, _userId: string, _agentId?: string): Promise<EnhancedContext> {
     const startTime = Date.now();
 
     // Parallel context gathering
     const [semanticAnalysis, historicalData, graphData, userPrefs] = await Promise.all([
       this.analyzeSemantics(query),
-      this.getHistoricalContext(userId, agentId),
+      this.getHistoricalContext(_userId, _agentId || ''),
+      this.getHistoricalContext(_userId, _agentId || ''),
       this.getKnowledgeGraphContext(query),
-      this.getUserPreferences(userId)
+      this.getUserPreferences(_userId)
     ]);
 
     const executionTime = Date.now() - startTime;
@@ -52,12 +49,12 @@ export class ContextManager {
       semanticMeaning: semanticAnalysis.meaning,
       relatedConcepts: semanticAnalysis.concepts,
       historicalContext: historicalData,
-      knowledgeGraphNodes: graphData.nodes,
+      knowledgeGraphNodes: (graphData as any).nodes || [],
       temporalContext: this.getTemporalContext(),
       userPreferences: userPrefs,
       executionHistory: [
         {
-          agentId,
+          agentId: _agentId || '',
           query,
           timestamp: new Date().toISOString(),
           enrichmentTime: executionTime

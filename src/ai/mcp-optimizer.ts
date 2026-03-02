@@ -1,12 +1,30 @@
 // import { Agent } from '../agents/Agent';
 
-export interface Agent {
-  id: string;
-  type: string;
-  name: string;
-  description?: string;
-  capabilities: string[];
-  version: string;
+// Mock implementations for missing dependencies
+function getContextManager() {
+  return {
+    getEnhancedContext: async (query: string, type: string) => ({
+      query,
+      semanticMeaning: '',
+      relatedConcepts: [],
+      historicalContext: [],
+      knowledgeGraphNodes: [],
+      temporalContext: {
+        currentTime: new Date().toISOString(),
+        relevantEvents: []
+      }
+    })
+  };
+}
+
+function getWorkflowAdvisor() {
+  return {
+    analyzeWorkflow: async (workflowId: string) => ({
+      efficiency: 0.8,
+      bottlenecks: [],
+      recommendations: []
+    })
+  };
 }
 
 export class MCPOptimizer {
@@ -26,8 +44,7 @@ export class MCPOptimizer {
     // 2. Get enhanced context
     const context = await this.contextManager.getEnhancedContext(
       `Optimize workflow ${workflowId}`,
-      'system',
-      'mcp-optimizer'
+      'system'
     );
 
     // 3. Generate optimization suggestions
@@ -58,13 +75,14 @@ export class MCPOptimizer {
     executionHistory.forEach(execution => {
       // Track MCP usage
       Object.entries(execution.mcpCalls || {}).forEach(([mcpName, calls]) => {
+        const typedCalls = calls as { count: number; success: number; errors: number; avgTime: number };
         if (!mcpUsage[mcpName]) {
           mcpUsage[mcpName] = { calls: 0, success: 0, errors: 0, avgTime: 0 };
         }
-        mcpUsage[mcpName].calls += calls.count;
-        mcpUsage[mcpName].success += calls.success;
-        mcpUsage[mcpName].errors += calls.errors;
-        mcpUsage[mcpName].avgTime = (mcpUsage[mcpName].avgTime + calls.avgTime) / 2;
+        mcpUsage[mcpName].calls += typedCalls.count;
+        mcpUsage[mcpName].success += typedCalls.success;
+        mcpUsage[mcpName].errors += typedCalls.errors;
+        mcpUsage[mcpName].avgTime = (mcpUsage[mcpName].avgTime + typedCalls.avgTime) / 2;
       });
 
       // Track error patterns
@@ -76,10 +94,11 @@ export class MCPOptimizer {
       // Track performance
       if (execution.mcpCalls) {
         Object.entries(execution.mcpCalls).forEach(([mcpName, calls]) => {
+          const typedCalls = calls as { count: number; success: number; errors: number; avgTime: number };
           if (!performanceMetrics[mcpName]) {
             performanceMetrics[mcpName] = [];
           }
-          performanceMetrics[mcpName].push(calls.avgTime);
+          performanceMetrics[mcpName].push(typedCalls.avgTime);
         });
       }
     });

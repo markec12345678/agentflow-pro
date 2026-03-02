@@ -2,6 +2,12 @@ import { Agent } from '../orchestrator/Orchestrator';
 import { getContextManager } from '../ai/context-manager';
 import { getWorkflowAdvisor } from '../ai/workflow-advisor';
 
+// Ensure Agent interface compatibility
+interface ExtendedAgent extends Agent {
+  capabilities: string[];
+  version: string;
+}
+
 export class AgentRegistry {
   private agents: Map<string, Agent> = new Map();
   private agentMetadata: Map<string, AgentMetadata> = new Map();
@@ -353,7 +359,7 @@ export class AgentRegistry {
     const availableAgents = this.getAllAgents();
     const workflowSuggestions = await this.workflowAdvisor.suggestWorkflowImprovements(
       workflowData as any,
-      availableAgents,
+      availableAgents as ExtendedAgent[],
       workflowData.executions || []
     );
 
