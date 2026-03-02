@@ -9,6 +9,14 @@ export default function VerifyEmailPage() {
   const token = searchParams.get("token");
   const [status, setStatus] = useState<"loading" | "success" | "error">(token ? "loading" : "error");
   const [message, setMessage] = useState(token ? "" : "Manjka žeton za potrditev.");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const urlEmail = searchParams?.get("email");
+    if (urlEmail) {
+      setEmail(decodeURIComponent(urlEmail));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!token) return;
