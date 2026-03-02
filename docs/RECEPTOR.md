@@ -1,53 +1,53 @@
-# 📋 Receptorjev Vodnik - AgentFlow Pro
+# 📋 Receptionist Guide - AgentFlow Pro
 
-## 🎯 Vloga Receptorja
+## 🎯 Receptionist Role
 
-Receptor je **ključni operater** v AgentFlow Pro sistemu. Odgovoren je za **dnevno upravljanje rezervacij** z **95% avtomatizacijo** in samo **5% ročnega posega** za izjeme.
+The receptionist is the **key operator** in the AgentFlow Pro system. Responsible for **daily reservation management** with **95% automation** and only **5% manual intervention** for exceptions.
 
 ---
 
-## 📅 Dnevna Opravila (5-10 minut)
+## 📅 Daily Tasks (5-10 minutes)
 
-### 🏨 1. Pregled Današnjih Rezervacij
+### 🏨 1. Today's Reservations Overview
 **URL**: `/reservations`
 
-**Kaj preveriti**:
-- ✅ **Arrivals** - Število in časi prihodov danes
-- ✅ **Departures** - Število in časi odhodov danes  
-- ✅ **Special Requests** - Posebne želje gostov
-- ✅ **Room Status** - Zasedenost sob za danesnji dan
+**What to check**:
+- ✅ **Arrivals** - Number and times of arrivals today
+- ✅ **Departures** - Number and times of departures today  
+- ✅ **Special Requests** - Guest special requests
+- ✅ **Room Status** - Room occupancy for today
 
-**Hitri Ukazi**:
-- **Ctrl+F** → Quick search po imenu ali datumu
-- **Ctrl+A** → Select all za bulk actions
-- **Space** → Quick approve (če je vsebino OK)
-- **Enter** → Open details izbrane rezervacije
+**Quick Commands**:
+- **Ctrl+F** → Quick search by name or date
+- **Ctrl+A** → Select all for bulk actions
+- **Space** → Quick approve (if content is OK)
+- **Enter** → Open details of selected reservation
 
 ---
 
-### 🔍 2. Čakajoče Rezervacije (Pending)
+### 🔍 2. Pending Reservations
 **URL**: `/reservations/pending`
 
-**Kaj preveriti**:
-- ✅ **Auto-Approval Queue** - Rezervacije, ki čakajo na odobritev
-- ✅ **Exception Cases** - Ročno pregledi, če potrebuje poseg
-- ✅ **Risk Assessment** - Visoko tvečanje rezervacije
+**What to check**:
+- ✅ **Auto-Approval Queue** - Reservations waiting for approval
+- ✅ **Exception Cases** - Manual reviews if intervention needed
+- ✅ **Risk Assessment** - High-risk reservations
 
-**Prioriteta Obdelave**:
-1. **🟢 Low Risk** → Avtomatsko odobri (instant)
-2. **🟡 Medium Risk** → Quick review (1-2 minute)
-3. **🔴 High Risk** → Director approval (potrebna ročna intervencija)
+**Processing Priority**:
+1. **🟢 Low Risk** → Auto-approve (instant)
+2. **🟡 Medium Risk** → Quick review (1-2 minutes)
+3. **🔴 High Risk** → Director approval (manual intervention required)
 
 ---
 
-### 👥 3. Upravljanje Gostov
+### 👥 3. Guest Management
 **URL**: `/guests`
 
-**Kaj preveriti**:
-- ✅ **Active Guests** - Trenutno nameščeni gostje
-- ✅ **Special Notes** - Alergije, posebne želje, opombe
-- ✅ **Communication History** - Prejšnji stiki z gostom
-- ✅ **Loyalty Status** - Ponavljajoči gostje, VIP status
+**What to check**:
+- ✅ **Active Guests** - Currently checked-in guests
+- ✅ **Special Notes** - Allergies, special requests, notes
+- ✅ **Communication History** - Previous contacts with guest
+- ✅ **Loyalty Status** - Repeat guests, VIP status
 
 **Quick Actions**:
 - **Click na gosta** → Odpri profil z vsemi podatki

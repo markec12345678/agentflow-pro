@@ -1,33 +1,33 @@
-# Gostinski multi-agent (Retrieval + Copy) – Blok C #9
+# Guest Multi-Agent (Retrieval + Copy) – Block C #9
 
-Boljša kakovost odgovorov gostom z Retrieval + Copy agentom.
+Better quality responses to guests with Retrieval + Copy agents.
 
-## Komponente
+## Components
 
-| Komponenta | Datoteka | Opis |
+| Component | File | Description |
 |------------|----------|------|
-| Retrieval | `src/lib/tourism/guest-retrieval.ts` | Pridobi Property, Guest, Reservation, brand iz DB |
-| Copy | `src/lib/tourism/guest-copy-agent.ts` | Oblikuje odgovor v brand tonu z LLM |
-| FAQ API | `src/app/api/tourism/faq/route.ts` | Integracija v chatbot |
+| Retrieval | `src/lib/tourism/guest-retrieval.ts` | Retrieves Property, Guest, Reservation, brand from DB |
+| Copy | `src/lib/tourism/guest-copy-agent.ts` | Shapes response in brand tone using LLM |
+| FAQ API | `src/app/api/tourism/faq/route.ts` | Integration with chatbot |
 
-## Uporaba
+## Usage
 
-Za multi-agent flow pošlji v body:
+For multi-agent flow send in body:
 
 ```json
 {
-  "question": "Kdaj je check-in?",
+  "question": "What time is check-in?",
   "propertyId": "prop_xxx",
   "useMultiAgent": true
 }
 ```
 
-Opcijsko: `guestId`, `userId` (za brand brez property).
+Optional: `guestId`, `userId` (for brand without property).
 
 ## Flow
 
-1. **Retrieval** – `retrieveGuestContext()` naloži nastanitev, gosta, rezervacije, brand voice
-2. **Copy** – `runGuestCopyAgent()` uporabi kontekst + vprašanje → LLM odgovor
+1. **Retrieval** – `retrieveGuestContext()` loads accommodation, guest, reservations, brand voice
+2. **Copy** – `runGuestCopyAgent()` uses context + question → LLM response
 3. Fallback – če LLM ni na voljo, uporabi keyword matching
 
 ## Zahteve

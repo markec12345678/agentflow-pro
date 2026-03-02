@@ -1,33 +1,33 @@
-# Tourism Hub – Navodila za Uporabnike
+# Tourism Hub – User Guide
 
-Priročnik za hotelirje, DMO-je in turistične operaterje. Kako uporabiti AgentFlow Pro Tourism Hub za generiranje vsebine, emailov, landing strani in večjezičnih prevodov.
+Guide for hoteliers, DMOs, and tourism operators. How to use AgentFlow Pro Tourism Hub for content generation, emails, landing pages, and multi-language translations.
 
 ---
 
-## Začetek
+## Getting Started
 
-1. **Prijava** – Ustvari račun ali se prijavi na AgentFlow Pro.
-2. **Onboarding** – Izberi industrio **Tourism** ali **Travel Agency**, da v sidebaru vidiš **Tourism Hub**.
-3. **Tourism Hub** – Odpri dropdown v sidebaru. Pojavijo se: Overview, Generate, Templates, Nastanitve, Landing Page, Email, SEO, Multi-Language.
+1. **Login** – Create an account or log in to AgentFlow Pro.
+2. **Onboarding** – Select industry **Tourism** or **Travel Agency** to see **Tourism Hub** in the sidebar.
+3. **Tourism Hub** – Open the dropdown in the sidebar. You'll see: Overview, Generate, Templates, Accommodations, Landing Page, Email, SEO, Multi-Language.
 
 ---
 
 ## Content Generator
 
-En generator z platform-specifičnimi predlogami (Booking.com, Airbnb, landing, SEO) – ne ločeni agenti. Generiraj opis nastanitve, vodič po destinaciji ali social media vsebino.
+One generator with platform-specific prompts (Booking.com, Airbnb, landing, SEO) – not separate agents. Generate accommodation descriptions, destination guides, or social media content.
 
-1. Pojdi na **Generate** (ali Overview → Hitri Začetek).
-2. Izberi prompt:
-   - **Booking.com Opis Nastanitve** – prodajni opis za Booking.com
-   - **Airbnb Storytelling Opis** – topel, oseben opis za Airbnb
-   - **Vodič po Destinaciji** – SEO vodič za blog
-   - **Sezonska Kampanja** – email + social post
-   - **Instagram Travel Caption** – caption za travel fotografijo
-3. Izpolni spremenljivke (Lokacija, Tip, Jezik, Ton, itd.). Ton (profesionalen, prijazen, luksuzen, družinski) je na voljo pri vseh promptih.
-4. Klikni **Generate**.
-5. Po generiranju:
-   - **Kopiraj za Booking.com** – format brez HTML/markdown (omejitev ~4900 znakov)
-   - **Kopiraj za Airbnb** – omejitev na 2 zaporedni prelomi vrstic
+1. Go to **Generate** (or Overview → Quick Start).
+2. Select prompt:
+   - **Booking.com Accommodation Description** – sales description for Booking.com
+   - **Airbnb Storytelling Description** – warm, personal description for Airbnb
+   - **Destination Guide** – SEO guide for blog
+   - **Seasonal Campaign** – email + social post
+   - **Instagram Travel Caption** – caption for travel photo
+3. Fill variables (Location, Type, Language, Tone, etc.). Tone (professional, friendly, luxurious, family) is available for all prompts.
+4. Click **Generate**.
+5. After generation:
+   - **Copy for Booking.com** – format without HTML/markdown (limit ~4900 characters)
+   - **Copy for Airbnb** – limit of 2 consecutive line breaks
    - **Kopiraj hashtags** – generira hashtage iz lokacije in tipa (npr. #BelaKrajina, #apartma, #Slovenia)
 6. Opcijsko: **Shrani kot Template** – vnesi ime in uporabi pozneje z predizpolnjenimi vrednostmi.
 

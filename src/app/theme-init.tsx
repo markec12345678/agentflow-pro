@@ -1,12 +1,21 @@
+'use client';
+
 /**
- * Inline script to set theme class before paint - prevents flash
+ * Client-side theme initialization component
  */
+import { useEffect } from 'react';
+
 export function ThemeInit() {
-  return (
-    <script
-      dangerouslySetInnerHTML={{
-        __html: `(function(){var t=localStorage.getItem("agentflow-theme");var p=window.matchMedia("(prefers-color-scheme: dark)").matches;var d=t==="dark"||(!t&&p);document.documentElement.classList.toggle("dark",d);})()`,
-      }}
-    />
-  );
+  useEffect(() => {
+    try {
+      const theme = localStorage.getItem("agentflow-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const isDark = theme === "dark" || (!theme && prefersDark);
+      document.documentElement.classList.toggle("dark", isDark);
+    } catch (e) {
+      // Silently fail
+    }
+  }, []);
+
+  return null;
 }

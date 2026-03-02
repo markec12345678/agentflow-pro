@@ -1,102 +1,102 @@
-# Primerjava vmesnika: AgentFlow Pro vs. konkurenca
+# Interface Comparison: AgentFlow Pro vs. Competition
 
-*Avtomatska analiza z zajetjem UI in raziskavo spleta – Februar 2025*
+*Automated analysis with UI capture and web research – February 2025*
 
 ---
 
-## 1. Naš vmesnik (AgentFlow Pro)
+## 1. Our Interface (AgentFlow Pro)
 
 ### Login / Sign in
-| Element | Stanje |
+| Element | Status |
 |--------|--------|
-| Layout | Čist, bela kartica, center |
-| Google prijava | **Ni konfigurirana** – prikazuje "Google (ni konfigurirano)" |
+| Layout | Clean, white card, centered |
+| Google login | **Not configured** – shows "Google (not configured)" |
 | Email/password | ✓ |
-| Pozabljeno geslo | ✓ link |
+| Forgot password | ✓ link |
 | Register link | ✓ |
 | Autocomplete | ✓ `email`, `current-password` |
-| Value proposition banner | ✓ Brez kartice, 7-dnevni trial, Prekliči kadarkoli |
-| Social proof | "247 turističnih ponudnikov ta teden" |
+| Value proposition banner | ✓ No card required, 7-day trial, Cancel anytime |
+| Social proof | "247 tourism providers this week" |
 
-### Manjkajo pri nas
-- **Show password** toggle (prikaz gesla)
+### Missing from ours
+- **Show password** toggle
 - **Remember me** checkbox
-- Inline validacija gesla (moč gesla)
+- Inline password validation (strength)
 - Magic link / passkeys
-- MFA opcije
+- MFA options
 
 ### Workflow Builder
-- ReactFlow canvas z nodi (Trigger, Action, Agent, Condition)
-- Vizualno podoben n8n/Zapier
+- ReactFlow canvas with nodes (Trigger, Action, Agent, Condition)
+- Visually similar to n8n/Zapier
 - MiniMap, Controls
 
 ---
 
-## 2. Konkurenca
+## 2. Competition
 
 ### Zapier
-- **Login:** SSO, Google, email – vse deluje
-- **UI 2024:** Purple accent, poenostavljeni tabi (Setup, Configure, Test)
-- **Workflow:** Drag & drop, dinamične spremenljivke (/), custom fields
-- **Moč:** Ogromna knjižnica integracij, enterprise SSO
+- **Login:** SSO, Google, email – all working
+- **UI 2024:** Purple accent, simplified tabs (Setup, Configure, Test)
+- **Workflow:** Drag & drop, dynamic variables (/), custom fields
+- **Strength:** Huge integration library, enterprise SSO
 
 ### n8n
-- **Login:** Self-hosted, lahko brez prijave (open source)
-- **UI:** Vizualni editor z:
-  - Leva stran: What's New, Help, workflow management
+- **Login:** Self-hosted, can work without login (open source)
+- **UI:** Visual editor with:
+  - Left side: What's New, Help, workflow management
   - Canvas: drag nodes, connect
-  - Desna stran: Parameters panel za konfiguracijo nodov
-- **Insights:** Dashboard z metrikami (executions, failure rate, time saved)
-- **Moč:** Open source, lokalni deployment, graf workflow
+  - Right side: Parameters panel for node configuration
+- **Insights:** Dashboard with metrics (executions, failure rate, time saved)
+- **Strength:** Open source, local deployment, workflow graph
 
 ### Make (Integromat)
 - **Login:** Standard SaaS login
-- **UI:** Purple-pink gradient, vizualni flow builder
+- **UI:** Purple-pink gradient, visual flow builder
 - **Brand:** "Create without limits", domino logo (chain reaction)
-- **Moč:** Visual no-code, team collaboration
+- **Strength:** Visual no-code, team collaboration
 
 ---
 
-## 3. Primerjava – kdo je boljši v čem
+## 3. Comparison – Who is Better at What
 
-| Kriterij | AgentFlow Pro | Zapier | n8n | Make |
+| Criteria | AgentFlow Pro | Zapier | n8n | Make |
 |----------|---------------|--------|-----|------|
-| **Login UX** | Osnovno ✓ | ★★★★ | ★★★ | ★★★★ |
-| **Google prijava** | ✗ ni konfigurirana | ✓ | ✓ | ✓ |
+| **Login UX** | Basic ✓ | ★★★★ | ★★★ | ★★★★ |
+| **Google login** | ✗ not configured | ✓ | ✓ | ✓ |
 | **Value proposition** | ★★★★ banner | ★★★ | ★★ | ★★★ |
-| **Workflow vizual** | ★★★★ ReactFlow | ★★★★ | ★★★★★ | ★★★★ |
-| **Turizem fokus** | ★★★★★ | ★★ | ★★ | ★★ |
+| **Workflow visual** | ★★★★ ReactFlow | ★★★★ | ★★★★★ | ★★★★ |
+| **Tourism focus** | ★★★★★ | ★★ | ★★ | ★★ |
 | **Insights/Analytics** | ★★ | ★★★ | ★★★★ | ★★★ |
-| **AI agenti** | ★★★★★ | ★★★ | ★★ | ★★ |
+| **AI agents** | ★★★★★ | ★★★ | ★★ | ★★ |
 
 ---
 
-## 4. Kaj moramo narediti (prioriteta)
+## 4. What We Need to Do (Priority)
 
-### Visoka prioriteta
-1. **Google prijava – konfigurirati**  
-   Dodaj `GOOGLE_CLIENT_ID` in `GOOGLE_CLIENT_SECRET` v `.env.local`. Ko je konfigurirana, se gumb prikaže.
+### High Priority
+1. **Google login – configure**  
+   Add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to `.env.local`. Button appears when configured.
 
 2. ~~**Show password toggle**~~ ✅ **DONE**  
-   Ikona očesa pri polju gesla – dodana na login in register.
+   Eye icon for password field – added to login and register.
 
-3. ~~**Skrij Google gumb če ni konfiguriran**~~ ✅ **DONE**  
-   Google gumb se prikaže le ko je provider konfiguriran; sicer samo email forma.
+3. ~~**Hide Google button if not configured**~~ ✅ **DONE**  
+   Google button only shows when provider is configured; otherwise email form only.
 
-### Srednja prioriteta
-4. **Remember me** checkbox – daljša seja  
-5. **Enotni jezik** – Sign in / or with email vs. Slovene (Pozabljeno geslo?) – bodisi vse EN ali vse SL  
-6. **Inline validacija gesla** – pri registraciji pokaži moč gesla v realnem času  
-7. **Trust signals** – npr. "Vaši podatki so varni" ali lock ikona
+### Medium Priority
+4. **Remember me** checkbox – longer session  
+5. **Consistent language** – Sign in / or with email vs. Slovene (Pozabljeno geslo?) – either all EN or all SL  
+6. **Inline password validation** – show password strength in real-time during registration  
+7. **Trust signals** – e.g. "Your data is secure" or lock icon
 
-### Nižja prioriteta
-8. **Magic link** – prijava brez gesla prek emaila  
-9. **MFA** – 2FA za enterprise uporabnike  
-10. **Insights dashboard** – kot n8n: executions, failure rate, time saved
+### Low Priority
+8. **Magic link** – passwordless login via email  
+9. **MFA** – 2FA for enterprise users  
+10. **Insights dashboard** – like n8n: executions, failure rate, time saved
 
 ---
 
-## 5. Best practices (Authgear, web.dev)
+## 5. Best Practices (Authgear, web.dev)
 
 - **88% uporabnikov** ne vrne po slabi login UX
 - **7.5% MAU** se lahko izgubi na password reset flow

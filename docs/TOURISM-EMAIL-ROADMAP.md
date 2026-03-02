@@ -1,37 +1,37 @@
-# Tourism Email Workflows – Roadmap & Raziskava
+# Tourism Email Workflows – Roadmap & Research
 
-Roadmap za implementacijo email avtomatizacije, gostinskih sporočil, cenikov, dynamic pricing in OTA API integracij v AgentFlow Pro (turistična vertikala). Dokument vsebuje primerjavo s predlogom, preverjene benchmarke, ključne zahteve, Booking.com Connectivity Hub, gostinske kanale 2025 in načrt implementacije. Za nadaljnje raziskave in mnenja – glej sekcijo na koncu.
+Roadmap for implementing email automation, guest communications, pricing, dynamic pricing, and OTA API integrations in AgentFlow Pro (tourism vertical). This document contains comparison with proposal, verified benchmarks, key requirements, Booking.com Connectivity Hub, hospitality channels 2025, and implementation plan. For further research and opinions – see section at the end.
 
 ---
 
-## 1. Primerjava: Predlog vs. AgentFlow Pro (stanje)
+## 1. Comparison: Proposal vs. AgentFlow Pro (current state)
 
-| Funkcija | Predlog | AgentFlow Pro trenutno |
+| Function | Proposal | AgentFlow Pro currently |
 |----------|---------|------------------------|
-| Event triggery (`reservation.created`, `check_in`, `check_out`) | Da | Ne – noben webhook ob ustvarjanju rezervacije |
-| Časovni zamiki (`-7_days`, `+1_day`, `+60_days`) | Da | Delno – `scheduledFor` ročno, brez schedulerja |
-| Kanali (email, sms, whatsapp) | Da | email, sms, phone – WhatsApp manjka |
-| Booking confirmation (takoj) | Da | Ne |
-| Pre-arrival (3–7 dni) | Da | Delno – type `pre-arrival`, brez auto-triggerja |
-| Check-in instructions (24h prej) | Da | Ne – `check_in` v agentu, brez schedulerja |
-| During-stay upsell (dan 2–3) | Da | Ne |
-| Post-stay review (24h po odhodu) | Da | Delno – type `post-stay`, brez auto-triggerja |
-| Re-booking campaign (30–90 dni) | Da | Ne |
+| Event triggers (`reservation.created`, `check_in`, `check_out`) | Yes | No – no webhook on reservation creation |
+| Time delays (`-7_days`, `+1_day`, `+60_days`) | Yes | Partial – `scheduledFor` manually, no scheduler |
+| Channels (email, sms, whatsapp) | Yes | email, sms, phone – WhatsApp missing |
+| Booking confirmation (immediate) | Yes | No |
+| Pre-arrival (3–7 days) | Yes | Partial – type `pre-arrival`, no auto-trigger |
+| Check-in instructions (24h before) | Yes | No – `check_in` in agent, no scheduler |
+| During-stay upsell (day 2–3) | Yes | No |
+| Post-stay review (24h after departure) | Yes | Partial – type `post-stay`, no auto-trigger |
+| Re-booking campaign (30–90 days) | Yes | No |
 
 ---
 
-## 2. Raziskava benchmarkov (preverjeni viri)
+## 2. Benchmark Research (verified sources)
 
-| Trditev v predlogu | Raziskava / viri | Realistična vrednost |
+| Statement in proposal | Research / sources | Realistic value |
 |--------------------|------------------|----------------------|
-| Booking confirmation 95% open | Revinate, MarTech: 56–72% za travel/transactional | **65–75%** |
-| Pre-arrival 45% open | Mews, GuestTouch: do ~60%, APAC 43–48% | **45% OK** |
-| Check-in 24h: 60% open | Ni direktnega virа – operativni maili imajo višji open | **60% OK** |
-| During stay 13x konverzija | Ni vira za »13x«. Hospitalitynet: TRevPAR +2–5% | **Visok impact, 13x nepotrjeno** |
-| Post-stay 35% response | GuestRevu: tipično 20–22%, dobro optimizirano 25–35% | **35% = best case** |
-| Re-booking 22% konverzija | Revinate: 41% open, 5% CTR | **22% dvomljivo – jasno definirati metriko** |
+| Booking confirmation 95% open | Revinate, MarTech: 56–72% for travel/transactional | **65–75%** |
+| Pre-arrival 45% open | Mews, GuestTouch: up to ~60%, APAC 43–48% | **45% OK** |
+| Check-in 24h: 60% open | No direct source – operational emails have higher open | **60% OK** |
+| During stay 13x conversion | No source for "13x". Hospitalitynet: TRevPAR +2–5% | **High impact, 13x unproven** |
+| Post-stay 35% response | GuestRevu: typically 20–22%, well optimized 25–35% | **35% = best case** |
+| Re-booking 22% conversion | Revinate: 41% open, 5% CTR | **22% questionable – clearly define metric** |
 
-### Viri za reference
+### Reference Sources
 - [Revinate 2025 Hospitality Benchmark](https://www.revinate.com/hospitality-benchmark-report/)
 - [Mews – Hotel Pre-Arrival Emails](https://mews.com/en/blog/hotel-pre-arrival-emails)
 - [GuestTouch – Pre-Arrival](https://www.guesttouch.com/blog/mastering-pre-arrival-emails-proven-templates-strategies-for-hotels-with-examples)
@@ -39,10 +39,10 @@ Roadmap za implementacijo email avtomatizacije, gostinskih sporočil, cenikov, d
 
 ---
 
-## 3. Predlagana struktura `EMAIL_WORKFLOWS`
+## 3. Proposed `EMAIL_WORKFLOWS` Structure
 
 ```typescript
-// src/lib/tourism/email-workflows.ts (ali guest-email-workflows.ts)
+// src/lib/tourism/email-workflows.ts (or guest-email-workflows.ts)
 
 export const EMAIL_WORKFLOWS = {
   booking_confirmation: {

@@ -18,8 +18,8 @@ function Write-TestHeader
 {
     param([string]$title)
     Write-Host "" -ForegroundColor Cyan
-    Write-Host "🧪 $title" -ForegroundColor Cyan
-    Write-Host "-" * 60 -ForegroundColor DarkCyan
+    Write-Host "TEST: $title" -ForegroundColor Cyan
+    Write-Host "------------------------------------------------------------" -ForegroundColor DarkCyan
 }
 
 function Write-TestResult
@@ -34,16 +34,16 @@ function Write-TestResult
     if ($passed)
     {
         $passedTests++
-        Write-Host "  ✅ $testName" -ForegroundColor Green
+        Write-Host "  [PASS] $testName" -ForegroundColor Green
         if ($details)
-        { Write-Host "     $details" -ForegroundColor Gray 
+        { Write-Host "     $details" -ForegroundColor Gray
         }
     } else
     {
         $failedTests++
-        Write-Host "  ❌ $testName" -ForegroundColor Red
+        Write-Host "  [FAIL] $testName" -ForegroundColor Red
         if ($details)
-        { Write-Host "     $details" -ForegroundColor Gray 
+        { Write-Host "     $details" -ForegroundColor Gray
         }
     }
 
@@ -74,9 +74,9 @@ function Invoke-APITest
     {
         $headers = @{ "Content-Type" = "application/json" }
         $bodyJson = if ($Body)
-        { $Body | ConvertTo-Json 
+        { $Body | ConvertTo-Json
         } else
-        { "{}" 
+        { "{}"
         }
 
         $response = Invoke-RestMethod -Uri "http://localhost:3000$Endpoint" -Method POST -Body $bodyJson -Headers $headers -TimeoutSec 10
@@ -89,12 +89,12 @@ function Invoke-APITest
 
 # Start test suite
 Write-Host "" -ForegroundColor Magenta
-Write-Host "🚀 AGENTFLOW PRO - VIRTUAL TEST SUITE" -ForegroundColor Magenta
-Write-Host "🌍 Tourism UI Enhancement Validation" -ForegroundColor Cyan
-Write-Host "=" * 60 -ForegroundColor DarkCyan
+Write-Host "AGENTFLOW PRO - VIRTUAL TEST SUITE" -ForegroundColor Magenta
+Write-Host "Tourism UI Enhancement Validation" -ForegroundColor Cyan
+Write-Host "============================================================" -ForegroundColor DarkCyan
 Write-Host "Environment: $Environment" -ForegroundColor Yellow
 Write-Host "Mode: $(if ($DryRun) { 'DRY-RUN (Simulation)' } else { 'PRODUCTION' })" -ForegroundColor Yellow
-Write-Host "=" * 60
+Write-Host "============================================================"
 
 # TEST 1: Tourism Theme CSS Variables
 Write-TestHeader "TEST 1: Tourism Theme CSS Variables"
@@ -265,9 +265,9 @@ foreach ($test in $integrationTests)
 
 # Summary
 Write-Host "" -ForegroundColor Cyan
-Write-Host "=" * 60 -ForegroundColor DarkCyan
-Write-Host "📊 TEST SUMMARY" -ForegroundColor Cyan
-Write-Host "=" * 60 -ForegroundColor DarkCyan
+Write-Host "============================================================" -ForegroundColor DarkCyan
+Write-Host "TEST SUMMARY" -ForegroundColor Cyan
+Write-Host "============================================================" -ForegroundColor DarkCyan
 Write-Host "Total Tests: $totalTests" -ForegroundColor White
 Write-Host "Passed: $passedTests" -ForegroundColor Green
 Write-Host "Failed: $failedTests" -ForegroundColor Red
@@ -275,8 +275,8 @@ Write-Host "Failed: $failedTests" -ForegroundColor Red
 if ($failedTests -eq 0)
 {
     Write-Host "" -ForegroundColor Green
-    Write-Host "🎉 ALL TESTS PASSED!" -ForegroundColor Green
-    Write-Host "✅ Tourism UI enhancements are ready for production!" -ForegroundColor Green
+    Write-Host "ALL TESTS PASSED!" -ForegroundColor Green
+    Write-Host "Tourism UI enhancements are ready for production!" -ForegroundColor Green
 } else
 {
     Write-Host "" -ForegroundColor Yellow
@@ -306,9 +306,9 @@ DETAILED RESULTS:
     foreach ($result in $testResults)
     {
         $status = if ($result.Passed)
-        { "✅ PASS" 
+        { "PASS"
         } else
-        { "❌ FAIL" 
+        { "FAIL"
         }
         $summary += "[$($result.Timestamp)] $status - $($result.TestName)`n"
         if ($result.Details)
@@ -319,10 +319,10 @@ DETAILED RESULTS:
     }
 
     $summary | Out-File -FilePath $OutputFile
-    Write-Host "✅ Results exported successfully!" -ForegroundColor Green
+    Write-Host "Results exported successfully!" -ForegroundColor Green
 }
 
-Write-Host "=" * 60 -ForegroundColor DarkCyan
+Write-Host "============================================================" -ForegroundColor DarkCyan
 
 # Exit with appropriate code
 exit $failedTests
