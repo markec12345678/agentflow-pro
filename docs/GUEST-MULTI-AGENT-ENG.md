@@ -28,9 +28,9 @@ Optional: `guestId`, `userId` (for brand without property).
 
 1. **Retrieval** – `retrieveGuestContext()` loads accommodation, guest, reservations, brand voice
 2. **Copy** – `runGuestCopyAgent()` uses context + question → LLM response
-3. Fallback – če LLM ni na voljo, uporabi keyword matching
+3. Fallback – if LLM is unavailable, use keyword matching
 
-## Zahteve
+## Requirements
 
-- `OPENAI_API_KEY` (ali `ALIBABA_QWEN_API_KEY`) za Copy agent
-- `propertyId` ali `userId` za kontekst
+- `OPENAI_API_KEY` (or `ALIBABA_QWEN_API_KEY`) for Copy agent
+- `propertyId` or `userId` for context

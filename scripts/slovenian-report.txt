@@ -1,0 +1,2325 @@
+Total matches: 1955
+================================================================================
+
+=== prisma\seed.ts ===
+  L47:     update: { name: "E2E Test Nastanitev", basePrice: 80, currency: "EUR" },
+  L51:       name: "E2E Test Nastanitev",
+  L61:   // Property - realisti?ne slovenske turisti?ne nastanitve
+  L68:       name: "Apartmaji ob Kolpi",
+  L70:       type: "apartma",
+  L98:       name: "Apartmaji Bela Krajina",
+  L102:         lokacija: "?rnomelj, Bela Krajina",
+  L103:         tip: "apartma",
+  L105:         sobe: "2",
+  L106:         posebnosti: "WiFi, parkiri??e, vrt",
+  L110:         kljucne_besede: "apartmaji bela krajina, po?itnice kolpa",
+  L120:       name: "Dru?inski opis",
+  L126:         posebnosti: "Igri??e, vrt, blizu jezera",
+  L137:       title: "Apartmaji Bela Krajina ? Seed",
+  L139:       content: { hero: { heading: "Dobrodo?li v Beli Krajini", body: "Va?a nova destinacija za po?itnice." }, about: { heading: "O nas", bod
+  L143:       seoTitle: "Apartmaji Bela Krajina | Po?itnice ob Kolpi",
+  L144:       seoDescription: "Odkrijte apartmaje v Beli Krajini. WiFi, parkiri??e. Rezervirajte zdaj.",
+  L155:       sourceContent: "Dobrodo?li v na?em apartmaju. Idealno za dru?inske po?itnice.",
+  L171:       title: "5 nasvetov za po?itnice v Beli Krajini",
+  L173:       fullContent: "# 5 nasvetov za po?itnice v Beli Krajini\n\nOdkrijte skrivnosti te ?udovite regije...",
+  L174:       metaTitle: "5 nasvetov za po?itnice v Beli Krajini",
+  L175:       metaDescription: "Prakti?ni nasveti za obisk Bele Krajine. Apartmaji, aktivnosti, lokalne specialitete.",
+  L184:       title: "Kolpa ? reka za vsa letna ?asa",
+  L186:       fullContent: "# Kolpa ? reka za vsa letna ?asa\n\nReka Kolpa ponuja ?tevilne mo?nosti za aktivnosti...",
+  L187:       metaTitle: "Kolpa ? reka za vsa letna ?asa",
+  L188:       metaDescription: "Vodni ?port, kopanje in narava ob reki Kolpi.",
+  L194:     { keyword: "apartmaji bela krajina", position: 8, volume: 320, difficulty: 35 },
+  L195:     { keyword: "po?itnice kolpa", position: 15, volume: 180, difficulty: 28 },
+  L196:     { keyword: "namestitev ?rnomelj", position: 4, volume: 90, difficulty: 22 },
+  L197:     { keyword: "apartma z bazenom bela krajina", position: 22, volume: 45, difficulty: 18 },
+  L198:     { keyword: "dru?inske po?itnice slovenija", position: 12, volume: 210, difficulty: 40 },
+
+=== src\agents\communication\communicationAgent.ts ===
+  L65:           translatedContent: { en: "Mock message", sl: "Mock sporo?ilo" },
+  L178:       pre_arrival: "Spo?tovani gost, veselimo se va?ega prihoda! Podatki o prijavi in lokalne priporo?ila so v prilogi.",
+  L179:       post_stay: "Hvala, ker ste bili na? gost! Radi bi sli?ali za va?e izku?nje.",
+  L180:       check_in: "Dobrodo?li! Prijava za?ne ob 15:00. Va?a soba je pripravljena in tu smo za pomo?.",
+  L181:       check_out: "Sre?no potovanje! Odjava je ob 11:00. Upamo, da vas bomo spet videli.",
+  L182:       inquiry: "Hvala za povpra?evanje. Odgovorili vam bomo v 24 urah s podatki o razpolo?ljivosti."
+  L193:     sl: `Hvala za ?udovit review! Veseli smo, da ste bili zadovoljni in se veselimo va?ega ponovnega prihoda.`
+  L202:     sl: `Hvala za povratne informacije. Cenimo va?e predloge in jih bomo uporabili za izbolj?avo na?ih storitev.`
+  L211:     sl: `Iskreno se opravi?ujemo za va?e izku?nje. Va?e povratne informacije jemljemo resno in bi radi popravili stvari.`
+
+=== src\alerts\smartAlerts.ts ===
+  L48:       messageTemplate: "Neuspe?no pla?ilo: {{detail}}",
+
+=== src\app\agents\content\page.tsx ===
+  L23:   { id: "blog", label: "Blog Post", icon: <FileText className="w-4 h-4" />, desc: "SEO optimiziran ?lanek" },
+  L29:   { code: "sl", name: "Sloven??ina", flag: "??" },
+  L78:         toast.error("Napaka pri generiranju");
+  L81:       toast.error("Sistemska napaka");
+  L91:       toast.success("Vsebina uspe?no objavljena!");
+  L116:               <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">Generiranje SEO vsebine in objav za nastanitve.</p>
+  L156:                 <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">Ime nastanitve</label>
+  L179:                   placeholder="Npr. pogled na gore, zasebni bazen, bli?ina smu?i??a..."
+  L254:                 <div className="p-8 prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: generatedContent || "<p class='te
+  L271:                     SEO Predlogi (Klju?ne besede)
+  L289:                       <span className="font-bold text-green-600">Odli?no</span>
+
+=== src\app\agents\page.tsx ===
+  L51:         toast.error(data.error || "Napaka pri nalaganju agentov");
+  L54:       toast.error("Sistemska napaka");
+  L102:         toast.success(`Agent: ${action === "trigger" ? "Spro?en" : action === "pause" ? "Zaustavljen" : "Nadaljuje delo"}`);
+  L105:         toast.error("Napaka pri izvajanju akcije");
+  L108:       toast.error("Sistemska napaka");
+  L164:             { label: "V ?akalni vrsti", value: agents.reduce((acc, a) => acc + a.queue, 0), icon: List, color: "amber" },
+  L165:             { label: "Povpre?na uspe?nost", value: `${Math.round(agents.reduce((acc, a) => acc + a.successRate, 0) / agents.length)}%`, icon
+  L209:                   <span className="text-gray-500 flex items-center gap-1.5"><ShieldCheck className="w-3 h-3" /> Uspe?nost</span>
+  L213:                   <span className="text-gray-500 flex items-center gap-1.5"><List className="w-3 h-3" /> ?akalna vrsta</span>
+  L224:                   title="Ro?no spro?i agenta"
+  L273:               { agent: "Reservation Bot", action: "Avtomatsko potrdil rezervacijo #9283", status: "success", time: "15 minut nazaj" },
+  L274:               { agent: "AJPES Syncer", action: "Napaka pri povezavi s stre?nikom AJPES", status: "error", time: "1 ura nazaj" },
+
+=== src\app\agents\research\page.tsx ===
+  L28:   { id: "market", label: "Raziskava trga", icon: <Globe className="w-4 h-4" />, desc: "Analiza povpra?evanja v regiji" },
+  L30:   { id: "trends", label: "Turisti?ni trendi", icon: <TrendingUp className="w-4 h-4" />, desc: "Letna poro?ila in napovedi" }
+  L58:       toast.error("Prosimo, vnesite vpra?anje ali temo raziskave.");
+  L73:         toast.success("Raziskava zaklju?ena!");
+  L75:         toast.error("Napaka pri izvajanju raziskave");
+  L78:       toast.error("Sistemska napaka");
+  L85:     toast.success("Pripravljam PDF poro?ilo...");
+  L86:     setTimeout(() => toast.success("Poro?ilo preneseno!"), 1500);
+  L92:       toast.success("Shranjeno v Knowledge Graph");
+  L134:               Shrani v Knowledge Graph
+  L172:               <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Va?e vpra?anje</h2>
+  L177:                   placeholder="Npr. Kak?ni so trendi za glamping v Gorenjski regiji za poletje 2026?"
+  L189:                 Za?eni raziskavo
+  L198:                   Periodi?na raziskava
+  L204:                     <option>Vsako ?etrtletje</option>
+  L207:                     Potrdi razpored
+  L223:                 <p className="text-gray-500 max-w-sm">Izberite tip raziskave in vnesite temo, ki vas zanima. Agent bo analiziral spletne vir
+  L231:                   <h3 className="text-lg font-bold mb-2">Analiziram tr?ne podatke...</h3>
+  L233:                     <p className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Iskanje po turisti?nih po
+  L235:                     <p className="flex items-center gap-2 animate-pulse"><BarChart3 className="w-3.5 h-3.5 text-indigo-400" /> Generiranje a
+  L340:                       <h4 className="font-bold">?elite uporabiti te vpoglede?</h4>
+  L341:                       <p className="text-xs text-indigo-100">AI lahko pripravi novo strategijo cen ali marketin?ko kampanjo.</p>
+
+=== src\app\agents\reviews\page.tsx ===
+  L62:       toast.error("Sistemska napaka");
+  L86:         toast.success("AI Analiza kon?ana!");
+  L89:       toast.error("Napaka pri analizi");
+  L109:       toast.error("Napaka pri objavi");
+  L144:               <span className="text-xs text-gray-400 font-bold uppercase">Povpre?je</span>
+  L177:                     <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">?isto?a</p>
+  L204:                   Zaznali smo 2 negativni mnenji na Google Maps v zadnjih 24 urah. Priporo?amo takoj?en odziv za ohranitev ocene 4.9.
+  L207:                   Poglej kriti?na mnenja
+  L267:                           <span className="text-[10px] font-bold uppercase text-green-600">Va? odgovor</span>
+  L283:                             Prekli?i
+
+=== src\app\alerts\page.tsx ===
+  L93:           title: "Zasedenost kriti?na",
+  L103:           title: "Neuspe?no pla?ilo",
+  L104:           message: "Rezervacija #1234 - pla?ilo zavrnjeno",
+  L114:           title: "Sistemska napaka",
+  L115:           message: "API rate limit prekora?en",
+  L128:           name: "Zasedenost kriti?na",
+  L140:           name: "Neuspe?no pla?ilo",
+  L263:           <p className="text-gray-600 dark:text-gray-400">Nalaganje alertov...</p>
+  L309:               { id: "preferences", label: "Nastavitve", icon: Bell }
+  L337:                 { label: "Kriti?ni", value: alerts.filter(a => a.type === "critical" && a.status === "active").length, color: "bg-orange-500
+  L363:                       placeholder="I??i alerte..."
+  L377:                     <option value="critical">Kriti?ni</option>
+  L434:                                  alert.status === "acknowledged" ? "Potrjeno" : "Zavrnjeno"}
+  L451:                                 <span>Potrjeno: {alert.acknowledgedBy}</span>
+  L465:                               <span>Potrdi</span>
+  L502:                               <span className="font-medium text-gray-700 dark:text-gray-300">Potrjeno:</span>
+  L560:                   Dodaj Pravilo
+  L608:               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-6">Notification Nastavitve</h2>
+  L674:               Po?lji test alert za preverjanje nastavitev obve??anja.
+  L704:                 Prekli?i
+
+=== src\app\analytics\page.tsx ===
+  L146:             { country: "Hrva?ka", guests: 180, percentage: 18 },
+  L149:             { country: "Nem?ija", guests: 80, percentage: 8 },
+  L160:             { duration: "1-2 no?i", guests: 400, percentage: 40 },
+  L161:             { duration: "3-4 no?i", guests: 350, percentage: 35 },
+  L162:             { duration: "5-7 no?i", guests: 150, percentage: 15 },
+  L163:             { duration: "7+ no?i", guests: 100, percentage: 10 }
+  L254:           <p className="text-gray-600 dark:text-gray-400">Nalaganje analitike...</p>
+  L283:                   <option value="today">Danes</option>
+  L286:                   <option value="quarter">Zadnje ?etrtletje</option>
+  L299:                   <span>{exporting ? "Izva?anje..." : "CSV"}</span>
+  L307:                   <span>{exporting ? "Izva?anje..." : "PDF"}</span>
+  L421:                     {period === "day" ? "Dnevno" : period === "week" ? "Tedensko" : period === "month" ? "Mese?no" : "Letno"}
+  L452:                     {period === "day" ? "Dnevno" : period === "week" ? "Tedensko" : period === "month" ? "Mese?no" : "Letno"}
+  L463:                   Povpre?je: {formatPercentage(data.occupancy[selectedPeriod].reduce((sum, val) => sum + val, 0) / data.occupancy[selectedPe
+  L474:             <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-6">Rezervacijski kanali</h2>
+  L531:                   <p className="text-gray-500 dark:text-gray-400">Mese?ni trend</p>
+  L545:               <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Dr?ave</h3>
+  L612:                           aria-label="1-3 no?i: 42%"
+
+=== src\app\api\agents\content\generate\route.ts ===
+  L18:     const seoKeywords = ["turizem", "nastanitev", "Slovenija", "rezervacija", inputs.location || "lokacija"];
+  L31:   const name = inputs.name || "Nastanitev";
+  L36:       sl: `<h1>Zakaj obiskati ${name} v ${location}?</h1><p>Odkrijte skrite koti?ke ${location} in u?ivajte v vrhunskem udobju na?e nastanit
+  L40:       sl: `? Ste ?e obiskali ${location}? Pridite v ${name} in do?ivite nepozabne trenutke! ? #turizem #slovenija #dopust #oddih`,
+
+=== src\app\api\agents\research\execute\route.ts ===
+  L35:       summary: "Povpra?evanje v va?i regiji je v zadnjem mesecu naraslo za 15%, predvsem zaradi bli?ajo?ih se festivalov.",
+  L37:         { name: "Ekolo?ki turizem", growth: "+22%", impact: "high" },
+  L41:       insights: "Gostje vse pogosteje i??ejo nastanitve s hitrim internetom in trajnostnimi certifikati."
+  L44:       summary: "Va?a glavna konkurenca je v zadnjem tednu zvi?ala cene za 8%. Va?a ponudba ostaja konkuren?na.",
+  L48:         { name: "Apartmaji Jezero", price: "?95/night", score: 4.2, advantage: "Cena" }
+  L53:       summary: "Leto?nji trendi ka?ejo na pove?ano zanimanje za avtenti?na lokalna do?ivetja.",
+  L56:         "Kulinari?ne delavnice",
+
+=== src\app\api\agents\reviews\analyze\route.ts ===
+  L49:       const sentiment = content.toLowerCase().includes("odli?no") || content.toLowerCase().includes("super") ? "positive" : "negative";
+  L53:         ? "Hvala za va?e mnenje! Veseli smo, da ste u?ivali."
+  L54:         : "?al nam je za va?o izku?njo. Bomo preverili in izbolj?ali.";
+
+=== src\app\api\analytics\demographics\route.ts ===
+  L119:     if (nights <= 2) durationGroup = '1-2 no?i';
+  L120:     else if (nights <= 4) durationGroup = '3-4 no?i';
+  L121:     else if (nights <= 7) durationGroup = '5-7 no?i';
+  L122:     else durationGroup = '7+ no?i';
+
+=== src\app\api\book\availability\route.ts ===
+  L92:               language === "sl" ? "Standardna soba" :
+  L95:               language === "hr" ? "Standardna soba" : "Standard Room",
+  L113:               language === "sl" ? "Luksuzna soba" :
+  L116:               language === "hr" ? "Deluxe soba" : "Deluxe Room",
+  L134:               language === "sl" ? "Executive apartma" :
+
+=== src\app\api\book\confirm\route.ts ===
+  L285:       subject: `Potrditev rezervacije - ${booking.bookingNumber}`,
+  L286:       greeting: `Spo?tovani/a ${booking.guestInfo.firstName} ${booking.guestInfo.lastName},`,
+  L287:       body: `Hvala za va?o rezervacijo v Hotel Alpina. Va?a rezervacija je bila potrjena.`,
+  L288:       details: `?tevilka rezervacije: ${booking.bookingNumber}\nPrihod: ${new Date(booking.checkIn).toLocaleDateString()}\nOdhod: ${new Date
+  L289:       closing: `Z veseljem pri?akujemo va? prihod v Hotel Alpina.\n\nLep pozdrav,\nEkipa Hotel Alpina`
+  L306:       subject: `Potvrda rezervacije - ${booking.bookingNumber}`,
+  L307:       greeting: `Po?tovani/a ${booking.guestInfo.firstName} ${booking.guestInfo.lastName},`,
+  L308:       body: `Hvala vam na rezervaciji u Hotel Alpina. Va?a rezervacija je potvr?ena.`,
+  L309:       details: `Broj rezervacije: ${booking.bookingNumber}\nPrijava: ${new Date(booking.checkIn).toLocaleDateString()}\nOdjava: ${new Date(b
+  L310:       closing: `Radujemo se va?em dolasku u Hotel Alpina.\n\nLijep pozdrav,\nTim Hotel Alpina`
+
+=== src\app\api\cron\eturizem-reminder\route.ts ===
+  L2:  * AgentFlow Pro - eTurizem Reminder Cron
+  L3:  * Flags today's arrivals without eTurizem submission for Director.
+  L49:     console.error("eTurizem reminder cron error:", error);
+  L51:       { error: "eTurizem reminder cron failed" },
+
+=== src\app\api\dashboard\boot\route.ts ===
+  L96:       message: `${log.eventType === 'occupancy' ? 'Visoka zasedenost' : 'Sistemsko obvestilo'}`,
+
+=== src\app\api\director\summary\route.ts ===
+  L3:  * Zero-Touch Director View: Revenue trends, auto-approval rates, eturizem status, actions required.
+  L48:     const [pendingCheckpoints, pendingGuestComms, pendingETurizem] = await Promise.all([
+  L87:     if (pendingETurizem > 0) {
+  L89:         id: "eturizem",
+  L91:         title: "eTurizem prijave",
+  L92:         count: pendingETurizem,
+  L101:     // 5. eTurizem Sync Status
+  L102:     const eturizemStatus = pendingETurizem === 0 ? "synced" : "pending";
+
+=== src\app\api\generate-content\route.ts ===
+  L17:   const name     = fields.name     ?? "nastanitev";
+  L21:     sl: "sloven??ini", en: "English", de: "Deutsch", it: "italiano", hr: "hrvatskom",
+  L23:   const lang = langLabel[language] ?? "sloven??ini";
+  L27:       return `Napi?i profesionalni opis nastanitve "${name}" v ${location} za Booking.com / Airbnb v ${lang}.
+  L28: Poudarki: ${highlights || "prijazno osebje, odli?na lokacija, ?iste sobe"}.
+  L29: Sobe: ${fields.rooms || "moderne, udobne sobe"}.
+  L30: Vsebina naj bo privla?na, SEO optimizirana, 200-300 besed.`;
+  L33:       return `Napi?i email dobrodo?lice za goste nastanitve "${name}" v ${location} v ${lang}.
+  L35: Lokalni nasveti: ${fields.tips || "obi??ite lokalne restavracije in znamenitosti"}.
+  L39:       return `Napi?i SEO vodi? destinacije ${location} v ${lang}.
+  L40: Aktivnosti: ${fields.activities || "pohodni?tvo, kolesarjenje, lokalna kultura"}.
+  L45:       return `Napi?i Instagram caption za nastanitev "${name}" v ${location} v ${lang}.
+  L46: Poudarki: ${highlights || "?udovita narava, mir, odli?na lokacija"}.
+  L47: Dodaj 10-15 relevantnih hashtagov. Ton: navdu?en, pritegljiv, 80-120 besed.`;
+  L50:       return `Napi?i besedilo za landing stran nastanitve "${name}" v ${location} v ${lang}.
+  L51: Poudarki: ${highlights || "idealna lokacija, udobje, posebna do?ivetja"}.
+  L53: Vklju?i: naslov, podnaslov, 3-4 USP to?ke, CTA gumb besedilo. 300-400 besed.`;
+  L56:       return `Napi?i besedilo sezonske kampanje za "${name}" v ${location} v ${lang}.
+  L57: Sezona/akcija: ${fields.season || "sezonska ponudba"}.
+  L59: Poudarki: ${highlights || "posebna do?ivetja, edinstvena ponudba"}.
+  L60: 250-350 besed, persuazivno, z nujnostjo (omejen ?as).`;
+  L63:       return `Napi?i profesionalno vsebino za nastanitev "${name}" v ${location} v ${lang}.
+  L109:         const mockContent = `# ${fields.name ?? "Nastanitev"} ? ${fields.location ?? "Slovenija"}\n\n[Demo vsebina za template: ${template}]
+  L126:         return NextResponse.json({ error: limitCheck.message ?? "Limit dose?en" }, { status: 403 });
+
+=== src\app\api\generate-image\route.ts ===
+  L67:           "DALL-E ni na voljo za ta API klju?. Uporabi klju? iz platform.openai.com z Images scope ali preveri nastavitve organizacije."
+
+=== src\app\api\health\resilience\route.ts ===
+  L24:       note: "Na?rtovano za orchestrator layer",
+
+=== src\app\api\integrations\eturizem\config\route.ts ===
+  L19:  * GET /api/integrations/eturizem/config
+  L20:  * Get eTurizem configuration
+  L43:       baseUrl: "https://api.eturizem.si",
+  L64:     console.error('Get eTurizem config error:', error);
+  L73:  * POST /api/integrations/eturizem/config
+  L74:  * Update eTurizem configuration
+  L150:       baseUrl: config.baseUrl || currentConfig.baseUrl || "https://api.eturizem.si",
+  L177:     console.error('Update eTurizem config error:', error);
+
+=== src\app\api\integrations\eturizem\logs\route.ts ===
+  L24:  * GET /api/integrations/eturizem/logs
+  L25:  * Get eTurizem sync logs
+  L146:     console.error('Get eTurizem logs error:', error);
+  L155:  * POST /api/integrations/eturizem/logs
+  L225:     console.log('New eTurizem sync log:', newLog);
+  L233:     console.error('Create eTurizem log error:', error);
+
+=== src\app\api\integrations\eturizem\mapping\[id]\route.ts ===
+  L10:  * PUT /api/integrations/eturizem/mapping/[id]
+  L29:     // Check if user has access (admin, director, receptor)
+  L35:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L47:         { success: false, error: { code: 'INVALID_INPUT', message: 'eTurizem ID and name are required' } },
+  L70:  * DELETE /api/integrations/eturizem/mapping/[id]
+  L89:     // Check if user has access (admin, director, receptor)
+  L95:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+
+=== src\app\api\integrations\eturizem\mapping\route.ts ===
+  L21:  * GET /api/integrations/eturizem/mapping
+  L36:     // Get all properties with their eTurizem mapping
+  L54:       eturizemName: property.eturizemId ? `eTurizem Property ${property.eturizemId}` : null,
+  L75:  * POST /api/integrations/eturizem/mapping
+  L96:         { success: false, error: { code: 'INVALID_INPUT', message: 'Local property ID and eTurizem ID are required' } },
+  L128:       eturizemName: `eTurizem Property ${eturizemId}`,
+
+=== src\app\api\integrations\eturizem\status\route.ts ===
+  L10:  * GET /api/integrations/eturizem/status
+  L11:  * Get eTurizem sync status
+  L25:     // Get user's eTurizem configuration
+  L99:     console.error('Get eTurizem status error:', error);
+
+=== src\app\api\integrations\eturizem\sync\route.ts ===
+  L10:  * POST /api/integrations/eturizem/sync
+  L11:  * Trigger manual sync with eTurizem
+  L28:     // Get user's eTurizem configuration
+  L38:         { success: false, error: { code: 'NO_CONFIG', message: 'eTurizem not configured' } },
+  L73:       // Simulate sync process (in real implementation, this would call eTurizem API)
+  L76:           // Mock API call to eTurizem
+  L113:       console.log(`eTurizem sync completed:`, {
+  L131:       console.error('eTurizem sync error:', error);
+
+=== src\app\api\integrations\eturizem\test\route.ts ===
+  L10:  * POST /api/integrations/eturizem/test
+  L11:  * Test eTurizem API connection
+  L25:     // Get user's eTurizem configuration
+  L46:       // In real implementation, this would make actual API calls to eTurizem
+  L100:     console.error('Test eTurizem connection error:', error);
+
+=== src\app\api\invoices\[id]\download\route.ts ===
+  L30:     // Check if user has access (receptor, admin)
+  L36:     if (!currentUser || !['admin', 'receptor'].includes(currentUser.role)) {
+  L38:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor or Admin access required' } },
+
+=== src\app\api\invoices\[id]\generate\route.ts ===
+  L30:     // Check if user has access (receptor, admin)
+  L36:     if (!currentUser || !['admin', 'receptor'].includes(currentUser.role)) {
+  L38:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor or Admin access required' } },
+
+=== src\app\api\invoices\[id]\send\route.ts ===
+  L30:     // Check if user has access (receptor, admin)
+  L36:     if (!currentUser || !['admin', 'receptor'].includes(currentUser.role)) {
+  L38:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor or Admin access required' } },
+
+=== src\app\api\invoices\calculate-tax\route.ts ===
+  L67:     // Check if user has access (receptor, admin)
+  L73:     if (!currentUser || !['admin', 'receptor'].includes(currentUser.role)) {
+  L75:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor or Admin access required' } },
+
+=== src\app\api\invoices\route.ts ===
+  L69:     // Check if user has access (receptor, admin)
+  L75:     if (!currentUser || !['admin', 'receptor'].includes(currentUser.role)) {
+  L77:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor or Admin access required' } },
+  L161:         guestName: "Peter Kova?i?",
+  L289:     // Check if user has access (receptor, admin)
+  L295:     if (!currentUser || !['admin', 'receptor'].includes(currentUser.role)) {
+  L297:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor or Admin access required' } },
+
+=== src\app\api\invoices\templates\route.ts ===
+  L49:     // Check if user has access (receptor, admin)
+  L55:     if (!currentUser || !['admin', 'receptor'].includes(currentUser.role)) {
+  L57:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor or Admin access required' } },
+  L162:     // Check if user has access (receptor, admin)
+  L168:     if (!currentUser || !['admin', 'receptor'].includes(currentUser.role)) {
+  L170:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor or Admin access required' } },
+
+=== src\app\api\onboarding\route.ts ===
+  L112:       const name = body.workspace_name?.trim() || "Moja nastanitev";
+
+=== src\app\api\page-builder\ai-generate\route.ts ===
+  L6:   // 1. Iskanje podatkov preko Tavily (tvoj klju?)
+  L23:   // Tukaj AI "izbere" tvoje vti?nike (Plugins)
+  L28:     mainResult.image || data.images?.[0] || "/placeholder-turizem.jpg";
+  L36:         type: "TextPlugin", // Tvoj obstoje?i vti?nik
+  L45:         type: "ImagePlugin", // Novo: dodaj sliko
+  L54:         type: "ButtonPlugin", // Tvoj obstoje?i vti?nik
+
+=== src\app\api\payments\[id]\refund\route.ts ===
+  L30:     // Check if user has access (receptor, director, admin)
+  L36:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L38:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor, Director, or Admin access required' } },
+
+=== src\app\api\payments\invoices\[id]\send\route.ts ===
+  L30:     // Check if user has access (receptor, director, admin)
+  L36:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L38:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor, Director, or Admin access required' } },
+
+=== src\app\api\payments\invoices\route.ts ===
+  L46:     // Check if user has access (receptor, director, admin)
+  L52:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L54:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor, Director, or Admin access required' } },
+  L115:         guestName: "Peter Kova?i?",
+  L217:     // Check if user has access (receptor, director, admin)
+  L223:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L225:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor, Director, or Admin access required' } },
+
+=== src\app\api\payments\methods\route.ts ===
+  L49:     // Check if user has access (receptor, director, admin)
+  L55:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L57:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor, Director, or Admin access required' } },
+  L174:     // Check if user has access (receptor, director, admin)
+  L180:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L182:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor, Director, or Admin access required' } },
+
+=== src\app\api\payments\route.ts ===
+  L55:     // Check if user has access (receptor, director, admin)
+  L61:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L63:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor, Director, or Admin access required' } },
+  L129:         guestName: "Peter Kova?i?",
+  L271:     // Check if user has access (receptor, director, admin)
+  L277:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L279:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor, Director, or Admin access required' } },
+
+=== src\app\api\payments\statistics\route.ts ===
+  L52:     // Check if user has access (receptor, director, admin)
+  L58:     if (!currentUser || !['admin', 'director', 'receptor'].includes(currentUser.role)) {
+  L60:         { success: false, error: { code: 'FORBIDDEN', message: 'Receptor, Director, or Admin access required' } },
+
+=== src\app\api\settings\automation\feature-flags\route.ts ===
+  L73:           userRole: ["admin", "director", "receptor"]
+  L124:           userRole: ["admin", "director", "receptor"]
+
+=== src\app\api\settings\security\audit-log\route.ts ===
+  L89:         details: "Created new user: Peter Kova?i?",
+  L108:         userName: "Peter Kova?i?",
+
+=== src\app\api\settings\security\data-requests\route.ts ===
+  L81:         guestName: "Peter Kova?i?",
+
+=== src\app\api\settings\security\gdpr\route.ts ===
+  L81:         guestName: "Peter Kova?i?",
+
+=== src\app\api\settings\users\[id]\route.ts ===
+  L76:       const validRoles = ["receptor", "director", "admin"];
+
+=== src\app\api\settings\users\activity\route.ts ===
+  L61:         details: "Created new user: Peter Kova?i?",
+  L70:         details: "Changed role from receptor to director",
+  L77:         userName: "Peter Kova?i?",
+  L122:         userName: "Peter Kova?i?",
+
+=== src\app\api\settings\users\route.ts ===
+  L13:   role: "receptor" | "director" | "admin";
+  L86:         name: "Peter Kova?i?",
+  L88:         role: "receptor",
+  L99:         role: "receptor",
+  L171:     const validRoles = ["receptor", "director", "admin"];
+  L228:     case "receptor":
+
+=== src\app\api\tourism\batch-translate\route.ts ===
+  L99: Preserve formatting (paragraphs, line breaks). Keep tourism terminology (e.g. Apartma, Bela Krajina) - translate only where appropriate for 
+
+=== src\app\api\tourism\bulk-generate\route.ts ===
+  L97:         ime_nastanitve: property.name ?? "",
+  L203:     "booking-description": `Nastanitev v srcu ${variables.lokacija || "Slovenije"} ponuja edinstveno izku?njo. Popolnoma opremljen ${variabl
+  L204:     "airbnb-story": `Predstavljajte si, da se zbudite ob ?udovitem pogledu na ${variables.lokacija || "naravo"}. Topel, oseben prostor, ki v
+  L205:     "destination-guide": `Odkrijte zaklad ${variables.destinacija || variables.lokacija || "Slovenije"}. Od ?udovitih naravnih lepot do boga
+  L206:     "seasonal-campaign": `Posebna ponudba! Rezervirajte zdaj in u?ivajte v nepozabnem po?itnikovanju. ${variables.ponudba || variables.offer
+  L208:     "restaurant-menu": `Na?a restavracija ponuja izvrstno kulinariko s poudarkom na lokalnih sestavinah.`,
+  L209:     "activity-experience": `Ne zamudite te edinstvene prilo?nosti za ${variables.aktivnost || "raziskovanje"}.`,
+  L210:     "wedding-event": `Ustvarite nepozabne spomine na va?em posebnem dnevu v na?i ?arobni lokaciji.`,
+  L211:     "corporate-b2b": `Profesionalno okolje za va?e poslovne potrebe. WiFi, AV oprema, catering.`,
+  L212:     "pre-arrival-email": `Pozdravljeni ${variables.ime_gosta || "gost"}! Veselimo se va?ega prihoda.`,
+  L213:     "post-stay-review": `Hvala za va? obisk! Prosimo, delite svojo izku?njo z drugimi.`,
+
+=== src\app\api\tourism\calendar\bulk-import\route.ts ===
+  L121:         errors.push({ row: rowNum, message: "Odhod mora biti za prihodom" });
+  L139:         errors.push({ row: rowNum, message: "Konflikt z obstoje?o rezervacijo" });
+  L192:           message: e instanceof Error ? e.message : "Napaka pri ustvarjanju",
+
+=== src\app\api\tourism\calendar\route.ts ===
+  L205:       overbookingWarning = `Overbooking ? prekrivanje z rezervacijo ${existingReservations[0].id}`;
+  L262:           title: "Nova rezervacija",
+
+=== src\app\api\tourism\competitor-prices\route.ts ===
+  L72:             marketData.recommendations.push("Va?a cena je 20%+ vi?ja od povpre?ja. Razmislite o ponudbi za vikende.");
+  L74:             marketData.recommendations.push("Va?a cena je 20%+ ni?ja od povpre?ja. Lahko povi?ate ceno brez izgube konkuren?nosti.");
+  L76:             marketData.recommendations.push("Va?a cena je konkuren?na.");
+
+=== src\app\api\tourism\email-scheduler\route.ts ===
+  L69:           subject: `Opomnik ? nepla?an znesek za ${propertyName}`,
+  L70:           content: `Pozdravljeni ${guestName},\n\nObve??amo vas, da imate pri rezervaciji (prihod: ${format(r.checkIn, "yyyy-MM-dd")}) nepor
+
+=== src\app\api\tourism\eturizem\check-in-submit\route.ts ===
+  L2:  * POST /api/tourism/eturizem/check-in-submit
+  L14: } from "@/lib/tourism/eturizem-client";
+  L49:       { error: "Rezervacija ni najdena" },
+  L95:       { error: "AJPES povezava ni nastavljena za to nastanitev" },
+  L139:       { error: "Napaka pri dekodiranju gesla" },
+  L148:       { error: result.message ?? "Po?iljanje v AJPES ni uspelo" },
+
+=== src\app\api\tourism\eturizem\check-in\route.ts ===
+  L2:  * GET /api/tourism/eturizem/check-in?token=
+  L23:       { error: "Rezervacija ni najdena ali je neveljavna" },
+
+=== src\app\api\tourism\eturizem\connection\route.ts ===
+  L2:  * AJPES eTurizem connection API
+
+=== src\app\api\tourism\eturizem\parse-mrz\route.ts ===
+  L2:  * POST /api/tourism/eturizem/parse-mrz
+
+=== src\app\api\tourism\eturizem\submit\route.ts ===
+  L2:  * POST /api/tourism/eturizem/submit
+  L3:  * Submit guest to AJPES eTurizem. Body: { reservationId }
+  L17: } from "@/lib/tourism/eturizem-client";
+  L119:       { error: "Guest missing required fields for eTurizem", missing },
+
+=== src\app\api\tourism\generate-content\route.ts ===
+  L44:       const mockContent = `[MOCK] Generirana turisti?na vsebina ? ${prompt.slice(0, 80)}...
+
+=== src\app\api\tourism\generate-email\route.ts ===
+  L48:       const mockContent = `Subject: Dobrodo?lica ? ${prompt.slice(0, 30)}...
+  L50: [MOCK] Po?iljatelj: AgentFlow Pro
+  L51: Sporo?ilo generirano v testnem na?inu. Nastavi OPENAI_API_KEY za prave emaile.
+
+=== src\app\api\tourism\generate-landing\route.ts ===
+  L38:   const name = formData.name ?? "Nastanitev";
+  L40:   const type = formData.type ?? "apartma";
+  L45:       ? `Dobrodo?li v ${name}`
+  L52:             : `Dobrodo?li u ${name}`;
+  L56:       ? `${name} je ${type} v ${location}. Idealno za po?itnice in kratke oddihi.`
+  L68:       body: `${location} ? va?a nova destinacija`,
+  L77:       heading: langLabel === "sl" ? "Nastanitve" : langLabel === "en" ? "Rooms" : "Zimmer",
+  L79:       items: ["WiFi", "Parkiri??e", "Oprema za kuhanje"],
+  L87:       heading: langLabel === "sl" ? "Rezervirajte zdaj" : langLabel === "en" ? "Book now" : "Jetzt buchen",
+  L88:       body: `${langLabel === "sl" ? "Cene od" : "From"} ${price}?/${langLabel === "sl" ? "no?" : "night"}`,
+  L114:         body: langLabel === "sl" ? "Dru?insko prilagojeno." : "Family-friendly.",
+
+=== src\app\api\tourism\guest-communication\route.ts ===
+  L140:         subject: subject ?? (validChannel === "email" ? "Sporo?ilo nastanitve" : null),
+
+=== src\app\api\tourism\notifications\daily-summary\route.ts ===
+  L69:         title: { contains: "Danes" },
+  L80:       const title = `Danes: ${a} prihodov, ${d} odhodov`;
+
+=== src\app\api\tourism\occupancy\route.ts ===
+  L46:       today: { ...data.today, label: "Danes" },
+  L47:       todayPlus1: { ...data.todayPlus1, label: "Jutri" },
+  L48:       todayPlus2: { ...data.todayPlus2, label: "Pojutri?njem" },
+
+=== src\app\api\tourism\pms-sync\route.ts ===
+  L62:           { error: "Dodaj credentials v PMS Povezave ali vnesi accessToken in clientToken v ta klic." },
+  L88:       message: `Sinhronizirano: ${result.synced} rezervacij`,
+
+=== src\app\api\tourism\price-recommendation\route.ts ===
+  L93:           ? `Za obdobje ${format(checkIn, "d.M.")}?${format(checkOut, "d.M.")} (${nights} no?i) priporo?am ${pricePerNight} EUR/no?. Konkure
+  L94:           : `Za obdobje ${format(checkIn, "d.M.")}?${format(checkOut, "d.M.")} (${nights} no?i) priporo?am ${pricePerNight} EUR/no?. Dodajte
+  L124:     const systemPrompt = `Si strokovnjak za nastanitveno cenovno dinamiko. Odgovori SAMO z JSON objektom, brez dodatnega besedila:
+  L125: {"recommendedPrice": <?tevilo EUR za no?>, "suggestion": "<1-2 stavka v sloven??ini>"}
+  L126: - recommendedPrice: priporo?ena cena na no? v EUR (celo ?tevilo ali decimalno)
+  L127: - suggestion: kratek priporo?ilo v sloven??ini, kjer omeni? obdobje, priporo?eno ceno, konkurenco (?e je na voljo) in va?o trenutno ceno`;
+  L129:     const prompt = `Obdobje: ${format(checkIn, "d.M.yyyy")}?${format(checkOut, "d.M.yyyy")} (${nights} no?i)
+  L130: Trenutna va?a cena: ${pricePerNight} EUR/no? (skupaj ${currentPrice} EUR)
+  L131: ${competitorAvg > 0 ? `Konkurenca: povpre?je ${competitorAvg} EUR, min ${competitorMin} EUR, max ${competitorMax} EUR` : "Ni podatkov o konk
+  L133: Napi?i priporo?ilo v Sloven??ini. ?e je konkurenca vi?ja, lahko predlaga? povi?anje. ?e je ni?ja, ohrani ali zni?aj.`;
+
+=== src\app\api\tourism\properties\summary\route.ts ===
+  L62:       // eTurizem sync status logic (simulation based on ajpesConnection)
+
+=== src\app\api\tourism\reservations\[id]\invoice\route.ts ===
+  L56:     const propName = reservation.property?.name ?? "Nastanitev";
+  L64:   <title>Ra?un ? ${propName}</title>
+  L81:   <h1>Ra?un</h1>
+  L86:     ${guestEmail ? `<tr><th>E-po?ta</th><td>${escapeHtml(guestEmail)}</td></tr>` : ""}
+  L91:     <tr><th>Prihod</th><td>${format(reservation.checkIn, "d. MMMM yyyy", { locale: sl })}</td></tr>
+  L92:     <tr><th>Odhod</th><td>${format(reservation.checkOut, "d. MMMM yyyy", { locale: sl })}</td></tr>
+  L93:     <tr><th>?t. no?i</th><td>${nights}</td></tr>
+  L98:     <tr><td>Nastanitev (${nights} no?i)</td><td class="text-right">${symbol}${totalPrice.toFixed(2)}</td></tr>
+  L99:     ${touristTax > 0 ? `<tr><td>Turisti?na taksa</td><td class="text-right">${symbol}${touristTax.toFixed(2)}</td></tr>` : ""}
+  L100:     <tr class="border-top"><td class="font-bold">Skupaj za pla?ilo</td><td class="text-right font-bold">${symbol}${totalDue.toFixed(2)}</td>
+  L104:     <tr><th>Pla?ano</th><td class="text-right">${symbol}${totalPaid.toFixed(2)}</td></tr>
+  L110:     <strong>Pla?ila</strong>
+  L112:       <tr><th>Datum</th><th>Vrsta</th><th>Na?in</th><th class="text-right">Znesek</th></tr>
+  L126:     Ra?un izdan: ${format(new Date(), "d. MMMM yyyy, HH:mm", { locale: sl })}. Za tiskanje oz. shranitev kot PDF uporabite Ctrl+P / Cmd+P.
+  L153:     deposit: "Akontacija",
+  L155:     tourist_tax: "Turisti?na taksa",
+
+=== src\app\api\tourism\reservations\pending\route.ts ===
+  L34:       let reason = "Zahtevan ro?ni pregled";
+  L38:         if (rules.enabled === false) reason = "Avtomatska potrditev onemogo?ena";
+
+=== src\app\api\tourism\reservations\route.ts ===
+  L201:           `Potrditev rezervacije: ${newReservation.property.name}`,
+  L207:   <h2 style="color: #1e3a8a;">Potrditev va?e rezervacije</h2>
+  L209:   <p>Z veseljem potrjujemo va?o rezervacijo v <strong>${newReservation.property.name}</strong>.</p>
+  L212:     <p style="margin: 0; font-size: 14px; color: #64748b;">?ifra rezervacije: <strong>#${newReservation.id.slice(-6).toUpperCase()}</strong>
+  L215:         <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase;">Prihod</p>
+  L219:         <p style="margin: 0; font-size: 12px; color: #94a3b8; text-transform: uppercase;">Odhod</p>
+  L226:   <p>Veselimo se va?ega obiska!</p>
+  L228:     Ta e-po?ta je bila poslana preko AgentFlow Pro sistema.
+
+=== src\app\api\tourism\search-console\route.ts ===
+  L296:       query: "apartmaji bela krajina",
+  L297:       page: `${connection.siteUrl}/apartmaji`,
+  L305:       query: "po?itnice kolpa",
+
+=== src\app\api\tourism\search\route.ts ===
+  L66:         title: "Rezervacija",
+  L67:         subtitle: `Rezervacija ? ${new Date(r.checkIn).toLocaleDateString("sl-SI")}`,
+
+=== src\app\api\tourism\send-welcome-tomorrow\route.ts ===
+  L135:           ? `\n\nSelf check-in (eTurizem): ${getBaseUrl()}/check-in/${r.checkInToken}\n\n`
+
+=== src\app\api\workflows\[id]\execute\route.ts ===
+  L30:         logs: [{ step: "Start", message: "Za?enjam izvajanje delovnega toka...", time: new Date().toISOString() }],
+  L43:             { step: "Start", message: "Za?enjam izvajanje delovnega toka...", time: new Date().toISOString() },
+  L44:             { step: "Agent", message: "Agent 'Content Creator' je uspe?no obdelal vhodne podatke.", time: new Date().toISOString() },
+  L45:             { step: "Finish", message: "Delovni tok uspe?no zaklju?en.", time: new Date().toISOString() }
+
+=== src\app\book\page.tsx ===
+  L143:       subtitle: "Izkusite popolno me?anico udobja in luksuza",
+  L144:       checkIn: "Prihod",
+  L145:       checkOut: "Odhod",
+  L146:       guests: "Gostje",
+  L148:       selectRoom: "Izberite sobo",
+  L150:       payment: "Podatki o pla?ilu",
+  L151:       confirmation: "Potrditev rezervacije",
+  L154:       perNight: "na no?",
+  L156:       bookNow: "Rezerviraj zdaj",
+  L158:       previous: "Prej?nji",
+  L159:       confirm: "Potrdi rezervacijo",
+  L162:       email: "E-po?ta",
+  L166:       country: "Dr?ava",
+  L167:       postalCode: "Po?tna ?tevilka",
+  L169:       paymentMethod: "Na?in pla?ila",
+  L170:       cardNumber: "?tevilka kartice",
+  L174:       agreeToTerms: "Strinjam se s pogoji in dolo?ili",
+  L175:       newsletter: "Po?lji mi posebne ponudbe",
+  L177:       roomSize: "Velikost sobe",
+  L178:       bedType: "Vrsta postelje",
+  L181:       petFriendly: "Dobrodo?li hi?ni ljubljenci",
+  L182:       maxGuests: "Najve? gostov",
+  L183:       minNights: "Najmanj no?i",
+  L287:       subtitle: "Do?ivite savr?enu mje?avinu udobnosti i luksuza",
+  L288:       checkIn: "Prijava",
+  L289:       checkOut: "Odjava",
+  L294:       payment: "Podatki o pla?anju",
+  L295:       confirmation: "Potvrda rezervacije",
+  L298:       perNight: "po no?i",
+  L301:       next: "Sljede?i",
+  L303:       confirm: "Potvrdite rezervaciju",
+  L306:       email: "E-po?ta",
+  L310:       country: "Dr?ava",
+  L311:       postalCode: "Po?tanski broj",
+  L313:       paymentMethod: "Na?in pla?anja",
+  L318:       agreeToTerms: "Prihva?am uvjete i odredbe",
+  L319:       newsletter: "Po?aljite mi posebne ponude",
+  L321:       roomSize: "Veli?ina sobe",
+  L324:       smoking: "Pu?enje",
+  L325:       petFriendly: "Ljubimci dobrodo?li",
+  L327:       minNights: "Min. no?i",
+  L342:             selectedLanguage === "sl" ? "Standardna soba" :
+  L345:             selectedLanguage === "hr" ? "Standardna soba" : "Standard Room",
+  L347:                    selectedLanguage === "sl" ? "Udobna soba s sodobno opremo" :
+  L350:                    selectedLanguage === "hr" ? "Udobna soba s modernim sadr?ajem" : "Comfortable room with modern amenities",
+  L368:             selectedLanguage === "sl" ? "Luksuzna soba" :
+  L371:             selectedLanguage === "hr" ? "Deluxe soba" : "Deluxe Room",
+  L373:                    selectedLanguage === "sl" ? "Prostrana soba s premium opremo" :
+  L376:                    selectedLanguage === "hr" ? "Prostrana soba s premium sadr?ajem" : "Spacious room with premium amenities",
+  L394:             selectedLanguage === "sl" ? "Executive apartma" :
+  L399:                    selectedLanguage === "sl" ? "Luksuzno apartma s lo?enim dnevnim prostorom" :
+  L983:          selectedLanguage === "sl" ? "Rezervacija potrjena!" :
+  L986:          selectedLanguage === "hr" ? "Rezervacija potvr?ena!" : "Booking Confirmed!"}
+  L1021:            selectedLanguage === "sl" ? "Potrditveno e-po?tno sporo?ilo je bilo poslano na va? e-naslov." :
+  L1024:            selectedLanguage === "hr" ? "Potvrdni email je poslan na va?u email adresu." : "A confirmation email has been sent to your email 
+  L1057:            selectedLanguage === "sl" ? "Naredi novo rezervacijo" :
+  L1060:            selectedLanguage === "hr" ? "Napravi jo? jednu rezervaciju" : "Make Another Booking"}
+  L1101:                   <option value="sl">Sloven??ina</option>
+  L1201:                  selectedLanguage === "sl" ? "Do?ivite luksuz in udobje v srcu Alp." :
+  L1204:                  selectedLanguage === "hr" ? "Do?ivite luksuz i udobnost u srcu Alpa." : "Experience luxury and comfort in the heart of the 
+  L1221:                 <p>{selectedLanguage === "en" ? "Free WiFi" : selectedLanguage === "sl" ? "Brezpla?en WiFi" : "Free WiFi"}</p>
+  L1224:                 <p>{selectedLanguage === "en" ? "Conference Rooms" : selectedLanguage === "sl" ? "Konferen?ne sobe" : "Conference Rooms"}</p
+  L1264:             <p>&copy; 2024 Hotel Alpina. {selectedLanguage === "en" ? "All rights reserved." : selectedLanguage === "sl" ? "Vse pravice prid
+
+=== src\app\chat\page.tsx ===
+  L90:             toast.error("Napaka pri ustvarjanju veje");
+  L93:         .catch(() => toast.error("Napaka pri ustvarjanju veje"));
+  L205:                 Kaj bi rad danes ustvaril? Napi?i prompt, npr. &quot;Napi?i uvod
+  L206:                 za blog o AI avtomatizaciji&quot; ali &quot;Raz?iri ta naslov v
+  L243:                             Shranjeno ? Prika?i post
+  L253:                             Shrani kot BlogPost
+  L260:                           title="Ustvari vejo od tega odgovora"
+  L329:               Multi-agent plan (raz?leni v sub-goals, izvedi Research/Content/Code/Deploy agente)
+  L335:               Pogovor bo pre?el na ?loveka z vami. Nekdo vas bo kmalu kontaktiral.
+  L356:               placeholder="Napi?i prompt..."
+  L367:                   ? "?akam..."
+  L368:                   : "Po?lji"}
+
+=== src\app\chat\threads\page.tsx ===
+  L66:               Ni shranjenih niti. Za?ni pogovor in uporabi Create branch.
+
+=== src\app\check-in\[token]\page.tsx ===
+  L39:       setErrorMsg("Manjkajo? token");
+  L42:     fetch(`/api/tourism/eturizem/check-in?token=${encodeURIComponent(token)}`)
+  L47:           setErrorMsg(data.error ?? "Rezervacija ni najdena");
+  L56:         setErrorMsg("Napaka pri nalaganju");
+  L64:       const res = await fetch("/api/tourism/eturizem/parse-mrz", {
+  L94:       const res = await fetch("/api/tourism/eturizem/check-in-submit", {
+  L103:       if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L106:       setErrorMsg(err instanceof Error ? err.message : "Napaka");
+  L136:             Prijava uspe?na
+  L139:             Hvala! Va?i podatki so bili prijavljeni. Prijeten bivanje!
+  L153:           Izpolnite podatke iz osebnega dokumenta za prijavo v nastanitev.
+  L196:               Dr?ava (ISO 2) *
+  L208:               aria-label="Dr?ava ISO koda"
+  L234:               ?tevilka dokumenta *
+  L242:               aria-label="?tevilka dokumenta"
+  L258:               <option value="M">Mo?ki</option>
+  L259:               <option value="F">?enski</option>
+  L272:             {submitting ? "Po?iljam..." : "Po?lji prijavo"}
+
+=== src\app\content\page.tsx ===
+  L19:   "destination-guide": { icon: "?", label: "Vodi?" },
+  L38:   if (d === 1) return "v?eraj";
+  L107:       toast.success(`Izbrisano: ${data.deleted ?? selectedIds.size} kosov`);
+  L111:       toast.error(err instanceof Error ? err.message : "Napaka pri brisanju");
+  L176:               title="Ustvari novo vsebino (g n)"
+  L190:               ?e nimate nobene vsebine
+  L193:               Za?nite z ustvarjanjem vsebine za va?o nastanitev. Hitro, enostavno, profesionalno.
+  L223:                     placeholder="I??i vsebino..."
+  L243:                     <option value="desc">Najnovej?e</option>
+  L244:                     <option value="asc">Najstarej?e</option>
+  L269:                       {selectedIds.size === filtered.length ? "Odzna?i vse" : "Izberi vse"}
+  L277:                       {bulkDeleting ? "Brisanje?" : "Izbri?i izbrano"}
+  L354:                           Odpri ?
+  L369:                 + Ustvari novo vsebino
+
+=== src\app\dashboard\director\page.tsx ===
+  L73:         if (!r.ok) throw new Error("Napaka pri nalaganju");
+  L132:               Sistem je popolnoma avtonomen danes ? ni?esar ni treba storiti
+  L169:           <div className="text-sm font-medium text-white/90 mt-1">V nastanitvi</div>
+  L190:             ?aka na odobritev
+  L247:                     ? "eTurizem"
+  L253:                   ? <span>{(a.metadata as { count?: number }).count} prihodov brez eTurizem</span>
+  L282:             Ni prihodov, odhodov ali gostov v nastanitvi danes.
+
+=== src\app\dashboard\escalations\page.tsx ===
+  L59:     pending: "?aka",
+  L61:     resolved: "Re?eno",
+  L70:         Pogovori, ki zahtevajo ro?no prevzem (nizko zaupanje AI odgovora).
+  L77:           aria-label="Filtriraj po statusu"
+  L80:           <option value="pending">?aka</option>
+  L82:           <option value="resolved">Re?eno</option>
+  L91:           Prika?i vse uporabnike (admin)
+  L153:                       Odpri chat
+  L171:                       {updating === e.id ? "..." : "Re?eno"}
+
+=== src\app\dashboard\insights\page.tsx ===
+  L60:             {error ?? "Ni mogo?e nalo?iti podatkov."}
+  L90:             Izvedbe agentov, stopnja napak, prihranjen ?as
+  L101:           aria-label="Izberi ?asovno obdobje"
+  L119:             Uspe?nih
+  L140:             Ocenjen prihranjen ?as
+  L155:               Izvedbe po agentType (uspe?no / neuspe?no)
+  L169:                     Uspe?no
+  L172:                     Neuspe?no
+  L207:             ?e nimate izvedb v tem obdobju.
+  L210:             Ustvarite vsebino, po?enite workflow ali uporabite chat za prve metrike.
+  L217:               Ustvari vsebino
+
+=== src\app\dashboard\layout.tsx ===
+  L13:   { icon: "??", label: "Ustvari", href: "/generate" },
+  L15:   { icon: "?", label: "Nastanitve", href: "/settings" },
+  L18: // ??? Turizem podmeni ??????????????????????????????????????????????????????????
+  L23:   { name: "Povpra?evanja", href: "/dashboard/tourism/inbox" },
+  L27:   { name: "Nastanitve", href: "/dashboard/tourism/properties" },
+  L35:   { name: "Obvestila", href: "/dashboard/tourism/notifications" },
+  L36:   { name: "eTurizem", href: "/dashboard/tourism/eturizem-settings" },
+  L48:   { icon: "??", label: "Nastavitve", href: "/settings" },
+  L138:   // Privzeta Tourism stran za tourism uporabnike (?Danes? kot vhod)
+  L139:   // Novi turisti?ni uporabniki: privzeto vklopi reception mode (prvi obisk)
+  L204:       {/* Hiter gumb Ustvari */}
+  L368:                     label: "Danes",
+  L372:               { icon: "??", label: "Ustvari", href: "/generate" },
+  L374:               { icon: "??", label: "Nastavitve", href: "/settings" },
+  L411:               Bli?njice na tipkovnici
+  L445:                 ? Prika?i/skrij to pomo?
+  L453:               Zapri
+
+=== src\app\dashboard\page-builder\page.tsx ===
+  L57:     "Najbolj?i apartmaji v Tolminu",
+  L111:         throw new Error(`API napaka: ${response.status}`);
+  L134:       showToast(`Uspe?no generirano: ${customPrompt}`);
+  L137:       showToast(e.message || "Napaka pri generiranju", true);
+  L146:         <span className="text-gray-500">Nalaganje...</span>
+  L201:             Shrani
+  L226:                 placeholder="npr. Najbolj?i apartmaji v Tolminu"
+  L234:                 Prekli?i
+
+=== src\app\dashboard\page.tsx ===
+  L58:   { id: "register", label: "Ustvarili ste ra?un", done: true },
+  L59:   { id: "property", label: "Dodajte nastanitev", href: "/settings" },
+  L60:   { id: "content", label: "Ustvarite prvi opis sobe", href: "/generate?template=booking-description" },
+  L61:   { id: "email", label: "Po?ljite email dobrodo?lice", href: "/generate?template=guest-welcome-email" },
+  L114:           <h2 className="text-lg font-bold text-gray-900 dark:text-white">? Va? napredek: {doneCount}/{CHECKLIST_STEPS.length}</h2>
+  L115:           <p className="text-sm text-gray-500">Dokon?ajte nastavitev za najbolj?o izku?njo</p>
+  L117:         <button onClick={dismiss} className="text-gray-400 hover:text-gray-600 text-xl leading-none" aria-label="Zapri">?</button>
+  L139:                   Za?ni ?
+  L182:         Za?ni ?
+  L203:       <p className="text-sm">?e nimate vsebine. Za?nite s klikom na eno od akcij zgoraj!</p>
+  L225:             Odpri
+  L242:   if (m === 11 && d >= 20) seasons.push({ name: "zimo", msg: "Priporo?amo sezonsko kampanjo za zimo in praznike.", emoji: "?" });
+  L243:   else if (m === 12) seasons.push({ name: "praznike", msg: "Bo?i?na in novoletna kampanja ? ustvarite vsebino zdaj!", emoji: "?" });
+  L244:   else if (m >= 2 && m <= 3) seasons.push({ name: "pomlad", msg: "Pomladna kampanja ? idealen ?as za vikend ponudbe.", emoji: "?" });
+  L245:   else if (m >= 5 && m <= 6) seasons.push({ name: "poletje", msg: "Poletna sezona ? pripravi vsebino za direktne rezervacije.", emoji: "??" 
+  L254:         <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">Ustvarite sezonsko kampanjo z enim klikom.</p>
+  L260:         Ustvari kampanjo ?
+  L293:       <h2 className="font-bold text-amber-800 dark:text-amber-300 mb-3">? ?aka na odobritev ({checkpoints.length})</h2>
+  L331:     return "Dober ve?er";
+  L348:             <p className="text-gray-500 dark:text-gray-400 mt-1">Va? AgentFlow Pro pregled za danes.</p>
+  L371:               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">? Viri rezervacij (Avtomatske vs. Ro?ne)</h2>
+  L385:                 title="Ustvari vsebino"
+  L386:                 desc="Opis sobe, blog post, social objava"
+  L393:                 desc="Dobrodo?lica, opomnilo, zahvala"
+  L400:                 desc="SEO strani za direktne rezervacije"
+  L411:                 { emoji: "?", label: "Vodi? destinacije", href: "/generate?template=destination-guide" },
+  L460:             <span>{showAdvanced ? "Skrij napredno" : "Napredno (za izku?ene uporabnike)"}</span>
+  L468:                 { emoji: "?", label: "Canvas", href: "/canvas", desc: "Vizualni kampanjski na?rtovalec" },
+
+=== src\app\dashboard\tourism\analytics\page.tsx ===
+  L81:         toast.error("Napaka pri nalaganju analitike");
+  L94:       toast.error("Izberite nastanitev in vnesite lokacijo (npr. Bela Krajina)");
+  L105:         toast.error(e instanceof Error ? e.message : "Napaka pri nalaganju konkuren?nih cen");
+  L117:             Analitika & Poro?ila
+  L120:             Kanalna uspe?nost, prihodki, zasedenost, AI vsebina
+  L130:             aria-label="Izberi ?asovno obdobje za analitiko"
+  L145:             <h2 className="font-semibold">Konkuren?ne cene</h2>
+  L164:               {competitorLoading ? "Nalaganje..." : "Nalo?i konkuren?ne cene"}
+  L172:                     <div className="text-sm text-gray-600 dark:text-gray-400">Povp. tr?na cena</div>
+  L177:                       <div className="text-sm text-gray-600 dark:text-gray-400">Priporo?ilo</div>
+  L199:                 <p className="text-sm text-gray-500">Za to nastanitev ?e ni podatkov o konkurenci. Dodajte konkurente v nastanitvah.</p>
+  L207:         <LoadingState message="Nalaganje analitike..." />
+  L212:           description="Izberite nastanitev za prikaz analitike in poro?il."
+  L213:           actionLabel="Izberi nastanitev"
+  L222:                 <h2 className="font-semibold">Uspe?nost FAQ</h2>
+  L224:                   ?as odziva in avtomatsko odgovorjena sporo?ila
+  L229:                   <div className="text-sm text-gray-600 dark:text-gray-400">Povp. ?as odziva</div>
+  L241:                   <div className="text-sm text-gray-600 dark:text-gray-400">Za ro?ni pregled</div>
+  L275:                   <div className="text-sm text-gray-600 dark:text-gray-400">Preno?i??a</div>
+  L279:                   <div className="text-sm text-gray-600 dark:text-gray-400">Rezervacije</div>
+  L302:               label="Skupaj rezervacij"
+  L324:               trend={data.summary.occupancyRate > 70 ? "Odli?no" : "Izbolj?aj"}
+  L333:                 <h2 className="font-semibold">? Uspe?nost po Kanalih</h2>
+  L350:                             {stats.bookings} rezervacij ? povp. {stats.avgStay} no?i
+  L428:                       Prihranjeno ?asa z AI
+  L432:                       (povp. 30 min na vsebino ro?no)
+  L443:               <h2 className="font-semibold">? Najbolj?i Gosti</h2>
+  L459:                           {guest.bookings} rezervacij
+  L476:                 toast.success("Poro?ilo generirano! Prenos se je za?el.");
+  L480:               ? Prenesi Poro?ilo (PDF)
+  L499:               Odpri Competitor Analytics ?
+
+=== src\app\dashboard\tourism\booking-com\page.tsx ===
+  L21:         4?8 tednov ?akanja; vsak dan zamude = zamujeno partnerstvo. Glej vodilo spodaj.
+  L69:               Dokumenti: poslovna registracija, GDPR, tehni?na specifikacija
+  L72:               Po?lji aplikacijo; ?akanje 4?8 tednov
+  L82:             Odlo?itev: Connectivity / Affiliate / Oba ? Datum prijave ? Status odziva
+  L92:           Odpri partner.booking.com ?
+
+=== src\app\dashboard\tourism\bulk-generate\page.tsx ===
+  L67:       toast.error("Izberite vsaj eno nastanitev");
+  L71:       toast.error("Izberite ?ablo");
+  L87:       if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L89:       toast.success(`Uspe?no: ${data.success}, spodletelo: ${data.failed}`);
+  L102:           <p className="text-gray-500">Nalagam nastanitve...</p>
+  L122:             Generirajte vsebino za ve? nastanitev naenkrat
+  L127:           {/* Nastanitve */}
+  L130:               Izberite nastanitve
+  L134:                 Nimate nastanitev.{" "}
+  L136:                   Dodajte nastanitev
+  L175:           {/* ?ablona */}
+  L178:               ?ablona vsebine
+  L184:               aria-label="?ablona vsebine"
+  L226:               : `Generiraj (${selectedPropertyIds.size} nastanitev ? ${languages.length} jezik)`}
+  L236:                 Uspe?no: {result.success}, Spodletelo: {result.failed}
+  L246:                     <p className="text-xs text-gray-400">+ {(result.results?.length ?? 0) - 10} ve?</p>
+  L254:                 Odpri Moja vsebina ?
+
+=== src\app\dashboard\tourism\calendar\page.tsx ===
+  L105:       toast.error("Napaka pri nalaganju koledarja");
+  L154:       toast.error("Izberite nastanitev");
+  L171:         toast.error(e instanceof Error ? e.message : "Napaka");
+  L187:       toast.error("Izberite nastanitev in vnesite podatke");
+  L205:         toast.success(`Uvo?eno: ${d.imported}, presko?eno: ${d.skipped}`);
+  L209:         toast.error(e instanceof Error ? e.message : "Napaka pri uvozu");
+  L235:       toast.error("Izberite nastanitev in vnesite prihod ter odhod");
+  L249:         toast.error(e instanceof Error ? e.message : "Napaka pri izra?unu cene");
+  L257:       toast.error("Izberite nastanitev ter vnesite prihod in odhod");
+  L285:         setCreateConflict({ message: "Prekrivanje z obstoje?o rezervacijo.", conflicts: data.conflicts });
+  L290:       toast.success("Rezervacija ustvarjena");
+  L296:       toast.error(e instanceof Error ? e.message : "Napaka pri ustvarjanju");
+  L322:       toast.error("Vnesite prihod in odhod");
+  L332:       toast.success("Cena izra?unana");
+  L334:       toast.error(e instanceof Error ? e.message : "Napaka pri izra?unu");
+  L403:             Upravljanje rezervacij, iCal sinhronizacija, zasedenost
+  L449:             <h2 className="font-semibold">Izra?un cene</h2>
+  L450:             <p className="text-sm text-gray-500 mt-1">Izra?unajte ceno glede na datum prihoda in odhoda</p>
+  L454:               <label htmlFor="calendar-calc-checkin" className="block text-xs text-gray-500 mb-1">Prihod</label>
+  L465:               <label htmlFor="calendar-calc-checkout" className="block text-xs text-gray-500 mb-1">Odhod</label>
+  L480:               {calcLoading ? "Ra?unam..." : "Izra?unaj ceno"}
+  L486:                 <span className="text-gray-600 dark:text-gray-400">Nastanitve:</span>
+  L536:             + Nova rezervacija
+  L556:             {icalLoading ? "Nalaganje..." : "? iCal Sync"}
+  L589:           {["Pon", "Tor", "Sre", "?et", "Pet", "Sob", "Ned"].map((day) => (
+  L598:           <div className="p-8 text-center text-gray-500">Nalaganje...</div>
+  L617:                               <div className="text-blue-600 dark:text-blue-400">Prihod</div>
+  L620:                               <div className="text-orange-600 dark:text-orange-400">Odhod</div>
+  L653:                     <div className="text-gray-500">Prihod</div>
+  L657:                     <div className="text-gray-500">Odhod</div>
+  L671:                   <div className="text-sm text-gray-500">Nalaganje pla?il...</div>
+  L676:                         <span className="text-gray-500">Akontacija</span>
+  L682:                         <span className="text-gray-500">Turisti?na taksa</span>
+  L687:                       <span>Pla?ano</span>
+  L701:                         Dodaj pla?ilo
+  L709:                         Izpi?i ra?un
+  L734:                       placeholder="Opombe za rezervacijo"
+  L751:                     Zapri
+  L775:                         toast.success("Rezervacija posodobljena");
+  L782:                         toast.error(e instanceof Error ? e.message : "Napaka");
+  L790:                     {editLoading ? "Shranjevanje..." : "Shrani"}
+  L813:                     Ustvari rezervacijo
+  L820:                   Zapri
+  L832:             <h4 className="text-lg font-semibold mb-4">Dodaj pla?ilo</h4>
+  L840:                   aria-label="Vrsta pla?ila"
+  L843:                   <option value="deposit">Akontacija</option>
+  L845:                   <option value="tourist_tax">Turisti?na taksa</option>
+  L859:                   aria-label="Znesek pla?ila v evrih"
+  L864:                 <label htmlFor="new-payment-method" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Na?in</label
+  L867:                   aria-label="Na?in pla?ila"
+  L883:                 Prekli?i
+  L905:                     toast.success("Pla?ilo dodano");
+  L921:                     toast.error(e instanceof Error ? e.message : "Napaka");
+  L929:                 {addPaymentLoading ? "Dodajam..." : "Dodaj"}
+  L941:               <h3 className="text-lg font-semibold">Nova rezervacija</h3>
+  L949:                   {simpleReservationMode ? "Enostavni" : "Napredni"} na?in
+  L957:                   <label htmlFor="new-res-checkin" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prihod</label
+  L968:                   <label htmlFor="new-res-checkout" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Odhod</label
+  L991:                 <label htmlFor="new-res-guest-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-po?ta</la
+  L998:                   aria-label="E-po?ta gosta"
+  L1023:                       aria-label="Kanal rezervacije"
+  L1045:                       <label htmlFor="new-res-deposit" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Akontacij
+  L1053:                         aria-label="Akontacija v evrih"
+  L1058:                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Turisti?na taksa (?)</label>
+  L1079:                     placeholder="Izra?unano ob vnosu datumov"
+  L1091:                     placeholder="Opombe za rezervacijo"
+  L1092:                     aria-label="Opombe za rezervacijo"
+  L1101:                 <p className="text-sm font-medium text-amber-800 dark:text-amber-200">{createConflict.message} Ustvari vseeno?</p>
+  L1107:                     Prekli?i
+  L1114:                     Ustvari vseeno
+  L1125:                 Izra?unaj ceno
+  L1132:                 {createReservationLoading ? "Ustvarjam..." : "Ustvari rezervacijo"}
+  L1144:               <h3 className="text-lg font-semibold">Bulk uvoz rezervacij</h3>
+  L1187:                 {bulkLoading ? "Uvozam..." : "Uvozi"}
+  L1190:                 Zapri
+  L1195:                 <p className="text-sm font-medium">Rezultat: uvo?eno {bulkResult.imported}, presko?eno {bulkResult.skipped}</p>
+
+=== src\app\dashboard\tourism\competitors\page.tsx ===
+  L47:       toast.error("Izberite nastanitev in datuma Od in Do");
+  L63:       .catch((e) => toast.error(e instanceof Error ? e.message : "Napaka"))
+  L80:         toast.error(e instanceof Error ? e.message : "Napaka pri nalaganju");
+  L87:   // Nastavi location iz nastanitve, ko je izbrana, in nalo?i konkurente
+  L102:         // Nalo?i konkurente s pravilno lokacijo
+  L114:             toast.error(e instanceof Error ? e.message : "Napaka pri nalaganju");
+  L121:         // Fallback: nalo?i z Bela Krajina
+  L167:       .catch((e) => toast.error(e instanceof Error ? e.message : "Napaka"))
+  L182:         toast.success(`Posodobljeno cen: ${d.refreshed ?? 0}`);
+  L185:       .catch((e) => toast.error(e instanceof Error ? e.message : "Napaka"))
+  L198:       .catch((e) => toast.error(e instanceof Error ? e.message : "Napaka"));
+  L208:             Konkuren?ne cene
+  L211:             Sledite cenam konkurence in primerjajte s povpre?jem na trgu
+  L228:             {loading ? "Nalaganje..." : "Nalo?i"}
+  L236:                 + Dodaj konkurenta
+  L243:                 {refreshLoading ? "Posodabljam..." : "Posodobi cene"}
+  L288:                   Priporo?ena cena: ?{recResult.recommendedPrice}/no?
+  L291:                   Trenutna: ?{recResult.currentPrice} ({recResult.nights} no?i)
+  L307:           <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">Tr?na analiza</h2>
+  L322:           <div className="p-8 text-center text-gray-500">Nalaganje...</div>
+  L325:             Izberite nastanitev in vnesite lokacijo za prikaz konkuren?nih cen.
+  L329:             Ni sledenih konkurentov. Kliknite &quot;Dodaj konkurenta&quot; za za?etek.
+  L391:             <h3 className="text-lg font-semibold mb-4">Dodaj konkurenta</h3>
+  L399:                   placeholder="npr. Apartma XYZ"
+  L429:                 Prekli?i
+  L436:                 {addLoading ? "Dodajanje..." : "Dodaj"}
+
+=== src\app\dashboard\tourism\data-cleanup\page.tsx ===
+  L58:       if (!confirm("Resno ?elite zdru?iti podvojene goste? To ne morete razveljaviti.")) return;
+  L74:       if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L77:         toast.success("?i??enje izvedeno. Podvojene zapise smo zdru?ili.");
+  L78:       else toast.success("Pregled kon?an.");
+  L80:       toast.error(err instanceof Error ? err.message : "Napaka pri ?i??enju");
+  L97:             ?i??enje podatkov
+  L100:             Deduplikacija gostov, preverjanje anomalij rezervacij
+  L108:           Za?eni pregled
+  L111:           Najprej preveri (dry run), nato po potrditvi uporabi zdru?itev.
+  L126:             Zdru?i podvojene goste
+  L134:             ?as: {new Date(result.timestamp).toLocaleString()} ?{" "}
+  L147:                       Po emailu ({dupEmail.merged} za zdru?itev)
+  L152:                           {d.key}: {d.ids.length} zapisov ? obdr?i {d.keepId.slice(0, 8)}?
+  L157:                           ? in ?e {dupEmail.duplicates.length - 5} skupin
+  L166:                       Po imenu + nastanitev ({dupName.merged} za zdru?itev)
+  L176:                           ? in ?e {dupName.duplicates.length - 5} skupin
+  L190:                   Anomalije rezervacij
+  L201:                       {a.count} rezervacij
+  L216:                 ? Ni podvojenih gostov ali anomalij rezervacij.
+
+=== src\app\dashboard\tourism\email\page.tsx ===
+  L12:     description: "Pred prihodom gosta ? dobrodo?lica + check-in navodila",
+  L13:     prompt: `Napi?i topel welcome email za gosta pred prihodom.
+  L14: Vklju?i:
+  L15: - Osebno dobrodo?lico z imenom nastanitve
+  L16: - Check-in navodila (naslov, kontakt, kodna klju?avnica)
+  L17: - Priporo?ila za prvi dan (kavarna, supermarket, atrakcija)
+  L18: - Kontakt za nujna vpra?anja
+  L23: Nastanitev: {name}, {location}
+  L29:     description: "Po odhodu gosta ? hvala + pro?nja za review",
+  L30:     prompt: `Napi?i follow-up email po odhodu gosta.
+  L31: Vklju?i:
+  L33: - Pro?njo za review na Booking/Google (z direktnim linkom)
+  L37: Ton: prijazen, ne preve? prodajen
+  L39: Nastanitev: {name}`,
+  L43:     name: "Sezonska Ponudba",
+  L45:     prompt: `Napi?i sezonski email za pretekle goste.
+  L46: Vklju?i:
+  L47: - Osebni nagovor (upo?tevaj da so ?e bili pri nas)
+  L48: - Novosti v nastanitvi ali okolici
+  L49: - Posebno ponudbo za zgodnje rezervacije
+  L50: - Omejitev ?asa za akcijo
+  L52: Ton: navdu?en, ekskluziven
+  L54: Sezona: {sezona}
+  L68:     sezona: "",
+  L95:       toast.error(err instanceof Error ? err.message : "Napaka pri generiranju.");
+  L104:       toast.success("Kopirano v odlo?i??e");
+  L119:           Hitro ustvari profesionalne emaile za vsako fazo gostovega potovanja
+  L173:                     Ime Nastanitve
+  L180:                     placeholder="npr. Apartmaji Bela Krajina"
+  L192:                     placeholder="npr. ?rnomelj"
+  L216:                     <option value="sl">Sloven??ina</option>
+  L250:                       Sezona / Dogodek
+  L254:                       value={formData.sezona}
+  L255:                       onChange={(e) => setFormData({ ...formData, sezona: e.target.value })}
+  L257:                       placeholder="npr. Poletje 2026, Velika No?..."
+  L269:                       placeholder="npr. 15% popust za rezervacije do 31.3."
+  L315:                       aria-label="Kopiraj vsebino v odlo?i??e"
+  L324:                       Po?lji prek Gmaila
+
+=== src\app\dashboard\tourism\eturizem-settings\page.tsx ===
+  L40:     fetch(`/api/tourism/eturizem/connection?propertyId=${activePropertyId}`)
+  L53:       toast.error("Izberite nastanitev");
+  L57:       toast.error("Uporabni?ko ime in geslo sta obvezna za novo povezavo");
+  L70:       const res = await fetch("/api/tourism/eturizem/connection", {
+  L76:       if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L81:       toast.error(err instanceof Error ? err.message : "Napaka pri shranjevanju");
+  L88:     if (!activePropertyId || !confirm("Odstranim AJPES povezavo za to nastanitev?")) return;
+  L91:         `/api/tourism/eturizem/connection?propertyId=${activePropertyId}`,
+  L94:       if (!res.ok) throw new Error("Napaka");
+  L99:       toast.error("Napaka pri odstranjevanju");
+  L112:         eTurizem (AJPES)
+  L115:         Pove?ite AJPES ra?un za prijavo gostov v knjigo gostov. Uporabni?ko ime in geslo iz AJPES portala ter RNO ID nastanitvenega obrata.
+  L131:         <p className="text-gray-500">Izberite nastanitev za nadaljevanje.</p>
+  L139:               Uporabni?ko ime in geslo iz portala AJPES (ajpes.si). RNO ID dobite ob vpisu v Register nastanitvenih obratov.
+  L147:                 placeholder="Uporabni?ko ime AJPES"
+  L154:                 placeholder={connection?.configured ? "Geslo (pustite prazno za obdr?ati)" : "Geslo"}
+  L161:                 placeholder="RNO ID nastanitvenega obrata"
+  L172:                 {saving ? "Shranjujem..." : "Shrani"}
+  L186:                 Povezava nastavljena. Gostov lahko prijavljate z gumba ?Prijavi v eTurizem? na Pregledu.
+
+=== src\app\dashboard\tourism\generate\page.tsx ===
+  L115:           } else setTemplateError("Template ni mogo?e nalo?iti");
+  L116:         } else setTemplateError("Template ni mogo?e nalo?iti");
+  L118:       .catch(() => setTemplateError("Template ni mogo?e nalo?iti"))
+  L135:             } else setTemplateError("Template ni mogo?e nalo?iti");
+  L136:           } else setTemplateError("Template ni mogo?e nalo?iti");
+  L138:         .catch(() => setTemplateError("Template ni mogo?e nalo?iti"))
+  L172:         toast.success("Vsebina uspe?no generirana");
+  L202:     const type = templateVars?.tip ?? "apartma";
+  L234:       toast.error("Vpi?i ime hotela, lokacijo in vsaj eno zna?ilnost.");
+  L261:       .catch((err) => toast.error(err instanceof Error ? err.message : "Napaka pri generiranju"))
+  L285:         toast.success("Shranjeno v bazo");
+  L312:         toast.error("Vpi?i ime, lokacijo in tip nastanitve.");
+  L333:         else toast.error(data.errors?.[0] ?? data.error ?? "Napaka");
+  L336:         setWorkflowResult({ success: false, errors: [err instanceof Error ? err.message : "Napaka"] });
+  L399:                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nastanitev (izbirno)</label>
+  L405:                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ime nastanitve</label>
+  L430:                         placeholder="Vila, Apartma"
+  L435:                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Zna?ilnosti (vejica ali nova vrstic
+  L439:                         placeholder="WiFi, parkiranje, kuhinja"
+  L470:                   <p className="text-red-400">{workflowResult.errors?.join(", ") ?? "Napaka"}</p>
+  L501:                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Zna?ilnosti (ena na vrstico ali lo?ene 
+  L516:                     placeholder="20% popust za rezervacije v marcu"
+  L526:                     placeholder="pari in dru?ine"
+  L531:                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nastanitev (za shranjevanje)</label>
+  L550:                       Platform-specifi?ne predloge (Booking.com, Airbnb, landing, SEO)
+  L561:                         {coreSaving ? "Shranjujem..." : "Shrani v bazo"}
+  L568:                           Prika?i landing strani
+  L759:                 placeholder="Template name (e.g. Moja VIP soba)"
+  L766:                   aria-label="Prekli?i in zapri"
+
+=== src\app\dashboard\tourism\guest-communication\page.tsx ===
+  L53:       toast.error("Napaka pri nalaganju komunikacij");
+  L69:       toast.error("Izberite nastanitev");
+  L88:       toast.error(e instanceof Error ? e.message : "Napaka");
+  L103:             Pre-arrival emaili, pro?nje za ocene, FAQ chatbot
+  L125:           <div className="font-semibold">Pro?nja za Oceno</div>
+  L134:           <div className="font-semibold">Po?lji sporo?ilo</div>
+  L201:           <div className="p-8 text-center text-gray-500">Nalaganje...</div>
+  L243:                           ? "Poslano"
+  L245:                             ? "Na?rtovano"
+  L247:                               ? "V ?akanju"
+  L263:                       <div>Na?rtovano: {new Date(comm.scheduledFor).toLocaleDateString("sl-SI")}</div>
+  L266:                       <div>Poslano: {new Date(comm.sentAt).toLocaleDateString("sl-SI")}</div>
+  L283:             Avtomatski odgovori na pogosta vpra?anja gostov
+  L313:       toast.error("Izberite nastanitev");
+  L321:       toast.error("Vnesite e-po?to gosta za email");
+  L325:       toast.error("Vnesite telefonsko ?tevilko gosta za WhatsApp");
+  L329:       toast.error("Vnesite vsebino sporo?ila");
+  L347:           subject: channel === "email" ? (subject.trim() || "Sporo?ilo od nastanitve") : undefined,
+  L354:       toast.success("Sporo?ilo ustvarjeno");
+  L357:       toast.error(e instanceof Error ? e.message : "Napaka");
+  L366:         <h3 className="text-lg font-semibold mb-4">Novo sporo?ilo</h3>
+  L405:               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-po?ta</label>
+  L445:                 placeholder="Pre-arrival ? Nastanitev"
+  L456:               placeholder="Dobrodo?li! Pred prihodom..."
+  L466:             Prekli?i
+  L473:             {loading ? "Ustvarjam..." : "Ustvari"}
+  L502:       setAnswer(data.answer ?? "?al nimam odgovora.");
+  L505:       setAnswer("?al je pri?lo do napake. Poskusite znova.");
+  L512:     "Kako pridem do nastanitve?",
+  L515:     "Ali sprejemate hi?ne ljubljen?ke?",
+  L516:     "Kaj je v bli?ini za po?eti?",
+  L545:           placeholder="Vpra?anje gosta..."
+  L553:           {loading ? "..." : "Vpra?aj"}
+  L565:               Za bolj natan?en odgovor vas bo kmalu kontaktiral ?lovek.
+  L573:         {["prihod", "?as", "storitve", "pravila", "aktivnosti", "oprema", "rezervacije"].map((cat) => (
+
+=== src\app\dashboard\tourism\inbox\page.tsx ===
+  L60:       toast.error("Napaka pri nalaganju povpra?evanj");
+  L81:       toast.success("Posodobljeno");
+  L83:       toast.error(e instanceof Error ? e.message : "Napaka");
+  L108:             Povpra?evanja
+  L111:             Povpra?evanja, ponudbe in komunikacije na enem mestu
+  L141:           <h2 className="font-semibold">Seznam povpra?evanj</h2>
+  L145:           <div className="p-8 text-center text-gray-500">Nalaganje...</div>
+  L148:             Ni povpra?evanj. Nova povpra?evanja se prika?ejo tukaj (iz FAQ, formulirjev ali ro?nega vnosa).
+  L177:                               : "Zaprto"}
+  L191:                             : "Ro?no"}
+  L235:   const mailto = `mailto:${inquiry.email}?subject=Re: Povpra?evanje`;
+  L240:     closed: "Zaprto",
+  L250:           aria-label="Zapri"
+  L265:           <span className="text-xs text-gray-500">E-po?ta</span>
+  L290:                 : "Ro?ni vnos"}
+  L294:           <span className="text-xs text-gray-500">Sporo?ilo</span>
+  L309:                 <span className="text-xs text-gray-500">Odhod</span>
+  L315:                 <span className="text-xs text-gray-500">?t. gostov</span>
+  L322:           Ustvarjeno: {new Date(inquiry.createdAt).toLocaleString("sl-SI")}
+  L330:           Odgovori prek e-po?te
+  L338:               Ozna?i prebrano
+  L346:               Ozna?i odgovorjeno
+  L354:               Zapri
+
+=== src\app\dashboard\tourism\itineraries\page.tsx ===
+  L48:       .catch(() => toast.error("Napaka pri nalaganju itinerarijev"))
+  L66:       .catch(() => toast.error("Napaka pri nalaganju"));
+  L171:       toast.error(e instanceof Error ? e.message : "Napaka pri shranjevanju");
+  L178:     if (!confirm("Izbri?em ta itinerarij?")) return;
+  L186:       toast.error(e instanceof Error ? e.message : "Napaka pri brisanju");
+  L241:               <h2 className="text-lg font-medium">{editingId ? "Uredi itinerarij" : "Nov itinerarij"}</h2>
+  L250:                 <span className="text-sm font-medium">?t. dni (1?14):</span>
+  L280:                           placeholder="?as (npr. 09:00)"
+  L334:                   {formSaving ? "Shranjujem?" : "Shrani"}
+  L341:                   Prekli?i
+  L352:                   <th className="text-left py-3 px-4 font-medium">Posodobljeno</th>
+  L379:                         Uredi
+  L386:                         Izbri?i
+  L395:                 ?e nimate itinerarijev. Kliknite ?Nov itinerarij? za za?etek.
+
+=== src\app\dashboard\tourism\landing\page.tsx ===
+  L12:   { id: "tourism-basic", name: "Standard", desc: "Klasi?na nastanitev ? hero, o nas, nastanitve, posebnosti, CTA" },
+  L14:   { id: "family-friendly", name: "Dru?inski", desc: "Dru?inska predloga z aktivnostmi in FAQ" },
+  L18:   { code: "sl", label: "Sloven??ina" },
+  L95:       <p><input type="email" name="email" placeholder="E-po?ta" required style="width:100%;max-width:300px;padding:8px;margin:4px 0;" /></p>
+  L96:       <p><textarea name="message" placeholder="Sporo?ilo" required minlength="10" rows="4" style="width:100%;max-width:400px;padding:8px;mar
+  L97:       <button type="submit" style="padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;">Po?lji</bu
+  L109:     result.textContent='Po?iljam...';
+  L113:       if(res.ok){result.textContent='Hvala! Sporo?ilo je poslano.';result.style.color='#059669';form.reset();}
+  L114:       else{result.textContent=data.error||'Napaka. Poskusite znova.';result.style.color='#dc2626';}
+  L115:     }catch(err){result.textContent='Napaka povezave. Poskusite znova.';result.style.color='#dc2626';}
+  L169:     type: "apartma",
+  L210:         toast.success("Stran nalo?ena");
+  L213:       toast.error(err instanceof Error ? err.message : "Nalaganje ni uspelo.");
+  L230:       toast.error("Ime nastanitve je obvezno.");
+  L237:     if (features.length === 0) features.push(formData.type || "apartma");
+  L250:             current_offer: formData.priceFrom ? `Od ${formData.priceFrom}?/no?` : undefined,
+  L261:       toast.error(err instanceof Error ? err.message : "Napaka pri generiranju z Core");
+  L281:       toast.success("Shranjeno v bazo");
+  L301:       toast.error("Ime nastanitve je obvezno.");
+  L333:       toast.error(err instanceof Error ? err.message : "Napaka pri generiranju.");
+  L345:     toast.success("Export JSON ? shranjeno");
+  L353:     toast.success("Export Markdown ? shranjeno");
+  L371:     toast.success("Export HTML ? shranjeno");
+  L410:           Ustvari landing stran nastanitve v ve? jezikih (3 koraki)
+  L420:           Nalo?i shranjene strani
+  L507:               Podatki nastanitve
+  L521:                   Ime nastanitve *
+  L530:                   placeholder="npr. Apartmaji Bela Krajina"
+  L544:                   placeholder="npr. ?rnomelj"
+  L558:                   placeholder="apartma"
+  L577:                   Cena od (?/no?)
+  L601:                 placeholder="WiFi, parkiri??e, oprema za kuhanje"
+  L633:                 Shrani avtomatsko po generiranju
+  L643:                 {loading ? "Generiram..." : "Generiraj Zdaj"}
+  L674:                     Shrani v bazo
+  L707:                   ? Uredi
+  L736:                   aria-label="Shrani v bazo"
+  L739:                   Shrani
+  L746:                   Base URL za hreflang (npr. https://moja-nastanitev.si)
+  L759:                   Nastanitev za kontaktno formo (ob izbiri se vklju?i v Export HTML)
+
+=== src\app\dashboard\tourism\notifications\page.tsx ===
+  L34:         toast.error("Napaka pri nalaganju obvestil");
+  L56:       toast.error("Napaka");
+  L69:       toast.success("Vsa obvestila ozna?ena kot prebrana");
+  L71:       toast.error("Napaka");
+  L81:       toast.success("Obvestilo odstranjeno");
+  L83:       toast.error("Napaka");
+  L105:             Obvestila
+  L108:             Vsa obvestila za va?e nastanitve na enem mestu
+  L118:               Ozna?i vsa kot prebrana
+  L132:           <div className="p-8 text-center text-gray-500">Nalaganje...</div>
+  L136:             <p>Ni obvestil.</p>
+  L137:             <p className="text-sm mt-1">Tu bodo prikazana obvestila o rezervacijah, gostih in drugih dogodkih.</p>
+  L173:                         Izbri?i
+  L182:                       Odpri ?
+
+=== src\app\dashboard\tourism\pms-connections\page.tsx ===
+  L45:       toast.error("Izberite nastanitev in vnesite oba tokena");
+  L61:       if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L69:       toast.error(err instanceof Error ? err.message : "Napaka pri shranjevanju");
+  L98:       if (!res.ok) throw new Error(data.error ?? data.message ?? "Napaka");
+  L99:       toast.success(data.message ?? `Sinhronizirano: ${data.fetched ?? data.synced ?? 0} rezervacij`);
+  L101:       toast.error(err instanceof Error ? err.message : "Napaka pri sinhronizaciji");
+  L114:       if (!res.ok) throw new Error("Napaka");
+  L118:       toast.error("Napaka pri odstranjevanju");
+  L136:         Pove?ite Mews ali druge PMS za sinhronizacijo rezervacij.
+  L152:         <p className="text-gray-500">Izberite nastanitev za nadaljevanje.</p>
+  L184:                 {saving ? "Shranjujem..." : "Shrani poverilnice"}
+  L191:                 {syncing ? "Sinhroniziram..." : "Sinhroniziraj zdaj"}
+  L205:                 Poverilnice shranjene. Kliknite Sinhroniziraj zdaj brez vnosa ? uporablja shranjene tokene.
+
+=== src\app\dashboard\tourism\properties\page.tsx ===
+  L29: const TYPES = ["apartma", "hisa", "hostel", "hotel", "kampa", "drugo"];
+  L31: const AMENITY_PRESETS = ["WiFi", "Parkiri??e", "Bazen", "Kuhinja", "TV", "Klima", "Hi?ni ljubljen?ki"];
+  L33:   { type: "check-in", label: "Check-in ?as" },
+  L34:   { type: "check-out", label: "Check-out ?as" },
+  L35:   { type: "cancellation", label: "Odpovedi" },
+  L36:   { type: "pets", label: "Hi?ni ljubljen?ki" },
+  L81:         toast.error("Napaka pri nalaganju nastanitev.");
+  L132:       if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L135:       toast.success("Nastanitev dodana");
+  L137:       toast.error(err instanceof Error ? err.message : "Napaka pri ustvarjanju");
+  L170:       if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L175:       toast.error(err instanceof Error ? err.message : "Napaka pri posodabljanju");
+  L182:     if (!confirm("Izbri?em to nastanitev?")) return;
+  L189:         throw new Error(data.error ?? "Napaka");
+  L192:       toast.success("Nastanitev izbrisana");
+  L194:       toast.error(err instanceof Error ? err.message : "Napaka pri brisanju");
+  L237:       if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L242:       toast.error(err instanceof Error ? err.message : "Napaka");
+  L255:         throw new Error(data.error ?? "Napaka");
+  L260:       toast.error(err instanceof Error ? err.message : "Napaka");
+  L274:       if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L277:       toast.success("Pravilo dodano");
+  L279:       toast.error(err instanceof Error ? err.message : "Napaka");
+  L292:         throw new Error(data.error ?? "Napaka");
+  L297:       toast.error(err instanceof Error ? err.message : "Napaka");
+  L312:         Nastanitve
+  L315:         Upravljaj nastanitve in preklopi med njimi v Tourism Hubu.
+  L321:           placeholder="Ime nastanitve"
+  L336:           aria-label="Tip nastanitve"
+  L375:           {creating ? "Dodajam..." : "Dodaj"}
+  L383:           ?e nimate nastanitev. Dodajte prvo z obrazcem zgoraj.
+  L412:                       aria-label="Tip nastanitve"
+  L449:                       Shrani
+  L456:                       Prekli?i
+  L468:                           placeholder="Dodaj (npr. WiFi)"
+  L476:                           Dodaj
+  L493:                                 if (!res.ok) throw new Error(data.error ?? "Napaka");
+  L497:                                 toast.error(err instanceof Error ? err.message : "Napaka");
+  L515:                               Izbri?i
+  L548:                           Dodaj pravilo
+  L560:                               Izbri?i
+  L569:                     <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Sezonske cene</h4>
+  L570:                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">Cena za no? (?) za obdobje. ?e datum prihoda spada v 
+  L575:                             {season === "high" ? "Visoka sezona" : season === "mid" ? "Srednja sezona" : "Nizka sezona"}
+  L650:                               + Dodaj obdobje
+  L659:                     <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Samodejna odobritev rezervacij</h4>
+  L660:                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">Ko PMS sync vnese rezervacijo s statusom ?pending?, j
+  L694:                             <label className="text-xs text-neutral-600 dark:text-neutral-400">Max znesek (?, opcijsko ? rezervacije nad znes
+  L717:                       {[p.location, p.type, p.capacity ? p.capacity + " oseb" : null, p.basePrice != null ? (p.basePrice + " " + (p.currency
+  L726:                       Uredi
+  L731:                       aria-label={`Izbri?i nastanitev ${p.name}`}
+  L734:                       Izbri?i
+
+=== src\app\dashboard\tourism\seo\page.tsx ===
+  L76:       .catch(() => toast.error("Napaka pri osve?itvi"));
+  L96:         toast.error("Napaka pri nalaganju Search Console podatkov");
+  L119:         toast.error("Nalo?i CSV datoteko ali prilepi vsebino.");
+  L126:       toast.success(`Uvo?eno: ${data.imported ?? 0} (${data.created ?? 0} novih, ${data.updated ?? 0} posodobljenih)`);
+  L131:       toast.error(e instanceof Error ? e.message : "Napaka pri uvozu");
+  L156:           toast.error("Napaka pri nalaganju SEO metrik.");
+  L267:               GSC ni povezan.               Pove?ite v{" "}
+  L269:                 nastavitvah
+  L320:             Uvozi klju?ne besede
+  L361:               {importLoading ? "Uva?am?" : "Uvozi"}
+  L440:               Ni SEO podatkov ? uvozite ali pove?ite GSC
+  L448:                 Uvozi klju?ne besede
+  L454:                 Pove?i Google Search Console
+
+=== src\app\dashboard\tourism\seo\search-console-setup\page.tsx ===
+  L22:         Za prikaz podatkov iz Google Search Console pove?ite svojo spletno stran z AgentFlow Pro.
+  L27:           Mo?nost 1: Uvoz podatkov (CSV)
+  L30:           Iz Google Search Console izvozite podatke v CSV in jih uvo?ite na strani{" "}
+  L34:           (gumb ?Uvozi CSV?).
+  L38:           Mo?nost 2: OAuth povezava (prihodnje)
+  L42:           Za zdaj uporabite CSV uvoz.
+
+=== src\app\dashboard\tourism\templates\page.tsx ===
+  L56:         toast.error("Napaka pri nalaganju template-ov.");
+  L65:     if (!confirm("Izbri?i ta template?")) return;
+  L119:             ?e nimate shranjenih template-ov. Generirajte vsebino in jo shranite
+  L156:                   Uredi
+  L161:                   aria-label={`Izbri?i template ${t.name}`}
+  L164:                   Izbri?i
+
+=== src\app\dashboard\tourism\translate\page.tsx ===
+  L8:   { code: "sl", label: "Sloven??ina" },
+  L31:       toast.error("Vnesi vsebino za prevod.");
+  L56:       toast.error(err instanceof Error ? err.message : "Napaka pri prevodu.");
+  L79:         Prevedi opis nastanitve ali vsebino v ve? jezikov hkrati (SL, EN, DE, IT, HR).
+  L89:           placeholder="Vstavi besedilo za prevod (npr. opis apartmaja)..."
+  L178:                     aria-label={copied === lang ? "Kopirano" : `Kopiraj prevod ${label}`}
+
+=== src\app\dashboard\tourism\use-cases\page.tsx ===
+  L42:       .catch((e) => setError(e instanceof Error ? e.message : "Napaka"))
+  L50:           <p className="text-gray-400">Nalaganje vodi?a...</p>
+  L106:                         Cilj: {item.target} ? Vrednost: {item.value} ? ?as: {item.estimatedTime}
+  L128:                         Cilj: {item.target} ? Vrednost: {item.value} ? ?as: {item.estimatedTime}
+
+=== src\app\director\summary\page.tsx ===
+  L79:             <h1 className="text-3xl font-bold tracking-tight">Zero-Touch Direktor</h1>
+  L80:             <p className="text-gray-500 dark:text-gray-400 mt-1">Pregled poslovanja in avtomatizacije v realnem ?asu.</p>
+  L89:               PDF Poro?ilo
+  L103:               <span className="text-xs font-medium text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">Danes</span>
+  L140:           {/* eTurizem Status */}
+  L150:                 {data.eturizemStatus === "synced" ? "Sinhronizirano" : "V ?akanju"}
+  L153:             <p className="text-sm text-gray-500 dark:text-gray-400">eTurizem status</p>
+  L166:                 <h2 className="font-bold text-lg">Potrebna va?a pozornost</h2>
+  L188:                           <p className="text-sm text-gray-500">{action.count} elementov ?aka</p>
+  L199:                     <h3 className="font-bold text-lg">Vse te?e gladko</h3>
+  L200:                     <p className="text-gray-500 mt-1">Trenutno ni nobenih izjem, ki bi zahtevale ro?no posredovanje.</p>
+  L210:               <h2 className="font-bold mb-6">Mese?ni trend prihodkov</h2>
+  L219:                 <p className="text-xs text-gray-400 text-center mt-2">12% ve? kot prej?nji mesec</p>
+  L225:               <p className="text-blue-100 text-sm mb-6">Upravljate {data.propertyCount} nastanitev.</p>
+  L230:                 Upravljaj nastanitve
+
+=== src\app\forgot-password\page.tsx ===
+  L27:         setMessage(data.data?.message ?? "?e ra?un obstaja, boste prejeli e-po?to s povezavo za ponastavitev gesla.");
+  L31:         setMessage(typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : "Pri?lo je do napake."));
+  L35:       setMessage("Pri?lo je do napake. Poskusite znova.");
+  L45:             Preverite e-po?to
+  L66:           Vnesite e-po?tni naslov va?ega ra?una. Poslali vam bomo povezavo za ponastavitev gesla.
+  L72:               E-po?ta
+  L91:             {status === "loading" ? "Po?iljanje..." : "Po?lji povezavo"}
+
+=== src\app\generate\page.tsx ===
+  L12:     label: "Opis nastanitve",
+  L20:     desc: "Dobrodo?lica, info pred prihodom",
+  L26:     label: "Vodi? destinacije",
+  L41:     desc: "SEO stran za direktne rezervacije",
+  L47:     label: "Sezonska kampanja",
+  L48:     desc: "Bo?i?, poletje, vikend akcija ? z datumom in CTA",
+  L63:   name: { label: "Ime nastanitve", placeholder: "npr. Hotel Krim, Apartma Bled..." },
+  L66:   rooms: { label: "Sobe / apartmaji", placeholder: "npr. 12 sob, premium soba z jacuzzijem, family suite..." },
+  L67:   checkin: { label: "Check-in ?as", placeholder: "npr. 14:00, zgodnji check-in mo?en..." },
+  L68:   tips: { label: "Nasveti za goste", placeholder: "npr. najbolj?a restavracija, parkiri??e, aktivnosti..." },
+  L69:   activities: { label: "Aktivnosti / privla?nosti", placeholder: "npr. pohodni?tvo, kolesarjenje, jezero, Triglav..." },
+  L70:   price: { label: "Cena od", placeholder: "npr. od 89? na no?, cene od 150?..." },
+  L71:   season: { label: "Sezona / akcija", placeholder: "npr. Bo?i? & novo leto, poletne po?itnice, zimska akcija..." },
+  L72:   offer: { label: "Posebna ponudba", placeholder: "npr. 3 no?i za ceno 2, brezpla?en zajtrk, 20% popust..." },
+  L73:   cta: { label: "CTA (poziv k akciji)", placeholder: "npr. Rezervirajte zdaj, Oglejte si ponudbo, Kontaktirajte nas..." },
+  L81:   { id: "bozic", label: "Bo?i? & novo leto", emoji: "?" },
+  L93:     return `? ${name} ? ${location}\n\nVa? idealni po?itni?ki dom v srcu ${location}. ${name} ponuja nepozabno izku?njo z vrhunsko lokacijo 
+  L96:     return `Zadeva: Dobrodo?li v ${name}! ?\n\nDragi gost,\n\nZ veseljem vas pri?akujemo v ${name} v ${location}!\n\nVa?a soba bo pripravlje
+  L98:   return `?? Vsebina za ${name} (${location})\n\nAI je generiral optimizirano vsebino tipa "${type}" za va?o nastanitev. V produkcijskem na?
+  L166:     else if (m === 12) season = "Bo?i? & novo leto";
+  L172:       name: p?.name ?? "Nastanitev",
+  L176:       cta: "Rezervirajte zdaj",
+  L254:           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">?? Ustvari vsebino</h1>
+  L289:               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Kaj ?elite ustvariti?</h2>
+  L334:                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Sezona</label>
+  L415:                       {selectedType?.label ?? "Va?a vsebina"}
+  L427:                   <p className="text-xl font-semibold text-gray-700 dark:text-gray-300">AI pi?e za vas...</p>
+  L507:                   <p className="text-xs text-gray-500 text-center mb-3">Potrebujete ve? kontrole?</p>
+
+=== src\app\guests\[id]\messages\page.tsx ===
+  L50:     name: "Dobrodo?lica",
+  L51:     subject: "Dobrodo?li v na?i nastanitvi!",
+  L52:     content: "Pozdravljeni {{ime_gosta}},\n\nZelo se veselimo va?ega obiska pri nas. Va?a rezervacija je potrjena za {{datum_prihoda}}.\n\nL
+  L58:     subject: "Pomembna navodila za va? prihod",
+  L59:     content: "Pozdravljeni {{ime_gosta}},\n\nCheck-in je mo?en od 14:00 naprej. Klju?e boste na?li v sefu na kodi {{koda_sefa}}.\n\nSe vidim
+  L65:     subject: "Hvala za va? obisk!",
+  L66:     content: "Pozdravljeni {{ime_gosta}},\n\nHvala, ker ste bivali pri nas. Upamo, da ste u?ivali. Bili bi veseli va?e ocene.\n\nSre?no pot!
+  L72:   { code: "sl", name: "Sloven??ina" },
+  L115:       toast.error("Sistemska napaka");
+  L156:             lokacija: guest.property?.name || "na?a nastanitev",
+  L163:         toast.success(scheduledAt ? "Sporo?ilo razporejeno" : "Sporo?ilo poslano");
+  L170:         toast.error("Napaka pri po?iljanju");
+  L173:       toast.error("Sistemska napaka");
+  L203:                 Po?iljanje sporo?il gostu: <span className="font-bold text-gray-700 dark:text-gray-200">{guest.name}</span>
+  L259:                       placeholder="Npr. Dobrodo?li v na?i nastanitvi..."
+  L266:                   <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">Vsebina sporo?ila</label>
+  L269:                     placeholder="Vpi?ite sporo?ilo..."
+  L285:                   Jezik sporo?ila
+  L306:                   Urnik po?iljanja
+  L314:                 <p className="text-[10px] text-gray-400 mt-2">?e pustite prazno, bo sporo?ilo poslano takoj.</p>
+  L325:                 {scheduledAt ? "Razporedi po?iljanje" : "Po?lji sporo?ilo zdaj"}
+  L358:                           <div className="flex items-center gap-1 text-blue-600 font-bold" title={`Odprto: ${format(parseISO(comm.openedAt),
+  L382:                   <p className="text-center py-12 text-gray-400 text-sm italic">Ni preteklih sporo?il.</p>
+  L398:                   Gost je iz Nem?ije. Predlagam, da sporo?ilo po?ljete v nem??ini. Ali ?elite, da vsebino samodejno prevedem?
+  L401:                   Prevedi v nem??ino
+
+=== src\app\guests\[id]\page.tsx ===
+  L90:         toast.error(data.error || "Napaka pri nalaganju profila");
+  L93:       toast.error("Sistemska napaka");
+  L117:         toast.error("Napaka pri shranjevanju");
+  L120:       toast.error("Sistemska napaka");
+  L169:             Shrani spremembe
+  L205:                       <p className="text-[10px] font-bold text-gray-400 uppercase">Dr?ava</p>
+  L227:                   ?elje in preference
+  L286:                   <p className="text-center py-8 text-gray-400 text-sm italic">Ta gost ?e nima zabele?enih bivanj.</p>
+  L359:                 Zgodovina sporo?il
+  L372:                   <p className="text-center py-8 text-gray-400 text-sm italic">?e ni bilo komunikacije.</p>
+  L380:                 Novo sporo?ilo
+
+=== src\app\guests\page.tsx ===
+  L46:         toast.error(data.error || "Napaka pri nalaganju gostov");
+  L49:       toast.error("Sistemska napaka");
+  L98:               placeholder="I??i po imenu, emailu ali telefonu..."
+  L200:                       <p className="text-gray-500 mt-1">Poskusite z druga?nim iskalnim nizom.</p>
+
+=== src\app\integrations\eturizem\page.tsx ===
+  L92:     baseUrl: "https://api.eturizem.si",
+  L186:           localPropertyName: "Apartmaji Jezero",
+  L195:           localPropertyName: "Kamp Son?ni Gaj",
+  L197:           eturizemName: "Kamp Son?ni Gaj",
+  L200:           errorMessage: "Property not found in eTurizem"
+  L307:           <p className="text-gray-600 dark:text-gray-400">Nalaganje eTurizem integracije...</p>
+  L321:               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">eTurizem Integration</h1>
+  L327:                 aria-label="Manual sync with eTurizem"
+  L328:                 title="Manual sync with eTurizem"
+  L456:                   aria-label="Test eTurizem connection"
+  L457:                   title="Test eTurizem connection"
+  L598:                   Map local properties to eTurizem IDs
+  L610:                         eTurizem ID
+  L723:                       placeholder="Enter eTurizem API key"
+  L736:                     Get your API key from eTurizem dashboard
+  L750:                     placeholder="https://api.eturizem.si"
+  L751:                     aria-label="eTurizem API base URL"
+  L752:                     title="Enter eTurizem API base URL"
+  L841:                     title="Save eTurizem integration configuration"
+  L852:                         <span>Shrani</span>
+
+=== src\app\invoices\page.tsx ===
+  L195:       guestName: "Peter Kova?i?",
+
+=== src\app\login-simple\page.tsx ===
+  L4:  * Preprosta prijava - form direktno POST na NextAuth.
+  L5:  * Backup ?e glavni login ne deluje.
+  L16:   const error = errorParam === "CredentialsSignin" ? "Napa?en email ali geslo" : errorParam || null;
+
+=== src\app\login\page.tsx ===
+  L20:       onResult("Vpi?i email in geslo pred testom");
+  L34:       onResult(`Test napaka: ${e instanceof Error ? e.message : "Unknown"}`);
+  L61:     return err === "CredentialsSignin" ? "Napa?en email ali geslo" : "";
+  L96:       setError("Google prijava ni konfigurirana. Dodaj GOOGLE_CLIENT_ID in GOOGLE_CLIENT_SECRET v .env");
+  L191:                 aria-label={showPassword ? "Skrij geslo" : "Prika?i geslo"}
+  L239:           <Link href="/login-simple" className="text-amber-600 hover:underline">Preprosta prijava</Link>
+  L245:           Va?i podatki so varni. GDPR skladno.
+
+=== src\app\not-found.tsx ===
+  L10:           Stran, ki jo i??ete, ne obstaja ali je bila premaknjena.
+  L16:           Nazaj na doma?o stran
+
+=== src\app\onboarding\page.tsx ===
+  L8: // ??? Tipi nastanitev ??????????????????????????????????????????????????????????
+  L12:   { id: "apartma", icon: "?", label: "Apartma / Hi?a" },
+  L15:   { id: "agencija", icon: "??", label: "Turisti?na agencija" },
+  L18: // ??? Kaj potrebuje? najprej ???????????????????????????????????????????????????
+  L20:   { id: "booking-description", icon: "?", label: "Opis nastanitve", desc: "Za Booking.com, Airbnb..." },
+  L21:   { id: "guest-welcome-email", icon: "?", label: "Email za goste", desc: "Dobrodo?lica, info..." },
+  L22:   { id: "destination-guide", icon: "?", label: "Vodi? destinacije", desc: "SEO blog, Google..." },
+  L77:   // ??? Shrani & pojdi na generate ?????????????????????????????????????????????
+  L86:           workspace_name: propertyName || "Moja nastanitev",
+  L136:           <div className="mt-2 text-xs text-blue-300">{pct}% dokon?ano</div>
+  L141:           {/* ??? KORAK 1: Tip nastanitve ????????????????????????????????????? */}
+  L147:                   Dobrodo?li v AgentFlow Pro!
+  L150:                   Katera vrsta nastanitve ste?
+  L191:                     Ime nastanitve *
+  L197:                     placeholder="npr. Hotel Krim, Apartma Bled..."
+  L258:           {/* ??? KORAK 3: Kaj potrebuje? najprej ??????????????????????????? */}
+  L266:                       Ustvarite ra?un za nadaljevanje
+  L269:                       Va?i podatki ({propertyName}, {location}) bodo shranjeni v va?em ra?unu.
+  L277:                       Ustvari ra?un
+  L283:                       Imam ?e ra?un
+  L350:                           ? Za?nimo!
+  L357:                     Brez kreditne kartice ? 7 dni brezpla?no
+
+=== src\app\page.tsx ===
+  L79:             {/* Logo 1: eTurizem */}
+  L82:                 src="/logos/eturizem.svg"
+  L83:                 alt="eTurizem AJPES"
+  L86:                   // Fallback ?e slika ne obstaja
+  L88:                     'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline
+  L283:                 Every week you manually update prices on eTurizem, Booking, Airbnb...
+  L386:                   Link your existing booking system, eTurizem, and other channels.
+  L631:             {/* Feature 1: eTurizem AJPES */}
+  L638:                   <h3 className="text-xl font-bold text-gray-900 mb-3">eTurizem AJPES Integration</h3>
+  L900:                   <span className="text-gray-400">eTurizem integration</span>
+  L945:                   <span className="text-gray-700">eTurizem integration</span>
+  L1055:                 The auto-approval for eTurizem alone saved us countless hours. Absolutely invaluable!"
+  L1086:                 "The eTurizem sync works flawlessly. I no longer worry about updating prices manually.
+  L1097:                   <div className="text-sm text-gray-500">Owner, Apartmaji Piran</div>
+  L1129:                   <div className="text-sm text-gray-500">Manager, Resort Portoro?</div>
+  L1289:                   and the Slovenian eTurizem portal. If your system has an API, we can likely connect.
+
+=== src\app\payments\page.tsx ===
+  L177:       guestName: "Peter Kova?i?",
+
+=== src\app\pricing\page.tsx ===
+  L278:             Kaj dobi? za manj
+  L286:                   <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Ve? lo?enih orodij</th>
+  L301:                   <td className="px-4 py-3 text-gray-700 dark:text-gray-300">Rezervacije / koledar</td>
+  L324:             Vse v enem ? manj pla?evanja in manj integracij.
+
+=== src\app\properties\[id]\pricing\page.tsx ===
+  L67:         toast.error(data.error || "Napaka pri nalaganju cenika");
+  L70:       toast.error("Sistemska napaka");
+  L95:         toast.success("Cenik uspe?no posodobljen");
+  L97:         toast.error("Napaka pri shranjevanju");
+  L100:       toast.error("Sistemska napaka");
+  L106:   const handleSyncEturizem = async () => {
+  L110:       toast.success("Sinhronizacija z eTurizmom uspe?na");
+  L116:     setSeasonRates([...seasonRates, { from: "06-01", to: "08-31", rate: basePrice * 1.5, label: "Nova sezona" }]);
+  L145:               <h1 className="text-3xl font-bold tracking-tight">Ceniki in Sezone</h1>
+  L146:               <p className="text-gray-500 dark:text-gray-400 mt-1">Nastavitve cenovne politike in sezonskih nihanj.</p>
+  L151:               onClick={handleSyncEturizem}
+  L156:               Sync eTurizem
+  L164:               Shrani vse
+  L191:                   na no? / {currency}
+  L204:                   Sezonske cene
+  L211:                   Dodaj sezono
+  L284:                     Niste ?e nastavili sezonskih cen.
+  L325:                       Minimalno bivanje (no?i)
+  L423:                     <p className="text-sm font-medium">Predlagam zvi?anje vikend faktorja na 1.35. Povpra?evanje v va?i regiji se je pove?al
+  L427:                     <p className="text-[10px] font-bold uppercase text-blue-200 mb-1">Sezonski predogled</p>
+  L428:                     <p className="text-sm font-medium">Naslednja visoka sezona se za?ne ?ez 45 dni. Razmislite o pred?asni Early Bird akciji
+  L456:                   <span className="text-gray-500">eTurizem (AJPES)</span>
+  L461:                     * Vsaka sprememba cen se avtomatsko posodobi na vseh povezanih kanalih v roku 5 minut.
+
+=== src\app\properties\[id]\rooms\page.tsx ===
+  L72:         toast.error(data.error || "Napaka pri nalaganju sob");
+  L75:       toast.error("Sistemska napaka");
+  L97:         toast.success("Soba uspe?no dodana");
+  L103:         toast.error(data.error || "Napaka pri shranjevanju");
+  L106:       toast.error("Sistemska napaka");
+  L138:               <p className="text-gray-500 dark:text-gray-400 mt-1">Upravljajte s sobami in razpolo?ljivostjo.</p>
+  L146:             {isAdding ? "Prekli?i" : "Nova soba"}
+  L155:               Dodaj novo sobo
+  L160:                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Ime sobe / ?tevilka</label>
+  L164:                     placeholder="Npr. Soba 101"
+  L171:                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Tip nastanitve</label>
+  L199:                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Postelje</label>
+  L249:                     Shrani sobo
+  L329:               <p className="text-gray-500 mt-1">Dodajte svojo prvo sobo za to nastanitev.</p>
+
+=== src\app\properties\page.tsx ===
+  L54:         toast.error(data.error || "Napaka pri nalaganju nastanitev");
+  L57:       toast.error("Sistemska napaka");
+  L90:         toast.error("Napaka pri shranjevanju");
+  L93:       toast.error("Sistemska napaka");
+  L108:             <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Nastanitve</h1>
+  L109:             <p className="text-gray-500 dark:text-gray-400 mt-1">Pregled in upravljanje va?ega portfelja nepremi?nin.</p>
+  L116:             Dodaj nastanitev
+  L137:                     {prop.eturizemStatus === "synced" && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" title="eTurizem Synced" />}
+  L138:                     {prop.eturizemStatus === "pending" && <AlertCircle className="w-3.5 h-3.5 text-amber-500" title="eTurizem Pending" />}
+  L139:                     {prop.eturizemStatus === "error" && <XCircle className="w-3.5 h-3.5 text-red-500" title="eTurizem Connection Error" />}
+  L140:                     <span className="text-[10px] font-bold text-gray-400">eTurizem</span>
+  L215:                           title="Hitro uredi ceno"
+  L222:                           title="Cenik in Sezone"
+  L242:               <h3 className="font-bold text-lg">Ni najdenih nastanitev</h3>
+  L243:               <p className="text-gray-500 mt-1">Za?nite z dodajanjem va?e prve nepremi?nine.</p>
+  L245:                 Dodaj nastanitev
+
+=== src\app\register\page.tsx ===
+  L26:       setError("Google prijava ni konfigurirana.");
+  L61:         setError("Ra?un ustvarjen! Prijavite se spodaj.");
+  L83:           <p className="text-blue-200 mt-2 text-sm">AI vsebina za turizem & gostinstvo</p>
+  L88:             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Ustvarite ra?un</h1>
+  L90:               7 dni brezpla?no ? Brez kreditne kartice
+  L171:                   aria-label={showPassword ? "Skrij geslo" : "Prika?i geslo"}
+  L201:                   Ustvarjam ra?un...
+  L204:                 "? Za?nite brezpla?no"
+  L217:             ?e imate ra?un?{" "}
+  L226:             Va?i podatki so varni. GDPR skladno.
+  L232:           <span>? SSL za??ita</span>
+  L233:           <span>?? Stre?niki v EU</span>
+
+=== src\app\reports\page.tsx ===
+  L217:     { id: "property3", name: "Apartmaji Jezero" },
+  L218:     { id: "property4", name: "Kamp Son?ni Gaj" }
+
+=== src\app\reservations\[id]\page.tsx ===
+  L91:         toast.error(data.error || "Napaka pri nalaganju detajlov");
+  L94:       toast.error("Sistemska napaka");
+  L115:         toast.success("Rezervacija posodobljena");
+  L120:         toast.error(data.error || "Napaka pri shranjevanju");
+  L123:       toast.error("Sistemska napaka");
+  L132:       ? `Pozor! Pravila preklica:\n\n${policy.content}\n\nAli ste prepri?ani, da ?elite preklicati to rezervacijo?`
+  L133:       : "Ali ste prepri?ani, da ?elite preklicati to rezervacijo?";
+  L143:         toast.success("Rezervacija preklicana");
+  L146:         toast.error("Napaka pri preklicu");
+  L149:       toast.error("Sistemska napaka");
+  L168:           subject: `Glede va?e rezervacije #${reservation.id.slice(-6).toUpperCase()}`
+  L173:         toast.success("Sporo?ilo poslano gostu");
+  L177:         toast.error("Napaka pri po?iljanju");
+  L180:       toast.error("Sistemska napaka");
+  L196:       toast.error("Napaka pri shranjevanju opombe");
+  L236:                 <h1 className="text-2xl font-bold tracking-tight">Rezervacija #{reservation.id.slice(-6).toUpperCase()}</h1>
+  L253:                   Uredi
+  L261:                   Prekli?i
+  L271:                   Prekli?i urejanje
+  L279:                   Shrani spremembe
+  L301:                     <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Prihod (Check-in)</label>
+  L314:                     <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Odhod (Check-out)</label>
+  L330:                     <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Soba / Enota</label>
+  L343:                     <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Kanal rezervacije</label>
+  L353:                           <span>Direktno / Ro?ni vnos</span>
+  L373:                       <strong>Samodejna potrditev:</strong> Rezervacija je bila avtomatsko potrjena na podlagi pravilnika za kanal {reservat
+  L379:                       <strong>Razpolo?ljivost:</strong> Preverjeno stanje zasedenosti za obdobje {format(parseISO(reservation.checkIn), "d. 
+  L386:                       Ro?ni Override
+  L398:                   Sporo?ilo gostu
+  L402:                   placeholder="Napi?ite sporo?ilo gostu..."
+  L411:                   Po?lji sporo?ilo
+  L418:                     Zgodovina sporo?il
+  L431:                       <p className="text-xs text-gray-400 italic text-center py-4">?e ni bilo komunikacije.</p>
+  L453:                   Shrani opombo
+  L520:                 Pla?ila in finance
+  L530:                     {reservation.payments.length > 0 ? "Pla?ano" : "?aka na pla?ilo"}
+  L542:                     <p className="text-xs text-gray-400 text-center py-2 italic">Trenutno ni zabele?enih pla?il.</p>
+  L548:                   Dodaj pla?ilo
+
+=== src\app\reservations\new\page.tsx ===
+  L98:         toast.error(data.error || "Napaka pri preverjanju razpolo?ljivosti");
+  L101:       toast.error("Sistemska napaka");
+  L127:       toast.error("Prosimo, izberite nastanitev");
+  L153:         toast.success("Rezervacija uspe?no ustvarjena");
+  L156:         toast.error(data.error || "Napaka pri ustvarjanju rezervacije");
+  L159:       toast.error("Sistemska napaka");
+  L182:             <h1 className="text-3xl font-bold tracking-tight">Nova Rezervacija</h1>
+  L183:             <p className="text-gray-500 dark:text-gray-400 mt-1">Ro?ni vnos rezervacije za gosta.</p>
+  L196:                 Nastanitev in termini
+  L201:                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Izberite nastanitev</label>
+  L210:                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Prihod (Check-in)</label>
+  L220:                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Odhod (Check-out)</label>
+  L232:                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Soba / Enota (opcijsko)</label>
+  L235:                     placeholder="Npr. Apartma 1, Soba 102..."
+  L272:                       placeholder="Poi??i obstoje?ega gosta (ime, email)..."
+  L339:                 Posebne ?elje in opombe
+  L343:                 placeholder="Vpi?ite opombe, diete, uro prihoda..."
+  L355:               <h2 className="font-bold mb-6">Povzetek izra?una</h2>
+  L360:                   <p className="text-xs text-gray-500">Preverjanje razpolo?ljivosti...</p>
+  L365:                     <span className="text-gray-500">?t. no?itev</span>
+  L369:                     <span className="text-gray-500">Cena na no? (avg)</span>
+  L385:                           <p className="text-[10px] opacity-80">Nastanitev ima prosto kapaciteto za te datume.</p>
+  L392:                           <p className="text-xs font-bold uppercase">Ni razpolo?ljivo</p>
+  L393:                           <p className="text-[10px] opacity-80">Pozor! Nastanitev je ?e polno zasedena ({availability.capacity}/{availabilit
+  L403:                       <p className="text-[10px] opacity-80">Ta rezervacija bo avtomatsko potrjena in vklju?ena v analitiko.</p>
+  L415:                       <span className="text-sm text-gray-600 dark:text-gray-400">Po?lji potrditveni email</span>
+  L424:                       Potrdi rezervacijo
+  L430:                   Vnesite nastanitev in datume za izra?un cene.
+
+=== src\app\reservations\page.tsx ===
+  L90:       toast.error("Napaka pri nalaganju rezervacij");
+  L113:         toast.success(`Uspe?no posodobljeno ${selectedIds.length} rezervacij`);
+  L117:         toast.error("Napaka pri izvajanju akcije");
+  L120:       toast.error("Sistemska napaka");
+  L125:     const headers = ["ID", "Gost", "Nastanitev", "Prihod", "Odhod", "Status", "Kanal", "Cena"];
+  L141:     link.setAttribute("download", `rezervacije_${format(new Date(), "yyyy-MM-dd")}.csv`);
+  L149:       toast.error("Izberite nastanitev za iCal izvoz");
+  L181:             <h1 className="text-3xl font-bold tracking-tight">Rezervacije</h1>
+  L182:             <p className="text-gray-500 dark:text-gray-400 mt-1">Pregled in upravljanje rezervacij va?ih nastanitev.</p>
+  L191:                 {pendingCount} v ?akanju
+  L199:               Nova Rezervacija
+  L241:                 placeholder="I??i gosta ali ID rezervacije..."
+  L293:                   <option value="confirmed">Potrjeno</option>
+  L386:                             <p className="text-xs text-gray-400">{Math.ceil((parseISO(res.checkOut).getTime() - parseISO(res.checkIn).getTim
+  L398:                                 <Bot className="w-4 h-4 text-blue-500" title="Avtomatska rezervacija (OTA)" />
+  L403:                                 <User className="w-4 h-4 text-gray-400" title="Ro?na rezervacija" />
+  L422:                         Ni najdenih rezervacij za izbrane filtre.
+  L448:                   Danes
+  L460:               {["Pon", "Tor", "Sre", "?et", "Pet", "Sob", "Ned"].map(day => (
+  L496:                         <div className="text-[10px] text-gray-400 text-center">+{dayReservations.length - 3} ve?</div>
+
+=== src\app\reservations\pending\page.tsx ===
+  L56:         toast.error(data.error || "Napaka pri nalaganju ?akalne vrste");
+  L59:       toast.error("Sistemska napaka");
+  L87:         toast.success(`Uspe?no: ${action === "approve" ? "Odobreno" : action === "reject" ? "Zavrnjeno" : "Eskalirano"}`);
+  L92:         toast.error("Napaka pri izvajanju akcije");
+  L95:       toast.error("Sistemska napaka");
+  L119:               <h1 className="text-2xl font-bold tracking-tight">HITL Queue: ?akajo?e odobritve</h1>
+  L121:                 Ro?ni pregled rezervacij, ki niso izpolnile pogojev za avtomatsko potrditev.
+  L156:               <p className="text-sm font-bold mb-2">Dodaj opombo ob odobritvi (opcijsko)</p>
+  L184:                   <th className="px-6 py-4 font-medium">Gost / Nastanitev</th>
+  L270:                       <h3 className="font-bold text-lg">?akalna vrsta je prazna</h3>
+  L271:                       <p className="text-gray-500 mt-1">Vse rezervacije so bile pregledane ali avtomatsko potrjene.</p>
+  L284:             <span className="text-sm text-gray-500">Prijavljeni ste kot: <strong className="text-gray-700 dark:text-gray-300 capitalize">{se
+  L288:               Popoln dostop (Direktor)
+
+=== src\app\reset-password\page.tsx ===
+  L19:       setMessage("Manjka ?eton za ponastavitev.");
+  L44:         setMessage(data.data?.message ?? "Geslo uspe?no posodobljeno.");
+  L47:         setMessage(data.error?.message ?? data.error ?? "Pri?lo je do napake.");
+  L51:       setMessage("Pri?lo je do napake. Poskusite znova.");
+  L63:             Povezava za ponastavitev gesla manjka ali je neveljavna. Zahtevajte novo povezavo.
+  L82:             Geslo posodobljeno
+  L89:             Prijava
+  L100:           Ponastavitev gesla
+  L123:               Potrdi geslo
+  L143:             {status === "loading" ? "Shranjevanje..." : "Shrani geslo"}
+
+=== src\app\settings\alerts\page.tsx ===
+  L102:             name: "Zasedenost kriti?na",
+  L114:             description: "Opozorilo pri zasedenosti nad 95%"
+  L118:             name: "Neuspe?no pla?ilo",
+  L128:             description: "Obvestilo o neuspe?nem pla?ilu"
+  L144:             description: "Ve? kot 3 sistemske napake v 5 minutah"
+  L237:           <p className="text-gray-600 dark:text-gray-400">Nalaganje nastavitev...</p>
+  L251:               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Alert Nastavitve</h1>
+  L260:                 <span>{saving ? "Shranjevanje..." : "Shrani"}</span>
+  L298:                 <p className="text-xs text-gray-500">Opozorilo pri zasedenosti nad pragom</p>
+  L305:                   <span>Neuspe?na pla?ila</span>
+  L321:                   <span className="text-sm text-gray-500">?tevilo</span>
+  L323:                 <p className="text-xs text-gray-500">Opozorilo po toliko neuspe?nih pla?ilih</p>
+  L348:                 <p className="text-xs text-gray-500">Opozorilo pri toliko napakahah</p>
+  L364:                     <p className="text-sm text-gray-600 dark:text-gray-400">Opozorilo ob neuspe?ni avtomatski odobritvi rezervacije</p>
+  L386:               {/* eTurizem Sync Failure */}
+  L391:                     <h3 className="font-medium text-gray-900 dark:text-white">eTurizem Sync Failure</h3>
+  L392:                     <p className="text-sm text-gray-600 dark:text-gray-400">Opozorilo ob neuspe?ni sinhronizaciji z eTurizem</p>
+  L400:                   aria-label={config.eturizemSyncFailureAlert ? "Disable eTurizem sync failure alerts" : "Enable eTurizem sync failure alert
+  L401:                   title={config.eturizemSyncFailureAlert ? "Disable eTurizem sync failure alerts" : "Enable eTurizem sync failure alerts"}
+  L431:                   <h3 className="font-medium text-gray-900 dark:text-white">Omogo?i tihe ure</h3>
+  L432:                   <p className="text-sm text-gray-600 dark:text-gray-400">Brez alertov med no?nim mirom</p>
+  L456:                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Za?etek</label>
+  L523:                 <span>Dodaj pravilo</span>
+  L557:                             <option value="payment_failed">Neuspe?no pla?ilo</option>
+  L558:                             <option value="system_error">Sistemska napaka</option>
+  L560:                             <option value="eturizem_sync_failure">eTurizem sync failure</option>
+  L632:                             <span className="text-sm text-gray-700 dark:text-gray-300">Omogo?eno</span>
+
+=== src\app\settings\api-keys\page.tsx ===
+  L116:               ? "Odprite klju?e za AI generiranje vsebin. OpenAI je obvezen za generiranje besedil."
+  L138:                   Ustvari klju? ?
+  L145:                   <span className="ml-2 text-xs text-gray-500">(500 strani/mesec brezpla?no, opcijsko)</span>
+  L155:                   Ustvari klju? ?
+  L162:                   <span className="ml-2 text-xs text-gray-500">(opcijsko, brezpla?na kvota)</span>
+  L172:                   Ustvari klju? (Google AI Studio) ?
+  L222:                 <p className="mt-1 text-xs text-gray-500">Ali dodaj OPENAI_API_KEY v .env ? ostane trajno</p>
+  L225:                 <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Google Gemini API Key <span className="ml-2 
+  L227:                 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text
+  L228:                 <p className="mt-1 text-xs text-gray-500">Ali dodaj GEMINI_API_KEY v .env ? ne izgubi se, trajno</p>
+
+=== src\app\settings\business\page.tsx ===
+  L175:     { code: "sl", name: "Sloven??ina" },
+
+=== src\app\settings\page.tsx ===
+  L251:         <h2 className="mb-4 text-xl font-semibold text-white">Naro?nina</h2>
+  L254:             <p className="text-gray-400 text-sm">Podatki o naro?nini niso na voljo.</p>
+  L304:                     if (!confirm("Prekiniti naro?nino? Do konca pla?anega obdobja boste ?e imeli dostop.")) return;
+  L315:                         setMessage("Naro?nina bo prekinjena ob koncu obdobja.");
+  L332:                   {billingAction === "cancel" ? "Preklicujem..." : "Prekini naro?nino"}
+  L338:               <p className="text-gray-400 text-sm">Nimate aktivne naro?nine.</p>
+  L374:               Ogled cen in na?rtov ?
+  L395:             Reception na?in ? poenostavljen pregled ?Danes? ob vsakem obisku dashboarda
+  L401:           Uporabniki z email/geslom lahko spremenite geslo. (Google prijava nima gesla.)
+  L420:             placeholder="Potrdi novo geslo"
+  L442:                   const err = data.error?.message ?? data.error ?? "Napaka";
+  L443:                   setMessage(typeof err === "string" ? err : "Napaka pri spremembi gesla");
+  L446:                 setMessage("Geslo uspe?no spremenjeno.");
+  L451:                 setMessage("Napaka pri spremembi gesla");
+  L458:             {passwordSaving ? "Shranjujem..." : "Spremeni geslo"}
+  L556:           Nastavite opozorila, ko prese?ete uporabni?ke limite (agenti, API klici, prostor, stro?ki).
+  L607:                     setMessage(errMsg ?? "Napaka pri ustvarjanju opozorila");
+  L612:                   setMessage("Opozorilo ustvarjeno.");
+  L614:                   setMessage("Napaka pri ustvarjanju opozorila");
+  L621:               {usageAlertsLoading ? "Shranjevanje..." : "Dodaj opozorilo"}
+  L628:           Mailchimp liste in HubSpot kontakti (zahteva konfigurirane klju?e / povezavo zgoraj).
+  L648:                     setMessage("Napaka pri nalaganju Mailchimp list.");
+  L653:                 Nalo?i liste
+  L656:             <p className="text-xs text-gray-500">Dodajte Mailchimp API klju? zgoraj (All API Keys).</p>
+  L670:                         setMessage(typeof data.error === "string" ? data.error : data.error?.message ?? "Napaka");
+  L675:                       setMessage("Napaka pri nalaganju kampanj.");
+  L682:                   {mailchimpCampaignsLoading ? "Nalagam..." : "Nalo?i kampanje"}
+  L731:                     setMessage("Napaka pri nalaganju HubSpot kontaktov.");
+  L736:                 Nalo?i kontakte
+  L739:             <p className="text-xs text-gray-500">Pove?ite HubSpot v Publish Connections zgoraj.</p>
+  L753:                         setMessage(typeof data.error === "string" ? data.error : data.error?.message ?? "Napaka");
+  L758:                       setMessage("Napaka pri nalaganju podjetij.");
+  L765:                   {hubspotCompaniesLoading ? "Nalagam..." : "Nalo?i podjetja"}
+  L881:             ? "API klju?i za turizem"
+  L886:             ? "Odprite klju?e za AI generiranje vsebin. OpenAI je obvezen za generiranje besedil."
+
+=== src\app\settings\teams\page.tsx ===
+  L321:                       if (!confirm("Izbri?i ekipo? To dejanje ni mogo?e razveljaviti.")) return;
+  L336:                     {deletingTeamId === team.id ? "Brisanje..." : "Izbri?i ekipo"}
+
+=== src\app\settings\users\page.tsx ===
+  L34:   role: "receptor" | "director" | "admin";
+  L78:       name: "Peter Kova?i?",
+  L80:       role: "receptor",
+  L91:       role: "receptor",
+  L106:       details: "Created new user: Peter Kova?i?",
+  L115:       details: "Changed role from receptor to director",
+  L122:       userName: "Peter Kova?i?",
+  L150:       case "receptor": return <User className="w-4 h-4" />;
+  L159:       case "receptor": return "bg-green-100 text-green-800 border-green-200";
+  L296:                 <option value="receptor">Receptor</option>
+
+=== src\app\test\page.tsx ===
+  L6:  * V produkciji priporo?eno onemogo?iti ali za??ititi.
+  L45:           Klikni na gumb za test. Vsak gumb kli?e en API ali akcijo.
+  L123:                     const list = Object.keys(j || {}).join(", ") || "ni?";
+  L330:             Prijava
+
+=== src\app\verify-email\page.tsx ===
+  L11:   const [message, setMessage] = useState(token ? "" : "Manjka ?eton za potrditev.");
+  L25:           setMessage(data.data?.message ?? "E-po?ta uspe?no potrjena.");
+  L28:           setMessage(data.error?.message ?? data.error ?? "Neveljaven ali potekel ?eton.");
+  L33:         setMessage("Pri?lo je do napake. Poskusite znova.");
+  L42:           <p className="text-gray-600 dark:text-gray-400">Potrjevanje e-po?te...</p>
+  L55:               E-po?ta potrjena
+  L69:               Napaka
+
+=== src\app\workflows\[id]\page.tsx ===
+  L109:       toast.error("Sistemska napaka");
+  L142:       toast.error("Napaka pri shranjevanju");
+  L158:       toast.error("Napaka pri izvajanju");
+  L208:             Shrani
+  L229:                 onClick={() => setNodes(nds => nds.concat({ id: `t-${Date.now()}`, type: "trigger", position: { x: 100, y: 100 }, data: { la
+  L233:                 Nova Rezervacija
+  L237:                 ?asovna spro?itev
+  L268:                 Shrani v bazo
+  L272:                 Po?lji obvestilo
+  L334:                 <div className="py-20 text-center text-gray-400 text-xs italic">Ni ?e bilo izvajanj tega toka.</div>
+
+=== src\app\workflows\page.tsx ===
+  L49:       toast.error("Napaka pri nalaganju delovnih tokov");
+  L81:       toast.error("Napaka pri ustvarjanju");
+  L86:     if (!confirm("Ali ste prepri?ani, da ?elite izbrisati ta delovni tok?")) return;
+  L90:         toast.success("Izbrisano");
+  L94:       toast.error("Napaka pri brisanju");
+  L141:               placeholder="I??i po imenu ali opisu..."
+  L173:                   {workflow.description || "Brez opisa. Kliknite za urejanje in dodajanje agentov v ta delovni tok."}
+  L179:                     Posodobljeno {formatDistanceToNow(new Date(workflow.updatedAt), { addSuffix: true, locale: sl })}
+  L189:                     title="Uredi"
+  L202:                     title="Izbri?i"
+  L212:                   Odpri Builder
+  L230:                 Ustvari Workflow
+
+=== src\components\FloatingChat.tsx ===
+  L8:   { label: "Opis sobe",       template: "booking-description",  icon: "?" },
+  L23:   if (t.match(/opis|soba|nastanitev|booking|airbnb/))
+  L25:   if (t.match(/email|gost|dobrodo?lic|welcome/))
+  L29:   if (t.match(/blog|vodi?|destinacij|guide/))
+  L31:   if (t.match(/landing|stran|rezervacij/))
+  L47:       "booking-description":  "Opis nastanitve",
+  L50:       "destination-guide":    "Blog / vodi?",
+  L52:       "seasonal-campaign":    "Sezonska kampanja",
+  L59:         label: `?? Ustvari: ${label}`,
+  L68:       text: "Seveda! Tukaj najdete kar i??ete:",
+  L69:       link: { label: "Odpri ?", href: intent.redirect },
+  L75:     text: "Razumem! Kaj to?no bi radi naredili? Izberite eno od mo?nosti spodaj ali mi opi?ite:",
+  L85:       text: "Pozdravljeni! ? Sem va? AI asistent. Kako vam lahko pomagam danes?\n\nRecite mi npr. \"Potrebujem opis sobe\" ali \"Napi?i emai
+  L118:     const userMsg: Message = { role: "user", text: `Ustvari: ${label}` };
+  L121:       text: `Odli?no! Vodim vas na ${label}:`,
+  L163:               aria-label="Zapri"
+
+=== src\components\PwaInstallPrompt.tsx ===
+  L55:             <p className="text-sm text-blue-100">Dodaj na doma?i zaslon za hiter dostop</p>
+  L62:             aria-label="Zapri"
+
+=== src\components\tourism\SeasonalCalendar.tsx ===
+  L57:     'January', 'February', 'March', 'April', 'May', 'June',
+  L58:     'July', 'August', 'September', 'October', 'November', 'December'
+
+=== src\components\tourism\TourismContext.tsx ===
+  L30:       period: "December - February"
+  L42:       period: "September - November"
+
+=== src\config\env.ts ===
+  L14: /** Alibaba Qwen (DashScope) ? OpenAI-compatible. Fallback ?e OPENAI_API_KEY prazen. */
+
+=== src\data\prompts.ts ===
+  L83:     name: "Booking.com Opis Nastanitve",
+  L85:     prompt: `Napi?i profesionalen, prodajno usmerjen opis nastanitve za Booking.com.
+  L89: - Tip nastanitve: {tip} (apartma, hi?a, hotel...)
+  L90: - Kapaciteta: {osebe} oseb, {sobe} sobe
+  L91: - Posebnosti: {posebnosti} (bazen, WiFi, parkiri??e...)
+  L92: - Bli?nje atrakcije: {atrakcije} (npr. vinogradni?tvo, reka Kolpa, termalne vrelce, Planina, Sne?nik)
+  L95: - Klju?ne besede ({kljucne_besede}): 3?5 SEO fraz, lo?ene z vejico. Primer: apartmaji bela krajina, po?itnice kolpa, dru?inske po?itnice slo
+  L97: Uporabi Slovenian tourism izraze kjer primerno: apartma, gostitelj, Bela Krajina, Kolpa, Dolenjska, vinogradi, termalna letovi??a, gorske ko
+  L100: 1. Za?ni z mo?nim "hook" stavkom
+  L102: 3. Vklju?i vse klju?ne besede ({kljucne_besede}) naravno v besedilo
+  L104: 5. Zaklju?i s pozivom k akciji
+  L108:     description: "Prodajni opis nastanitve za Booking.com (300-500 besed)",
+  L113:       "sobe",
+  L125:     prompt: `Napi?i topel, oseben opis v stilu storytellinga za Airbnb.
+  L127: Fokus: izku?nja gosta, ne samo seznam funkcij.
+  L130: 1. Dobrodo?lica in kratek uvod o gostitelju/lokaciji
+  L131: 2. Opis prostora skozi o?i gosta ("Zjutraj se zbudi? ob pogledu na...")
+  L133: 4. Prakti?ne informacije na koncu
+  L135: Ton: {ton} (prijazen, gostoljuben, avtenti?en).
+  L136: Dol?ina: 150-250 besed.
+  L139: Tip nastanitve: {tip} (apartma, hi?a, vikend, glamping...)
+  L141: Posebnosti: {posebnosti} ? navedi le tiste, ki vplivajo na izku?njo (npr. bazen, WiFi, vrt, kamin). Brez generi?nih list.`,
+  L147:     name: "Vodi? po Destinaciji",
+  L149:     prompt: `Napi?i SEO optimiziran vodi? po destinaciji za blog.
+  L152: 1. Naslov (privla?en + klju?na beseda)
+  L154: 3. Odstavek za vsako sekcijo: Top 5 stvari za po?eti, Najbolj?i ?as za obisk, Lokalni nasveti (kje jesti, kje parkirati, kateri mesec je naj
+  L155: 4. Za vsako destinacijo vklju?i konkretne lokalne atrakcije (muzeji, trgi, naravne znamenitosti, lokalna kuhinja, dogodki). Za Slovenijo: Lj
+  L156: 5. Zaklju?ni odstavek s povzetkom in CTA
+  L158: Dol?ina: 800-1000 besed
+  L162: SEO klju?ne besede: {kljucne_besede}`,
+  L163:     description: "SEO optimiziran vodi? po destinaciji za blog (800-1000 besed)",
+  L168:     name: "Sezonska Kampanja",
+  L170:     prompt: `Napi?i sezonsko kampanjo za hotel/nastanitev.
+  L172: Vklju?i:
+  L173: - Email zadeva (privla?na)
+  L176: - Poziv k akciji z omejitvijo ?asa
+  L177: - Urgency: vklju?i datum konca, omejeno ?tevilo sob, ekskluzivnost. Uporabi scarcity fraze: "Zadnja prilo?nost", "omejeno ?tevilo", "do [dat
+  L179: Sezona/Dogodek: {sezona}
+  L181: Posebna ponudba: {ponudba} ? konkretni primeri: "15% popust za rezervacije do 31.3.", "2 no?i = 1 brezpla?na", "Zgodnje buke do 28.2. ? prih
+  L185:       "Sezonska kampanja: email + social media post za hotel/nastanitev",
+  L186:     variables: ["sezona", "destinacija", "ponudba", "jezik", "ton"],
+  L192:     prompt: `Napi?i Instagram caption za travel fotografijo.
+  L197: - Hashtagi: mix lokacijskih (#BelaKrajina, #Slovenia) in tipskih (#apartma, #TravelSlovenia). Vklju?i 5?7 hashtagov na koncu.
+  L198: - Poziv k akciji ("Link v bio" / "Rezerviraj zdaj")
+  L201: Dol?ina captiona: 100-150 besed.
+  L203: Tip/Tema: {tip} (apartma, hotel, glamping, vikend, po?itnice...)
+  L212:     prompt: `Napi?i prodajni opis hotelske restavracije in menuja.
+  L214: Vklju?i:
+  L218: 4. Lokalne sestavine in sezonsko ponudbo
+  L219: 5. Posebne diete (veganski, brez glutena) ?e so na voljo
+  L228: Dol?ina: 400-600 besed.`,
+  L234:     name: "Aktivnost / Do?ivetje",
+  L236:     prompt: `Napi?i privla?en opis lokalne aktivnosti ali do?ivetja za turiste.
+  L239: 1. Naslov do?ivetja (privla?en + akcijski)
+  L240: 2. Kratek opis kaj vklju?uje
+  L241: 3. Kdo je primerna ciljna skupina (dru?ine, pare, posamezniki)
+  L243: 5. Kaj je vklju?eno v ceno
+  L245: 7. CTA za rezervacijo
+  L254: Dol?ina: 250-400 besed.`,
+  L255:     description: "Opis aktivnosti ali do?ivetja za turiste",
+  L260:     name: "Poro?ni Paket / Event",
+  L262:     prompt: `Napi?i prodajni opis poro?nega paketa ali dogodkovnega prostora v hotelu.
+  L264: Vklju?i:
+  L265: 1. ?arobnost lokacije (zakaj je idealna za poroko)
+  L266: 2. Prostori (ceremonija, sprejem, ve?erja, zabava)
+  L268: 4. Vklju?ene storitve (catering, dekoracija, koordinator...)
+  L270: 6. Sezonska ponudba in cene (?e relevantno)
+  L271: 7. Prepri?ljiv CTA za ogled
+  L275: Kapaciteta: {kapaciteta} ?tevilo gostov
+  L278: Ton: {ton} (romanti?en, eleganten, profesionalen)
+  L280: Dol?ina: 400-600 besed.`,
+  L281:     description: "Opis poro?nega paketa ali dogodkovnega prostora",
+  L288:     prompt: `Napi?i profesionalen B2B opis hotelskih storitev za poslovne goste.
+  L292: Vklju?i:
+  L293: 1. Poslovne zmogljivosti (sejne sobe, AV oprema, WiFi hitrost)
+  L294: 2. Corporate paketi (dnevni, ve?dnevni)
+  L297: 5. Convenience (parkiri??e, bli?ina letali??a, transport)
+  L298: 6. Case study ali ugledni gost (?e obstaja)
+  L307: Dol?ina: 350-500 besed. Brez pretirane romance, fokus na ROI in efficiency.`,
+  L315:     prompt: `Napi?i pre-arrival email za gosta pred prihodom.
+  L319: 2. Veselje za prihod + kratek uvod o nastanitvi
+  L320: 3. Navodila za prihod (check-in ?as, kje parkirati, kako priti)
+  L321: 4. Lokalni nasveti (kje jesti, kaj po?eti v bli?ini)
+  L322: 5. Kontakt za vpra?anja (WhatsApp, email, telefon)
+  L324: 7. Poziv za direktno rezervacijo v prihodnje
+  L329: Tip nastanitve: {tip_nastanitve}
+  L331: Ton: topel, prijazen, v pomo?
+  L333: Dol?ina: 200-300 besed.`,
+  L335:     variables: ["ime_gosta", "lokacija", "datum_prihoda", "tip_nastanitve", "jezik"],
+  L341:     prompt: `Napi?i pro?njo za oceno/review po odhodu gosta.
+  L346: 3 Blaga pro?nja za 5-star oceno na Booking.com/Google/Airbnb
+  L356: Ton: hvale?en, prijazen, ne vsiljiv
+  L358: Dol?ina: 150-250 besed.`,
+  L359:     description: "Pro?nja za oceno po bivanju gosta",
+  L373:   tip: "Tip nastanitve",
+  L375:   sobe: "Sobe",
+  L377:   atrakcije: "Bli?nje atrakcije",
+  L380:   kljucne_besede: "SEO klju?ne besede",
+  L382:   sezona: "Sezona/Dogodek",
+  L388:   aktivnost: "Aktivnost/Do?ivetje",
+  L393:   kapaciteta: "Kapaciteta (?t. gostov)",
+  L394:   storitve: "Vklju?ene storitve",
+  L399:   tip_nastanitve: "Tip nastanitve",
+  L405:   ton: ["profesionalen", "prijazen", "luksuzen", "family-friendly", "romanti?en", "eleganten"],
+  L406:   ciljna_skupina: ["dru?ine", "pare", "posamezniki", "poslovni gosti", "skupine", "mladi"],
+
+=== src\data\tourism-faqs.ts ===
+  L14:     question: "Kako pridem do nastanitve?",
+  L15:     answer: "Navodila za prihod so odvisna od lokacije. Ponavadi prejmete to?ne instrukcije s koordinatami in slike pred prihodom. Za ve?ino
+  L16:     category: "prihod",
+  L17:     keywords: ["prihod", "navodila", "kako pridem", "lokacija", "naslov"],
+  L21:     answer: "Standardni check-in je med 15:00 in 20:00, check-out do 11:00. Kasnej?i check-in je mo?en po dogovoru. Prosimo, da nas obvestit
+  L22:     category: "?as",
+  L23:     keywords: ["check-in", "check-out", "ura", "kdaj", "?as"],
+  L27:     answer: "Da, brezpla?en WiFi je na voljo v celotni nastanitvi. Geslo najdete v info bro?uri ali pa vpra?ajte gostitelja.",
+  L32:     question: "Ali sprejemate hi?ne ljubljen?ke?",
+  L33:     answer: "To je odvisno od posamezne nastanitve. Prosimo, preverite opis nastanitve ali nas kontaktirajte pred rezervacijo.",
+  L35:     keywords: ["pes", "ma?ka", "hi?ni ljubljen?ek", "?ival", "dovoljeno"],
+  L38:     question: "Ali je parkiri??e na voljo?",
+  L39:     answer: "Ve?ina na?ih nastanitev ima brezpla?no parkiri??e. Podrobnosti so navedene v opisu vsake nastanitve.",
+  L41:     keywords: ["parkiri??e", "parkiranje", "avto", "vozilo"],
+  L44:     question: "Kaj je v bli?ini za po?eti?",
+  L45:     answer: "Vsaka lokacija ima edinstvene atrakcije. Pogosto so na voljo pohodni?ke poti, restavracije, znamenitosti. Podrobne informacije 
+  L47:     keywords: ["aktivnosti", "po?eti", "atrakcije", "restavracije", "zanimivosti"],
+  L50:     question: "Ali je kuhinja opremljena?",
+  L51:     answer: "Da, vse nastanitve imajo opremljeno kuhinjo s hladilnikom, ?tedilnikom, posodo in priborom. Podroben seznam opreme je v opisu."
+  L53:     keywords: ["kuhinja", "kuhanje", "oprema", "hladilnik", "posoda"],
+  L57:     answer: "Ve?ina nastanitev ima klimatsko napravo ali gretje, odvisno od lokacije in sezone. Preverite opis za specifi?ne podrobnosti.",
+  L59:     keywords: ["klima", "gretje", "hladno", "vro?e", "temperatura"],
+  L63:     answer: "Direktno rezervacijo lahko opravite preko na?e spletne strani, po telefonu ali emailu. Direktne rezervacije ponavadi ponujajo n
+  L64:     category: "rezervacije",
+  L65:     keywords: ["rezervacija", "booking", "cena", "direktno"],
+  L68:     question: "Ali je mo?en zgodnej?i check-in?",
+  L69:     answer: "Zgodnej?i check-in je mo?en, ?e je nastanitev pripravljena. Prosimo, da nas kontaktirate dan pred prihodom in bomo preverili ra
+  L70:     category: "?as",
+
+=== src\domain\tourism\use-cases\answer-faq.ts ===
+  L32:     "?al nimam neposrednega odgovora na to vpra?anje. Prosimo, kontaktirajte nas direktno na telefon ali email in z veseljem vam bomo pomaga
+
+=== src\integrations\bookingCom.ts ===
+  L242:         address: 'Miklo?i?eva cesta 1',
+
+=== src\kpis\tracking.ts ===
+  L16:   // Gostje
+  L20:   // eTurizem
+
+=== src\lib\api-partnership-production-readiness.ts ===
+  L588: ### **Phase 1**: Foundation ? KON?ANO
+  L594: ### **Phase 2**: Enhancement ? KON?ANO
+  L601: ### **Phase 3**: Production ? KON?ANO
+
+=== src\lib\beta-launch-production-readiness.ts ===
+  L606: ### **Phase 1**: Foundation ? KON?ANO
+  L613: ### **Phase 2**: Enhancement ? KON?ANO
+  L620: ### **Phase 3**: Production ? KON?ANO
+
+=== src\lib\email\send.ts ===
+  L68:   <h2>Potrdite va? e-po?tni naslov</h2>
+  L69:   <p>Kliknite spodnjo povezavo za potrditev va?ega ra?una:</p>
+  L70:   <p><a href="${verifyLink}" style="color: #2563eb; text-decoration: underline;">Potrdi e-po?to</a></p>
+  L71:   <p style="color: #6b7280; font-size: 14px;">Povezava je veljavna 24 ur. ?e niste zahtevali potrditve, prezrite to sporo?ilo.</p>
+  L82:   <h2>Ponastavitev gesla</h2>
+  L83:   <p>Prejeli ste to sporo?ilo, ker ste zahtevali ponastavitev gesla. Kliknite spodnjo povezavo:</p>
+  L85:   <p style="color: #6b7280; font-size: 14px;">Povezava je veljavna 1 uro. ?e niste zahtevali ponastavitve, prezrite to sporo?ilo.</p>
+  L97:   <p>Povabljeni ste, da se pridru?ite ekipi (vloga: ${role}). Kliknite spodnjo povezavo za sprejem:</p>
+  L111:   await sendEmail(to, "Potrdite va? e-po?tni naslov - AgentFlow Pro", html);
+  L121:   await sendEmail(to, "Ponastavitev gesla - AgentFlow Pro", html);
+  L151:   <h2>Novo povpra?evanje</h2>
+  L152:   <p>Prejeli ste novo povpra?evanje za nastanitev <strong>${escHtml(propertyName)}</strong>.</p>
+  L155:   <p><strong>Sporo?ilo:</strong></p>
+  L170:   const subject = `Novo povpra?evanje: ${inquiry.name} ? ${propertyName}`;
+
+=== src\lib\hitl.ts ===
+  L13:   "nisem prepri?an",
+  L14:   "nisem prepri?ana",
+  L18:   "mogo?e",
+  L27:   "te?ko re?i",
+  L32:   "prito?ba",
+  L34:   "od?kodnina",
+  L35:   "odpoved",
+  L36:   "povra?ilo",
+
+=== src\lib\multilang-support.ts ===
+  L55:       nativeName: 'Sloven??ina',
+  L218:         'room': 'soba',
+  L219:         'reservation': 'rezervacija',
+  L220:         'booking': 'rezervacija',
+  L221:         'check-in': 'prijava',
+  L222:         'check-out': 'odjava',
+  L223:         'welcome': 'dobrodo?li',
+  L226:         'vacation': 'po?itnice',
+  L227:         'adventure': 'pustolov??ina'
+  L321:       'sl': ['nastanitev', 'hoteli', 'po?itnice', 'turizem', 'slovenija'],
+
+=== src\lib\payment-system-production-readiness.ts ===
+  L554: ### **Phase 1**: Foundation ? KON?ANO
+  L561: ### **Phase 2**: Enhancement ? KON?ANO
+  L568: ### **Phase 3**: Production ? KON?ANO
+
+=== src\lib\production-testing-readiness.ts ===
+  L591: ### **Phase 1**: Foundation ? KON?ANO
+  L598: ### **Phase 2**: Enhancement ? KON?ANO
+  L605: ### **Phase 3**: Production ? KON?ANO
+
+=== src\lib\review-management.ts ===
+  L109:           sl: 'Spo?tovani {guestName}, hvala za va?o ?udovito 5-zvezdi?no oceno! Navdu?eni smo, da ste imeli odli?no izku?njo v {propertyNam
+  L124:           sl: 'Spo?tovani {guestName}, hvala za va?o {rating}-zvezdi?no oceno in dragocene povratne informacije o {improvementAreas}. Zaveza
+  L138:           sl: 'Spo?tovani {guestName}, se iskreno opravi?ujemo, da va?a izku?nja v {propertyName} niso bila v skladu z va?imi pri?akovanji. 
+
+=== src\lib\tourism\data-cleanup.ts ===
+  L3:  * Deduplikacija gostov (email, name+property), anomalije rezervacij.
+
+=== src\lib\tourism\email-triggers.ts ===
+  L44:         ? `\n\nSelf check-in (eTurizem): ${getBaseUrl()}/check-in/${reservation.checkInToken}\n\n`
+
+=== src\lib\tourism\eturizem-client.ts ===
+  L2:  * AJPES eTurizem SOAP client ? oddaja knjige gostov.
+  L3:  * WSDL: https://www.ajpes.si/wsrno/eTurizem/wsETurizemPorocanje.asmx?WSDL
+  L8:     ? "https://wwwt.ajpes.si/rno/rnoApi/eTurizem/wsETurizemPorocanje.asmx"
+  L9:     : "https://www.ajpes.si/wsrno/eTurizem/wsETurizemPorocanje.asmx";
+  L67:     <oddajPorocilo xmlns="http://www.ajpes.si/wsrno/eturizem">
+  L81:         SOAPAction: '"http://www.ajpes.si/wsrno/eturizem/oddajPorocilo"',
+
+=== src\lib\tourism\faq-schema.ts ===
+  L2:  * AgentFlow Pro - FAQ JSON-LD Schema (GEO raz?iritev)
+
+=== src\lib\tourism\guest-copy-agent.ts ===
+  L47:           ? `[MOCK] Odgovor za gosta glede na kontekst nastanitve.\nVpra?anje: ${question}`
+  L49:           "Prosimo, kontaktirajte nas direktno za ve? informacij.",
+  L58:         "Prosimo, kontaktirajte nas direktno za ve? informacij.",
+  L65:     ctxStr += `\n\n[Pravila nastanitve]\n${policyResult.policyContext}`;
+  L67:       ctxStr += `\n[Konkretni odgovor za to vpra?anje]: ${policyResult.reason}`;
+
+=== src\lib\tourism\policy-agent.ts ===
+  L3:  * Retrieval ? Policy ? Copy: preverja pravila (odpovedi, dopla?ila) pred Copy.
+  L25:   "odpoved",
+  L29:   "dopla?ilo",
+  L39:   "povra?ilo",
+  L42:   "brezpla?no",
+  L57:     "Odpi?itev brezpla?na 7 ali ve? dni pred prihodom.",
+  L58:     "Odpoved 3?6 dni pred prihodom: 50 % vrednosti rezervacije.",
+  L59:     "Odpoved manj kot 3 dni pred prihodom: 100 % vrednosti (brez povra?ila).",
+  L68:     "Dodatna postelja: po dogovoru z gostiteljem.",
+  L69:     "Hi?ni ljubljen?ki: dovoljeni le, ?e je nastanitev ozna?ena kot pet-friendly.",
+  L97:   const isCancellation = /odpoved|cancel|cancellation|preklic|refund|povra?ilo/.test(q);
+  L98:   const isSupplement = /dopla?ilo|supplement|extra|dodatek|postelja|ljubljen?ek|fee|pristojbina/.test(q);
+  L110:       reason = "Odpi?itev je brezpla?na, ker je ve? kot 7 dni do prihoda.";
+  L113:       reason = "Odpoved v tem obdobju pomeni 50 % kazen. Prosimo, kontaktirajte nas za podrobnosti.";
+  L116:       reason = "Odpoved manj kot 3 dni pred prihodom pomeni brez povra?ila. Kontaktirajte nas za izjeme.";
+  L121:       "Dodatki (postelja, ?ivali, zgodnji check-in) so odvisni od nastanitve. Prosimo, kontaktirajte gostitelja za ceno.";
+  L124:     reason = "Pravila so na voljo; za specifi?na vpra?anja kontaktirajte gostitelja.";
+
+=== src\lib\unified-booking.ts ===
+  L77:           address: 'Miklo?i?eva ulica 12',
+
+=== src\lib\user-keys.ts ===
+  L94:         "Tabela UserApiKey manjka. Za?eni: npx prisma migrate deploy. Ali dodaj klju? v .env (npr. GEMINI_API_KEY=...) ? ta ostane trajno."
+
+=== src\page-builder\components\DragDropBuilder.tsx ===
+  L100:                         Dodaj na platno
+  L118:                       <p>Povlecite komponente sem za za?etek</p>
+  L184:                         Polo?aj X
+  L200:                         aria-label="Polo?aj X"
+  L205:                         Polo?aj Y
+  L221:                         aria-label="Polo?aj Y"
+  L228:                       Izbri?i komponento
+
+=== src\web\components\AppNav.tsx ===
+  L8: // ??? Navigacijske to?ke (max 5) ???????????????????????????????????????????????
+  L11:   { href: "/reservations", label: "Rezervacije", icon: "?" },
+  L12:   { href: "/properties", label: "Nastanitve", icon: "?" },
+  L13:   { href: "/guests", label: "Gostje", icon: "?" },
+  L16:   { href: "/generate",  label: "Ustvari",  icon: "??" },
+  L20: // ??? Meni "Ustvari" za turizem ????????????????????????????????????????????????
+  L22:   { href: "/generate",                             icon: "?", label: "Splo?no ustvarjanje" },
+  L26:   { href: "/generate?template=destination-guide",  icon: "?", label: "Vodi? destinacije" },
+  L28:   { href: "/generate?template=seasonal-campaign",  icon: "?", label: "Sezonska kampanja" },
+  L42:   // Zapri ob kliku zunaj
+  L52:   // Zapri ob navigaciji
+  L84:               item.label === "Ustvari" ? (
+  L85:                 /* Ustvari ? z dropdown-om */
+  L128:             {/* Hitri gumb Ustvari */}
+  L148:                   <span className="text-sm hidden lg:inline">{firstName || "Ra?un"}</span>
+  L163:                           { href: "/settings",   icon: "??", label: "Nastavitve" },
+  L187:                             <span>Odjava</span>
+  L194:                           Prijava
+  L197:                           Za?ni brezpla?no
+  L212:             aria-label={mobileOpen ? "Zapri meni" : "Odpri meni"}
+  L252:               <p className="px-4 text-xs font-semibold text-gray-500 uppercase mb-2">Ustvari</p>
+  L272:                     { href: "/settings",   label: "Nastavitve" },
+  L284:                     Odjava
+  L289:                   Prijava
+
+=== src\web\components\DashboardKPIs.tsx ===
+  L40:       label: "Rezervacije",
+  L47:       label: "Povpre?no bivanje",
+
+=== src\web\components\EturizemCheckInModal.tsx ===
+  L62:       const res = await fetch("/api/tourism/eturizem/parse-mrz", {
+  L68:       if (!res.ok) throw new Error(data.error ?? "Napaka pri parsiranju");
+  L79:       toast.error(err instanceof Error ? err.message : "Napaka");
+  L87:       toast.error("Izpolnite vse obvezne podatke (datum rojstva, dr?ava, vrsta dokumenta, ?tevilka)");
+  L92:       const res = await fetch("/api/tourism/eturizem/submit", {
+  L107:       if (!res.ok) throw new Error(data.error ?? "Napaka pri po?iljanju");
+  L108:       toast.success("Prijava v eTurizem uspe?na");
+  L112:       toast.error(err instanceof Error ? err.message : "Napaka");
+  L123:             Prijava v eTurizem: {arrival.guestName}
+  L128:             aria-label="Zapri"
+  L156:               <label htmlFor="eturizem-dob" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+  L160:                 id="eturizem-dob"
+  L169:               <label htmlFor="eturizem-country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+  L170:                 Dr?ava (ISO 2) *
+  L173:                 id="eturizem-country"
+  L187:             <label htmlFor="eturizem-doctype" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+  L191:               id="eturizem-doctype"
+  L206:             <label htmlFor="eturizem-docid" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+  L207:               ?tevilka dokumenta *
+  L210:               id="eturizem-docid"
+  L220:             <label htmlFor="eturizem-gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+  L224:               id="eturizem-gender"
+  L230:               <option value="M">Mo?ki</option>
+  L231:               <option value="F">?enski</option>
+  L240:             Prekli?i
+  L247:             {submitting ? "Po?iljam..." : "Po?lji v AJPES"}
+
+=== src\web\components\FeatureTour.tsx ===
+  L40:       "Izberi med 5 specializiranimi prompti za turizem: Booking opisi, Airbnb zgodbe, destinacijski vodi?i...",
+
+=== src\web\components\FloatingAssistant.tsx ===
+  L7:   { label: "? Opis sobe", href: "/generate?template=booking-description" },
+  L11:   { label: "? Vodi? destinacije", href: "/generate?template=destination-guide" },
+  L21:   text: "?ivjo! ? Sem va? AI pomo?nik. Povejte mi kaj potrebujete, ali izberite hitro akcijo spodaj:",
+  L32:   // Scrolla na dno ob novih sporo?ilih
+  L55:       if (lower.includes("opis") || lower.includes("soba") || lower.includes("booking") || lower.includes("apartma")) {
+  L56:         assistantText = "Odli?no! Ustvarimo opis nastanitve za Booking.com ali Airbnb. Kliknite spodaj:";
+  L57:       } else if (lower.includes("email") || lower.includes("gost") || lower.includes("dobrodo?l")) {
+  L58:         assistantText = "Super! Email za goste je odli?na ideja. Tukaj je hiter dostop:";
+  L61:       } else if (lower.includes("landing") || lower.includes("spletna stran") || lower.includes("rezervacij")) {
+  L62:         assistantText = "Odli?en izbor! Landing stran pove?a direktne rezervacije. Za?nimo:";
+  L63:       } else if (lower.includes("blog") || lower.includes("vodi?") || lower.includes("destinacij")) {
+  L64:         assistantText = "Blog post in vodi?i so odli?ni za SEO! Nadaljujemo:";
+  L65:       } else if (lower.includes("pomo?") || lower.includes("help") || lower.includes("kaj") || lower.includes("kako")) {
+  L66:         assistantText = "Z veseljem pomagam! AgentFlow Pro ustvarja vsebino za turisti?ne nastanitve. Kaj bi radi naredili? Izberite eno od 
+  L68:         // Po?lji na API
+  L74:             system: "Ti si AI pomo?nik za AgentFlow Pro - platformo za ustvarjanje turisti?ne vsebine. Odgovarjaj kratko in prijazno v slove
+  L81:           assistantText = "Razumem! Izberite eno od hitrih akcij spodaj ali obi??ite /generate za vse mo?nosti.";
+  L114:         aria-label={open ? "Zapri pomo?nika" : "Odpri AI pomo?nika"}
+  L140:                 <p className="text-sm font-bold text-white">AI Pomo?nik</p>
+  L149:                 title="Za?ni znova"
+  L210:                 placeholder="Vpra?ajte me karkoli..."
+
+=== src\web\components\GlobalSearch.tsx ===
+  L93:         aria-label="I??i (Cmd+K)"
+  L96:         <span className="hidden sm:inline">I??i...</span>
+  L115:             placeholder="I??i rezervacije, goste, nastanitve, vsebino..."
+  L146:                   <QuickLink href="/dashboard/tourism/data-cleanup" icon="?" label="?i??enje podatkov" />
+
+=== src\web\components\NotificationBell.tsx ===
+  L119:         aria-label={`Obvestila (${unreadCount} neprebranih)`}
+  L138:               <h3 className="font-semibold">Obvestila</h3>
+  L144:                   Ozna?i vse kot prebrano
+  L154:                   <p>Ni novih obvestil</p>
+  L194:                             Izbri?i
+  L204:                           Odpri ?
+  L220:                 Vsa obvestila ?
+
+=== src\web\components\NotificationSidePanel.tsx ===
+  L145:               <h3 className="font-semibold text-gray-900 dark:text-white">Obvestila</h3>
+  L170:                   <p className="text-sm">Ni novih obvestil</p>
+  L202:                             Izbri?i
+  L212:                           Odpri ?
+  L226:                 Vsa obvestila ?
+  L234:             aria-label="Odpri obvestila"
+
+=== src\web\components\OnboardingWizard.tsx ===
+  L19:     title: "Dobrodo?li v AgentFlow Pro",
+  L20:     description: "Odkrijte, kako lahko AI avtomatizira va?e turisti?no poslovanje.",
+  L22:     action: "Za?ni",
+  L27:     title: "Dodaj prvo nastanitev",
+  L28:     description: "Vnesite osnovne podatke o va?i nastanitvi (hotel, apartma, itd.)",
+  L30:     action: "Dodaj nastanitev",
+  L44:     description: "Dodajte rezervacije in sinhronizirajte z Booking.com / Airbnb.",
+  L46:     action: "Odpri koledar",
+  L52:     description: "Sedaj lahko uporabljate vse funkcionalnosti AgentFlow Pro.",
+  L168:               Presko?i ta korak ?
+  L191:                 Kon?aj kasneje
+  L232:         Za?eni onboarding znova
+  L238:             <h3 className="font-semibold mb-2">Ponovno za?eni onboarding?</h3>
+  L240:               To bo ponastavilo va? napredek in znova prikazalo uvodni vodnik.
+  L247:                 Prekli?i
+  L253:                 Potrdi
+
+=== src\web\components\PropertySelector.tsx ===
+  L35:   const label = selected ? selected.name : "Vse nastanitve";
+  L59:         <span>Nastanitev:</span>
+  L81:                 Vse nastanitve
+  L106:                 + Upravljaj nastanitve
+
+=== src\web\components\QuickActionsPanel.tsx ===
+  L78:       label: "Po?lji dobrodo?lico jutri?njim",
+  L87:       label: "Nova rezervacija",
+  L93:       id: "eturizem",
+  L94:       label: "eTurizem prijava",
+  L101:       label: "Izpi?i ra?un",
+  L110:       label: "WhatsApp danes prihodom",
+  L162:                 <span className="text-xs mt-1 animate-pulse">Po?iljanje?</span>
+
+=== src\web\components\ReservationChart.tsx ===
+  L32:         <span className="text-gray-400">Nalaganje grafa...</span>
+  L48:     { name: "Ro?ne / Direktne", value: data.direct, color: "#f59e0b" },
+
+=== src\web\components\TodayOverview.tsx ===
+  L66:         if (!r.ok) throw new Error("Napaka pri nalaganju");
+  L136:           Danes: {formattedDate}
+  L143:               {data.pendingPreArrivalCount} pre-arrival ?akata na odobritev
+  L155:               Po?lji emaili ?
+  L162:               Jutri prihaja {tomorrowCount} {tomorrowCount === 1 ? "gost" : "gostov"} ? Po?lji dobrodo?lico
+  L170:               {sendingWelcome ? "Po?iljanje?" : "Po?lji dobrodo?lico"}
+  L176:             Ni prihodov, odhodov ali gostov v nastanitvi danes.
+  L206:                 aria-label={`V nastanitvi: ${data.counts.inHouse}`}
+  L212:                 <div className="text-sm font-medium text-white/90 mt-1">V nastanitvi</div>
+  L226:                         <a href={`tel:${a.guestPhone.trim()}`} className="text-blue-600 dark:text-blue-400 hover:underline" aria-label={`Pok
+  L252:                         <a href={`tel:${d.guestPhone.trim()}`} className="text-blue-600 dark:text-blue-400 hover:underline" aria-label={`Pok
+  L278:                         <a href={`tel:${h.guestPhone.trim()}`} className="text-blue-600 dark:text-blue-400 hover:underline" aria-label={`Pok
+
+=== src\web\components\TourismErrorBoundary.tsx ===
+  L54:                 Ups! Nekaj je ?lo narobe
+  L57:                 Pri?lo je do napake pri nalaganju strani. Poskusite znova ali se vrnite nazaj.
+  L63:                     Napaka:
+  L88:                   ?e se napaka ponavlja, kontaktirajte podporo:
+  L121:     errorMessage = "Pri?lo je do napake"
+  L143: export function LoadingState({ message = "Nalaganje..." }: { message?: string }) {
+  L186:               {actionLabel || "Za?ni"}
+  L193:               {actionLabel || "Za?ni"}

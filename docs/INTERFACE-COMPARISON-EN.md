@@ -98,26 +98,26 @@
 
 ## 5. Best Practices (Authgear, web.dev)
 
-- **88% uporabnikov** ne vrne po slabi login UX
-- **7.5% MAU** se lahko izgubi na password reset flow
-- Social login zmanjša friction za ~30–40%
+- **88% of users** don't return after bad login UX
+- **7.5% MAU** can be lost on password reset flow
+- Social login reduces friction by ~30–40%
 - Show password + autocomplete = password manager friendly
-- Error messages: konstruktivne, prijazne, s predlogom naslednjega koraka
+- Error messages: constructive, friendly, with suggestion for next step
 
 ---
 
-## 6. Zaključek
+## 6. Conclusion
 
-**AgentFlow Pro ima:**
-- ✓ Čist, modern login
-- ✓ Dober value proposition banner
-- ✓ Ustrezen workflow builder (ReactFlow)
-- ✓ Fokus na turizem in AI agente (differentiator)
+**AgentFlow Pro has:**
+- ✓ Clean, modern login
+- ✓ Good value proposition banner
+- ✓ Appropriate workflow builder (ReactFlow)
+- ✓ Focus on tourism and AI agents (differentiator)
 
-**Konkurenca je boljša v:**
-- Funkcionalni Google/SSO prijavi
+**Competition is better at:**
+- Functional Google/SSO login
 - Show password, Remember me
-- Insights in analytics (n8n)
-- Maturity auth flowa (Zapier, Make)
+- Insights and analytics (n8n)
+- Maturity auth flow (Zapier, Make)
 
-**Najnujnejši korak:** Konfiguracija Google prijave + skritje/graceful handling ko ni konfigurirana.
+**Most urgent step:** Configure Google login + hide/graceful handling when not configured.

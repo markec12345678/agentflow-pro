@@ -367,7 +367,7 @@ export const AvailabilityHeatmap: React.FC<{
       <div className="heatmap-legend">
         <div className="legend-item">
           <span className="legend-color" style={{ backgroundColor: '#4CAF50' }}></span>
-          <span>High (>80%)</span>
+          <span>High (&gt;80%)</span>
         </div>
         <div className="legend-item">
           <span className="legend-color" style={{ backgroundColor: '#FFC107' }}></span>
@@ -379,7 +379,7 @@ export const AvailabilityHeatmap: React.FC<{
         </div>
         <div className="legend-item">
           <span className="legend-color" style={{ backgroundColor: '#F44336' }}></span>
-          <span>Very Low (<20%)</span>
+          <span>Very Low (&lt;20%)</span>
         </div>
       </div>
 

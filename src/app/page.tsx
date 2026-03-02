@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { CASE_STUDIES } from "@/data/case-studies";
 import { SOLUTIONS, INDUSTRIES } from "@/data/solutions";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen">
+    <>
+      <main className="min-h-screen">
       {/* HERO SECTION */}
       <section className="bg-gradient-to-r from-primary-800 to-primary-900 text-white py-20 md:py-24 min-h-[80vh] flex items-center">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
@@ -2017,5 +2019,7 @@ export default function HomePage() {
         </div>
       </section>
     </main>
+      <PwaInstallPrompt />
+    </>
   );
 }

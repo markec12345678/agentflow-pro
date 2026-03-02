@@ -8,6 +8,29 @@ import { ErrorBoundary } from "@/web/components/ErrorBoundary";
 import { AnalyticsLoader } from "@/web/components/AnalyticsLoader";
 import { FloatingAssistant } from "@/web/components/FloatingAssistant";
 
+// Service Worker Registration Component
+function ServiceWorkerRegistration() {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                  console.log('SW registered: ', registration);
+                })
+                .catch((registrationError) => {
+                  console.log('SW registration failed: ', registrationError);
+                });
+            });
+          }
+        `,
+      }}
+    />
+  );
+}
+
 const inter = Inter({ subsets: ["latin"] });
 
 const baseUrl =
@@ -29,26 +52,49 @@ export const metadata: Metadata = {
   },
   title: {
     default:
-      "AgentFlow Pro: The Only AI Platform That Creates Content AND Syncs Reservations",
+      "AgentFlow Pro: AI Automation for Tourism | 8 Agents, eTurizem, GDPR",
     template: "%s | AgentFlow Pro",
   },
   description:
-    "AI platform for tourism: creates accommodation descriptions, guest emails, and landing pages; syncs reservations from Booking.com, Airbnb, and PMS. Multi-language, SEO optimized.",
-  keywords: ["AI", "tourism", "content", "hotel", "agentflow", "booking"],
+    "AI automation for tourism – 8 specialized agents, eTurizem integration, GDPR compliant. Save 10+ hours weekly with automatic reservations, guest communication, and marketing.",
+  keywords: ["AI", "automation", "tourism", "hotel", "slovenia", "eturizem", "gdpr", "reservations"],
   authors: [{ name: "AgentFlow Pro" }],
   openGraph: {
-    title:
-      "AgentFlow Pro: The Only AI Platform That Creates Content AND Syncs Reservations",
-    description:
-      "Content + reservation sync. Descriptions, emails, landing pages – multi-language.",
+    title: "AgentFlow Pro – AI Automation for Tourism",
+    description: "8 AI agents to automate your hotel. eTurizem integration, GDPR compliant, 20+ languages. Save 10+ hours weekly.",
+    url: baseUrl,
+    siteName: "AgentFlow Pro",
+    images: [
+      {
+        url: `${baseUrl}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: "AgentFlow Pro - AI Automation for Tourism",
+      },
+    ],
+    locale: "sl_SI",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title:
-      "AgentFlow Pro: The Only AI Platform That Creates Content AND Syncs Reservations",
-    description:
-      "From AI text to a full calendar – all in one tool for tourism.",
+    title: "AgentFlow Pro – AI Automation for Tourism",
+    description: "8 AI agents to automate your hotel. eTurizem integration, GDPR compliant.",
+    images: [`${baseUrl}/og-image.png`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "your-google-verification-code",
+    yandex: "your-yandex-verification-code",
   },
 };
 
@@ -60,6 +106,23 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+        
+        {/* Apple Touch Icon */}
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        
+        {/* Theme Color */}
+        <meta name="theme-color" content="#2563eb" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="AgentFlow Pro" />
+        
+        {/* Android */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        
+        {/* Service Worker Registration */}
+        <ServiceWorkerRegistration />
       </head>
       <body className={inter.className}>
         <ThemeInit />
