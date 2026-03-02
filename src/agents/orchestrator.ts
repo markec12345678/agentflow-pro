@@ -1,11 +1,30 @@
-import { Agent } from './Agent';
-import { Workflow } from '@prisma/client';
-import { AgentError } from './errors';
+import { Agent } from '../orchestrator/Orchestrator';
+
+interface OrchestratorAgentError {
+  agentId: string;
+  type: string;
+  message: string;
+  stack?: string;
+  timestamp: Date;
+}
+
+interface Workflow {
+  id: string;
+  name: string;
+  description?: string;
+  agentIds: string[];
+  config: Record<string, any>;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  nodes: any[];
+  edges: any[];
+}
 
 export interface WorkflowResult {
   success: boolean;
   results: Record<string, any>;
-  errors: AgentError[];
+  errors: OrchestratorAgentError[];
   executionTime: number;
   metrics: {
     agentsExecuted: number;
@@ -35,14 +54,14 @@ export class AgentOrchestrator {
   async executeWorkflow(workflow: Workflow): Promise<WorkflowResult> {
     const startTime = Date.now();
     const results: Record<string, any> = {};
-    const errors: AgentError[] = [];
+    const errors: OrchestratorAgentError[] = [];
     let parallelExecutions = 0;
     let retries = 0;
 
     try {
       // Parse workflow nodes and edges
-      const nodes = JSON.parse(workflow.nodes || '[]');
-      const edges = JSON.parse(workflow.edges || '[]');
+      const nodes = JSON.parse(JSON.stringify(workflow.nodes) || '[]');
+      const edges = JSON.parse(JSON.stringify(workflow.edges) || '[]');
 
       // Create execution plan
       const executionPlan = this.createExecutionPlan(nodes, edges);
@@ -97,7 +116,12 @@ export class AgentOrchestrator {
         }
       };
     } catch (error) {
-      errors.push(new AgentError('ORCHESTRATOR', error.message));
+      errors.push({
+        agentId: 'ORCHESTRATOR',
+        type: 'SYSTEM_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date()
+      });
       return {
         success: false,
         results,
@@ -161,10 +185,7 @@ export class AgentOrchestrator {
 
       return result;
     } catch (error) {
-      throw new AgentError(plan.agent.id, error.message, {
-        input: plan.input,
-        retryCount: plan.retryCount
-      });
+      throw new Error(`Agent execution failed: ${plan.agent.id} - ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }

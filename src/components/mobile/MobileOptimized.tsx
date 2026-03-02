@@ -196,6 +196,8 @@ export function MobileOptimized({
             <button
               onClick={onBack}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Go back"
+              title="Go back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -213,6 +215,8 @@ export function MobileOptimized({
             <button
               onClick={() => setShowSearchBar(!showSearchBar)}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Toggle search"
+              title="Toggle search"
             >
               <Search className="w-5 h-5" />
             </button>

@@ -1,5 +1,5 @@
 import { AgentError } from './orchestrator';
-import { Agent } from '../../orchestrator/Orchestrator';
+import { Agent } from '../orchestrator/Orchestrator';
 
 export interface RecoveryAction {
   type: 'retry' | 'skip' | 'fallback' | 'notify';
@@ -119,7 +119,7 @@ export class ErrorRecoverySystem {
     // Check if we should retry
     const retryCount = context.retryCount || 0;
 
-    if (retryCount >= strategy.maxRetries) {
+    if (retryCount >= (strategy.maxRetries || 3)) {
       return {
         type: 'notify',
         agentId: error.agentId,
@@ -146,37 +146,37 @@ export class ErrorRecoverySystem {
     error: AgentError,
     context: any
   ): Promise<RecoveryAction> {
-    return {
+    return Promise.resolve({
       type: 'fallback',
       agentId: error.agentId,
       message: strategy.message,
       suggestedFix: strategy.suggestedFix,
       fallbackData: strategy.fallbackData || { error: error.message, recovered: true }
-    };
+    });
   }
 
   private handleSkipStrategy(
     strategy: RecoveryStrategy,
     error: AgentError
   ): Promise<RecoveryAction> {
-    return {
+    return Promise.resolve({
       type: 'skip',
       agentId: error.agentId,
       message: strategy.message,
       suggestedFix: strategy.suggestedFix
-    };
+    });
   }
 
   private handleNotifyStrategy(
     strategy: RecoveryStrategy,
     error: AgentError
   ): Promise<RecoveryAction> {
-    return {
+    return Promise.resolve({
       type: 'notify',
       agentId: error.agentId,
       message: strategy.message,
       suggestedFix: strategy.suggestedFix
-    };
+    });
   }
 
   private handleUnknownError(error: AgentError): RecoveryAction {

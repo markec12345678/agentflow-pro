@@ -1,4 +1,4 @@
-import { Agent } from './Agent';
+import { Agent } from '../orchestrator/Orchestrator';
 import { getContextManager } from '../ai/context-manager';
 import { getWorkflowAdvisor } from '../ai/workflow-advisor';
 
@@ -21,6 +21,7 @@ export class AgentRegistry {
 
     // Set default metadata
     this.agentMetadata.set(agent.id, {
+      id: agent.id,
       name: agent.id,
       type: agent.type,
       version: '1.0.0',
