@@ -51,9 +51,12 @@ export function AppNav() {
 
   // Zapri ob navigaciji
   useEffect(() => {
-    setCreateOpen(false);
-    setUserOpen(false);
-    setMobileOpen(false);
+    const closeAllMenus = () => {
+      setCreateOpen(false);
+      setUserOpen(false);
+      setMobileOpen(false);
+    };
+    closeAllMenus();
   }, [pathname]);
 
   const isActive = (href: string) =>
