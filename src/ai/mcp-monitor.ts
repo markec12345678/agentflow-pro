@@ -3,7 +3,7 @@ import { getMCPOptimizer } from './mcp-optimizer';
 
 export class MCPHealthMonitor {
   private monitoringInterval: NodeJS.Timeout | null = null;
-  private healthHistory: MCPHealthRecord[] = [];
+  private healthHistory: MCPHealthReport[] = [];
   private maxHistory = 100;
 
   constructor(
@@ -99,7 +99,7 @@ export class MCPHealthMonitor {
         type: 'monitoring_error',
         severity: 'high',
         description: 'MCP Health Monitor encountered an error',
-        details: { error: error.message }
+        details: { error: error instanceof Error ? error.message : String(error) }
       });
       return report;
     }
@@ -445,7 +445,12 @@ export class MCPHealthMonitor {
 
   getCurrentStatus(): MCPHealthStatus {
     if (this.healthHistory.length === 0) {
-      return { status: 'unknown', lastCheck: null };
+      return { 
+      status: 'unknown', 
+      lastCheck: null,
+      mcpCount: 0,
+      issueCount: 0
+    };
     }
 
     const lastReport = this.healthHistory[this.healthHistory.length - 1];

@@ -1,6 +1,13 @@
-import { getContextManager } from './context-manager';
-import { getWorkflowAdvisor } from './workflow-advisor';
-import { Agent } from '../agents/Agent';
+// import { Agent } from '../agents/Agent';
+
+export interface Agent {
+  id: string;
+  type: string;
+  name: string;
+  description?: string;
+  capabilities: string[];
+  version: string;
+}
 
 export class MCPOptimizer {
   constructor(

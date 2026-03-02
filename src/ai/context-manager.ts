@@ -1,6 +1,13 @@
-import { MemoryMCP } from './memory-mcp';
-import { KnowledgeGraph } from './knowledge-graph';
-import { Agent } from '../agents/Agent';
+// import { Agent } from '../agents/Agent';
+
+export interface Agent {
+  id: string;
+  type: string;
+  name: string;
+  description?: string;
+  capabilities: string[];
+  version: string;
+}
 
 export interface EnhancedContext {
   query: string;

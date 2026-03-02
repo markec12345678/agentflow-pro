@@ -216,7 +216,8 @@ export class AgentRegistry {
         recommendedAgent: null,
         alternatives: [],
         confidence: 0,
-        reasoning: 'No suitable agents found for the required capabilities'
+        reasoning: 'No suitable agents found for the required capabilities',
+        contextUsed: false
       };
     }
 
@@ -538,10 +539,9 @@ export class AgentRegistry {
       recommendations.push({
         type: 'maintenance',
         description: 'Multiple agent versions in use',
-        affectedAgents: Array.from(versions).map(version => ({
-          version,
-          count: metadataList.filter(m => m.version === version).length
-        })),
+        affectedAgents: Array.from(versions).map(version => 
+          `v${version} (${metadataList.filter(m => m.version === version).length})`
+        ),
         suggestedActions: [
           'Standardize on latest stable versions',
           'Schedule upgrades for older versions',
