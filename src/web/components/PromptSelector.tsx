@@ -25,7 +25,10 @@ export function PromptSelector({
 
   useEffect(() => {
     if (defaultCategory !== "all") {
-      setCategory(defaultCategory);
+      const updateCategory = () => {
+        setCategory(defaultCategory);
+      };
+      updateCategory();
     }
   }, [defaultCategory]);
 
@@ -43,7 +46,7 @@ export function PromptSelector({
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className="flex-1 flex items-center justify-between gap-2 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-left focus-visible:ring-2 focus-visible:ring-blue-500"
-          aria-expanded={isOpen}
+          aria-expanded={isOpen ? "true" : "false"}
           aria-haspopup="listbox"
           aria-label={selectedPrompt ? `Selected: ${selectedPrompt.name}` : "Select prompt template"}
         >
@@ -85,7 +88,7 @@ export function PromptSelector({
                     : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                     }`}
                   aria-label={`Filter by ${key === "all" ? "all categories" : CATEGORY_LABELS[key]}`}
-                  aria-pressed={category === key}
+                  aria-pressed={category === key ? "true" : "false"}
                 >
                   {key === "all" ? "All" : CATEGORY_LABELS[key]}
                 </button>
