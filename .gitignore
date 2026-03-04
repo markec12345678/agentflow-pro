@@ -63,3 +63,5 @@ gpt4all-*.chat
 .cache
 cookies.txt
 test-login-body.json
+.vercel
+.env*.local
