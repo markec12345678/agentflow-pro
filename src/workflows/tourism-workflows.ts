@@ -6,8 +6,8 @@
 import { Orchestrator } from '../orchestrator/Orchestrator';
 import { createResearchAgent } from '../agents/research/ResearchAgent';
 import { createContentAgent } from '../agents/content/ContentAgent';
-import { createReservationAgent } from '../agents/reservation/reservationAgent';
-import { createCommunicationAgent } from '../agents/communication/communicationAgent';
+import { createReservationAgent } from '../agents/reservation/ReservationAgent';
+import { createCommunicationAgent } from '../agents/communication/CommunicationAgent';
 
 export interface TourismWorkflowInput {
   useCase: 'property_description' | 'tour_package' | 'destination_blog' | 'guest_automation' | 'social_media' | 'translation';
