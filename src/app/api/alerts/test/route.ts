@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
     try {
       switch (channel) {
         case 'email':
-          const devContact = getDevContact();
-          if (devContact.email) {
+          const receptionistContact = getReceptionistContact();
+          if (receptionistContact.email) {
             await sendEmail(
-              devContact.email,
+              receptionistContact.email,
               'Test Alert - AgentFlow Pro',
               message
             );
