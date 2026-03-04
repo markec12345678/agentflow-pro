@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       },
       sms: {
         enabled: false,
-        address: user.phone || '',
+        address: '', // user.phone field doesn't exist in schema
         severity: ['high', 'critical']
       },
       slack: {
