@@ -1,6 +1,18 @@
 {
   "installCommand": "npm install",
   "buildCommand": "npm run build:vercel",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "regions": ["fra1"],
+  "env": {
+    "MOCK_MODE": "true",
+    "NODE_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "MOCK_MODE": "true"
+    }
+  },
   "crons": [
     {
       "path": "/api/tourism/email-scheduler",
