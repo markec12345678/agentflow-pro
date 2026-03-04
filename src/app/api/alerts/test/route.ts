@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
     try {
       switch (channel) {
         case 'email':
-          const receptionistContact = getReceptionistContact();
-          if (receptionistContact.email) {
+          const emailContact = getReceptionistContact();
+          if (emailContact.email) {
             await sendEmail(
-              receptionistContact.email,
+              emailContact.email,
               'Test Alert - AgentFlow Pro',
               message
             );
@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
           break;
 
         case 'sms':
-          const receptionistContact = getReceptionistContact();
-          if (receptionistContact.phone) {
-            await sendSms(receptionistContact.phone, message);
+          const smsContact = getReceptionistContact();
+          if (smsContact.phone) {
+            await sendSms(smsContact.phone, message);
             result = { success: true, message: 'Test SMS sent successfully' };
           } else {
             result = { success: false, message: 'No phone number configured' };
