@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format, addDays, startOfDay } from "date-fns";
@@ -48,8 +48,9 @@ interface MaintenanceTask {
   dueDate?: string;
 }
 
-export default function RoomDetailPage({ params }: { params: { id: string } }) {
+export default function RoomDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [room, setRoom] = useState<Room | null>(null);
@@ -57,20 +58,25 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
   const [maintenanceTasks, setMaintenanceTasks] = useState<MaintenanceTask[]>([]);
   const [activeTab, setActiveTab] = useState<"details" | "reservations" | "maintenance">("details");
 
+  // Resolve params Promise
   useEffect(() => {
-    if (selectedPropertyId && params.id) {
+    params.then(setResolvedParams);
+  }, [params]);
+
+  useEffect(() => {
+    if (selectedPropertyId && resolvedParams?.id) {
       fetchRoomDetails();
       fetchReservations();
       fetchMaintenanceTasks();
     }
-  }, [selectedPropertyId, params.id]);
+  }, [selectedPropertyId, resolvedParams?.id]);
 
   const fetchRoomDetails = async () => {
-    if (!selectedPropertyId || !params.id) return;
+    if (!selectedPropertyId || !resolvedParams?.id) return;
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/properties/${selectedPropertyId}/rooms/${params.id}`);
+      const response = await fetch(`/api/tourism/properties/${selectedPropertyId}/rooms/${resolvedParams?.id}`);
       if (response.ok) {
         const data = await response.json();
         setRoom(data.room);
@@ -85,10 +91,10 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
   };
 
   const fetchReservations = async () => {
-    if (!selectedPropertyId || !params.id) return;
+    if (!selectedPropertyId || !resolvedParams?.id) return;
     
     try {
-      const response = await fetch(`/api/tourism/reservations?propertyId=${selectedPropertyId}&roomId=${params.id}`);
+      const response = await fetch(`/api/tourism/reservations?propertyId=${selectedPropertyId}&roomId=${resolvedParams?.id}`);
       if (response.ok) {
         const data = await response.json();
         setReservations(data.reservations || []);
@@ -101,10 +107,10 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
   };
 
   const fetchMaintenanceTasks = async () => {
-    if (!selectedPropertyId || !params.id) return;
+    if (!selectedPropertyId || !resolvedParams?.id) return;
     
     try {
-      const response = await fetch(`/api/tourism/maintenance/tasks?propertyId=${selectedPropertyId}&roomId=${params.id}`);
+      const response = await fetch(`/api/tourism/maintenance/tasks?propertyId=${selectedPropertyId}&roomId=${resolvedParams?.id}`);
       if (response.ok) {
         const data = await response.json();
         setMaintenanceTasks(data.tasks || []);
@@ -117,10 +123,10 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
   };
 
   const handleStatusChange = async (newStatus: string) => {
-    if (!params.id) return;
+    if (!resolvedParams?.id) return;
     
     try {
-      const response = await fetch(`/api/rooms/${params.id}/status`, {
+      const response = await fetch(`/api/rooms/${resolvedParams?.id}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -396,7 +402,7 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-semibold text-gray-900">Maintenance Tasks</h3>
                       <Link
-                        href={`/dashboard/rooms/${params.id}/maintenance/new`}
+                        href={`/dashboard/rooms/${resolvedParams?.id}/maintenance/new`}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                       >
                         Add Task
