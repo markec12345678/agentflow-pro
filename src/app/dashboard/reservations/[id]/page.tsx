@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format, addDays, startOfDay } from "date-fns";
@@ -67,8 +67,9 @@ interface Payment {
   notes?: string;
 }
 
-export default function ReservationDetailPage({ params }: { params: { id: string } }) {
+export default function ReservationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [reservation, setReservation] = useState<Reservation | null>(null);
@@ -77,18 +78,23 @@ export default function ReservationDetailPage({ params }: { params: { id: string
   const [payments, setPayments] = useState<Payment[]>([]);
   const [activeTab, setActiveTab] = useState<"details" | "guest" | "payments" | "actions">("details");
 
+  // Resolve params Promise
   useEffect(() => {
-    if (selectedPropertyId && params.id) {
+    params.then(setResolvedParams);
+  }, [params]);
+
+  useEffect(() => {
+    if (selectedPropertyId && resolvedParams?.id) {
       fetchReservationDetails();
     }
-  }, [selectedPropertyId, params.id]);
+  }, [selectedPropertyId, resolvedParams?.id]);
 
   const fetchReservationDetails = async () => {
-    if (!selectedPropertyId || !params.id) return;
-    
+    if (!selectedPropertyId || !resolvedParams?.id) return;
+
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/reservations/${params.id}?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/tourism/reservations/${resolvedParams.id}?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setReservation(data.reservation);
@@ -106,10 +112,10 @@ export default function ReservationDetailPage({ params }: { params: { id: string
   };
 
   const handleCheckIn = async () => {
-    if (!params.id) return;
-    
+    if (!resolvedParams?.id) return;
+
     try {
-      const response = await fetch(`/api/reservations/${params.id}/check-in`, {
+      const response = await fetch(`/api/reservations/${resolvedParams.id}/check-in`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -127,10 +133,10 @@ export default function ReservationDetailPage({ params }: { params: { id: string
   };
 
   const handleCheckOut = async () => {
-    if (!params.id) return;
-    
+    if (!resolvedParams?.id) return;
+
     try {
-      const response = await fetch(`/api/reservations/${params.id}/check-out`, {
+      const response = await fetch(`/api/reservations/${resolvedParams.id}/check-out`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -148,12 +154,12 @@ export default function ReservationDetailPage({ params }: { params: { id: string
   };
 
   const handleCancel = async () => {
-    if (!params.id) return;
-    
+    if (!resolvedParams?.id) return;
+
     if (!confirm("Are you sure you want to cancel this reservation?")) return;
-    
+
     try {
-      const response = await fetch(`/api/reservations/${params.id}/cancel`, {
+      const response = await fetch(`/api/reservations/${resolvedParams.id}/cancel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -171,10 +177,10 @@ export default function ReservationDetailPage({ params }: { params: { id: string
   };
 
   const handleAddPayment = async (paymentData: { type: string; amount: number; method: string; notes?: string }) => {
-    if (!params.id) return;
-    
+    if (!resolvedParams?.id) return;
+
     try {
-      const response = await fetch(`/api/reservations/${params.id}/payment`, {
+      const response = await fetch(`/api/reservations/${resolvedParams.id}/payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentData),
@@ -639,7 +645,7 @@ export default function ReservationDetailPage({ params }: { params: { id: string
                         <h4 className="font-medium text-gray-900 mb-2">Edit Reservation</h4>
                         <p className="text-sm text-gray-600 mb-4">Modify reservation details</p>
                         <Link
-                          href={`/dashboard/reservations/${params.id}/edit`}
+                          href={`/dashboard/reservations/${resolvedParams?.id || ''}/edit`}
                           className="block w-full px-4 py-2 bg-gray-600 text-white text-center rounded-lg hover:bg-gray-700"
                         >
                           Edit
