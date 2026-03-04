@@ -441,7 +441,7 @@ export default function RevenueReportPage() {
                           <div
                             className="h-2 rounded-full bg-green-500"
                             style={{
-                              width: `${Math.min((getRevenueValue(data) / Math.max(...revenueData.map(d => getRevenueValue(d)))) * 100}%`
+                              width: `${Math.min((getRevenueValue(data) / Math.max(...revenueData.map(d => getRevenueValue(d)))) * 100, 100)}%`
                             }}
                           ></div>
                         </div>
@@ -518,7 +518,7 @@ export default function RevenueReportPage() {
                             <div
                               className="h-2 rounded-full bg-purple-500"
                               style={{
-                                width: `${Math.min((roomType.revenue / Math.max(...roomTypeRevenue.map(rt => rt.revenue))) * 100}%`
+                                width: `${Math.min((roomType.revenue / Math.max(...roomTypeRevenue.map(rt => rt.revenue))) * 100, 100)}%`
                               }}
                             ></div>
                           </div>

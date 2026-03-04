@@ -15,7 +15,7 @@ import {
   AlertCircle, 
   Key, 
   Plug,
-  Sync,
+  RotateCcw,
   ExternalLink,
   Shield,
   Building
@@ -290,7 +290,7 @@ export default function IntegrationsPage() {
                         </>
                       ) : (
                         <>
-                          <Sync className="w-4 h-4 mr-2" />
+                          <RefreshCw className="w-4 h-4 mr-2" />
                           Sync Now
                         </>
                       )}

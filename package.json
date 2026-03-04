@@ -2,6 +2,7 @@
   "name": "agentflow-pro",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
   },
@@ -20,9 +21,12 @@
     "db:seed": "prisma db seed",
     "db:check": "npx tsx scripts/check-database.ts",
     "test": "jest",
+    "test:unit": "jest tests/",
+    "test:integration": "jest tests/hotel-management.test.js",
     "test:api": "jest tests/api",
     "test:tourism": "jest tests/tourism tests/api/tourism tests/lib/tourism",
     "test:e2e": "playwright test",
+    "test:e2e:hotel": "python tests/hotel-management-tests.py",
     "test:e2e:tourism": "playwright test tests/e2e/tourism tests/e2e/tourism-email tests/e2e/tourism-journey tests/e2e/copy-buttons --project=chromium",
     "test:e2e:checklist": "playwright test workflow-builder --project=chromium",
     "verify:production-env": "node scripts/verify-production-env.js",

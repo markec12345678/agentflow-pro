@@ -41,7 +41,7 @@ export const MCPBuilder: React.FC<MCPBuilderProps> = ({
 
   const addComponent = (type: string) => {
     const newComponent = {
-      id: `comp-${Date.now()}`,
+      id: `comp-${Math.random().toString(36).substr(2, 9)}`,
       type,
       position: { x: 10, y: 10 },
       properties: getDefaultProperties(type),

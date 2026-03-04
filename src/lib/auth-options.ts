@@ -145,5 +145,7 @@ export const authOptions = {
       return baseUrl;
     },
   },
-  pages: undefined, // Onemogočimo NextAuth redirect loop
+  pages: {
+    signIn: "/login", // Custom sign-in page
+  },
 } as NextAuthOptions;

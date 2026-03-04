@@ -43,9 +43,16 @@ export async function POST(request: NextRequest) {
     // Validate input with Zod schema
     const validationResult = createPropertySchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json({ 
-        error: "Validation failed", 
-        details: validationResult.error.errors 
+      // Check if name is missing specifically
+      const nameError = validationResult.error.issues.find(e => e.path.includes("name"));
+      if (nameError) {
+        return NextResponse.json({
+          error: "Property name is required"
+        }, { status: 400 });
+      }
+      return NextResponse.json({
+        error: "Validation failed",
+        details: validationResult.error.issues
       }, { status: 400 });
     }
 

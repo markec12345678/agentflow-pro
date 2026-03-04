@@ -264,7 +264,7 @@ export default function GuestsReportPage() {
   };
 
   const calculateMonthlyTrends = (guestList: Guest[]) => {
-    const monthlyData: { [key: string]: { guests: number; newGuests: number; returningGuests: number } } } = {};
+    const monthlyData: { [key: string]: { guests: number; newGuests: number; returningGuests: number } } = {};
     
     // Initialize months for the last 12 months
     const now = new Date();

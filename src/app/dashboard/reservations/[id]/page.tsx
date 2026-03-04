@@ -677,7 +677,7 @@ export default function ReservationDetailPage({ params }: { params: { id: string
               </div>
             </div>
           </>
-        )}
+        ) : null}
 
         {!selectedPropertyId && (
           <div className="text-center py-12">
