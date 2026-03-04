@@ -1,6 +1,7 @@
 use napi_derive::napi;
 use rust_decimal::Decimal;
-use chrono::NaiveDate;
+use rust_decimal::prelude::ToPrimitive;
+use chrono::{NaiveDate, Datelike};
 use serde::{Deserialize, Serialize};
 
 // ============================================================================
@@ -114,7 +115,7 @@ pub fn calculate_price(
     
     // Convert to Decimal for precise arithmetic
     let base_rate_dec = Decimal::from_f64_retain(base_rate).unwrap_or(Decimal::ZERO);
-    let nights_dec = Decimal::from_i32(nights).unwrap_or(Decimal::ONE);
+    let nights_dec = Decimal::from_i128_with_scale(nights as i128, 0);
     
     // Get season rate
     let rate_per_night = get_season_rate(
