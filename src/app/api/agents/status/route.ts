@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
+import { prisma } from "@/database/schema";
 
 // Mock data for AI Agents since this is a UI-focused task
 // In production, these would come from a database or a background process manager (Redis/BullMQ)
@@ -25,9 +26,15 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
+    // Get user role from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    });
+
     // Role check
-    const role = session?.user?.role;
-    if (role !== "admin" && role !== "director") {
+    const role = user?.role;
+    if (role !== "ADMIN" && role !== "EDITOR") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 

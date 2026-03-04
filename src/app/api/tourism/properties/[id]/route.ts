@@ -26,7 +26,40 @@ export async function GET(
     return NextResponse.json({ error: "Property not found" }, { status: 404 });
   }
 
-  return NextResponse.json(property);
+  // Get additional data
+  const [rooms, _count] = await Promise.all([
+    prisma.room.findMany({
+      where: { propertyId: id },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        capacity: true,
+        basePrice: true,
+      },
+      orderBy: { name: 'asc' }
+    }),
+    prisma.property.findUnique({
+      where: { id },
+      select: {
+        _count: {
+          select: {
+            rooms: true,
+            reservations: true,
+            guests: true,
+          },
+        },
+      },
+    }),
+  ]);
+
+  return NextResponse.json({
+    property: {
+      ...property,
+      rooms,
+      _count: _count?._count,
+    },
+  });
 }
 
 export async function PATCH(

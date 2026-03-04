@@ -1,13 +1,14 @@
-import { NextResponse } from "next/server";
+/**
+ * AgentFlow Pro - Next.js Middleware
+ * Temporarily disabled for testing
+ */
 
-// Disabled authentication for production
-export default function middleware(req) {
-  // Allow all access for production
+import { NextResponse } from 'next/server';
+
+export function middleware() {
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    // No protected paths for now
-  ],
+  matcher: [],
 };

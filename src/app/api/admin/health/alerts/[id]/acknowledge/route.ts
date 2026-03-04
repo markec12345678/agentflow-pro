@@ -31,7 +31,7 @@ export async function POST(
       select: { role: true, name: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -86,7 +86,7 @@ export async function POST(
     console.log('Acknowledged alert:', acknowledgedAlert);
 
     // Log activity
-    await logActivity(userId, "Alert Acknowledged", `Acknowledged alert: ${mockAlert.title}`, request.ip || "unknown");
+    await logActivity(userId, "Alert Acknowledged", `Acknowledged alert: ${mockAlert.title}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

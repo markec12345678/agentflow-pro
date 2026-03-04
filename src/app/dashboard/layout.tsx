@@ -24,7 +24,7 @@ const TOURISM_NAV = [
   { name: "Komunikacija", href: "/dashboard/tourism/guest-communication" },
   { name: "Generiraj", href: "/generate" },
   { name: "Predloge", href: "/dashboard/tourism/templates" },
-  { name: "Nastanitve", href: "/dashboard/tourism/properties" },
+  { name: "Nastanitve", href: "/dashboard/properties" },
   { name: "Landing strani", href: "/dashboard/tourism/landing" },
   { name: "Page Builder", href: "/dashboard/page-builder" },
   { name: "Itinerarji", href: "/dashboard/tourism/itineraries" },

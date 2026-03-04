@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
     console.log('Created health alert:', newAlert);
 
     // Log activity
-    await logActivity(userId, "Health Alert Created", `Created alert: ${title}`, request.ip || "unknown");
+    await logActivity(userId, "Health Alert Created", `Created alert: ${title}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

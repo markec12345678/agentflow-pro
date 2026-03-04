@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
       where: { id: userId },
       select: {
         email: true,
-        phone: true,
         notificationPreferences: true
       }
     });

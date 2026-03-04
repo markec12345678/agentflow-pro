@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -303,7 +303,7 @@ export async function POST(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -314,7 +314,7 @@ export async function POST(request: NextRequest) {
     const { format = "json", filters, includeDetails = false } = body;
 
     // Get test results (in real implementation, this would fetch from database)
-    const mockTestResults = [
+    const mockTestResults: TestResult[] = [
       {
         id: "result_1",
         suiteId: "unit-tests",
@@ -380,9 +380,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Log activity
-    await logActivity(userId, "Test Results Exported", `Exported ${filteredResults.length} test results in ${format} format`, request.ip || "unknown");
+    await logActivity(userId, "Test Results Exported", `Exported ${filteredResults.length} test results in ${format} format`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
 
-    return new NextResponse(exportData, {
+    return new NextResponse(exportData as BodyInit, {
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `attachment; filename="${filename}"`

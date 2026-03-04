@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -290,7 +290,7 @@ export async function POST(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -363,7 +363,7 @@ export async function POST(request: NextRequest) {
     console.log('Created/updated test schedule:', schedule);
 
     // Log activity
-    await logActivity(userId, body.id ? "Test Schedule Updated" : "Test Schedule Created", `${body.id ? 'Updated' : 'Created'} schedule: ${name}`, request.ip || "unknown");
+    await logActivity(userId, body.id ? "Test Schedule Updated" : "Test Schedule Created", `${body.id ? 'Updated' : 'Created'} schedule: ${name}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

@@ -429,7 +429,7 @@ export default function AnalyticsPage() {
                 <LineChart className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                 <p className="text-gray-500 dark:text-gray-400">Graf prihodkov</p>
                 <p className="text-sm text-gray-400 dark:text-gray-500">
-                  {data.revenue[selectedPeriod].reduce((sum, val) => sum + val, 0).toFixed(2)} €
+                  {(data.revenue[selectedPeriod as keyof Omit<typeof data.revenue, 'total' | 'trend' | 'change'>] as number[]).reduce((sum, val) => sum + val, 0).toFixed(2)} €
                 </p>
               </div>
             </div>
@@ -460,7 +460,7 @@ export default function AnalyticsPage() {
                 <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                 <p className="text-gray-500 dark:text-gray-400">Graf zasedenosti</p>
                 <p className="text-sm text-gray-400 dark:text-gray-500">
-                  Povprečje: {formatPercentage(data.occupancy[selectedPeriod].reduce((sum, val) => sum + val, 0) / data.occupancy[selectedPeriod].length)}
+                  Povprečje: {formatPercentage((data.occupancy[selectedPeriod as keyof Omit<typeof data.occupancy, 'average' | 'trend' | 'change'>] as number[]).reduce((sum, val) => sum + val, 0) / (data.occupancy[selectedPeriod as keyof Omit<typeof data.occupancy, 'average' | 'trend' | 'change'>] as number[]).length)}
                 </p>
               </div>
             </div>
@@ -490,9 +490,9 @@ export default function AnalyticsPage() {
                       <div
                         className="progress-bar-fill blue progress-width-24"
                         role="progressbar"
-                        aria-valuenow="24"
-                        aria-valuemin="0"
-                        aria-valuemax="100"
+                        aria-valuenow={24}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
                         aria-label="Progress: 24%"
                       ></div>
                     </div>
@@ -552,9 +552,9 @@ export default function AnalyticsPage() {
                         <div
                           className="progress-bar-fill green progress-width-18"
                           role="progressbar"
-                          aria-valuenow="18"
-                          aria-valuemin="0"
-                          aria-valuemax="100"
+                          aria-valuenow={18}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
                           aria-label="Slovenia: 18%"
                         ></div>
                       </div>
@@ -579,9 +579,9 @@ export default function AnalyticsPage() {
                         <div
                           className="progress-bar-fill blue progress-width-35"
                           role="progressbar"
-                          aria-valuenow="35"
-                          aria-valuemin="0"
-                          aria-valuemax="100"
+                          aria-valuenow={35}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
                           aria-label="25-34: 35%"
                         ></div>
                       </div>
@@ -606,9 +606,9 @@ export default function AnalyticsPage() {
                         <div
                           className="progress-bar-fill purple progress-width-42"
                           role="progressbar"
-                          aria-valuenow="42"
-                          aria-valuemin="0"
-                          aria-valuemax="100"
+                          aria-valuenow={42}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
                           aria-label="1-3 noči: 42%"
                         ></div>
                       </div>

@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
 import { prisma } from '@/database/schema';
+import type { User } from '@/lib/auth';
 
 export const dynamic = "force-dynamic";
 
@@ -83,7 +84,7 @@ export async function GET(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -218,7 +219,7 @@ export async function GET(request: NextRequest) {
           {
             name: "Test",
             status: "running",
-            duration: null,
+            duration: undefined,
             logs: [
               "Running unit tests...",
               "Currently running: 45/156 tests completed"
@@ -227,7 +228,7 @@ export async function GET(request: NextRequest) {
           {
             name: "Deploy",
             status: "pending",
-            duration: null,
+            duration: undefined,
             logs: ["Waiting for tests to complete"]
           }
         ],
@@ -428,7 +429,7 @@ export async function POST(request: NextRequest) {
       select: { role: true, name: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -437,6 +438,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { branch, commit, environment = "staging", pipelineConfig } = body;
+    const commitParam: string | undefined = commit || undefined;
 
     if (!branch) {
       return NextResponse.json(
@@ -446,10 +448,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Trigger pipeline run (in real implementation, this would trigger CI/CD system)
-    const pipelineRun = await triggerPipeline(branch, commit, environment, pipelineConfig, currentUser.name);
+    const pipelineRun = await triggerPipeline(branch, commitParam, environment, pipelineConfig, currentUser.name ?? '');
 
     // Log activity
-    await logActivity(userId, "Pipeline Triggered", `Triggered pipeline for branch: ${branch}`, request.ip || "unknown");
+    await logActivity(userId, "Pipeline Triggered", `Triggered pipeline for branch: ${branch}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,
@@ -467,7 +469,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-async function triggerPipeline(branch: string, commit?: string, environment = "staging", pipelineConfig?: any, triggeredBy?: string) {
+async function triggerPipeline(branch: string, commit?: string | undefined, environment = "staging", pipelineConfig?: any, triggeredBy?: string) {
   // In real implementation, this would:
   // 1. Trigger the CI/CD system (GitHub Actions, GitLab CI, Jenkins, etc.)
   // 2. Create pipeline run record
@@ -490,19 +492,19 @@ async function triggerPipeline(branch: string, commit?: string, environment = "s
       {
         name: "Build",
         status: "pending",
-        duration: null,
+        duration: undefined,
         logs: ["Pipeline triggered", "Waiting to start build stage"]
       },
       {
         name: "Test",
         status: "pending",
-        duration: null,
+        duration: undefined,
         logs: ["Waiting for build to complete"]
       },
       {
         name: "Deploy",
         status: "pending",
-        duration: null,
+        duration: undefined,
         logs: ["Waiting for tests to complete"]
       }
     ],

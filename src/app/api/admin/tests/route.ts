@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -301,7 +301,7 @@ export async function POST(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Admin access required' } },
         { status: 403 }
@@ -315,7 +315,7 @@ export async function POST(request: NextRequest) {
     const testResult = await runTests(suiteId, category, force);
 
     // Log activity
-    await logActivity(userId, "Tests Run", `Ran tests${suiteId ? ` for suite ${suiteId}` : category ? ` for category ${category}` : ' all tests'}`, request.ip || "unknown");
+    await logActivity(userId, "Tests Run", `Ran tests${suiteId ? ` for suite ${suiteId}` : category ? ` for category ${category}` : ' all tests'}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,
