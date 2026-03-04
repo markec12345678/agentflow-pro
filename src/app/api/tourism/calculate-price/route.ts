@@ -56,8 +56,10 @@ export async function GET(request: NextRequest) {
     }
 
     const baseRate = property.basePrice ?? 100;
-    const seasonRates = (property.seasonRates as SeasonRatesJson) ?? null;
-    const result = calculatePrice(baseRate, checkIn, checkOut, { seasonRates });
+    const seasonRates = property.seasonRates as SeasonRatesJson | null;
+    const result = calculatePrice(baseRate, checkIn, checkOut, { 
+      seasonRates: seasonRates ?? undefined 
+    });
     const currency = property.currency ?? "EUR";
 
     return NextResponse.json({
