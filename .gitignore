@@ -53,6 +53,8 @@ screenshots/
 *.node
 rust/target/
 rust/*/target/
+rust/*/index.js
+rust/*/index.d.ts
 
 # Rust
 rust/target/
