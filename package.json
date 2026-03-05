@@ -9,14 +9,12 @@
   "scripts": {
     "clean": "node -e \"const fs=require('fs');const p='.next';fs.existsSync(p)&&fs.rmSync(p,{recursive:true});console.log('Cleaned .next')\"",
     "dev": "npm run build:bindings:skip && next dev -p 3002",
-
     "build:bindings": "npm run build:bindings:pricing && npm run build:bindings:workflow",
     "build:bindings:pricing": "cd rust/pricing-engine && napi build --platform --release",
     "build:bindings:workflow": "cd rust/workflow-executor && napi build --platform --release",
     "build:bindings:pricing:debug": "cd rust/pricing-engine && napi build --platform",
     "build:bindings:workflow:debug": "cd rust/workflow-executor && napi build --platform",
     "build:bindings:skip": "echo Skipping NAPI build - using existing binary",
-
     "build": "npm run build:bindings:skip && next build",
     "build:vercel": "npm run build:rust && npm run build:bindings && next build",
     "build:rust": "cd rust && cargo build --workspace --release",
@@ -146,7 +144,7 @@
   },
   "devDependencies": {
     "@napi-rs/cli": "^3.5.1",
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "^1.58.2",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^3.0.0",
     "@types/jest": "^30.0.0",
