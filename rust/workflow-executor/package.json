@@ -1,0 +1,64 @@
+{
+  "name": "@agentflow/workflow-executor",
+  "version": "0.1.0",
+  "description": "High-performance workflow executor for AgentFlow Pro AI agent orchestration",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agentflow-pro/agentflow-pro",
+    "directory": "rust/workflow-executor"
+  },
+  "author": "AgentFlow Pro Team",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "*.node"
+  ],
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish --skip-gh-release",
+    "version": "napi version"
+  },
+  "os": [
+    "win32",
+    "linux",
+    "darwin"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "napi": {
+    "name": "agentflow-workflow",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "x86_64-pc-windows-msvc",
+        "x86_64-apple-darwin",
+        "x86_64-unknown-linux-gnu",
+        "aarch64-unknown-linux-gnu",
+        "aarch64-apple-darwin"
+      ]
+    }
+  },
+  "engines": {
+    "node": ">= 18"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "keywords": [
+    "agentflow",
+    "workflow",
+    "rust",
+    "napi",
+    "node-api",
+    "ai-agents",
+    "orchestration",
+    "performance"
+  ]
+}

@@ -1,0 +1,49 @@
+[package]
+name = "pricing-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "High-performance pricing engine for AgentFlow Pro tourism platform"
+license.workspace = true
+repository.workspace = true
+documentation = "https://github.com/agentflow-pro/agentflow-pro/tree/main/rust/pricing-engine"
+readme = "README.md"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "pricing_engine"
+
+[[bin]]
+name = "pricing-engine"
+path = "src/main.rs"
+required = false
+
+[features]
+default = ["napi"]
+napi = ["dep:napi", "dep:napi-derive"]
+
+[dependencies]
+# Core dependencies
+chrono.workspace = true
+rust_decimal.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+# NAPI-RS bindings (optional - for Node.js integration)
+napi = { workspace = true, optional = true }
+napi-derive = { workspace = true, optional = true }
+
+[dev-dependencies]
+criterion.workspace = true
+
+[build-dependencies]
+napi-build.workspace = true
+
+[[bench]]
+name = "pricing_benchmark"
+harness = false
+
+[package.metadata.napi]
+name = "agentflow-pricing"
+targets = { defaults = true, additional = ["x86_64-apple-darwin", "x86_64-unknown-linux-gnu"] }

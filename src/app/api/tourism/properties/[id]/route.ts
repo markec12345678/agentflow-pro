@@ -7,12 +7,8 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 export async function GET(
   _request: NextRequest,
@@ -30,7 +26,40 @@ export async function GET(
     return NextResponse.json({ error: "Property not found" }, { status: 404 });
   }
 
-  return NextResponse.json(property);
+  // Get additional data
+  const [rooms, _count] = await Promise.all([
+    prisma.room.findMany({
+      where: { propertyId: id },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        capacity: true,
+        basePrice: true,
+      },
+      orderBy: { name: 'asc' }
+    }),
+    prisma.property.findUnique({
+      where: { id },
+      select: {
+        _count: {
+          select: {
+            rooms: true,
+            reservations: true,
+            guests: true,
+          },
+        },
+      },
+    }),
+  ]);
+
+  return NextResponse.json({
+    property: {
+      ...property,
+      rooms,
+      _count: _count?._count,
+    },
+  });
 }
 
 export async function PATCH(
@@ -57,6 +86,7 @@ export async function PATCH(
     basePrice?: number;
     currency?: string;
     seasonRates?: { high?: { from: string; to: string; rate: number }[]; mid?: { from: string; to: string; rate: number }[]; low?: { from: string; to: string; rate: number }[] };
+    reservationAutoApprovalRules?: { enabled: boolean; channels?: string[]; maxAmount?: number };
   };
 
   const data: {
@@ -67,6 +97,7 @@ export async function PATCH(
     basePrice?: number | null;
     currency?: string | null;
     seasonRates?: object;
+    reservationAutoApprovalRules?: object;
   } = {};
   if (body.name !== undefined) data.name = body.name?.trim() || existing.name;
   if (body.location !== undefined) data.location = body.location?.trim() || null;
@@ -76,6 +107,8 @@ export async function PATCH(
     data.basePrice = typeof body.basePrice === "number" ? body.basePrice : null;
   if (body.currency !== undefined) data.currency = body.currency?.trim() || null;
   if (body.seasonRates !== undefined) data.seasonRates = body.seasonRates;
+  if (body.reservationAutoApprovalRules !== undefined)
+    data.reservationAutoApprovalRules = body.reservationAutoApprovalRules;
 
   const property = await prisma.property.update({
     where: { id },

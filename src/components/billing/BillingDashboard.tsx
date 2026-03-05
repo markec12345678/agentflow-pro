@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import '../styles/progress-bars.css';
 
 // Types
 interface BillingPlan {
@@ -184,8 +185,7 @@ export default function BillingDashboard() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${(usage.properties / 10) * 100}%` }}
+                            className={`bg-blue-600 h-2 rounded-full progress-width-${Math.round((usage.properties / 10) * 100 / 5) * 5}`}
                           />
                         </div>
                       </div>
@@ -196,8 +196,7 @@ export default function BillingDashboard() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${(usage.content / 500) * 100}%` }}
+                            className={`bg-blue-600 h-2 rounded-full progress-width-${Math.round((usage.content / 500) * 100 / 5) * 5}`}
                           />
                         </div>
                       </div>
@@ -208,8 +207,7 @@ export default function BillingDashboard() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${(usage.aiGenerations / 500) * 100}%` }}
+                            className={`bg-blue-600 h-2 rounded-full progress-width-${Math.round((usage.aiGenerations / 500) * 100 / 5) * 5}`}
                           />
                         </div>
                       </div>

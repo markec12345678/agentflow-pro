@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Skeleton, SkeletonText } from "@/web/components/Skeleton";
+import { PropertySelector } from "@/web/components/PropertySelector";
 import { generateFaqSchema } from "@/lib/tourism/faq-schema";
 import { DEFAULT_FAQS } from "@/data/tourism-faqs";
 
@@ -53,7 +54,13 @@ function escHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function sectionsToHtml(pages: PagesData, title: string, baseUrl?: string): string {
+function sectionsToHtml(
+  pages: PagesData,
+  title: string,
+  baseUrl?: string,
+  propertyId?: string | null,
+  apiBaseUrl?: string
+): string {
   const firstLang = Object.keys(pages)[0] ?? "sl";
   const first = pages[firstLang];
   if (!first) return "";
@@ -75,6 +82,43 @@ function sectionsToHtml(pages: PagesData, title: string, baseUrl?: string): stri
 
   const langCodes = Object.keys(pages);
   const base = baseUrl || process.env.NEXT_PUBLIC_APP_URL || "https://yoursite.com";
+  const apiBase = apiBaseUrl || process.env.NEXT_PUBLIC_APP_URL || "https://app.agentflow.pro";
+
+  const contactFormHtml =
+    propertyId && apiBase
+      ? `
+  <section id="contact">
+    <h2>Kontakt</h2>
+    <form id="inquiry-form">
+      <input type="hidden" name="propertyId" value="${escHtml(propertyId)}" />
+      <p><input type="text" name="name" placeholder="Ime" required minlength="2" style="width:100%;max-width:300px;padding:8px;margin:4px 0;" /></p>
+      <p><input type="email" name="email" placeholder="E-pošta" required style="width:100%;max-width:300px;padding:8px;margin:4px 0;" /></p>
+      <p><textarea name="message" placeholder="Sporočilo" required minlength="10" rows="4" style="width:100%;max-width:400px;padding:8px;margin:4px 0;"></textarea></p>
+      <button type="submit" style="padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;">Pošlji</button>
+    </form>
+    <div id="inquiry-result" style="margin-top:12px;"></div>
+    <script>
+(function(){
+  var form=document.getElementById('inquiry-form');
+  var result=document.getElementById('inquiry-result');
+  if(!form||!result)return;
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();
+    var fd=new FormData(form);
+    var body={propertyId:fd.get('propertyId'),name:fd.get('name'),email:fd.get('email'),message:fd.get('message')};
+    result.textContent='Pošiljam...';
+    try{
+      var res=await fetch('${apiBase.replace(/\/$/, "")}/api/tourism/inquiries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      var data=await res.json();
+      if(res.ok){result.textContent='Hvala! Sporočilo je poslano.';result.style.color='#059669';form.reset();}
+      else{result.textContent=data.error||'Napaka. Poskusite znova.';result.style.color='#dc2626';}
+    }catch(err){result.textContent='Napaka povezave. Poskusite znova.';result.style.color='#dc2626';}
+  });
+})();
+    <\\/script>
+  </section>`
+      : "";
+
   const hreflangLinks =
     langCodes.length > 1
       ? langCodes
@@ -101,6 +145,7 @@ function sectionsToHtml(pages: PagesData, title: string, baseUrl?: string): stri
   </header>
   <main>
 ${sectionsHtml}
+${contactFormHtml}
   </main>
 </body>
 </html>`;
@@ -126,6 +171,7 @@ export default function TourismLandingPage() {
     features: "",
     priceFrom: "65",
     baseUrl: process.env.NEXT_PUBLIC_APP_URL || "https://yoursite.com",
+    propertyId: null as string | null,
   });
   const [languages, setLanguages] = useState<string[]>(["sl", "en"]);
   const [pages, setPages] = useState<PagesData | null>(null);
@@ -153,7 +199,11 @@ export default function TourismLandingPage() {
       const page = data.page;
       if (page?.content && typeof page.content === "object") {
         setPages(page.content as PagesData);
-        setFormData((prev) => ({ ...prev, name: page.title ?? prev.name }));
+        setFormData((prev) => ({
+          ...prev,
+          name: page.title ?? prev.name,
+          propertyId: page.propertyId ?? null,
+        }));
         setTemplate(page.template ?? "tourism-basic");
         setLanguages(Array.isArray(page.languages) ? page.languages : ["sl", "en"]);
         setStep(3);
@@ -305,7 +355,17 @@ export default function TourismLandingPage() {
 
   const handleExportHtml = () => {
     if (!pages) return;
-    const html = sectionsToHtml(pages, formData.name, formData.baseUrl?.trim() || undefined);
+    const apiBase =
+      (typeof window !== "undefined" ? window.location.origin : null) ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "https://app.agentflow.pro";
+    const html = sectionsToHtml(
+      pages,
+      formData.name,
+      formData.baseUrl?.trim() || undefined,
+      formData.propertyId,
+      apiBase
+    );
     const blob = new Blob([html], { type: "text/html" });
     downloadBlob(blob, `landing-${formData.name.replace(/\s+/g, "-")}.html`);
     toast.success("Export HTML – shranjeno");
@@ -680,18 +740,29 @@ export default function TourismLandingPage() {
                 </button>
               </div>
             </div>
-            <div>
-              <label htmlFor="baseUrl" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                Base URL za hreflang (npr. https://moja-nastanitev.si)
-              </label>
-              <input
-                id="baseUrl"
-                type="url"
-                value={formData.baseUrl}
-                onChange={(e) => setFormData({ ...formData, baseUrl: e.target.value })}
-                placeholder="https://yoursite.com"
-                className="w-full max-w-md px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-sm"
-              />
+            <div className="space-y-3">
+              <div>
+                <label htmlFor="baseUrl" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                  Base URL za hreflang (npr. https://moja-nastanitev.si)
+                </label>
+                <input
+                  id="baseUrl"
+                  type="url"
+                  value={formData.baseUrl}
+                  onChange={(e) => setFormData({ ...formData, baseUrl: e.target.value })}
+                  placeholder="https://yoursite.com"
+                  className="w-full max-w-md px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                  Nastanitev za kontaktno formo (ob izbiri se vključi v Export HTML)
+                </label>
+                <PropertySelector
+                  value={formData.propertyId}
+                  onChange={(id) => setFormData({ ...formData, propertyId: id })}
+                />
+              </div>
             </div>
           </div>
           <div className="p-4 max-h-[60vh] overflow-y-auto space-y-6">

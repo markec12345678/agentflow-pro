@@ -58,6 +58,36 @@ async function main() {
     data: { activePropertyId: seedPropertyId },
   });
 
+  // Property - realistične slovenske turistične nastanitve
+  await prisma.property.upsert({
+    where: { id: "seed-property-kolpa" },
+    update: {},
+    create: {
+      id: "seed-property-kolpa",
+      userId: e2eUserId,
+      name: "Apartmaji ob Kolpi",
+      location: "Griblje, Bela krajina",
+      type: "apartma",
+      capacity: 6,
+      basePrice: 85,
+      currency: "EUR",
+    },
+  });
+  await prisma.property.upsert({
+    where: { id: "seed-property-bohinj" },
+    update: {},
+    create: {
+      id: "seed-property-bohinj",
+      userId: e2eUserId,
+      name: "Vila z razgledom na Bohinj",
+      location: "Bohinjska Bistrica",
+      type: "vila",
+      capacity: 8,
+      basePrice: 120,
+      currency: "EUR",
+    },
+  });
+
   // UserTemplate - 2 samples for tourism
   await prisma.userTemplate.upsert({
     where: { id: "seed-template-1" },

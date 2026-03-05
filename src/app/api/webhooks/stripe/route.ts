@@ -11,6 +11,7 @@ import {
   extractSubscriptionMetadata,
 } from "@/stripe/webhooks";
 import { prisma } from "@/database/schema";
+import { triggerAlert } from "@/alerts/smartAlerts";
 
 export async function POST(request: Request) {
   try {
@@ -107,6 +108,25 @@ export async function POST(request: Request) {
             stripeSubscriptionId: null,
           },
         });
+      },
+      "invoice.payment_failed": async (evt) => {
+        const invoice = evt.data.object as Stripe.Invoice;
+        const customerId =
+          typeof invoice.customer === "string"
+            ? invoice.customer
+            : (invoice.customer as { id?: string })?.id ?? null;
+        if (!customerId) return;
+
+        const sub = await prisma.subscription.findFirst({
+          where: { stripeCustomerId: customerId },
+          select: { userId: true },
+        });
+        if (!sub) return;
+
+        triggerAlert("payment_failed", {
+          userId: sub.userId,
+          detail: invoice.id ?? "unknown",
+        }).catch((e) => console.error("[SmartAlerts] payment_failed trigger failed:", e));
       },
     });
 

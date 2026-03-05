@@ -7,23 +7,23 @@ import { trackCTAClick } from "@/lib/analytics";
 
 const NAV_CONFIG = {
   solutions: {
-    label: "Rešitve",
+    label: "Solutions",
     items: [
       {
-        name: "Turizem & Gostinstvo",
+        name: "Tourism & Hospitality",
         href: "/solutions/industry/tourism",
-        desc: "Booking opisi, destinacijski vodiči, sezonske kampanje",
+        desc: "Booking descriptions, destination guides, seasonal campaigns",
         badge: "Popular",
       },
       {
-        name: "Marketing Agencije",
+        name: "Marketing Agencies",
         href: "/solutions",
-        desc: "Bulk generiranje, brand guardrails, client reporting",
+        desc: "Bulk generation, brand guardrails, client reporting",
       },
       {
-        name: "E-trgovina",
+        name: "E-commerce",
         href: "/solutions/industry/ecommerce",
-        desc: "Produktne opise, SEO, multi-language content",
+        desc: "Product descriptions, SEO, multi-language content",
       },
       {
         name: "Tech & SaaS",
@@ -33,25 +33,25 @@ const NAV_CONFIG = {
     ],
   },
   resources: {
-    label: "Vir",
+    label: "Resources",
     items: [
       {
-        name: "Dokumentacija",
+        name: "Documentation",
         href: "/docs",
         desc: "API reference, guides, tutorials",
       },
       {
-        name: "Video tutoriali",
+        name: "Video Tutorials",
         href: "/docs",
-        desc: "Kratki vodiči za vsako funkcijo",
+        desc: "Short guides for every feature",
       },
       {
-        name: "Case studies",
+        name: "Case Studies",
         href: "/stories",
-        desc: "Kako stranke dosegajo rezultate",
+        desc: "How customers achieve results",
       },
       {
-        name: "Podpora",
+        name: "Support",
         href: "/contact",
         desc: "FAQ, chat, email support",
       },
@@ -60,7 +60,7 @@ const NAV_CONFIG = {
 };
 
 const NAV_PRIMARY = [
-  { name: "Cene", href: "/pricing", highlight: false },
+  { name: "Pricing", href: "/pricing", highlight: false },
   { name: "Demo", href: "/#demo-video", highlight: false },
 ];
 
@@ -96,10 +96,11 @@ export function LandingNav() {
     <>
       <nav
         aria-label="Main navigation"
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${scrolled
-          ? "border-b border-gray-200/50 bg-white/95 shadow-lg backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/95"
-          : "bg-transparent"
-          }`}
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "border-b border-gray-200/50 bg-white/95 shadow-lg backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/95"
+            : "bg-transparent"
+        }`}
       >
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between lg:h-20">
@@ -112,7 +113,7 @@ export function LandingNav() {
                   AgentFlow Pro
                 </span>
                 <span className="-mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                  Vsebina + koledar
+                  Content + Calendar
                 </span>
               </div>
             </Link>
@@ -132,8 +133,18 @@ export function LandingNav() {
                     className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
                   >
                     {NAV_CONFIG.solutions.label}
-                    <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="h-4 w-4 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
                 ) : (
@@ -145,8 +156,18 @@ export function LandingNav() {
                     className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
                   >
                     {NAV_CONFIG.solutions.label}
-                    <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="h-4 w-4 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
                 )}
@@ -210,8 +231,18 @@ export function LandingNav() {
                     className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
                   >
                     {NAV_CONFIG.resources.label}
-                    <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="h-4 w-4 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
                 ) : (
@@ -222,8 +253,18 @@ export function LandingNav() {
                     className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-medium text-gray-700 transition-all hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
                   >
                     {NAV_CONFIG.resources.label}
-                    <svg className="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="h-4 w-4 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
                 )}
@@ -271,10 +312,11 @@ export function LandingNav() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`rounded-xl px-4 py-2.5 font-medium transition-all ${pathname === item.href
-                    ? "bg-blue-50/50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                    : "text-gray-700 hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
-                    }`}
+                  className={`rounded-xl px-4 py-2.5 font-medium transition-all ${
+                    pathname === item.href
+                      ? "bg-blue-50/50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                      : "text-gray-700 hover:bg-gray-100/50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-blue-400"
+                  }`}
                 >
                   {item.name}
                 </Link>
@@ -287,7 +329,7 @@ export function LandingNav() {
                   href="/login"
                   className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 inline-block cursor-pointer px-4 py-2.5 font-medium text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                 >
-                  Prijava
+                  Sign In
                 </Link>
                 <div className="relative isolate">
                   <span className="absolute -top-2 -right-2 z-10 rounded-full bg-red-500 px-2 py-1 text-xs font-bold text-white shadow-sm animate-pulse">
@@ -299,7 +341,9 @@ export function LandingNav() {
                   >
                     <span className="relative z-10 flex items-center gap-2">
                       🔥 Start Free Trial
-                      <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+                      <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">
+                        →
+                      </span>
                     </span>
                   </Link>
                 </div>
@@ -313,8 +357,18 @@ export function LandingNav() {
                   className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               ) : (
@@ -325,8 +379,18 @@ export function LandingNav() {
                   className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
                   onClick={() => setMobileMenuOpen(true)}
                 >
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
                   </svg>
                 </button>
               )}
@@ -336,17 +400,18 @@ export function LandingNav() {
             <div className="container mx-auto flex flex-col items-center gap-1 px-4 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-6">
               <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400 sm:gap-6">
                 <span className="flex items-center gap-1.5">
-                  <span className="text-emerald-500">✓</span> Brez kreditne kartice
+                  <span className="text-emerald-500">✓</span> No credit card
+                  required
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="text-emerald-500">✓</span> 7-dnevni brezplačni preizkus
+                  <span className="text-emerald-500">✓</span> 7-day free trial
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="text-emerald-500">✓</span> Prekliči kadarkoli
+                  <span className="text-emerald-500">✓</span> Cancel anytime
                 </span>
               </div>
               <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-                🎉 247 turističnih ponudnikov se je pridružilo ta teden
+                🎉 247 tourism providers joined this week
               </p>
             </div>
           </div>
@@ -448,7 +513,7 @@ export function LandingNav() {
                 className="mb-3 flex min-h-[44px] w-full items-center justify-center font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Prijava
+                Sign In
               </Link>
               <div className="relative">
                 <span className="absolute -top-2 right-4 rounded-full bg-red-500 px-2 py-1 text-xs font-bold text-white animate-pulse">
@@ -464,12 +529,14 @@ export function LandingNav() {
                 >
                   <span className="flex items-center justify-center gap-2">
                     🔥 Start Free Trial
-                    <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+                    <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">
+                      →
+                    </span>
                   </span>
                 </Link>
               </div>
               <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
-                🎉 247 turističnih ponudnikov se je pridružilo ta teden
+                🎉 247 tourism providers joined this week
               </p>
             </div>
           </div>

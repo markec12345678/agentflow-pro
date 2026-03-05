@@ -1,0 +1,28 @@
+---
+inclusion: fileMatch
+fileMatchPattern: ['tests/**/*']
+---
+
+# AgentFlow Testing Rules
+
+## Unit Tests
+
+- Minimum 80% code coverage
+- Test all agent functions
+- Test edge cases
+- Mock MCP calls
+
+## E2E Tests (Playwright)
+
+- Test user registration flow
+- Test workflow creation
+- Test agent execution
+- Test payment flow
+- Run tests before every deploy
+
+## Performance Tests
+
+- Load test: 100 concurrent users
+- Response time: <2s average
+- Memory queries: <500ms
+- Database queries: optimized

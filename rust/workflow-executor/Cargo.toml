@@ -1,0 +1,49 @@
+[package]
+name = "workflow-executor"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "High-performance workflow executor for AgentFlow Pro AI agent orchestration"
+license.workspace = true
+repository.workspace = true
+documentation = "https://github.com/agentflow-pro/agentflow-pro/tree/main/rust/workflow-executor"
+readme = "README.md"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "workflow_executor"
+
+[[bin]]
+name = "workflow-executor"
+path = "src/main.rs"
+required = false
+
+[features]
+default = ["napi"]
+napi = ["dep:napi", "dep:napi-derive"]
+
+[dependencies]
+# Core dependencies
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+uuid.workspace = true
+futures.workspace = true
+async-trait.workspace = true
+
+# NAPI-RS bindings (optional - for Node.js integration)
+napi = { workspace = true, optional = true }
+napi-derive = { workspace = true, optional = true }
+
+[dev-dependencies]
+criterion.workspace = true
+tokio-test.workspace = true
+
+[build-dependencies]
+napi-build.workspace = true
+
+[package.metadata.napi]
+name = "agentflow-workflow"
+triples = { defaults = true, additional = ["x86_64-pc-windows-msvc", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu"] }

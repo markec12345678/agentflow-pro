@@ -2,6 +2,21 @@
 
 Lighthouse baseline in cilji za tourism strani.
 
+## Step-by-step runbook
+
+1. **Build and start:**
+   ```bash
+   npm run build
+   npm run start
+   ```
+2. Odpri `http://localhost:3002`, prijavi se.
+3. Za vsako stran v spodnji tabeli:
+   - Odpri URL
+   - Chrome DevTools (F12) → Lighthouse tab
+   - Run audit (Performance, Accessibility, Best Practices, SEO)
+   - Zapiši rezultate v tabelo
+4. **Mobile audit:** DevTools → Toggle device toolbar (Ctrl+Shift+M) → izberi 375px, nato 768px → ponovi Lighthouse
+
 ## Zaženi audit
 
 ```bash

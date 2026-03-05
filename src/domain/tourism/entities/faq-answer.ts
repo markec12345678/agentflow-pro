@@ -10,4 +10,5 @@ export interface FaqAnswer {
   matchedQuestion?: string;
   alternatives?: Array<{ question: string; answer: string }>;
   contactInfo?: { phone: string; email: string };
+  faqLogId?: string;
 }

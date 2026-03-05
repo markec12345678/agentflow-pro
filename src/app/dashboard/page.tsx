@@ -4,6 +4,12 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { TodayOverview } from "@/web/components/TodayOverview";
+import { DashboardKPIs } from "@/web/components/DashboardKPIs";
+import { DashboardAlerts, type DashboardAlert } from "@/web/components/DashboardAlerts";
+import { ReservationChart } from "@/web/components/ReservationChart";
+import { QuickActionsPanel } from "@/web/components/QuickActionsPanel";
+import { StatusIndicator } from "@/web/components/StatusIndicator";
+import "@/styles/progress-bars.css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ContentItem {
@@ -31,6 +37,20 @@ interface BootData {
   hasContent?: boolean;
   recentContent?: ContentItem[];
   checkpoints?: Checkpoint[];
+  alerts?: DashboardAlert[];
+  summary?: {
+    totalRevenue: number;
+    occupancyRate: number;
+    totalBookings: number;
+    avgStayLength: number;
+  };
+  channelPerformance?: {
+    direct: number;
+    bookingcom: number;
+    airbnb: number;
+    expedia: number;
+    other: number;
+  };
 }
 
 // ─── Onboarding Checklist ─────────────────────────────────────────────────────
@@ -43,8 +63,23 @@ const CHECKLIST_STEPS = [
 ];
 
 function OnboardingChecklist({ boot }: { boot?: BootData | null }) {
-  const [dismissed, setDismissed] = useState(false);
-  const [completed, setCompleted] = useState<string[]>(["register"]);
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        return !!localStorage.getItem("agentflow-checklist-dismissed");
+      } catch { return false; }
+    }
+    return false;
+  });
+  const [completed, setCompleted] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("agentflow-checklist");
+        return saved ? JSON.parse(saved) : ["register"];
+      } catch { return ["register"]; }
+    }
+    return ["register"];
+  });
   const hasProperty = boot?.hasProperty ?? null;
   const hasContent = boot?.hasContent ?? null;
 
@@ -53,15 +88,6 @@ function OnboardingChecklist({ boot }: { boot?: BootData | null }) {
     if (id === "content") return hasContent === true;
     return completed.includes(id);
   };
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("agentflow-checklist");
-      if (saved) setCompleted(JSON.parse(saved));
-      const dis = localStorage.getItem("agentflow-checklist-dismissed");
-      if (dis) setDismissed(true);
-    } catch { }
-  }, []);
 
   const markDone = (id: string) => {
     const next = [...completed, id];
@@ -91,7 +117,7 @@ function OnboardingChecklist({ boot }: { boot?: BootData | null }) {
         <button onClick={dismiss} className="text-gray-400 hover:text-gray-600 text-xl leading-none" aria-label="Zapri">×</button>
       </div>
       <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mb-5">
-        <div className="progress-fill bg-blue-600 h-2 rounded-full transition-all duration-500" style={{ ["--progress" as string]: `${pct}%` }} />
+        <div className={`progress-fill bg-blue-600 h-2 rounded-full transition-all duration-500 progress-width-${Math.round(pct / 5) * 5}`} />
       </div>
       <div className="space-y-3">
         {CHECKLIST_STEPS.map(step => {
@@ -207,42 +233,6 @@ function RecentContent({ items, loading }: { items: ContentItem[]; loading?: boo
   );
 }
 
-// ─── KPI Widgets + Usage Progress ──────────────────────────────────────────────
-function UsageKPICards({ usage }: { usage?: BootData["usage"] | null }) {
-  if (!usage) return null;
-
-  const planLabels: Record<string, string> = {
-    free: "Free", starter: "Starter", pro: "Pro", enterprise: "Enterprise",
-  };
-  const runsPct = usage.limit > 0 ? Math.min(100, (usage.agentRuns / usage.limit) * 100) : 0;
-  const creditsPct = usage.creditsLimit > 0 ? Math.min(100, (usage.creditsUsed / usage.creditsLimit) * 100) : 0;
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
-        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Agent runovi</p>
-        <p className="text-xl font-bold text-gray-900 dark:text-white">{usage.agentRuns} / {usage.limit}</p>
-        <div className="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className="progress-fill h-full bg-blue-500 rounded-full transition-all" style={{ ["--progress" as string]: `${runsPct}%` }} />
-        </div>
-      </div>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
-        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Credits</p>
-        <p className="text-xl font-bold text-gray-900 dark:text-white">{usage.creditsUsed} / {usage.creditsLimit}</p>
-        <div className="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className="progress-fill h-full bg-green-500 rounded-full transition-all" style={{ ["--progress" as string]: `${creditsPct}%` }} />
-        </div>
-      </div>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 flex flex-col justify-center">
-        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Plan</p>
-        <Link href="/settings" className="text-lg font-bold text-blue-600 dark:text-blue-400 hover:underline">
-          {planLabels[usage.planId] ?? usage.planId}
-        </Link>
-      </div>
-    </div>
-  );
-}
-
 // ─── Seasonal Banner ──────────────────────────────────────────────────────────
 function SeasonalBanner() {
   const now = new Date();
@@ -343,89 +333,125 @@ export default function DashboardPage() {
 
   const recentItems: ContentItem[] = boot?.recentContent ?? [];
   const checkpoints: Checkpoint[] = Array.isArray(boot?.checkpoints) ? boot.checkpoints : [];
+  const alerts: DashboardAlert[] = boot?.alerts ?? [];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {getGreeting()}, {firstName}! 👋
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Kaj boste naredili danes?</p>
-        </div>
-
-        {/* KPI + Usage */}
-        <UsageKPICards usage={boot?.usage} />
-
-        {/* Seasonal Banner */}
-        <SeasonalBanner />
-
-        {/* Approval Queue */}
-        <ApprovalQueue initialCheckpoints={checkpoints} />
-
-        {/* Onboarding Checklist */}
-        <OnboardingChecklist boot={boot} />
-
-        {/* Tourism Today - prihod/odhod za receptorje */}
-        <TourismTodayWidget boot={boot} />
-
-        {/* 3 Main Actions */}
-        <div className="grid sm:grid-cols-3 gap-5 mb-10">
-          <QuickCard
-            emoji="✍️"
-            title="Ustvari vsebino"
-            desc="Opis sobe, blog post, social objava"
-            href="/generate"
-            color="border-blue-500"
-          />
-          <QuickCard
-            emoji="📧"
-            title="Email za goste"
-            desc="Dobrodošlica, opomnilo, zahvala"
-            href="/generate?template=guest-welcome-email"
-            color="border-green-500"
-          />
-          <QuickCard
-            emoji="🌐"
-            title="Landing stran"
-            desc="SEO strani za direktne rezervacije"
-            href="/generate?template=landing-page"
-            color="border-purple-500"
-          />
-        </div>
-
-        {/* Secondary Actions */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
-          {[
-            { emoji: "🏨", label: "Booking.com opis", href: "/generate?template=booking-description" },
-            { emoji: "✈️", label: "Airbnb story", href: "/generate?template=airbnb-story" },
-            { emoji: "📍", label: "Vodič destinacije", href: "/generate?template=destination-guide" },
-            { emoji: "📱", label: "Instagram caption", href: "/generate?template=instagram-travel" },
-          ].map(item => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 shadow-sm hover:shadow-md transition-all text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-100 dark:border-gray-700"
-            >
-              <span>{item.emoji}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </div>
-
-        {/* Recent Content */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">📁 Zadnja vsebina</h2>
-            <Link href="/content" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">Vse →</Link>
+        {/* Header with Health Status */}
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {getGreeting()}, {firstName}! 👋
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Vaš AgentFlow Pro pregled za danes.</p>
           </div>
-          <RecentContent items={recentItems} loading={boot === null} />
+          <div className="flex items-center gap-3">
+            <StatusIndicator status="success" label="Sistem deluje" size="sm" />
+          </div>
+        </div>
+
+        {/* Critical Alerts */}
+        <DashboardAlerts alerts={alerts} />
+
+        {/* KPIs (Revenue, Occupancy, etc.) */}
+        <DashboardKPIs summary={boot?.summary ?? null} loading={!boot} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Main Content Column */}
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* Today Overview (Arrivals/Departures) */}
+            <TourismTodayWidget boot={boot} />
+
+            {/* Reservation Source Chart */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">📊 Viri rezervacij (Avtomatske vs. Ročne)</h2>
+              <ReservationChart data={boot?.channelPerformance ?? null} loading={!boot} />
+            </div>
+
+            {/* Approval Queue */}
+            <ApprovalQueue initialCheckpoints={checkpoints} />
+
+            {/* Onboarding Checklist */}
+            <OnboardingChecklist boot={boot} />
+
+            {/* 3 Main Actions */}
+            <div className="grid sm:grid-cols-3 gap-5">
+              <QuickCard
+                emoji="✍️"
+                title="Ustvari vsebino"
+                desc="Opis sobe, blog post, social objava"
+                href="/generate"
+                color="border-blue-500"
+              />
+              <QuickCard
+                emoji="📧"
+                title="Email za goste"
+                desc="Dobrodošlica, opomnilo, zahvala"
+                href="/generate?template=guest-welcome-email"
+                color="border-green-500"
+              />
+              <QuickCard
+                emoji="🌐"
+                title="Landing stran"
+                desc="SEO strani za direktne rezervacije"
+                href="/generate?template=landing-page"
+                color="border-purple-500"
+              />
+            </div>
+
+            {/* Secondary Actions */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { emoji: "🏨", label: "Booking.com opis", href: "/generate?template=booking-description" },
+                { emoji: "✈️", label: "Airbnb story", href: "/generate?template=airbnb-story" },
+                { emoji: "📍", label: "Vodič destinacije", href: "/generate?template=destination-guide" },
+                { emoji: "📱", label: "Instagram caption", href: "/generate?template=instagram-travel" },
+              ].map(item => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 shadow-sm hover:shadow-md transition-all text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-100 dark:border-gray-700"
+                >
+                  <span>{item.emoji}</span>
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Sidebar Column */}
+          <div className="space-y-8">
+            
+            {/* Quick Actions Panel */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">⚡ Hitre akcije</h2>
+              <QuickActionsPanel propertyId={boot?.activePropertyId ?? null} isReceptionMode={true} />
+            </div>
+
+            {/* Seasonal Banner */}
+            <SeasonalBanner />
+
+            {/* Recent Content */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">📄 Nedavna vsebina</h2>
+              <RecentContent items={recentItems} loading={!boot} />
+            </div>
+
+            {/* Usage Progress */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">📊 Poraba</h2>
+              <UsageProgress usage={boot?.usage} />
+            </div>
+
+          </div>
         </div>
 
         {/* Advanced toggle */}
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <div className="mt-12 border-t border-gray-200 dark:border-gray-700 pt-6">
           <button
             onClick={() => setShowAdvanced(v => !v)}
             className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
@@ -460,6 +486,36 @@ export default function DashboardPage() {
           )}
         </div>
 
+      </div>
+    </div>
+  );
+}
+
+// ─── Usage Progress Small Widget ──────────────────────────────────────────────
+function UsageProgress({ usage }: { usage?: BootData["usage"] | null }) {
+  if (!usage) return null;
+  const runsPct = usage.limit > 0 ? Math.min(100, (usage.agentRuns / usage.limit) * 100) : 0;
+  const creditsPct = usage.creditsLimit > 0 ? Math.min(100, (usage.creditsUsed / usage.creditsLimit) * 100) : 0;
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <div className="flex justify-between text-xs mb-1">
+          <span className="text-gray-500">Agent runovi</span>
+          <span className="font-medium">{usage.agentRuns} / {usage.limit}</span>
+        </div>
+        <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className={`progress-fill h-full bg-blue-500 rounded-full transition-all progress-width-${Math.round(runsPct / 5) * 5}`} />
+        </div>
+      </div>
+      <div>
+        <div className="flex justify-between text-xs mb-1">
+          <span className="text-gray-500">Credits</span>
+          <span className="font-medium">{usage.creditsUsed} / {usage.creditsLimit}</span>
+        </div>
+        <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className={`progress-fill h-full bg-green-500 rounded-full transition-all progress-width-${Math.round(creditsPct / 5) * 5}`} />
+        </div>
       </div>
     </div>
   );

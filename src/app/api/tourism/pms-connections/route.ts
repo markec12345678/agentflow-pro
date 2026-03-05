@@ -7,16 +7,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
 import {
   getPropertyForUser,
   getPropertyIdsForUser,
 } from "@/lib/tourism/property-access";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);

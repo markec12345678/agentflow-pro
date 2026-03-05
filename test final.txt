@@ -1,0 +1,572 @@
+<#
+.SYNOPSIS
+    AgentFlow Pro - Complete Test Suite
+    Testira VSE komponente: MCP, Skills, API, Database, WebSocket, Features
+
+.USAGE
+    .\scripts\test-complete.ps1
+    .\scripts\test-complete.ps1 -Environment production
+    .\scripts\test-complete.ps1 -TestCategory API
+    .\scripts\test-complete.ps1 -ExportResults -Verbose
+#>
+
+[CmdletBinding()]
+param(
+    [ValidateSet('development', 'staging', 'production')]
+    [string]$Environment = 'development',
+    
+    [ValidateSet('ALL', 'API', 'MCP', 'SKILLS', 'DATABASE', 'WEBSOCKET', 'FEATURES')]
+    [string[]]$TestCategory = @('ALL'),
+    
+    [switch]$ExportResults,
+    [switch]$Verbose,
+    [switch]$DryRun
+)
+
+# ============================================================================
+# 🎨 Konfiguracija
+# ============================================================================
+
+$Script:StartTime = Get-Date
+$Script:TestsPassed = 0
+$Script:TestsFailed = 0
+$Script:TestsSkipped = 0
+$Script:Results = @()
+$Script:ProjectRoot = Split-Path -Parent $PSScriptRoot
+
+$BaseUrl = switch ($Environment) {
+    'production' { 'https://agentflow.pro' }
+    'staging'    { 'https://staging.agentflow.pro' }
+    default      { 'http://localhost:3002' }
+}
+
+$Colors = @{
+    Success = 'Green'
+    Error   = 'Red'
+    Warning = 'Yellow'
+    Info    = 'Cyan'
+    Dim     = 'Gray'
+}
+
+# ============================================================================
+# 🛠️ Helper Functions
+# ============================================================================
+
+function Write-TestHeader {
+    param([string]$Title)
+    Write-Host "`n🔍 $Title" -ForegroundColor $Colors.Info
+    Write-Host $('=' * 70) -ForegroundColor $Colors.Dim
+}
+
+function Write-TestResult {
+    param(
+        [string]$TestName,
+        [bool]$Passed,
+        [string]$Message = '',
+        [string]$Category = 'general',
+        [string]$Severity = 'normal'
+    )
+    
+    $icon = if ($Passed) { '✅' } elseif ($Severity -eq 'critical') { '🔴' } else { '❌' }
+    $color = if ($Passed) { $Colors.Success } elseif ($Severity -eq 'critical') { $Colors.Error } else { $Colors.Warning }
+    
+    Write-Host "  $icon $TestName" -ForegroundColor $color
+    if ($Message) { Write-Host "     ↳ $Message" -ForegroundColor $Colors.Dim }
+    
+    $Script:Results += [PSCustomObject]@{
+        Timestamp  = Get-Date -Format 'o'
+        Category   = $Category
+        Test       = $TestName
+        Passed     = $Passed
+        Message    = $Message
+        Severity   = $Severity
+    }
+    
+    if ($Passed) { $Script:TestsPassed++ } 
+    elseif ($Severity -eq 'warning') { $Script:TestsSkipped++ }
+    else { $Script:TestsFailed++ }
+}
+
+function Invoke-APITest {
+    param(
+        [string]$Endpoint,
+        [string]$Method = 'Get',
+        $Body = $null,
+        $Headers = @{},
+        [int]$TimeoutSec = 30,
+        [string]$TestCategory = 'api'
+    )
+    
+    try {
+        $params = @{
+            Uri = "$BaseUrl$Endpoint"
+            Method = $Method
+            TimeoutSec = $TimeoutSec
+            ErrorAction = 'Stop'
+        }
+        
+        if ($Body) {
+            $params.ContentType = 'application/json'
+            $params.Body = ($Body | ConvertTo-Json -Depth 10)
+        }
+        
+        if ($Headers.Count -gt 0) {
+            $params.Headers = $Headers
+        }
+        
+        $response = Invoke-RestMethod @params
+        return @{ Success = $true; Data = $response }
+    }
+    catch {
+        return @{ Success = $false; Error = $_.Exception.Message }
+    }
+}
+
+function Test-FileExists {
+    param([string]$Path)
+    $fullPath = Join-Path $Script:ProjectRoot $Path
+    return Test-Path $fullPath
+}
+
+function Get-FileSize {
+    param([string]$Path)
+    $fullPath = Join-Path $Script:ProjectRoot $Path
+    if (Test-Path $fullPath) {
+        $size = (Get-Item $fullPath).Length
+        return [Math]::Round($size / 1KB, 2)
+    }
+    return 0
+}
+
+# ============================================================================
+# 🧪 TEST 1: Project Structure & Files
+# ============================================================================
+
+function Test-ProjectStructure {
+    Write-TestHeader "TEST 1: Project Structure & Files"
+    
+    # Core files
+    $coreFiles = @(
+        "package.json",
+        "next.config.ts",
+        "tsconfig.json",
+        "prisma/schema.prisma",
+        ".env"
+    )
+    
+    foreach ($file in $coreFiles) {
+        $exists = Test-FileExists $file
+        Write-TestResult "$file exists" $exists $file 'structure'
+    }
+    
+    # Key directories
+    $directories = @(
+        "src/app",
+        "src/lib",
+        "src/components",
+        "src/hooks",
+        "src/types",
+        "prisma",
+        "public"
+    )
+    
+    foreach ($dir in $directories) {
+        $exists = Test-Path (Join-Path $Script:ProjectRoot $dir)
+        Write-TestResult "$dir directory" $exists $dir 'structure'
+    }
+    
+    # Count total lines of code
+    $tsFiles = Get-ChildItem -Path (Join-Path $Script:ProjectRoot "src") -Recurse -Include "*.ts","*.tsx"
+    $totalLines = ($tsFiles | Get-Content | Measure-Object -Line).Lines
+    Write-Host "  📊 Total TypeScript Lines: $totalLines" -ForegroundColor $Colors.Info
+    Write-TestResult "Codebase size" ($totalLines -gt 50000) "$totalLines lines" 'structure'
+}
+
+# ============================================================================
+# 🧪 TEST 2: MCP Integrations
+# ============================================================================
+
+function Test-MCPIntegrations {
+    Write-TestHeader "TEST 2: MCP Integrations"
+    
+    # Check MCP files exist
+    $mcpFiles = @(
+        "src/app/api/mcp/available/route.ts",
+        "src/app/api/mcp/call/route.ts",
+        "src/app/api/mcp/functions/route.ts",
+        "src/app/api/mcp-builder/load/route.ts",
+        "src/app/api/mcp-builder/save/route.ts",
+        "src/ai/context-manager.ts",
+        "src/ai/mcp-monitor.ts",
+        "src/ai/mcp-optimizer.ts"
+    )
+    
+    foreach ($file in $mcpFiles) {
+        $exists = Test-FileExists $file
+        Write-TestResult "MCP: $file" $exists $file 'mcp'
+    }
+    
+    # Test MCP API endpoint
+    if ($TestCategory -contains 'ALL' -or $TestCategory -contains 'MCP') {
+        $result = Invoke-APITest -Endpoint "/api/mcp/available" -TestCategory 'mcp'
+        if ($result.Success) {
+            Write-TestResult "MCP Available API" $true "$($result.Data.mcps.Count) MCPs available" 'mcp'
+        } else {
+            Write-TestResult "MCP Available API" $false $result.Error 'mcp' 'critical'
+        }
+    }
+    
+    # Check environment variables
+    $envVars = @('GITHUB_TOKEN', 'FIRECRAWL_API_KEY', 'CONTEXT7_API_KEY', 'VERCEL_TOKEN')
+    foreach ($var in $envVars) {
+        $value = Get-Content (Join-Path $Script:ProjectRoot ".env") -ErrorAction SilentlyContinue | Where-Object {$_ -match "^$var="}
+        $hasValue = $value -and ($value -split "=")[1] -ne ""
+        Write-TestResult "Env: $var" $hasValue $var 'mcp'
+    }
+}
+
+# ============================================================================
+# 🧪 TEST 3: Skills System
+# ============================================================================
+
+function Test-SkillsSystem {
+    Write-TestHeader "TEST 3: Skills System"
+    
+    # Check skills files
+    $skillsFiles = @(
+        "src/lib/skills-integration.ts",
+        "src/app/api/skills/route.ts"
+    )
+    
+    foreach ($file in $skillsFiles) {
+        $exists = Test-FileExists $file
+        Write-TestResult "Skills: $file" $exists $file 'skills'
+    }
+    
+    # Test Skills API
+    if ($TestCategory -contains 'ALL' -or $TestCategory -contains 'SKILLS') {
+        $result = Invoke-APITest -Endpoint "/api/skills" -TestCategory 'skills'
+        if ($result.Success) {
+            Write-TestResult "Skills API" $true "$($result.Data.total) skills, $($result.Data.active) active" 'skills'
+        } else {
+            Write-TestResult "Skills API" $false $result.Error 'skills' 'critical'
+        }
+    }
+    
+    # Check skill count in integration file
+    if (Test-FileExists "src/lib/skills-integration.ts") {
+        $content = Get-Content (Join-Path $Script:ProjectRoot "src/lib/skills-integration.ts") -Raw
+        $skillCount = ([regex]::Matches($content, "skills\.set\('")).Count
+        Write-TestResult "Skills registered" ($skillCount -gt 10) "$skillCount skills" 'skills'
+    }
+}
+
+# ============================================================================
+# 🧪 TEST 4: Database & Prisma
+# ============================================================================
+
+function Test-Database {
+    Write-TestHeader "TEST 4: Database & Prisma"
+    
+    # Check Prisma schema
+    $schemaExists = Test-FileExists "prisma/schema.prisma"
+    Write-TestResult "Prisma schema exists" $schemaExists "prisma/schema.prisma" 'database'
+    
+    if ($schemaExists) {
+        $content = Get-Content (Join-Path $Script:ProjectRoot "prisma/schema.prisma") -Raw
+        $modelCount = ([regex]::Matches($content, "^model\s+\w+", 'Multiline')).Count
+        Write-TestResult "Prisma models" ($modelCount -gt 20) "$modelCount models" 'database'
+    }
+    
+    # Check environment
+    $envContent = Get-Content (Join-Path $Script:ProjectRoot ".env") -ErrorAction SilentlyContinue
+    $hasDatabase = $envContent -match "^DATABASE_URL="
+    Write-TestResult "DATABASE_URL configured" $hasDatabase "PostgreSQL connection" 'database' 'critical'
+    
+    # Test database connection via API
+    if ($TestCategory -contains 'ALL' -or $TestCategory -contains 'DATABASE') {
+        $result = Invoke-APITest -Endpoint "/api/health" -TestCategory 'database'
+        if ($result.Success) {
+            Write-TestResult "Database connection" ($result.Data.database -eq 'connected') "Status: $($result.Data.database)" 'database'
+        }
+    }
+}
+
+# ============================================================================
+# 🧪 TEST 5: API Endpoints
+# ============================================================================
+
+function Test-APIEndpoints {
+    Write-TestHeader "TEST 5: API Endpoints"
+    
+    if (!($TestCategory -contains 'ALL' -or $TestCategory -contains 'API')) {
+        Write-Host "  ⏭️  Skipped (use -TestCategory API)" -ForegroundColor $Colors.Dim
+        return
+    }
+    
+    $endpoints = @(
+        @{ Endpoint = "/api/mcp/available"; Method = "Get"; Category = "MCP" },
+        @{ Endpoint = "/api/skills"; Method = "Get"; Category = "Skills" },
+        @{ Endpoint = "/api/health"; Method = "Get"; Category = "Health" },
+        @{ Endpoint = "/api/analytics/dashboard"; Method = "Get"; Category = "Analytics" },
+        @{ Endpoint = "/api/room-assignment/assign"; Method = "Post"; Category = "Room Assignment" },
+        @{ Endpoint = "/api/notifications/subscribe"; Method = "Post"; Category = "Notifications" }
+    )
+    
+    foreach ($ep in $endpoints) {
+        $result = Invoke-APITest -Endpoint $ep.Endpoint -Method $ep.Method -TestCategory $ep.Category
+        Write-TestResult "$($ep.Category): $($ep.Endpoint)" $result.Success "HTTP $($if($result.Success){200}else{500})" 'api'
+    }
+}
+
+# ============================================================================
+# 🧪 TEST 6: WebSocket & Real-time
+# ============================================================================
+
+function Test-WebSocket {
+    Write-TestHeader "TEST 6: WebSocket & Real-time"
+    
+    # Check WebSocket files
+    $wsFiles = @(
+        "src/lib/websocket/socket-server.ts",
+        "src/app/api/socket/io.ts",
+        "src/hooks/use-websocket-fixed.ts"
+    )
+    
+    foreach ($file in $wsFiles) {
+        $exists = Test-FileExists $file
+        Write-TestResult "WebSocket: $file" $exists $file 'websocket'
+    }
+    
+    # Check socket.io dependency
+    $packageJson = Get-Content (Join-Path $Script:ProjectRoot "package.json") -Raw | ConvertFrom-Json
+    $hasSocketIO = $packageJson.dependencies.ContainsKey("socket.io")
+    Write-TestResult "socket.io dependency" $hasSocketIO "Installed" 'websocket'
+}
+
+# ============================================================================
+# 🧪 TEST 7: Feature Modules
+# ============================================================================
+
+function Test-FeatureModules {
+    Write-TestHeader "TEST 7: Feature Modules"
+    
+    if (!($TestCategory -contains 'ALL' -or $TestCategory -contains 'FEATURES')) {
+        Write-Host "  ⏭️  Skipped (use -TestCategory FEATURES)" -ForegroundColor $Colors.Dim
+        return
+    }
+    
+    # Faza 1: Receptor Dashboard
+    $faza1Files = @(
+        "src/app/dashboard/receptor/page.tsx",
+        "src/lib/auth/roles.ts",
+        "src/middleware.ts"
+    )
+    foreach ($file in $faza1Files) {
+        $exists = Test-FileExists $file
+        Write-TestResult "Faza 1: $file" $exists $file 'features'
+    }
+    
+    # Faza 2: Room Management
+    $faza2Files = @(
+        "src/components/real-time/RoomStatusGrid.tsx",
+        "src/components/calendar/DragDropCalendar.tsx",
+        "src/lib/room-assignment/RoomAssignmentEngine.ts",
+        "src/lib/notifications/NotificationEngine.ts"
+    )
+    foreach ($file in $faza2Files) {
+        $exists = Test-FileExists $file
+        Write-TestResult "Faza 2: $file" $exists $file 'features'
+    }
+    
+    # Faza 3: Advanced Features
+    $faza3Files = @(
+        "src/lib/analytics/AnalyticsEngine.ts",
+        "src/lib/guest-experience/GuestExperienceEngine.ts",
+        "src/lib/operational-efficiency/OperationalEfficiencyEngine.ts",
+        "src/lib/integration-automation/AutomationEngine.ts"
+    )
+    foreach ($file in $faza3Files) {
+        $exists = Test-FileExists $file
+        Write-TestResult "Faza 3: $file" $exists $file 'features'
+    }
+}
+
+# ============================================================================
+# 🧪 TEST 8: Security & RBAC
+# ============================================================================
+
+function Test-Security {
+    Write-TestHeader "TEST 8: Security & RBAC"
+    
+    # Check RBAC files
+    $rbacFiles = @(
+        "src/lib/auth/roles.ts",
+        "src/middleware.ts"
+    )
+    
+    foreach ($file in $rbacFiles) {
+        $exists = Test-FileExists $file
+        Write-TestResult "RBAC: $file" $exists $file 'security'
+    }
+    
+    # Check permission count
+    if (Test-FileExists "src/lib/auth/roles.ts") {
+        $content = Get-Content (Join-Path $Script:ProjectRoot "src/lib/auth/roles.ts") -Raw
+        $permissionCount = ([regex]::Matches($content, "'\w+:\w+'")).Count
+        Write-TestResult "Permissions defined" ($permissionCount -gt 50) "$permissionCount permissions" 'security'
+    }
+    
+    # Check middleware protection
+    if (Test-FileExists "src/middleware.ts") {
+        $content = Get-Content (Join-Path $Script:ProjectRoot "src/middleware.ts") -Raw
+        $hasMatcher = $content -match "matcher:"
+        Write-TestResult "Middleware matcher" $hasMatcher "Protected routes" 'security'
+    }
+}
+
+# ============================================================================
+# 🧪 TEST 9: Dependencies & Package
+# ============================================================================
+
+function Test-Dependencies {
+    Write-TestHeader "TEST 9: Dependencies & Package"
+    
+    # Check package.json
+    $packageExists = Test-FileExists "package.json"
+    Write-TestResult "package.json exists" $packageExists "package.json" 'dependencies'
+    
+    if ($packageExists) {
+        $packageJson = Get-Content (Join-Path $Script:ProjectRoot "package.json") -Raw | ConvertFrom-Json
+        
+        # Count dependencies
+        $depCount = $packageJson.dependencies.Count
+        $devDepCount = $packageJson.devDependencies.Count
+        Write-TestResult "Dependencies" ($depCount -gt 30) "$depCount deps, $devDepCount devDeps" 'dependencies'
+        
+        # Check critical dependencies
+        $criticalDeps = @('next', 'react', 'prisma', '@prisma/client', 'socket.io', 'web-push')
+        foreach ($dep in $criticalDeps) {
+            $hasDep = $packageJson.dependencies.ContainsKey($dep) -or $packageJson.devDependencies.ContainsKey($dep)
+            Write-TestResult "Critical dep: $dep" $hasDep $dep 'dependencies'
+        }
+    }
+    
+    # Check node_modules
+    $nodeModulesExists = Test-Path (Join-Path $Script:ProjectRoot "node_modules")
+    Write-TestResult "node_modules installed" $nodeModulesExists "Dependencies installed" 'dependencies' 'critical'
+}
+
+# ============================================================================
+# 🧪 TEST 10: Build & Production Ready
+# ============================================================================
+
+function Test-BuildReady {
+    Write-TestHeader "TEST 10: Build & Production Ready"
+    
+    # Check .next folder (if built)
+    $nextExists = Test-Path (Join-Path $Script:ProjectRoot ".next")
+    Write-TestResult ".next folder" $nextExists "Build output" 'build'
+    
+    # Check TypeScript config
+    $tsConfigExists = Test-FileExists "tsconfig.json"
+    Write-TestResult "tsconfig.json" $tsConfigExists "TypeScript config" 'build'
+    
+    # Check Next.js config
+    $nextConfigExists = Test-FileExists "next.config.ts"
+    Write-TestResult "next.config.ts" $nextConfigExists "Next.js config" 'build'
+    
+    # Check environment example
+    $envExampleExists = Test-FileExists ".env.example"
+    Write-TestResult ".env.example" $envExampleExists "Environment template" 'build'
+}
+
+# ============================================================================
+# 📊 Final Report
+# ============================================================================
+
+function Write-FinalReport {
+    $duration = (New-TimeSpan $Script:StartTime (Get-Date)).TotalSeconds
+    $total = $Script:TestsPassed + $Script:TestsFailed
+    $passRate = if ($total -gt 0) { [Math]::Round(($Script:TestsPassed / $total) * 100, 1) } else { 0 }
+    
+    Write-Host "`n" + ('=' * 70) -ForegroundColor $Colors.Dim
+    Write-Host "📊 AGENTFLOW PRO - COMPLETE TEST REPORT" -ForegroundColor $Colors.Info
+    Write-Host $('=' * 70) -ForegroundColor $Colors.Dim
+    Write-Host "  Environment: $Environment" -ForegroundColor $Colors.Dim
+    Write-Host "  Duration: $([Math]::Round($duration, 1))s" -ForegroundColor $Colors.Dim
+    Write-Host "`n  ✅ Passed: $Script:TestsPassed" -ForegroundColor $Colors.Success
+    Write-Host "  ❌ Failed: $Script:TestsFailed" -ForegroundColor $Colors.Error
+    Write-Host "  ⏭️  Skipped: $Script:TestsSkipped" -ForegroundColor $Colors.Warning
+    Write-Host "  📈 Pass Rate: $passRate%" -ForegroundColor $(if($passRate -ge 90){$Colors.Success}elseif($passRate -ge 70){$Colors.Warning}else{$Colors.Error})
+    
+    # Category breakdown
+    Write-Host "`n📋 Results by Category:" -ForegroundColor $Colors.Info
+    $categories = $Script:Results | Group-Object Category
+    foreach ($cat in $categories) {
+        $passed = ($cat.Group | Where-Object { $_.Passed }).Count
+        $total = $cat.Group.Count
+        Write-Host "  $($cat.Name): $passed/$total" -ForegroundColor $(if($passed -eq $total){$Colors.Success}else{$Colors.Warning})
+    }
+    
+    # Export if requested
+    if ($ExportResults) {
+        $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+        $outputFile = "test-results-complete-$Environment-$timestamp.json"
+        $Script:Results | ConvertTo-Json -Depth 10 | Out-File -FilePath $outputFile -Encoding utf8
+        Write-Host "`n  💾 Results exported to: $outputFile" -ForegroundColor $Colors.Info
+    }
+    
+    # Critical failures
+    $criticalFailures = $Script:Results | Where-Object { -not $_.Passed -and $_.Severity -eq 'critical' }
+    if ($criticalFailures) {
+        Write-Host "`n🔴 CRITICAL FAILURES (must fix before launch):" -ForegroundColor $Colors.Error
+        foreach ($failure in $criticalFailures) {
+            Write-Host "  • $($failure.Test): $($failure.Message)" -ForegroundColor $Colors.Error
+        }
+    }
+    
+    # Final status
+    Write-Host "`n" + ('=' * 70) -ForegroundColor $Colors.Dim
+    if ($Script:TestsFailed -eq 0) {
+        Write-Host "🎉 VSI TESTI USPEŠNI! AgentFlow Pro je ready za production." -ForegroundColor $Colors.Success
+        Write-Host "`n🚀 Naslednji koraki:" -ForegroundColor $Colors.Info
+        Write-Host "  1. npm run build" -ForegroundColor $Colors.Dim
+        Write-Host "  2. vercel --prod" -ForegroundColor $Colors.Dim
+        Write-Host "  3. Monitoriraj Sentry dashboard" -ForegroundColor $Colors.Dim
+        return 0
+    } else {
+        Write-Host "⚠️  Nekateri testi so spodleteli. Popravi napake pred launchom." -ForegroundColor $Colors.Warning
+        Write-Host "`n🔧 Priporočila:" -ForegroundColor $Colors.Info
+        Write-Host "  1. Preveri .env konfiguracijo" -ForegroundColor $Colors.Dim
+        Write-Host "  2. Zaženi npm install" -ForegroundColor $Colors.Dim
+        Write-Host "  3. Preveri API endpoint-e" -ForegroundColor $Colors.Dim
+        return 1
+    }
+}
+
+# ============================================================================
+# 🚀 Main Execution
+# ============================================================================
+
+function Invoke-AllTests {
+    Write-Host "`n🤖 AgentFlow Pro – Complete Test Suite" -ForegroundColor $Colors.Info
+    Write-Host "   Environment: $Environment | Categories: $($TestCategory -join ', ')" -ForegroundColor $Colors.Dim
+    Write-Host $('=' * 70) -ForegroundColor $Colors.Dim
+    
+    Test-ProjectStructure
+    Test-MCPIntegrations
+    Test-SkillsSystem
+    Test-Database
+    Test-APIEndpoints
+    Test-WebSocket
+    Test-FeatureModules
+    Test-Security
+    Test-Dependencies
+    Test-BuildReady
+    
+    return Write-FinalReport
+}
+
+# Execute
+exit (Invoke-AllTests)

@@ -140,6 +140,7 @@ export default function ContactPage() {
                       value={formData.plan}
                       onChange={handleChange}
                       className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      title="Select interested plan"
                     >
                       <option value="Starter">Starter ($29/mo)</option>
                       <option value="Pro">Pro ($99/mo)</option>

@@ -197,12 +197,15 @@ export default function ContentGridPage() {
                         }
                         autoFocus
                         className="w-full px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="Enter topic"
+                        title="Topic input field"
                       />
                     ) : (
                       <button
                         type="button"
                         onClick={() => startEdit(post, "topic")}
                         className="text-left hover:underline text-gray-700 dark:text-gray-300"
+                        title="Edit topic button"
                       >
                         {post.topic || "—"}
                       </button>
@@ -219,12 +222,15 @@ export default function ContentGridPage() {
                         }
                         autoFocus
                         className="w-full px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="Enter title"
+                        title="Title input field"
                       />
                     ) : (
                       <button
                         type="button"
                         onClick={() => startEdit(post, "title")}
                         className="text-left hover:underline font-medium text-gray-900 dark:text-white"
+                        title="Edit title button"
                       >
                         {post.title || "—"}
                       </button>

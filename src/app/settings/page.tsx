@@ -16,6 +16,20 @@ const PROVIDERS = [
   { key: "mailchimp", label: "Mailchimp", placeholder: "xxx-us19 (API key + datacenter)", href: "https://mailchimp.com/help/about-api-keys" },
 ] as const;
 
+const TOURISM_PROVIDERS = [
+  { key: "openai", label: "OpenAI", placeholder: "sk-...", href: "https://platform.openai.com/api-keys" },
+  { key: "firecrawl", label: "Firecrawl", placeholder: "fc_... (opcijsko)", href: "https://firecrawl.dev" },
+  { key: "mailchimp", label: "Mailchimp", placeholder: "xxx-us19 (opcijsko)", href: "https://mailchimp.com/help/about-api-keys" },
+] as const;
+
+const DEVELOPER_PROVIDERS = [
+  { key: "github", label: "GitHub", placeholder: "ghp_...", href: "https://github.com/settings/tokens" },
+  { key: "vercel", label: "Vercel", placeholder: "...", href: "https://vercel.com/account/tokens" },
+  { key: "netlify", label: "Netlify", placeholder: "nfp_...", href: "https://app.netlify.com/user/applications#personal-access-tokens" },
+  { key: "context7", label: "Context7", placeholder: "ctx7sk_...", href: "https://context7.com" },
+  { key: "serpapi", label: "SerpAPI", placeholder: "Get key at serpapi.com/manage-api-key", href: "https://serpapi.com/manage-api-key" },
+] as const;
+
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
@@ -50,6 +64,17 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [receptionMode, setReceptionMode] = useState(false);
+  const [userIndustry, setUserIndustry] = useState<string | null>(null);
+  const [showAdvancedKeys, setShowAdvancedKeys] = useState(false);
+  const [billing, setBilling] = useState<{
+    subscription: { planId?: string; status?: string; currentPeriodEnd?: string } | null;
+  } | null>(null);
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [billingAction, setBillingAction] = useState<"idle" | "checkout" | "cancel">("idle");
+  const [mailchimpCampaigns, setMailchimpCampaigns] = useState<Array<{ id: string; status?: string; subject_line?: string; create_time?: string; send_time?: string }> | null>(null);
+  const [mailchimpCampaignsLoading, setMailchimpCampaignsLoading] = useState(false);
+  const [hubspotCompanies, setHubspotCompanies] = useState<Array<{ id?: string; name?: string; domain?: string; industry?: string }> | null>(null);
+  const [hubspotCompaniesLoading, setHubspotCompaniesLoading] = useState(false);
 
   useEffect(() => {
     try {
@@ -82,8 +107,9 @@ export default function SettingsPage() {
       fetch("/api/auth/connections").then((r) => r.json()),
       fetch("/api/onboarding").then((r) => r.json()),
       fetch("/api/usage/alerts").then((r) => r.json()),
+      fetch("/api/billing").then((r) => r.json()),
     ])
-      .then(([keysData, connData, onboardingData, alertsData]) => {
+      .then(([keysData, connData, onboardingData, alertsData, billingData]) => {
         if (!keysData.error) {
           setKeys(keysData);
           setFormData({});
@@ -94,16 +120,23 @@ export default function SettingsPage() {
           hubspot: connData.hubspot ?? false,
           salesforce: connData.salesforce ?? false,
         });
-        if (!onboardingData.error && onboardingData.onboarding?.company_knowledge) {
+        if (!onboardingData.error && onboardingData.onboarding) {
+          setUserIndustry(onboardingData.onboarding.industry ?? null);
           const ck = onboardingData.onboarding.company_knowledge;
-          setCompanyKnowledge({
-            products: Array.isArray(ck.products) ? ck.products.join("\n") : "",
-            competitors: Array.isArray(ck.competitors) ? ck.competitors.join("\n") : "",
-            keyFacts: Array.isArray(ck.keyFacts) ? ck.keyFacts.join("\n") : "",
-          });
+          if (ck) {
+            setCompanyKnowledge({
+              products: Array.isArray(ck.products) ? ck.products.join("\n") : "",
+              competitors: Array.isArray(ck.competitors) ? ck.competitors.join("\n") : "",
+              keyFacts: Array.isArray(ck.keyFacts) ? ck.keyFacts.join("\n") : "",
+            });
+          }
         }
         if (alertsData?.success && alertsData?.data?.alerts) {
           setUsageAlerts(alertsData.data.alerts);
+        }
+        if (!billingData?.error) {
+          const sub = billingData?.subscription ?? (billingData?.planId != null ? billingData : null);
+          setBilling({ subscription: sub });
         }
       })
       .catch(() => { })
@@ -213,6 +246,134 @@ export default function SettingsPage() {
           >
             Admin →
           </Link>
+        </div>
+
+        <h2 className="mb-4 text-xl font-semibold text-white">Naročnina</h2>
+        <div className="mb-8 rounded-lg border border-gray-700 bg-gray-800 p-4 max-w-md space-y-3">
+          {billing === null ? (
+            <p className="text-gray-400 text-sm">Podatki o naročnini niso na voljo.</p>
+          ) : billing?.subscription ? (
+            <>
+              <p className="text-gray-300 text-sm">
+                <span className="text-gray-500">Plan:</span>{" "}
+                {(billing.subscription as { planId?: string }).planId ?? "—"}
+              </p>
+              <p className="text-gray-300 text-sm">
+                <span className="text-gray-500">Status:</span>{" "}
+                {(billing.subscription as { status?: string }).status ?? "—"}
+              </p>
+              <p className="text-gray-300 text-sm">
+                <span className="text-gray-500">Odnova:</span>{" "}
+                {(billing.subscription as { currentPeriodEnd?: string }).currentPeriodEnd
+                  ? new Date((billing.subscription as { currentPeriodEnd: string }).currentPeriodEnd).toLocaleDateString()
+                  : "—"}
+              </p>
+              <div className="flex flex-wrap gap-2 pt-2">
+                <button
+                  type="button"
+                  disabled={billingAction !== "idle"}
+                  onClick={async () => {
+                    setBillingAction("checkout");
+                    setMessage(null);
+                    try {
+                      const res = await fetch("/api/billing", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "checkout", planId: "pro" }),
+                      });
+                      const data = await res.json();
+                      if (data?.url) {
+                        window.location.href = data.url;
+                        return;
+                      }
+                      setMessage(data?.error ?? "Checkout ni uspel.");
+                    } catch {
+                      setMessage("Checkout ni uspel.");
+                    } finally {
+                      setBillingAction("idle");
+                    }
+                  }}
+                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {billingAction === "checkout" ? "Preusmerjanje..." : "Nadgradi / Upgrade"}
+                </button>
+                <button
+                  type="button"
+                  disabled={billingAction !== "idle"}
+                  onClick={async () => {
+                    if (!confirm("Prekiniti naročnino? Do konca plačanega obdobja boste še imeli dostop.")) return;
+                    setBillingAction("cancel");
+                    setMessage(null);
+                    try {
+                      const res = await fetch("/api/billing", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "cancel", immediately: false }),
+                      });
+                      const data = await res.json();
+                      if (res.ok && data?.canceled) {
+                        setMessage("Naročnina bo prekinjena ob koncu obdobja.");
+                        const refetch = await fetch("/api/billing").then((r) => r.json());
+                        if (!refetch?.error) {
+                          const sub = refetch.subscription ?? (refetch.planId != null ? refetch : null);
+                          setBilling({ subscription: sub });
+                        }
+                      } else {
+                        setMessage(data?.error ?? "Preklic ni uspel.");
+                      }
+                    } catch {
+                      setMessage("Preklic ni uspel.");
+                    } finally {
+                      setBillingAction("idle");
+                    }
+                  }}
+                  className="rounded-lg border border-red-600 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-600/20 disabled:opacity-50"
+                >
+                  {billingAction === "cancel" ? "Preklicujem..." : "Prekini naročnino"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-400 text-sm">Nimate aktivne naročnine.</p>
+              <button
+                type="button"
+                disabled={billingAction !== "idle"}
+                onClick={async () => {
+                  setBillingAction("checkout");
+                  setMessage(null);
+                  try {
+                    const res = await fetch("/api/billing", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ action: "checkout", planId: "pro" }),
+                    });
+                    const data = await res.json();
+                    if (data?.url) {
+                      window.location.href = data.url;
+                      return;
+                    }
+                    setMessage(data?.error ?? "Checkout ni uspel.");
+                  } catch {
+                    setMessage("Checkout ni uspel.");
+                  } finally {
+                    setBillingAction("idle");
+                  }
+                }}
+                className="mt-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {billingAction === "checkout" ? "Preusmerjanje..." : "Nadgradi / Upgrade"}
+              </button>
+            </>
+          )}
+          <div className="pt-2">
+            <Link
+              href="/pricing"
+              className="text-sm text-indigo-400 hover:text-indigo-300"
+            >
+              Ogled cen in načrtov →
+            </Link>
+          </div>
         </div>
 
         <h2 className="mb-4 text-xl font-semibold text-white">Reception / Tourism</h2>
@@ -406,6 +567,8 @@ export default function SettingsPage() {
           )}
           <div className="flex flex-wrap gap-2 items-end">
             <select
+              title="Tip opozorila"
+              aria-label="Tip opozorila (Agent runs, API calls, Storage, Cost)"
               value={newAlertType}
               onChange={(e) => setNewAlertType(e.target.value)}
               className="rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white text-sm"
@@ -417,6 +580,7 @@ export default function SettingsPage() {
             </select>
             <input
               type="number"
+              aria-label="Prag opozorila (npr. 100)"
               value={newAlertThreshold}
               onChange={(e) => setNewAlertThreshold(e.target.value)}
               placeholder="Prag (npr. 100)"
@@ -490,6 +654,61 @@ export default function SettingsPage() {
               </button>
             </div>
             <p className="text-xs text-gray-500">Dodajte Mailchimp API ključ zgoraj (All API Keys).</p>
+            <div className="mt-3 pt-3 border-t border-gray-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium">Kampanje</span>
+                <button
+                  type="button"
+                  disabled={mailchimpCampaignsLoading}
+                  onClick={async () => {
+                    setMessage(null);
+                    setMailchimpCampaignsLoading(true);
+                    try {
+                      const res = await fetch("/api/mailchimp/campaigns");
+                      const data = await res.json();
+                      if (data.error) {
+                        setMessage(typeof data.error === "string" ? data.error : data.error?.message ?? "Napaka");
+                        return;
+                      }
+                      setMailchimpCampaigns(data.campaigns ?? []);
+                    } catch {
+                      setMessage("Napaka pri nalaganju kampanj.");
+                    } finally {
+                      setMailchimpCampaignsLoading(false);
+                    }
+                  }}
+                  className="text-sm text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                >
+                  {mailchimpCampaignsLoading ? "Nalagam..." : "Naloži kampanje"}
+                </button>
+              </div>
+              {mailchimpCampaigns && (
+                <div className="overflow-x-auto max-h-48 overflow-y-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="text-gray-500">
+                        <th className="py-1 pr-2">Predmet</th>
+                        <th className="py-1 pr-2">Status</th>
+                        <th className="py-1">Datum</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mailchimpCampaigns.length === 0 ? (
+                        <tr><td colSpan={3} className="py-2 text-gray-500">Ni kampanj</td></tr>
+                      ) : (
+                        mailchimpCampaigns.map((c) => (
+                          <tr key={c.id} className="border-t border-gray-700/50">
+                            <td className="py-1 pr-2 text-gray-300 truncate max-w-[120px]" title={c.subject_line}>{c.subject_line ?? "—"}</td>
+                            <td className="py-1 pr-2 text-gray-400">{c.status ?? "—"}</td>
+                            <td className="py-1 text-gray-500">{c.send_time || c.create_time ? new Date(c.send_time || c.create_time || "").toLocaleDateString() : "—"}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
           <div className="rounded-lg border border-gray-700 bg-gray-800 p-4">
             <div className="flex items-center justify-between mb-2">
@@ -518,6 +737,59 @@ export default function SettingsPage() {
               </button>
             </div>
             <p className="text-xs text-gray-500">Povežite HubSpot v Publish Connections zgoraj.</p>
+            <div className="mt-3 pt-3 border-t border-gray-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium">Podjetja</span>
+                <button
+                  type="button"
+                  disabled={hubspotCompaniesLoading}
+                  onClick={async () => {
+                    setMessage(null);
+                    setHubspotCompaniesLoading(true);
+                    try {
+                      const res = await fetch("/api/hubspot/companies");
+                      const data = await res.json();
+                      if (data.error) {
+                        setMessage(typeof data.error === "string" ? data.error : data.error?.message ?? "Napaka");
+                        return;
+                      }
+                      setHubspotCompanies(data.companies ?? []);
+                    } catch {
+                      setMessage("Napaka pri nalaganju podjetij.");
+                    } finally {
+                      setHubspotCompaniesLoading(false);
+                    }
+                  }}
+                  className="text-sm text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                >
+                  {hubspotCompaniesLoading ? "Nalagam..." : "Naloži podjetja"}
+                </button>
+              </div>
+              {hubspotCompanies && (
+                <div className="overflow-x-auto max-h-48 overflow-y-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="text-gray-500">
+                        <th className="py-1 pr-2">Ime</th>
+                        <th className="py-1">Domena</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {hubspotCompanies.length === 0 ? (
+                        <tr><td colSpan={2} className="py-2 text-gray-500">Ni podjetij</td></tr>
+                      ) : (
+                        hubspotCompanies.map((c) => (
+                          <tr key={c.id ?? c.name ?? ""} className="border-t border-gray-700/50">
+                            <td className="py-1 pr-2 text-gray-300">{c.name ?? "—"}</td>
+                            <td className="py-1 text-gray-400">{c.domain ?? "—"}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -604,10 +876,22 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <h2 className="mb-4 text-xl font-semibold text-white">All API Keys</h2>
+        <h2 className="mb-4 text-xl font-semibold text-white">
+          {userIndustry === "tourism" || userIndustry === "travel-agency"
+            ? "API ključi za turizem"
+            : "All API Keys"}
+        </h2>
+        <p className="mb-4 text-gray-400 text-sm">
+          {userIndustry === "tourism" || userIndustry === "travel-agency"
+            ? "Odprite ključe za AI generiranje vsebin. OpenAI je obvezen za generiranje besedil."
+            : "Add your own API keys. Your workflows will use these keys instead of platform defaults. Keys are stored securely and never shared."}
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {PROVIDERS.map(({ key, label, placeholder, href }) => (
+          {(userIndustry === "tourism" || userIndustry === "travel-agency"
+            ? TOURISM_PROVIDERS
+            : PROVIDERS
+          ).map(({ key, label, placeholder, href }) => (
             <div
               key={key}
               className="rounded-lg border border-gray-700 bg-gray-800 p-4"
@@ -644,6 +928,49 @@ export default function SettingsPage() {
               )}
             </div>
           ))}
+
+          {(userIndustry === "tourism" || userIndustry === "travel-agency") && (
+            <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-4">
+              <button
+                type="button"
+                onClick={() => setShowAdvancedKeys((v) => !v)}
+                className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-300 transition-colors"
+              >
+                <span>{showAdvancedKeys ? "▲" : "▼"}</span>
+                <span>Napredne integracije (opcijsko)</span>
+              </button>
+              {showAdvancedKeys && (
+                <div className="mt-4 space-y-4">
+                  {DEVELOPER_PROVIDERS.map(({ key, label, placeholder, href }) => (
+                    <div key={key} className="rounded-lg border border-gray-600 bg-gray-800 p-4">
+                      <div className="mb-2 flex items-center justify-between">
+                        <label htmlFor={`dev-${key}`} className="block text-sm font-medium text-white">
+                          {label}
+                        </label>
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:text-blue-300">
+                          Get key →
+                        </a>
+                      </div>
+                      <input
+                        id={`dev-${key}`}
+                        type="password"
+                        value={formData[key] ?? ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, [key]: e.target.value }))
+                        }
+                        placeholder={keys[key] ? "••••••••" : placeholder}
+                        className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-hidden"
+                        autoComplete="off"
+                      />
+                      {keys[key] && (
+                        <p className="mt-1 text-xs text-gray-500">Current: {keys[key]}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {message && (
             <p

@@ -145,5 +145,7 @@ export const authOptions = {
       return baseUrl;
     },
   },
-  pages: { signIn: "/login" },
+  pages: {
+    signIn: "/login", // Custom sign-in page
+  },
 } as NextAuthOptions;

@@ -1,77 +1,55 @@
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
-import {
-    createOrUpdateWorkflow,
-    listWorkflows,
-    runWorkflow,
-} from "@/api/workflows";
+import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
-import { getUserApiKeysForExecution } from "@/lib/user-keys";
-import type { Workflow } from "@/workflows/types";
 import { getUserId } from "@/lib/auth-users";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  try {
     const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
     const userId = getUserId(session);
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const workflows = await listWorkflows(userId);
+    if (!userId) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+
+    const { searchParams } = new URL(request.url);
+    const propertyId = searchParams.get("propertyId");
+
+    const where: any = { userId };
+    if (propertyId) where.propertyId = propertyId;
+
+    const workflows = await prisma.workflow.findMany({
+      where,
+      orderBy: { updatedAt: "desc" },
+    });
+
     return NextResponse.json(workflows);
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch workflows" }, { status: 500 });
+  }
 }
 
-export async function POST(request: Request) {
-    try {
-        const body = (await request.json()) as Workflow;
-        const url = new URL(request.url);
-        const execute = url.searchParams.get("execute") === "true";
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
 
-        if (!body.id || !body.name) {
-            return NextResponse.json(
-                { error: "Workflow must have id and name" },
-                { status: 400 }
-            );
-        }
+    const body = await request.json();
+    const { name, description, propertyId, nodes = [], edges = [] } = body;
 
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-        const userId = getUserId(session);
-        if (!userId) {
-          return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+    const workflow = await prisma.workflow.create({
+      data: {
+        userId,
+        propertyId,
+        name: name || "Brez imena",
+        description,
+        nodes,
+        edges,
+        status: "draft",
+      },
+    });
 
-        const w = await createOrUpdateWorkflow(
-            {
-                id: body.id,
-                name: body.name,
-                nodes: body.nodes ?? [],
-                edges: body.edges ?? [],
-                metadata: body.metadata,
-            },
-            userId
-        );
-
-        if (execute) {
-            const userApiKeys = await getUserApiKeysForExecution(userId);
-            const result = await runWorkflow(
-                w.id,
-                body.metadata as Record<string, unknown>,
-                userApiKeys
-            );
-            return NextResponse.json({ workflow: w, execution: result });
-        }
-
-        return NextResponse.json(w);
-    } catch (err) {
-        console.error("Error in workflows API (POST):", err);
-        return NextResponse.json(
-            { error: err instanceof Error ? err.message : String(err) },
-            { status: 500 }
-        );
-    }
+    return NextResponse.json(workflow);
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to create workflow" }, { status: 500 });
+  }
 }

@@ -102,6 +102,7 @@ export default function TourismTranslatePage() {
             onChange={(e) => setSourceLang(e.target.value)}
             className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-900 dark:text-neutral-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             disabled={loading}
+            title="Izberite izvorni jezik"
           >
             {LANGS.map((l) => (
               <option key={l.code} value={l.code}>

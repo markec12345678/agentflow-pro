@@ -91,7 +91,7 @@ Vhodni podatki:
 - Posebnosti: {posebnosti} (bazen, WiFi, parkirišče...)
 - Bližnje atrakcije: {atrakcije} (npr. vinogradništvo, reka Kolpa, termalne vrelce, Planina, Snežnik)
 - Jezik: {jezik}
-- Ton: {ton} (profesionalen, prijazen, luksuzen, družinski)
+- Ton: {ton} (profesionalen, prijazen, luksuzen, family-friendly)
 - Ključne besede ({kljucne_besede}): 3–5 SEO fraz, ločene z vejico. Primer: apartmaji bela krajina, počitnice kolpa, družinske počitnice slovenija
 
 Uporabi Slovenian tourism izraze kjer primerno: apartma, gostitelj, Bela Krajina, Kolpa, Dolenjska, vinogradi, termalna letovišča, gorske koče, planinski dom.
@@ -156,7 +156,7 @@ Jasna struktura odstavkov:
 5. Zaključni odstavek s povzetkom in CTA
 
 Dolžina: 800-1000 besed
-Ton: {ton} (profesionalen, prijazen, luksuzen ali družinski).
+Ton: {ton} (profesionalen, prijazen, luksuzen ali family-friendly).
 Jezik: {jezik}
 Destinacija: {destinacija}
 SEO ključne besede: {kljucne_besede}`,
@@ -197,7 +197,7 @@ Struktura:
 - Hashtagi: mix lokacijskih (#BelaKrajina, #Slovenia) in tipskih (#apartma, #TravelSlovenia). Vključi 5–7 hashtagov na koncu.
 - Poziv k akciji ("Link v bio" / "Rezerviraj zdaj")
 
-Ton: {ton} (profesionalen, prijazen, luksuzen ali družinski).
+Ton: {ton} (profesionalen, prijazen, luksuzen ali family-friendly).
 Dolžina captiona: 100-150 besed.
 Lokacija: {lokacija}
 Tip/Tema: {tip} (apartma, hotel, glamping, vikend, počitnice...)
@@ -402,7 +402,7 @@ export const VARIABLE_LABELS: Record<string, string> = {
 
 export const VARIABLE_OPTIONS: Record<string, string[]> = {
   jezik: ["SL", "EN", "DE", "IT", "HR"],
-  ton: ["profesionalen", "prijazen", "luksuzen", "družinski", "romantičen", "eleganten"],
+  ton: ["profesionalen", "prijazen", "luksuzen", "family-friendly", "romantičen", "eleganten"],
   ciljna_skupina: ["družine", "pare", "posamezniki", "poslovni gosti", "skupine", "mladi"],
   platforma: ["Booking.com", "Airbnb", "Google", "TripAdvisor", "Direktno"],
 };

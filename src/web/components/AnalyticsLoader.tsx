@@ -7,6 +7,16 @@ const Analytics = dynamic(
   { ssr: false }
 );
 
+const VercelAnalytics = dynamic(
+  () => import("@vercel/analytics/next").then((m) => ({ default: m.Analytics })),
+  { ssr: false }
+);
+
 export function AnalyticsLoader() {
-  return <Analytics />;
+  return (
+    <>
+      <Analytics />
+      <VercelAnalytics />
+    </>
+  );
 }

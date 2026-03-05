@@ -71,6 +71,13 @@ if (
   );
 }
 
+// Cron: CRON_SECRET obvezen za production – brez njega cron endpointi sprejmejo vsak GET
+if (!env.CRON_SECRET?.trim()) {
+  console.warn(
+    "CRON_SECRET not set – cron endpoints (db-cleanup, pms-sync-all, email-scheduler) are unauthenticated. Set for production."
+  );
+}
+
 if (warnings.length > 0) {
   console.warn("Optional vars not set:", warnings.join(", "));
 }

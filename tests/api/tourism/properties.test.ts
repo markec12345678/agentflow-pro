@@ -7,8 +7,10 @@ const mockGetServerSession = jest.fn();
 const mockFindMany = jest.fn();
 const mockCreate = jest.fn();
 const mockFindFirst = jest.fn();
+const mockFindUnique = jest.fn();
 const mockUpdate = jest.fn();
 const mockDelete = jest.fn();
+const mockRoomFindMany = jest.fn();
 
 jest.mock("next-auth", () => ({
   getServerSession: () => mockGetServerSession(),
@@ -20,8 +22,12 @@ jest.mock("@/database/schema", () => ({
       findMany: (...args: unknown[]) => mockFindMany(...args),
       create: (...args: unknown[]) => mockCreate(...args),
       findFirst: (...args: unknown[]) => mockFindFirst(...args),
+      findUnique: (...args: unknown[]) => mockFindUnique(...args),
       update: (...args: unknown[]) => mockUpdate(...args),
       delete: (...args: unknown[]) => mockDelete(...args),
+    },
+    room: {
+      findMany: (...args: unknown[]) => mockRoomFindMany(...args),
     },
   },
 }));
@@ -47,8 +53,10 @@ describe("Tourism Properties API", () => {
     mockFindMany.mockResolvedValue([]);
     mockCreate.mockResolvedValue(sampleProperty);
     mockFindFirst.mockResolvedValue(sampleProperty);
+    mockFindUnique.mockResolvedValue({ _count: { rooms: 0, reservations: 0, guests: 0 } });
     mockUpdate.mockResolvedValue({ ...sampleProperty, name: "Updated" });
     mockDelete.mockResolvedValue({});
+    mockRoomFindMany.mockResolvedValue([]);
   });
 
   describe("GET /api/tourism/properties", () => {
@@ -105,7 +113,7 @@ describe("Tourism Properties API", () => {
       const res = await createProperty({
         name: "Apartma Kolpa",
         location: "Bela Krajina",
-        type: "apartma",
+        type: "apartment", // Fixed: must match enum values
         capacity: 4,
       });
       expect(res.status).toBe(200);
@@ -114,7 +122,7 @@ describe("Tourism Properties API", () => {
           userId: "user-1",
           name: "Apartma Kolpa",
           location: "Bela Krajina",
-          type: "apartma",
+          type: "apartment",
           capacity: 4,
         }),
       });
@@ -147,7 +155,7 @@ describe("Tourism Properties API", () => {
       const res = await getOne("prop-1");
       expect(res.status).toBe(200);
       const json = await res.json();
-      expect(json.name).toBe("Apartma Kolpa");
+      expect(json.property.name).toBe("Apartma Kolpa");
     });
   });
 

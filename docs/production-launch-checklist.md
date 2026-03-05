@@ -57,6 +57,7 @@ Glej [STRIPE-PRODUCTION-WEBHOOK.md](./STRIPE-PRODUCTION-WEBHOOK.md).
 ### 5. Vercel Env Vars (1h)
 
 - [ ] Vsi P0 spremenljivke nastavljeni (glej [VERCEL-ENV-CHECKLIST.md](./VERCEL-ENV-CHECKLIST.md))
+- [ ] Vključno s `CRON_SECRET` za cron endpointe (glej VERCEL-ENV-CHECKLIST – Cron)
 - [ ] Preveri: `npm run verify:production-env` (naloži .env.local ali .env)
 
 ---
@@ -67,7 +68,7 @@ Glej [STRIPE-PRODUCTION-WEBHOOK.md](./STRIPE-PRODUCTION-WEBHOOK.md).
 
 - [ ] GitHub → Repo → Settings → Secrets and variables → Actions
 - [ ] Dodaj: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
-- [ ] Dodaj: `DATABASE_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_PRICE_PRO`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
+- [ ] Dodaj: `DATABASE_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_PRICE_PRO`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `CRON_SECRET`
 - [ ] Vrednosti enake kot v Vercel env vars (razen Vercel token/id)
 
 Glej [deployment.md](./deployment.md) za podrobnosti.
@@ -96,6 +97,7 @@ Glej [deployment.md](./deployment.md) za podrobnosti.
 
 ### 8.3.5 LAUNCH
 - [ ] Vsi P0 checklisti opravljeni
+- [ ] `npm audit` – odprav critical/high vulnerabilities pred launchom (predeploy vključuje audit)
 - [ ] E2E smoke: `npm run test:e2e:smoke` (ali `npm run predeploy` – vključuje smoke)
 - [ ] Monitoring: Sentry DSN, error rate
 
@@ -103,7 +105,9 @@ Glej [deployment.md](./deployment.md) za podrobnosti.
 
 ## Po konfiguraciji
 
-1. **Pred redeployem:** `npm run predeploy` (avtomatsko: verify env + E2E smoke)
+1. **Pred redeployem:** `npm run predeploy` (avtomatsko: npm audit, verify env, check-links, E2E smoke)
+   - Audit: preveri critical/high; ob napakah zaustavi. Za bypass: `--skip-audit` (če so issues dokumentirani)
+   - Links: preveri interne doc povezave; `--skip-links` za bypass
    - Za hitrejši prehod: `npm run predeploy -- --skip-e2e` (po tem ročno zaženi `npm run test:e2e:smoke`)
 2. Redeploy
 3. Test flow: Register → Trial → Subscribe (Pro) → Generate (preveri limit)

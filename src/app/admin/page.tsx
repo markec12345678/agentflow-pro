@@ -49,9 +49,29 @@ export default function AdminPage() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [usage, setUsage] = useState<UsageOverview | null>(null);
   const [analytics, setAnalytics] = useState<AnalyticsOverview | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<AdminTab>("submissions");
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+
+  useEffect(() => {
+    if (activeTab !== "analytics") return;
+    setAnalyticsError(null);
+    setAnalyticsLoading(true);
+    fetch("/api/admin/analytics")
+      .then((r) => {
+        if (!r.ok) throw new Error(r.status === 403 ? "Access denied" : "Failed to load analytics");
+        return r.json();
+      })
+      .then((data) => {
+        setAnalytics(data);
+      })
+      .catch((e) => {
+        setAnalyticsError(e instanceof Error ? e.message : "Failed to load analytics");
+      })
+      .finally(() => setAnalyticsLoading(false));
+  }, [activeTab]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -257,9 +277,7 @@ export default function AdminPage() {
                   </div>
                 )}
               </div>
-            ) : (
-              <p className="text-gray-400">Loading analytics...</p>
-            )}
+            ) : null}
           </div>
         )}
 

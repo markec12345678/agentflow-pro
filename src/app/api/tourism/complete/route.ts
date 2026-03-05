@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import { getTourismWorkflows } from '@/workflows/tourism-workflows';
 import { MultiLanguageSupport } from '@/lib/multilang-support';
 import { SeasonalContentScheduler } from '@/lib/seasonal-scheduler';
@@ -11,6 +12,9 @@ import { getUnifiedBookingManager } from '@/lib/unified-booking';
 import { GuestReviewManager } from '@/lib/review-management';
 import { getTourismComplianceManager } from '@/lib/compliance-templates';
 import { LocalSEOOptimizer } from '@/lib/local-seo';
+import { authOptions } from '@/lib/auth-options';
+import { getUserId } from '@/lib/auth-users';
+import { getPropertyForUser } from '@/lib/tourism/property-access';
 
 // Initialize all tourism systems
 const tourismWorkflows = getTourismWorkflows();
@@ -23,6 +27,12 @@ const seoOptimizer = new LocalSEOOptimizer();
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = getUserId(session);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { action, data } = body;
 
@@ -30,52 +40,67 @@ export async function POST(request: NextRequest) {
       // Original tourism workflows
       case 'execute_workflow':
         return await executeTourismWorkflow(data);
-      
+
       // Multi-language support
       case 'translate_content':
         return await translateContent(data);
-      
+
       case 'detect_language':
         return await detectLanguage(data);
-      
+
       // Seasonal scheduling
       case 'schedule_seasonal_content':
         return await scheduleSeasonalContent(data);
-      
+
       case 'execute_automation_rules':
         return await executeAutomationRules(data);
-      
+
       // Booking integrations
       case 'search_across_channels':
         return await searchAcrossChannels(data);
-      
-      case 'create_unified_booking':
+
+      case 'create_unified_booking': {
+        const propertyId = data?.propertyId;
+        if (!propertyId) return NextResponse.json({ error: 'propertyId is required' }, { status: 400 });
+        const ok = await getPropertyForUser(propertyId, userId);
+        if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         return await createUnifiedBooking(data);
-      
-      case 'sync_availability':
+      }
+
+      case 'sync_availability': {
+        const propertyId = data?.propertyId;
+        if (!propertyId) return NextResponse.json({ error: 'propertyId is required' }, { status: 400 });
+        const ok = await getPropertyForUser(propertyId, userId);
+        if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         return await syncAvailability(data);
-      
+      }
+
       // Review management
       case 'add_review':
         return await addReview(data);
-      
+
       case 'generate_response':
         return await generateReviewResponse(data);
-      
-      case 'get_review_analytics':
+
+      case 'get_review_analytics': {
+        const propertyId = data?.propertyId;
+        if (!propertyId) return NextResponse.json({ error: 'propertyId is required' }, { status: 400 });
+        const ok = await getPropertyForUser(propertyId, userId);
+        if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         return await getReviewAnalytics(data);
-      
+      }
+
       // Compliance management
       case 'check_compliance':
         return await checkCompliance(data);
-      
+
       case 'get_compliance_templates':
         return await getComplianceTemplates(data);
-      
+
       // Local SEO optimization
       case 'optimize_local_seo':
         return await optimizeLocalSEO(data);
-      
+
       default:
         return NextResponse.json(
           { error: `Unknown action: ${action}` },
@@ -85,9 +110,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Tourism API error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );
@@ -114,8 +139,8 @@ async function translateContent(data: any) {
 async function detectLanguage(data: any) {
   const { content } = data;
   const detectedLanguage = MultiLanguageSupport.detectLanguage(content);
-  return NextResponse.json({ 
-    success: true, 
+  return NextResponse.json({
+    success: true,
     data: { detectedLanguage, supportedLanguages: MultiLanguageSupport.getSupportedLanguages() }
   });
 }
@@ -124,16 +149,16 @@ async function scheduleSeasonalContent(data: any) {
   const { content, season, scheduledDate } = data;
   const seasonalContent = seasonalScheduler.addSeasonalContent(content);
   seasonalScheduler.scheduleContent(seasonalContent.id, season, new Date(scheduledDate));
-  return NextResponse.json({ 
-    success: true, 
+  return NextResponse.json({
+    success: true,
     data: { contentId: seasonalContent.id, scheduled: true }
   });
 }
 
 async function executeAutomationRules(data: any) {
   await seasonalScheduler.executeAutomationRules();
-  return NextResponse.json({ 
-    success: true, 
+  return NextResponse.json({
+    success: true,
     data: { message: 'Automation rules executed successfully' }
   });
 }
@@ -200,15 +225,15 @@ async function checkCompliance(data: any) {
 async function getComplianceTemplates(data: any) {
   const { type, jurisdiction } = data;
   let templates = complianceManager.getAllTemplates();
-  
+
   if (type) {
     templates = templates.filter(t => t.type === type);
   }
-  
+
   if (jurisdiction) {
     templates = templates.filter(t => t.jurisdiction === jurisdiction);
   }
-  
+
   return NextResponse.json({ success: true, data: templates });
 }
 
@@ -223,7 +248,7 @@ export async function GET() {
     title: "AgentFlow Pro - Complete Tourism Vertical API",
     version: "1.0.0",
     lastUpdated: "2026-02-23",
-    
+
     capabilities: {
       workflows: {
         property_descriptions: "Generate SEO-optimized property descriptions",
@@ -233,7 +258,7 @@ export async function GET() {
         destination_blogs: "SEO-optimized destination content",
         social_media: "Platform-specific social media content"
       },
-      
+
       critical_gaps_filled: {
         multilang_support: {
           languages: 8,
@@ -266,7 +291,7 @@ export async function GET() {
         }
       }
     },
-    
+
     endpoints: {
       workflows: {
         execute: "POST /api/tourism/complete?action=execute_workflow",
@@ -295,7 +320,7 @@ export async function GET() {
         optimize: "POST /api/tourism/complete?action=optimize_local_seo"
       }
     },
-    
+
     business_value: {
       time_savings: "80-90% reduction in content creation time",
       competitive_advantage: "Tourism-specialized AI vs generic tools",
@@ -303,11 +328,11 @@ export async function GET() {
       compliance: "GDPR, licensing, accessibility standards",
       seo_benefits: "Local SEO optimization for better rankings"
     },
-    
+
     integration_status: {
       core_workflows: "✅ Complete",
       multilang_framework: "✅ Complete",
-      seasonal_system: "✅ Complete", 
+      seasonal_system: "✅ Complete",
       booking_integrations: "✅ Complete",
       review_management: "✅ Complete",
       compliance_templates: "✅ Complete",
