@@ -14,6 +14,7 @@ export interface DirectorContact {
 
 export interface ReceptionistContact {
   email: string | null;
+  phone: string | null;
 }
 
 export interface DevContact {
@@ -62,7 +63,8 @@ export function getReceptionistContact(): ReceptionistContact {
     process.env.SMART_ALERT_RECEPTIONIST_EMAIL?.trim() ??
     process.env.ESCALATION_NOTIFY_EMAIL?.trim() ??
     null;
-  return { email };
+  const phone = process.env.SMART_ALERT_RECEPTIONIST_PHONE?.trim() ?? null;
+  return { email, phone };
 }
 
 /**

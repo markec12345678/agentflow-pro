@@ -34,7 +34,7 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error('MCP Functions Error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to get MCP functions' },
+      { success: false, error: (error as any).message || 'Failed to get MCP functions' },
       { status: 500 }
     );
   }

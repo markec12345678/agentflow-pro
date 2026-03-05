@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
     console.log('Updated thresholds:', thresholds);
 
     // Log activity
-    await logActivity(userId, "Thresholds Updated", `Updated ${thresholds.length} auto-approve thresholds`, request.ip || "unknown");
+    await logActivity(userId, "Thresholds Updated", `Updated ${thresholds.length} auto-approve thresholds`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

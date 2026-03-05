@@ -97,7 +97,6 @@ export async function GET(request: NextRequest) {
             id: true,
             type: true,
             amount: true,
-            status: true,
             paidAt: true,
           },
         },
@@ -131,27 +130,27 @@ export async function GET(request: NextRequest) {
         const checkIn = new Date(reservation.checkIn);
         const checkOut = new Date(reservation.checkOut);
         const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
-        return sum + (reservation.totalPrice / nights);
+        return sum + ((reservation.totalPrice || 0) / (nights || 1));
       }, 0);
 
       // Calculate extra revenue (from payments marked as "extra")
       const extraRevenue = reservations
-        .filter(r => format(new Date(r.checkIn), "yyyy-MM-dd") <= dateStr && 
+        .filter(r => format(new Date(r.checkIn), "yyyy-MM-dd") <= dateStr &&
                     format(new Date(r.checkOut), "yyyy-MM-dd") >= dateStr)
         .reduce((sum, reservation) => {
-          const extraPayments = reservation.payments.filter(p => 
-            p.type === "extra" && p.status === "completed"
+          const extraPayments = reservation.payments.filter(p =>
+            p.type === "extra"
           );
           return sum + extraPayments.reduce((paymentSum, p) => paymentSum + p.amount, 0);
         }, 0);
 
       // Calculate damage revenue (from payments marked as "damage")
       const damageRevenue = reservations
-        .filter(r => format(new Date(r.checkIn), "yyyy-MM-dd") <= dateStr && 
+        .filter(r => format(new Date(r.checkIn), "yyyy-MM-dd") <= dateStr &&
                     format(new Date(r.checkOut), "yyyy-MM-dd") >= dateStr)
         .reduce((sum, reservation) => {
-          const damagePayments = reservation.payments.filter(p => 
-            p.type === "damage" && p.status === "completed"
+          const damagePayments = reservation.payments.filter(p =>
+            p.type === "damage"
           );
           return sum + damagePayments.reduce((paymentSum, p) => paymentSum + p.amount, 0);
         }, 0);
@@ -176,15 +175,15 @@ export async function GET(request: NextRequest) {
 
     // Calculate channel breakdown
     const channelMap = new Map<string, { revenue: number; reservations: number }>();
-    
+
     reservations.forEach(reservation => {
       const channel = reservation.channel || "Unknown";
       if (!channelMap.has(channel)) {
         channelMap.set(channel, { revenue: 0, reservations: 0 });
       }
-      
+
       const channelData = channelMap.get(channel)!;
-      channelData.revenue += reservation.totalPrice;
+      channelData.revenue += reservation.totalPrice || 0;
       channelData.reservations += 1;
     });
 
@@ -198,15 +197,15 @@ export async function GET(request: NextRequest) {
 
     // Calculate room type breakdown
     const roomTypeMap = new Map<string, { revenue: number; reservations: number }>();
-    
+
     reservations.forEach(reservation => {
-      const roomType = reservation.room.type || "Standard";
+      const roomType = reservation.room?.type || "Standard";
       if (!roomTypeMap.has(roomType)) {
         roomTypeMap.set(roomType, { revenue: 0, reservations: 0 });
       }
-      
+
       const roomTypeData = roomTypeMap.get(roomType)!;
-      roomTypeData.revenue += reservation.totalPrice;
+      roomTypeData.revenue += reservation.totalPrice || 0;
       roomTypeData.reservations += 1;
     });
 

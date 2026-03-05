@@ -39,7 +39,7 @@ interface PricingRules {
 export default function PropertyPricingPage() {
   const { status } = useSession();
   const router = useRouter();
-  const { id: propertyId } = useParams();
+  const { id: propertyId } = useParams() || {};
   
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -138,6 +138,7 @@ export default function PropertyPricingPage() {
             <button 
               onClick={() => router.push("/properties")}
               className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-colors"
+              title="Nazaj na cene"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -185,6 +186,8 @@ export default function PropertyPricingPage() {
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-xl font-black focus:ring-2 focus:ring-blue-500"
                     value={basePrice}
                     onChange={(e) => setBasePrice(parseFloat(e.target.value))}
+                    title="Cena na noč"
+                    placeholder="Vnesite cena"
                   />
                 </div>
                 <div className="text-sm text-gray-400">
@@ -227,6 +230,8 @@ export default function PropertyPricingPage() {
                             newRates[index].label = e.target.value;
                             setSeasonRates(newRates);
                           }}
+                          title="Oznaka sezone"
+                          placeholder="Vnesite oznako"
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -241,6 +246,8 @@ export default function PropertyPricingPage() {
                               newRates[index].from = e.target.value;
                               setSeasonRates(newRates);
                             }}
+                            title="Datum začetka sezone"
+                            placeholder="MM-DD"
                           />
                         </div>
                         <div className="flex-1">
@@ -254,6 +261,8 @@ export default function PropertyPricingPage() {
                               newRates[index].to = e.target.value;
                               setSeasonRates(newRates);
                             }}
+                            title="Datum konca sezone"
+                            placeholder="MM-DD"
                           />
                         </div>
                       </div>
@@ -268,12 +277,15 @@ export default function PropertyPricingPage() {
                             newRates[index].rate = parseFloat(e.target.value);
                             setSeasonRates(newRates);
                           }}
+                          title="Cena sezone"
+                          placeholder="Vnesite ceno"
                         />
                       </div>
                     </div>
                     <button 
                       onClick={() => removeSeason(index)}
                       className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                      title="Izbriši sezone"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -312,6 +324,8 @@ export default function PropertyPricingPage() {
                       className="w-full h-1.5 bg-gray-100 rounded-full appearance-none cursor-pointer accent-blue-600"
                       value={pricingRules.weekendFactor}
                       onChange={(e) => setPricingRules({...pricingRules, weekendFactor: parseFloat(e.target.value)})}
+                      title="Vikend faktor za cene"
+                      placeholder="Nastavite vikend faktor"
                     />
                     <div className="flex justify-between text-[10px] text-gray-400 mt-2 font-bold uppercase">
                       <span>Brez (1.0)</span>

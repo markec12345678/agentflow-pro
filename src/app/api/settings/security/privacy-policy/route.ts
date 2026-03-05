@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
     console.log('Updated privacy policy:', { version: updatedPolicy.version, published: publish });
 
     // Log activity
-    await logActivity(userId, "Privacy Policy Updated", `Updated privacy policy version: ${updatedPolicy.version}`, request.ip || "unknown");
+    await logActivity(userId, "Privacy Policy Updated", `Updated privacy policy version: ${updatedPolicy.version}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

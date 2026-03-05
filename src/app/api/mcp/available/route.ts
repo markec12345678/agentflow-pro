@@ -26,7 +26,7 @@ export async function GET() {
   } catch (error) {
     console.error('MCP Available Error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to get available MCPs' },
+      { success: false, error: (error as any).message || 'Failed to get available MCPs' },
       { status: 500 }
     );
   }

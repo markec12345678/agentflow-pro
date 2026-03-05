@@ -88,11 +88,11 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<"day" | "week" | "month" | "year">("month");
-  const [dateRange, setDateRange] = useState<DateRange>({
+  const [dateRange, setDateRange] = useState<DateRange>(() => ({
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     end: new Date(),
     preset: "month"
-  });
+  }));
   const [exporting, setExporting] = useState(false);
 
   // Mock data loading
@@ -490,9 +490,9 @@ export default function AnalyticsPage() {
                       <div
                         className="progress-bar-fill blue progress-width-24"
                         role="progressbar"
-                        aria-valuenow={24}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
+                        aria-valuenow="24"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
                         aria-label="Progress: 24%"
                       ></div>
                     </div>
@@ -552,9 +552,9 @@ export default function AnalyticsPage() {
                         <div
                           className="progress-bar-fill green progress-width-18"
                           role="progressbar"
-                          aria-valuenow={18}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
+                          aria-valuenow="18"
+                          aria-valuemin="0"
+                          aria-valuemax="100"
                           aria-label="Slovenia: 18%"
                         ></div>
                       </div>
@@ -579,11 +579,11 @@ export default function AnalyticsPage() {
                         <div
                           className="progress-bar-fill blue progress-width-35"
                           role="progressbar"
-                          aria-valuenow={35}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                          aria-label="25-34: 35%"
-                        ></div>
+                          aria-valuenow="35"
+                          aria-valuemin="0"
+                          aria-valuemax="100"
+                          aria-label={`${group.group}: 35%`}
+                        />
                       </div>
                       <span className="text-xs text-gray-500 dark:text-gray-400 w-10 text-right">
                         {formatPercentage(group.percentage)}
@@ -606,9 +606,9 @@ export default function AnalyticsPage() {
                         <div
                           className="progress-bar-fill purple progress-width-42"
                           role="progressbar"
-                          aria-valuenow={42}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
+                          aria-valuenow="42"
+                          aria-valuemin="0"
+                          aria-valuemax="100"
                           aria-label="1-3 noči: 42%"
                         ></div>
                       </div>

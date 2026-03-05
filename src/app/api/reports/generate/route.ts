@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
 import { prisma } from '@/database/schema';
+import { PaymentMethod, PaymentStatus } from '@/types/payment';
 
 export const dynamic = "force-dynamic";
 
@@ -141,14 +142,13 @@ async function generateReportData(
       },
       guest: {
         select: {
-          nationality: true,
+          countryCode: true,
           dateOfBirth: true
         }
       },
       payments: {
         select: {
           amount: true,
-          status: true,
           method: true
         }
       }
@@ -371,7 +371,7 @@ function calculateGuestDemographics(reservations: any[]) {
 
   reservations.forEach(reservation => {
     // Country data
-    const country = reservation.guest?.nationality || 'Unknown';
+    const country = reservation.guest?.countryCode || 'Unknown';
     if (!countries[country]) countries[country] = 0;
     countries[country]++;
 

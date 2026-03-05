@@ -201,6 +201,8 @@ function CanvasInner() {
             value={boardName}
             onChange={(e) => setBoardName(e.target.value)}
             className="w-full rounded-sm border border-gray-600 bg-gray-700 px-3 py-2 text-white"
+            placeholder="Enter campaign board name"
+            title="Campaign board name input"
           />
           <button
             type="button"
@@ -343,6 +345,7 @@ function CanvasList() {
                 setCreateWorkspaceId("");
               }}
               className="rounded-lg border border-gray-600 bg-gray-800 px-3 py-2 text-white"
+              title="Select team for campaign board"
             >
               <option value="">Personal board</option>
               {teams.map((t) => (
@@ -361,6 +364,7 @@ function CanvasList() {
               value={createWorkspaceId}
               onChange={(e) => setCreateWorkspaceId(e.target.value)}
               className="rounded-lg border border-gray-600 bg-gray-800 px-3 py-2 text-white"
+              title="Select workspace for campaign board"
             >
               <option value="">No workspace</option>
               {workspaces.filter((w) => w.teamId === createTeamId).map((w) => (

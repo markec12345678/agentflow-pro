@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       include: {
         guest: {
           select: {
-            nationality: true,
+            countryCode: true,
             dateOfBirth: true
           }
         }
@@ -91,7 +91,7 @@ function calculateDemographics(reservations: any[]) {
 
   reservations.forEach(reservation => {
     // Country data
-    const country = reservation.guest?.nationality || 'Unknown';
+    const country = reservation.guest?.countryCode || 'Unknown';
     countries.set(country, (countries.get(country) || 0) + 1);
 
     // Age group data

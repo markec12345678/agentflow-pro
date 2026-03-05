@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
     await sendConfirmationEmail(bookingConfirmation, language);
 
     // Log booking confirmation
-    await logBookingConfirmation(bookingConfirmation, request.ip || "unknown");
+    await logBookingConfirmation(bookingConfirmation, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

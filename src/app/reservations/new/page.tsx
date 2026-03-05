@@ -200,8 +200,8 @@ export default function NewReservationPage() {
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Izberite nastanitev</label>
                   <PropertySelector 
-                    activePropertyId={activePropertyId} 
-                    onSelect={setActivePropertyId} 
+                    value={activePropertyId} 
+                    onChange={setActivePropertyId} 
                   />
                 </div>
                 
@@ -214,6 +214,8 @@ export default function NewReservationPage() {
                       value={checkIn}
                       onChange={(e) => setCheckIn(e.target.value)}
                       required
+                      title="Datum prihoda"
+                      placeholder="Izberite datum prihoda"
                     />
                   </div>
                   <div>
@@ -224,6 +226,8 @@ export default function NewReservationPage() {
                       value={checkOut}
                       onChange={(e) => setCheckOut(e.target.value)}
                       required
+                      title="Datum odhoda"
+                      placeholder="Izberite datum odhoda"
                     />
                   </div>
                 </div>
@@ -236,6 +240,7 @@ export default function NewReservationPage() {
                     className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
                     value={roomId}
                     onChange={(e) => setRoomId(e.target.value)}
+                    title="Številka sobe ali enota"
                   />
                 </div>
               </div>
@@ -307,6 +312,8 @@ export default function NewReservationPage() {
                     onChange={(e) => setGuestData({...guestData, name: e.target.value})}
                     required
                     disabled={!isNewGuest}
+                    title="Ime in priimek gosta"
+                    placeholder="Vnesite ime in priimek"
                   />
                 </div>
                 <div>
@@ -317,6 +324,8 @@ export default function NewReservationPage() {
                     value={guestData.email}
                     onChange={(e) => setGuestData({...guestData, email: e.target.value})}
                     disabled={!isNewGuest}
+                    title="Email naslov gosta"
+                    placeholder="Vnesite email naslov"
                   />
                 </div>
                 <div>
@@ -327,6 +336,8 @@ export default function NewReservationPage() {
                     value={guestData.phone}
                     onChange={(e) => setGuestData({...guestData, phone: e.target.value})}
                     disabled={!isNewGuest}
+                    title="Telefonska številka gosta"
+                    placeholder="Vnesite telefonsko številko"
                   />
                 </div>
               </div>

@@ -42,7 +42,7 @@ export async function POST(
     if (!validationResult.success) {
       return NextResponse.json({ 
         error: "Validation failed", 
-        details: validationResult.error.errors 
+        details: validationResult.error.issues 
       }, { status: 400 });
     }
 
@@ -50,7 +50,7 @@ export async function POST(
 
     // Check if reservation exists
     const reservation = await prisma.reservation.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         guest: true,
         room: true,
@@ -90,7 +90,7 @@ export async function POST(
 
     // Update reservation status
     const updatedReservation = await prisma.reservation.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         status: "checked_in",
         updatedAt: new Date(),
@@ -120,33 +120,17 @@ export async function POST(
       },
     });
 
-    // Create check-in record
-    const checkInRecord = await prisma.checkIn.create({
-      data: {
-        reservationId: params.id,
-        guestId: reservation.guestId,
-        roomId: reservation.roomId,
-        propertyId: reservation.propertyId,
-        actualCheckInTime: validatedData.actualCheckInTime 
-          ? new Date(`${format(new Date(), 'yyyy-MM-dd')}T${validatedData.actualCheckInTime}:00`)
-          : new Date(),
-        notes: validatedData.notes,
-        specialRequests: validatedData.specialRequests,
-        roomCondition: validatedData.roomCondition || "clean",
-        amenitiesProvided: validatedData.amenitiesProvided || [],
-        processedBy: userId,
-      },
-    });
-
     // Update room status to occupied
     // Note: This would require adding a status field to the Room model
     // For now, we'll update the updatedAt timestamp
-    await prisma.room.update({
-      where: { id: reservation.roomId },
-      data: {
-        updatedAt: new Date(),
-      },
-    });
+    if (reservation.roomId) {
+      await prisma.room.update({
+        where: { id: reservation.roomId },
+        data: {
+          updatedAt: new Date(),
+        },
+      });
+    }
 
     // Create housekeeping task for next guest if applicable
     const nextReservation = await prisma.reservation.findFirst({
@@ -162,65 +146,38 @@ export async function POST(
       },
     });
 
-    if (nextReservation) {
-      await prisma.housekeepingTask.create({
-        data: {
-          roomId: reservation.roomId,
-          propertyId: reservation.propertyId,
-          taskType: "check_out_clean",
-          priority: "medium",
-          status: "pending",
-          estimatedTime: 45, // 45 minutes for check-out clean
-          scheduledDate: reservation.checkOut,
-          guestName: reservation.guest.name,
-          checkOutTime: format(new Date(reservation.checkOut), "HH:mm"),
-          createdBy: userId,
-        },
-      });
-    }
-
     // Process payment if provided
-    if (validatedData.paymentCollected && validatedData.paymentAmount > 0) {
+    if (validatedData.paymentCollected && (validatedData.paymentAmount || 0) > 0) {
       await prisma.payment.create({
         data: {
-          reservationId: params.id,
-          guestId: reservation.guestId,
-          propertyId: reservation.propertyId,
+          reservationId: id,
           type: "balance",
-          amount: validatedData.paymentAmount,
+          amount: validatedData.paymentAmount || 0,
           currency: "EUR",
           method: validatedData.paymentMethod || "cash",
-          status: "completed",
           paidAt: new Date(),
-          processedBy: userId,
+          notes: validatedData.notes,
         },
       });
     }
 
     // Send notification (placeholder for actual notification system)
-    console.log(`Guest ${reservation.guest.name} checked in to room ${reservation.room.name}`);
+    console.log(`Guest ${reservation.guest?.name || 'Unknown'} checked in to room ${reservation.room?.name || 'Unassigned'}`);
 
     return NextResponse.json({
       success: true,
       data: {
         reservation: {
           id: updatedReservation.id,
-          guestName: updatedReservation.guest.name,
-          guestEmail: updatedReservation.guest.email,
-          guestPhone: updatedReservation.guest.phone,
-          roomName: updatedReservation.room.name,
-          roomType: updatedReservation.room.type,
+          guestName: updatedReservation.guest?.name || "Unknown",
+          guestEmail: updatedReservation.guest?.email || "",
+          guestPhone: updatedReservation.guest?.phone || "",
+          roomName: updatedReservation.room?.name || "Unassigned",
+          roomType: updatedReservation.room?.type || "Standard",
           checkIn: updatedReservation.checkIn.toISOString(),
           checkOut: updatedReservation.checkOut.toISOString(),
           status: updatedReservation.status,
           property: updatedReservation.property,
-        },
-        checkIn: {
-          id: checkInRecord.id,
-          actualCheckInTime: checkInRecord.actualCheckInTime.toISOString(),
-          notes: checkInRecord.notes,
-          roomCondition: checkInRecord.roomCondition,
-          amenitiesProvided: checkInRecord.amenitiesProvided,
         },
       },
     });

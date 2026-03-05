@@ -37,7 +37,7 @@ export default function ResearchAgentPage() {
   const [selectedType, setSelectedType] = useState("market");
   const [query, setQuery] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<{ summary: string; insights: string[]; recommendations: string[]; trends?: { name: string; growth: string; impact: string }[] | undefined; analysis?: { name: string; price: string; rating: string; priority: string; score: string; advantage: string }[] | undefined; metadata?: { sourcesCount: number; processingTime: number; lastUpdated: string; confidence: number; analyzedAt: string } } | null>(null);
   const [isScheduling, setIsScheduling] = useState(false);
   const [isSavingToKnowledge, setIsSavingToKnowledge] = useState(false);
 
@@ -45,7 +45,7 @@ export default function ResearchAgentPage() {
     if (status === "unauthenticated") {
       router.push("/login?callbackUrl=/agents/research");
     } else if (status === "authenticated") {
-      const role = (session?.user as any)?.role;
+      const role = (session?.user as { role?: string })?.role;
       if (role !== "admin" && role !== "director") {
         toast.error("Dostop zavrnjen. Samo za vodstvo.");
         router.push("/agents");
@@ -74,7 +74,7 @@ export default function ResearchAgentPage() {
       } else {
         toast.error("Napaka pri izvajanju raziskave");
       }
-    } catch (error) {
+    } catch {
       toast.error("Sistemska napaka");
     } finally {
       setIsExecuting(false);
@@ -105,6 +105,7 @@ export default function ResearchAgentPage() {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => router.push("/agents")}
+              title="Back to Agents"
               className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -198,7 +199,7 @@ export default function ResearchAgentPage() {
                   Periodična raziskava
                 </h3>
                 <div className="space-y-3">
-                  <select className="w-full bg-white dark:bg-gray-800 border-none rounded-lg text-xs py-2 focus:ring-2 focus:ring-amber-500">
+                  <select title="Select research frequency" className="w-full bg-white dark:bg-gray-800 border-none rounded-lg text-xs py-2 focus:ring-2 focus:ring-amber-500">
                     <option>Vsak teden</option>
                     <option>Vsak mesec</option>
                     <option>Vsako četrtletje</option>
@@ -263,13 +264,13 @@ export default function ResearchAgentPage() {
                     {/* Summary */}
                     <div>
                       <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Povzetek</h3>
-                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{results.summary}</p>
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{results?.summary}</p>
                     </div>
 
                     {/* Dynamic Sections Based on Type */}
                     {selectedType === "market" && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {results.trends.map((trend: any, i: number) => (
+                        {results?.trends?.map((trend: { name: string; growth: string; impact: string }, i: number) => (
                           <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
                             <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">{trend.name}</p>
                             <div className="flex items-baseline gap-2">
@@ -298,7 +299,7 @@ export default function ResearchAgentPage() {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                              {results.analysis.map((comp: any, i: number) => (
+                              {results?.analysis?.map((comp: { name: string; price: string; rating: string; priority: string; score: string; advantage: string }, i: number) => (
                                 <tr key={i}>
                                   <td className="py-3 font-bold">{comp.name}</td>
                                   <td className="py-3">{comp.price}</td>
@@ -316,15 +317,15 @@ export default function ResearchAgentPage() {
                     <div className="pt-8 border-t border-gray-50 dark:border-gray-800 flex flex-wrap gap-6 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                       <div className="flex items-center gap-2">
                         <Users className="w-3.5 h-3.5" />
-                        Analiziranih {results.metadata.sourcesCount} virov
+                        Analiziranih {results?.metadata?.sourcesCount} virov
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                        Zaupanje {results.metadata.confidence * 100}%
+                        Zaupanje {results?.metadata?.confidence ? (results?.metadata?.confidence * 100).toFixed(1) : 'N/A'}%
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5" />
-                        Analizirano {new Date(results.metadata.analyzedAt).toLocaleTimeString('sl-SI')}
+                        Analizirano {results?.metadata?.analyzedAt ? new Date(results?.metadata?.analyzedAt).toLocaleTimeString('sl-SI') : 'N/A'}
                       </div>
                     </div>
                   </div>
@@ -341,7 +342,7 @@ export default function ResearchAgentPage() {
                       <p className="text-xs text-indigo-100">AI lahko pripravi novo strategijo cen ali marketinško kampanjo.</p>
                     </div>
                   </div>
-                  <button className="p-3 bg-white text-indigo-600 rounded-2xl hover:bg-indigo-50 transition-all">
+                  <button title="Use insights" className="p-3 bg-white text-indigo-600 rounded-2xl hover:bg-indigo-50 transition-all">
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>

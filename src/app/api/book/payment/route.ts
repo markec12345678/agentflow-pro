@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log payment attempt
-    await logPaymentAttempt(bookingId, paymentMethod, amount, currency, paymentResponse.success, request.ip || "unknown");
+    await logPaymentAttempt(bookingId, paymentMethod, amount, currency, paymentResponse.success, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

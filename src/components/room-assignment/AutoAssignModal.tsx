@@ -108,6 +108,7 @@ export default function AutoAssignModal({
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg"
               disabled={isAssigning}
+              title="Close modal"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -163,6 +164,7 @@ export default function AutoAssignModal({
                   onChange={(e) => handlePreferenceChange('roomType', Array.from(e.target.selectedOptions, option => option.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   size={3}
+                  title="Select room types"
                 >
                   <option value="standard">Standard</option>
                   <option value="deluxe">Deluxe</option>
@@ -179,6 +181,7 @@ export default function AutoAssignModal({
                   onChange={(e) => handlePreferenceChange('floor', Array.from(e.target.selectedOptions, option => option.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   size={3}
+                  title="Select floor preferences"
                 >
                   <option value="1">1st Floor</option>
                   <option value="2">2nd Floor</option>
@@ -195,6 +198,7 @@ export default function AutoAssignModal({
                   onChange={(e) => handlePreferenceChange('view', Array.from(e.target.selectedOptions, option => option.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   size={3}
+                  title="Select view preferences"
                 >
                   <option value="city">City View</option>
                   <option value="garden">Garden View</option>
@@ -209,6 +213,7 @@ export default function AutoAssignModal({
                   value={preferences.location}
                   onChange={(e) => handlePreferenceChange('location', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  title="Select location preference"
                 >
                   <option value="no-preference">No Preference</option>
                   <option value="quiet">Quiet Area</option>
@@ -224,6 +229,7 @@ export default function AutoAssignModal({
                   value={preferences.smoking}
                   onChange={(e) => handlePreferenceChange('smoking', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  title="Select smoking preference"
                 >
                   <option value="no-preference">No Preference</option>
                   <option value="allowed">Smoking Allowed</option>

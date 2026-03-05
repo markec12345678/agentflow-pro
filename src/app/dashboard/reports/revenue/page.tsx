@@ -300,6 +300,7 @@ export default function RevenueReportPage() {
                 value={revenueType}
                 onChange={(e) => setRevenueType(e.target.value as any)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                title="Select revenue type"
               >
                 <option value="total">Total Revenue</option>
                 <option value="occupancy">Occupancy Revenue</option>

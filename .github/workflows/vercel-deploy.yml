@@ -33,6 +33,11 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
+      - name: Build (skip Rust - uses TS fallback on Vercel)
+        run: npm run build
+        env:
+          RUST_ENABLED: "false"
+
       - name: Deploy to Vercel
         id: deploy
         uses: amondnet/vercel-action@v25

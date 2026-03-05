@@ -50,7 +50,7 @@ export async function POST(
     if (!validationResult.success) {
       return NextResponse.json({ 
         error: "Validation failed", 
-        details: validationResult.error.errors 
+        details: validationResult.error.issues 
       }, { status: 400 });
     }
 
@@ -58,7 +58,7 @@ export async function POST(
 
     // Check if reservation exists
     const reservation = await prisma.reservation.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         guest: true,
         room: true,
@@ -86,7 +86,7 @@ export async function POST(
 
     // Update reservation status
     const updatedReservation = await prisma.reservation.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         status: "checked_out",
         updatedAt: new Date(),
@@ -116,98 +116,33 @@ export async function POST(
       },
     });
 
-    // Create check-out record
-    const checkOutRecord = await prisma.checkOut.create({
-      data: {
-        reservationId: params.id,
-        guestId: reservation.guestId,
-        roomId: reservation.roomId,
-        propertyId: reservation.propertyId,
-        actualCheckOutTime: validatedData.actualCheckOutTime 
-          ? new Date(`${format(new Date(), 'yyyy-MM-dd')}T${validatedData.actualCheckOutTime}:00`)
-          : new Date(),
-        notes: validatedData.notes,
-        roomCondition: validatedData.roomCondition || "clean",
-        damages: validatedData.damages || [],
-        damageCost: validatedData.damageCost || 0,
-        additionalCharges: validatedData.additionalCharges || [],
-        guestSatisfaction: validatedData.guestSatisfaction || 5,
-        guestFeedback: validatedData.guestFeedback,
-        followUpRequired: validatedData.followUpRequired || false,
-        followUpNotes: validatedData.followUpNotes,
-        processedBy: userId,
-      },
-    });
-
     // Update room status based on condition
     let roomStatus = "available";
-    if (validatedData.roomCondition === "damaged") {
-      roomStatus = "maintenance";
-    } else if (validatedData.roomCondition === "needs_cleaning") {
+    if (validatedData.roomCondition === "needs_cleaning") {
       roomStatus = "cleaning";
     }
 
     // Note: This would require adding a status field to the Room model
     // For now, we'll update the updatedAt timestamp
-    await prisma.room.update({
-      where: { id: reservation.roomId },
+    if (reservation.roomId) {
+      await prisma.room.update({
+        where: { id: reservation.roomId },
       data: {
-        updatedAt: new Date(),
-      },
-    });
-
-    // Create housekeeping task if room needs cleaning
-    if (validatedData.roomCondition === "needs_cleaning" || validatedData.roomCondition === "minor_dirt") {
-      await prisma.housekeepingTask.create({
-        data: {
-          roomId: reservation.roomId,
-          propertyId: reservation.propertyId,
-          taskType: "check_out_clean",
-          priority: validatedData.roomCondition === "needs_cleaning" ? "high" : "medium",
-          status: "pending",
-          estimatedTime: validatedData.roomCondition === "needs_cleaning" ? 60 : 30,
-          scheduledDate: new Date(),
-          guestName: reservation.guest.name,
-          notes: `Check-out cleaning required. Condition: ${validatedData.roomCondition}`,
-          createdBy: userId,
-        },
-      });
-    }
-
-    // Create maintenance task if there are damages
-    if (validatedData.damages && validatedData.damages.length > 0) {
-      await prisma.maintenanceTask.create({
-        data: {
-          roomId: reservation.roomId,
-          propertyId: reservation.propertyId,
-          title: "Damages from check-out",
-          description: `Damages reported: ${validatedData.damages.join(", ")}`,
-          priority: validatedData.damageCost && validatedData.damageCost > 100 ? "high" : "medium",
-          status: "pending",
-          category: "general",
-          estimatedCost: validatedData.damageCost,
-          estimatedTime: 120, // 2 hours default for damage assessment
-          scheduledDate: new Date(),
-          reportedBy: userId,
-          reportedAt: new Date(),
+          updatedAt: new Date(),
         },
       });
     }
 
     // Process final payment if provided
-    if (validatedData.finalPaymentCollected && validatedData.finalPaymentAmount > 0) {
+    if (validatedData.finalPaymentCollected && (validatedData.finalPaymentAmount || 0) > 0) {
       await prisma.payment.create({
         data: {
-          reservationId: params.id,
-          guestId: reservation.guestId,
-          propertyId: reservation.propertyId,
+          reservationId: id,
           type: "balance",
-          amount: validatedData.finalPaymentAmount,
+          amount: validatedData.finalPaymentAmount || 0,
           currency: "EUR",
           method: validatedData.finalPaymentMethod || "cash",
-          status: "completed",
           paidAt: new Date(),
-          processedBy: userId,
           notes: "Final payment at check-out",
         },
       });
@@ -218,16 +153,11 @@ export async function POST(
       for (const charge of validatedData.additionalCharges) {
         await prisma.payment.create({
           data: {
-            reservationId: params.id,
-            guestId: reservation.guestId,
-            propertyId: reservation.propertyId,
+            reservationId: id,
             type: "extra",
             amount: charge.amount,
             currency: "EUR",
             method: validatedData.finalPaymentMethod || "cash",
-            status: validatedData.finalPaymentCollected ? "completed" : "pending",
-            paidAt: validatedData.finalPaymentCollected ? new Date() : undefined,
-            processedBy: userId,
             notes: charge.description,
           },
         });
@@ -238,16 +168,11 @@ export async function POST(
     if (validatedData.damageCost && validatedData.damageCost > 0) {
       await prisma.payment.create({
         data: {
-          reservationId: params.id,
-          guestId: reservation.guestId,
-          propertyId: reservation.propertyId,
+          reservationId: id,
           type: "damage",
           amount: validatedData.damageCost,
           currency: "EUR",
           method: validatedData.finalPaymentMethod || "cash",
-          status: validatedData.finalPaymentCollected ? "completed" : "pending",
-          paidAt: validatedData.finalPaymentCollected ? new Date() : undefined,
-          processedBy: userId,
           notes: `Damage charges: ${validatedData.damages?.join(", ")}`,
         },
       });
@@ -260,49 +185,35 @@ export async function POST(
           propertyId: reservation.propertyId,
           type: "follow_up",
           severity: "low",
-          status: "open",
-          title: `Follow-up required for ${reservation.guest.name}`,
-          description: validatedData.followUpNotes || "Guest follow-up required after check-out",
+          title: `Follow-up required for ${reservation.guest?.name || "Unknown"}`,
+          message: validatedData.followUpNotes || "Guest follow-up required after check-out",
           metadata: {
-            reservationId: params.id,
+            reservationId: id,
             guestId: reservation.guestId,
-            guestName: reservation.guest.name,
-            guestEmail: reservation.guest.email,
+            guestName: reservation.guest?.name || "Unknown",
+            guestEmail: reservation.guest?.email || "",
           },
-          createdBy: userId,
         },
       });
     }
 
     // Send notification (placeholder for actual notification system)
-    console.log(`Guest ${reservation.guest.name} checked out from room ${reservation.room.name}`);
+    console.log(`Guest ${reservation.guest?.name || "Unknown"} checked out from room ${reservation.room?.name || "Unassigned"}`);
 
     return NextResponse.json({
       success: true,
       data: {
         reservation: {
           id: updatedReservation.id,
-          guestName: updatedReservation.guest.name,
-          guestEmail: updatedReservation.guest.email,
-          guestPhone: updatedReservation.guest.phone,
-          roomName: updatedReservation.room.name,
-          roomType: updatedReservation.room.type,
+          guestName: updatedReservation.guest?.name || "Unknown",
+          guestEmail: updatedReservation.guest?.email || "",
+          guestPhone: updatedReservation.guest?.phone || "",
+          roomName: updatedReservation.room?.name || "Unassigned",
+          roomType: updatedReservation.room?.type || "Standard",
           checkIn: updatedReservation.checkIn.toISOString(),
           checkOut: updatedReservation.checkOut.toISOString(),
           status: updatedReservation.status,
           property: updatedReservation.property,
-        },
-        checkOut: {
-          id: checkOutRecord.id,
-          actualCheckOutTime: checkOutRecord.actualCheckOutTime.toISOString(),
-          notes: checkOutRecord.notes,
-          roomCondition: checkOutRecord.roomCondition,
-          damages: checkOutRecord.damages,
-          damageCost: checkOutRecord.damageCost,
-          additionalCharges: checkOutRecord.additionalCharges,
-          guestSatisfaction: checkOutRecord.guestSatisfaction,
-          guestFeedback: checkOutRecord.guestFeedback,
-          followUpRequired: checkOutRecord.followUpRequired,
         },
         roomStatus,
       },

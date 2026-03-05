@@ -112,6 +112,7 @@ export default function PendingApprovalsPage() {
             <button 
               onClick={() => router.push("/reservations")}
               className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-colors"
+              title="Nazaj na rezervacije"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -174,6 +175,7 @@ export default function PendingApprovalsPage() {
                     <input 
                       type="checkbox" 
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                      title="Izberi vse rezervacije"
                       onChange={(e) => {
                         if (e.target.checked) setSelectedIds(reservations.map(r => r.id));
                         else setSelectedIds([]);
@@ -202,6 +204,7 @@ export default function PendingApprovalsPage() {
                         <input 
                           type="checkbox" 
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                          title={`Izberi rezervacijo ${res.id}`}
                           checked={selectedIds.includes(res.id)}
                           onChange={(e) => {
                             if (e.target.checked) setSelectedIds([...selectedIds, res.id]);
@@ -254,6 +257,7 @@ export default function PendingApprovalsPage() {
                           <button 
                             onClick={() => router.push(`/reservations/${res.id}`)}
                             className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+                            title="Odpri rezervacijo"
                           >
                             <ArrowUpRight className="w-4 h-4" />
                           </button>

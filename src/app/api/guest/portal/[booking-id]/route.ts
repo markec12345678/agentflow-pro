@@ -175,7 +175,7 @@ export async function GET(
     };
 
     // Log access attempt
-    await logPortalAccess(bookingId, request.ip || "unknown");
+    await logPortalAccess(bookingId, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,
@@ -245,7 +245,7 @@ export async function POST(
     }
 
     // Log action
-    await logPortalAction(bookingId, action, data, request.ip || "unknown");
+    await logPortalAction(bookingId, action, data, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,
@@ -259,6 +259,7 @@ export async function POST(
       { status: 500 }
     );
   }
+}
 
 async function handleModifyBooking(bookingId: string, data: any) {
   // In real implementation, this would update the booking in database
@@ -404,5 +405,4 @@ async function logPortalAction(bookingId: string, action: string, data: any, ipA
     ipAddress,
     timestamp: new Date().toISOString()
   });
-}
 }

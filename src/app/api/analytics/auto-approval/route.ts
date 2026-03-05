@@ -73,9 +73,7 @@ export async function GET(request: NextRequest) {
         status: 'confirmed'
       },
       select: {
-        checkIn: true,
-        autoApproved: true,
-        source: true
+        checkIn: true
       }
     });
 
@@ -97,62 +95,48 @@ export async function GET(request: NextRequest) {
 }
 
 function calculateAutoApprovalData(reservations: any[], period: string, start: Date, end: Date) {
-  // Group by month and calculate auto-approval rates
-  const monthlyData = new Map();
+  // Note: auto-approval feature not yet implemented in database schema
+  // Return placeholder data until schema is updated
+  const totalReservations = reservations.length;
   
+  if (totalReservations === 0) {
+    return {
+      rate: 0,
+      trend: "stable" as const,
+      change: 0,
+      monthly: []
+    };
+  }
+
+  // Group by month
+  const monthlyData = new Map();
+
   reservations.forEach(reservation => {
     const checkIn = new Date(reservation.checkIn);
     const monthKey = `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, '0')}`;
-    
+
     if (!monthlyData.has(monthKey)) {
-      monthlyData.set(monthKey, { total: 0, autoApproved: 0 });
+      monthlyData.set(monthKey, { total: 0 });
     }
-    
+
     const monthData = monthlyData.get(monthKey);
     monthData.total++;
-    
-    if (reservation.autoApproved) {
-      monthData.autoApproved++;
-    }
   });
 
-  // Convert to array and calculate rates
+  // Convert to array
   const sortedMonthlyData = Array.from(monthlyData.entries())
     .map(([month, data]) => ({
       month,
-      rate: data.total > 0 ? (data.autoApproved / data.total) * 100 : 0,
+      rate: 0, // Placeholder until auto-approval is implemented
       total: data.total,
-      autoApproved: data.autoApproved
+      autoApproved: 0
     }))
     .sort((a, b) => a.month.localeCompare(b.month));
 
-  // Calculate current rate
-  const totalReservations = reservations.length;
-  const totalAutoApproved = reservations.filter(r => r.autoApproved).length;
-  const currentRate = totalReservations > 0 ? (totalAutoApproved / totalReservations) * 100 : 0;
-
-  // Calculate trend and change
-  const rates = sortedMonthlyData.map(d => d.rate);
-  let trend = "stable";
-  let change = 0;
-  
-  if (rates.length >= 2) {
-    const recent = rates.slice(-3).reduce((sum, val) => sum + val, 0) / Math.min(3, rates.length);
-    const previous = rates.slice(-6, -3).reduce((sum, val) => sum + val, 0) / Math.min(3, rates.length - 3);
-    
-    if (recent > previous * 1.05) {
-      trend = "up";
-      change = ((recent - previous) / previous) * 100;
-    } else if (recent < previous * 0.95) {
-      trend = "down";
-      change = ((previous - recent) / previous) * 100;
-    }
-  }
-
   return {
-    rate: currentRate,
-    trend,
-    change,
+    rate: 0, // Placeholder until auto-approval is implemented
+    trend: "stable" as const,
+    change: 0,
     monthly: sortedMonthlyData.map(d => d.rate)
   };
 }

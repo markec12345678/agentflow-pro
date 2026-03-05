@@ -196,6 +196,7 @@ export default function TeamsSettingsPage() {
               }}
               disabled={switchingTeam}
               className="w-full max-w-xs rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white disabled:opacity-50"
+              title="Izberite aktivno ekipo"
             >
               <option value="">Select active team</option>
               {teams.map((t) => (
@@ -297,6 +298,7 @@ export default function TeamsSettingsPage() {
                       setInviteRole((prev) => ({ ...prev, [team.id]: e.target.value }))
                     }
                     className="rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-white text-sm"
+                    title="Izberite vlogo za povabilo"
                   >
                     <option value="member">Member</option>
                     <option value="admin">Admin</option>

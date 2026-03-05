@@ -1,16 +1,28 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "npm run build:vercel",
+  "buildCommand": "npm run build",
   "framework": "nextjs",
   "outputDirectory": ".next",
   "regions": ["fra1"],
   "env": {
-    "MOCK_MODE": "true",
-    "NODE_ENV": "production"
+    "MOCK_MODE": "false",
+    "NODE_ENV": "production",
+    "RUST_ENABLED": "false"
   },
   "build": {
     "env": {
-      "MOCK_MODE": "true"
+      "MOCK_MODE": "false",
+      "RUST_ENABLED": "false"
+    }
+  },
+  "functions": {
+    "src/app/api/tourism/calculate-price/route.ts": {
+      "memory": 1024,
+      "maxDuration": 30
+    },
+    "src/app/api/tourism/workflow/route.ts": {
+      "memory": 2048,
+      "maxDuration": 60
     }
   },
   "crons": [

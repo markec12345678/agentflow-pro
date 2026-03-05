@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
     console.log('Generated new API key:', { id: newAPIKey.id, name, permissions });
 
     // Log activity
-    await logActivity(userId, "API Key Generated", `Generated API key: ${name}`, request.ip || "unknown");
+    await logActivity(userId, "API Key Generated", `Generated API key: ${name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

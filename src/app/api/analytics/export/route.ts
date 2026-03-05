@@ -101,14 +101,13 @@ async function getExportData(propertyIds: string[], start: Date, end: Date, requ
         select: {
           name: true,
           email: true,
-          nationality: true,
+          countryCode: true,
           dateOfBirth: true
         }
       },
       payments: {
         select: {
           amount: true,
-          status: true,
           method: true,
           createdAt: true
         }
@@ -122,12 +121,12 @@ async function getExportData(propertyIds: string[], start: Date, end: Date, requ
     summary: {
       totalReservations: reservations.length,
       totalRevenue: reservations.reduce((sum, r) => {
-        return sum + r.payments.reduce((paymentSum, p) => 
-          paymentSum + (p.status === 'completed' ? p.amount : 0), 0);
+        return sum + r.payments.reduce((paymentSum, p) =>
+          paymentSum + p.amount, 0);
       }, 0),
-      averageRevenue: reservations.length > 0 ? 
-        reservations.reduce((sum, r) => sum + r.payments.reduce((paymentSum, p) => 
-          paymentSum + (p.status === 'completed' ? p.amount : 0), 0), 0) / reservations.length : 0,
+      averageRevenue: reservations.length > 0 ?
+        reservations.reduce((sum, r) => sum + r.payments.reduce((paymentSum, p) =>
+          paymentSum + p.amount, 0), 0) / reservations.length : 0,
       dateRange: { start, end }
     }
   };
@@ -158,14 +157,14 @@ function generateCSV(data: any): string {
     reservation.property.name,
     reservation.guest?.name || '',
     reservation.guest?.email || '',
-    reservation.guest?.nationality || '',
+    reservation.guest?.countryCode || '',
     reservation.checkIn.toISOString().split('T')[0],
     reservation.checkOut.toISOString().split('T')[0],
     Math.ceil((new Date(reservation.checkOut).getTime() - new Date(reservation.checkIn).getTime()) / (1000 * 60 * 60 * 24)),
     reservation.guests || 1,
-    reservation.payments.reduce((sum: number, p: any) => 
-      sum + (p.status === 'completed' ? p.amount : 0), 0).toFixed(2),
-    reservation.payments.some((p: any) => p.status === 'completed') ? 'Completed' : 'Pending',
+    reservation.payments.reduce((sum: number, p: any) =>
+      sum + p.amount, 0).toFixed(2),
+    'Completed',
     reservation.payments[0]?.method || '',
     reservation.source || '',
     reservation.autoApproved ? 'Yes' : 'No'
@@ -174,7 +173,7 @@ function generateCSV(data: any): string {
   // Build CSV string
   const csvContent = [
     headers.join(','),
-    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ...rows.map((row: string[]) => row.map((cell: string) => `"${cell}"`).join(','))
   ].join('\n');
 
   return csvContent;

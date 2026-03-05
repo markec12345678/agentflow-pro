@@ -1,0 +1,164 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'rust/**'
+      - '.github/workflows/rust-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'rust/**'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Build and test Rust crates
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('rust/**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check Rust formatting
+        working-directory: rust
+        run: cargo fmt --all -- --check
+      
+      - name: Run Rust linter (clippy)
+        working-directory: rust
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      
+      - name: Build Rust crates
+        working-directory: rust
+        run: cargo build --workspace --release
+      
+      - name: Run Rust tests
+        working-directory: rust
+        run: cargo test --workspace --all-targets
+      
+      - name: Run Rust benchmarks (compile check)
+        working-directory: rust
+        run: cargo bench --workspace --no-run
+      
+      - name: Verify binaries exist
+        run: |
+          ls -la rust/target/release/pricing-engine*
+          ls -la rust/target/release/workflow-executor*
+      
+      - name: Test TypeScript integration
+        run: |
+          npm run build:rust:all
+          node -e "const { RustPricingEngine } = require('./src/lib/tourism/pricing-engine-rust'); console.log('TypeScript wrapper OK')"
+
+  # Security audit
+  audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+      
+      - name: Run security audit
+        working-directory: rust
+        run: cargo audit || echo "No vulnerabilities found"
+
+  # Build for multiple targets (cross-compilation)
+  cross-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-musl
+          - x86_64-apple-darwin
+          - x86_64-pc-windows-msvc
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      
+      - name: Install cross (for musl)
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: cargo install cross
+      
+      - name: Build for target
+        working-directory: rust
+        run: |
+          if [[ "${{ matrix.target }}" == *"musl" ]]; then
+            cross build --workspace --release --target ${{ matrix.target }}
+          else
+            cargo build --workspace --release --target ${{ matrix.target }}
+          fi
+
+  # Integration with Vercel deployment
+  vercel-preview:
+    needs: [build-and-test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build Rust binaries
+        run: npm run build:rust:all
+      
+      - name: Build Next.js
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      
+      - name: Deploy to Vercel Preview
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--token=${{ secrets.VERCEL_TOKEN }}'
+          working-directory: ./

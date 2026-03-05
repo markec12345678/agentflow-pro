@@ -225,6 +225,7 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
                     value={room.status}
                     onChange={(e) => handleStatusChange(e.target.value)}
                     className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    title="Select room status"
                   >
                     <option value="available">Available</option>
                     <option value="occupied">Occupied</option>

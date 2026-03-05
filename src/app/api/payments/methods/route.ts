@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
     console.log('Created payment method:', newPaymentMethod);
 
     // Log activity
-    await logActivity(userId, "Payment Method Added", `Added ${type} payment method`, request.ip || "unknown");
+    await logActivity(userId, "Payment Method Added", `Added ${type} payment method`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

@@ -61,7 +61,7 @@ interface ReservationDetails {
 export default function ReservationDetailsPage() {
   const { status } = useSession();
   const router = useRouter();
-  const { id } = useParams();
+  const { id } = useParams() || {};
   const [reservation, setReservation] = useState<ReservationDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -228,6 +228,7 @@ export default function ReservationDetailsPage() {
             <button 
               onClick={() => router.push("/reservations")}
               className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-colors"
+              title="Nazaj na seznam rezervacij"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -305,6 +306,8 @@ export default function ReservationDetailsPage() {
                         className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
                         value={editData.checkIn}
                         onChange={(e) => setEditData({...editData, checkIn: e.target.value})}
+                        title="Datum prihoda"
+                        placeholder="Izberite datum prihoda"
                       />
                     ) : (
                       <p className="text-sm font-medium">{format(parseISO(reservation.checkIn), "EEEE, d. MMMM yyyy", { locale: sl })}</p>
@@ -318,6 +321,8 @@ export default function ReservationDetailsPage() {
                         className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
                         value={editData.checkOut}
                         onChange={(e) => setEditData({...editData, checkOut: e.target.value})}
+                        title="Datum odhoda"
+                        placeholder="Izberite datum odhoda"
                       />
                     ) : (
                       <p className="text-sm font-medium">{format(parseISO(reservation.checkOut), "EEEE, d. MMMM yyyy", { locale: sl })}</p>
@@ -334,6 +339,8 @@ export default function ReservationDetailsPage() {
                         className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
                         value={editData.roomId}
                         onChange={(e) => setEditData({...editData, roomId: e.target.value})}
+                        title="Številka sobe ali enota"
+                        placeholder="Vnesite številko sobe"
                       />
                     ) : (
                       <p className="text-sm font-medium">{reservation.roomId || "Ni dodeljeno"}</p>

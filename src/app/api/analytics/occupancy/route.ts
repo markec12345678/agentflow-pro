@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
       select: {
         checkIn: true,
         checkOut: true,
-        guests: true
+        guest: true
       }
     });
 

@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
       action,
       details,
       timestamp: new Date().toISOString(),
-      ipAddress: request.ip || "unknown"
+      ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown"
     };
 
     console.log('Activity logged:', activityLog);

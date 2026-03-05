@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Plus, X, Wifi, Car, Waves, Utensils, Dumbbell, Bath, Coffee, Tv, Wind } from "lucide-react";
+import { Plus, X, Wifi, Car, Waves, Bath, Coffee, Tv } from "lucide-react";
 
 interface Amenity {
   id: string;
@@ -48,33 +48,32 @@ const AMENITY_CATEGORIES = {
 
 export default function AmenitiesPage() {
   const params = useParams();
-  const router = useRouter();
-  const propertyId = params.id as string;
+  const propertyId = params?.id as string;
   
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [loading, setLoading] = useState(true);
   const [addingCustom, setAddingCustom] = useState(false);
   const [customAmenity, setCustomAmenity] = useState({ name: "", category: "facilities" });
 
-  useEffect(() => {
-    if (propertyId) {
-      fetchAmenities();
-    }
-  }, [propertyId]);
-
-  const fetchAmenities = async () => {
+  const fetchAmenities = useCallback(async () => {
     try {
       const response = await fetch(`/api/tourism/properties/${propertyId}/amenities`);
       if (response.ok) {
         const data = await response.json();
         setAmenities(data);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to load amenities");
     } finally {
       setLoading(false);
     }
-  };
+  }, [propertyId]);
+
+  useEffect(() => {
+    if (propertyId) {
+      fetchAmenities();
+    }
+  }, [propertyId, fetchAmenities]);
 
   const addAmenity = async (name: string, category: string) => {
     try {
@@ -88,10 +87,10 @@ export default function AmenitiesPage() {
         toast.success("Amenity added successfully");
         fetchAmenities();
       } else {
-        const error = await response.json();
-        toast.error(error.error || "Failed to add amenity");
+        const errorData = await response.json();
+        toast.error(errorData.error || "Failed to add amenity");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred");
     }
   };
@@ -106,9 +105,10 @@ export default function AmenitiesPage() {
         toast.success("Amenity removed successfully");
         fetchAmenities();
       } else {
-        toast.error("Failed to remove amenity");
+        const errorData = await response.json();
+        toast.error(errorData.error || "Failed to remove amenity");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred");
     }
   };
@@ -176,6 +176,7 @@ export default function AmenitiesPage() {
                   <button
                     onClick={() => removeAmenity(amenity.id)}
                     className="ml-2 text-blue-600 hover:text-blue-800"
+                    title={`Remove ${amenity.name} amenity`}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -253,6 +254,7 @@ export default function AmenitiesPage() {
                 value={customAmenity.category}
                 onChange={(e) => setCustomAmenity({ ...customAmenity, category: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                title="Select category for custom amenity"
               >
                 {Object.entries(AMENITY_CATEGORIES).map(([key, cat]) => (
                   <option key={key} value={key}>{cat.name}</option>

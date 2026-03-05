@@ -7,6 +7,8 @@ import { format, addDays, startOfDay } from "date-fns";
 import { sl } from "date-fns/locale";
 import { toast } from "sonner";
 import { PropertySelector } from "@/web/components/PropertySelector";
+import { PaymentSelect } from "@/components/ui";
+import { PaymentMethod, PaymentStatus } from "@/types/payment";
 
 interface CheckOutReservation {
   id: string;
@@ -439,6 +441,8 @@ export default function CheckOutPage() {
                           value={checkOutData.actualCheckOutTime}
                           onChange={(e) => setCheckOutData(prev => ({ ...prev, actualCheckOutTime: e.target.value }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Actual check-out time"
+                          placeholder="Select check-out time"
                         />
                       </div>
                       
@@ -448,6 +452,7 @@ export default function CheckOutPage() {
                           value={checkOutData.roomCondition}
                           onChange={(e) => setCheckOutData(prev => ({ ...prev, roomCondition: e.target.value }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Select room condition"
                         >
                           <option value="clean">Clean</option>
                           <option value="minor_dirt">Minor Dirt</option>
@@ -543,6 +548,7 @@ export default function CheckOutPage() {
                           value={checkOutData.guestSatisfaction}
                           onChange={(e) => setCheckOutData(prev => ({ ...prev, guestSatisfaction: Number(e.target.value) }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Select guest satisfaction rating"
                         >
                           <option value={5}>5 - Excellent</option>
                           <option value={4}>4 - Good</option>
@@ -575,6 +581,7 @@ export default function CheckOutPage() {
                           checked={checkOutData.followUpRequired}
                           onChange={(e) => setCheckOutData(prev => ({ ...prev, followUpRequired: e.target.checked }))}
                           className="mr-2"
+                          title="Follow-up required status"
                         />
                         <label className="text-sm font-medium text-gray-700">Follow-up required</label>
                       </div>
@@ -605,6 +612,7 @@ export default function CheckOutPage() {
                             checked={checkOutData.finalPaymentCollected}
                             onChange={(e) => setCheckOutData(prev => ({ ...prev, finalPaymentCollected: e.target.checked }))}
                             className="mr-2"
+                            title="Final payment collected status"
                           />
                           <label className="text-sm font-medium text-gray-700">Final payment collected</label>
                         </div>
@@ -623,17 +631,11 @@ export default function CheckOutPage() {
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">Method</label>
-                              <select
-                                value={checkOutData.finalPaymentMethod}
-                                onChange={(e) => setCheckOutData(prev => ({ ...prev, finalPaymentMethod: e.target.value }))}
+                              <PaymentSelect
+                                value={checkOutData.finalPaymentMethod as PaymentMethod}
+                                onChange={(method) => setCheckOutData(prev => ({ ...prev, finalPaymentMethod: method }))}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              >
-                                <option value="">Select method</option>
-                                <option value="cash">Cash</option>
-                                <option value="card">Card</option>
-                                <option value="transfer">Bank Transfer</option>
-                                <option value="other">Other</option>
-                              </select>
+                              />
                             </div>
                           </div>
                         )}

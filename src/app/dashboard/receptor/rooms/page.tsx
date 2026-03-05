@@ -368,6 +368,7 @@ export default function RoomsPage() {
                           value={room.status}
                           onChange={(e) => handleStatusChange(room.id, e.target.value)}
                           className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Select room status"
                         >
                           <option value="available">Available</option>
                           <option value="occupied">Occupied</option>

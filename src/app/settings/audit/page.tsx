@@ -79,6 +79,7 @@ export default function AuditPage() {
               value={agentFilter}
               onChange={(e) => setAgentFilter(e.target.value)}
               className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              title="Filtriraj po tipu agenta"
             >
               <option value="">All</option>
               <option value="content">Content</option>
@@ -95,6 +96,8 @@ export default function AuditPage() {
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
               className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              title="Začetni datum za audit"
+              placeholder="Izberite začetni datum"
             />
           </div>
           <div>
@@ -106,6 +109,8 @@ export default function AuditPage() {
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
               className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              title="Končni datum za audit"
+              placeholder="Izberite končni datum"
             />
           </div>
         </div>

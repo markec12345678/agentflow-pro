@@ -205,6 +205,7 @@ export default function CreatePropertyPage() {
                   value={form.type}
                   onChange={(e) => handleInputChange("type", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  title="Select property type"
                 >
                   <option value="hotel">Hotel</option>
                   <option value="apartment">Apartment</option>
@@ -272,6 +273,7 @@ export default function CreatePropertyPage() {
                   value={form.currency}
                   onChange={(e) => handleInputChange("currency", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  title="Select currency"
                 >
                   <option value="EUR">EUR (€)</option>
                   <option value="USD">USD ($)</option>
@@ -352,12 +354,16 @@ export default function CreatePropertyPage() {
                             value={rate.from}
                             onChange={(e) => updateSeasonRate(season, index, "from", e.target.value)}
                             className="flex-1 px-2 py-1 border border-gray-300 rounded"
+                            title="Start date"
+                            placeholder="Start date"
                           />
                           <input
                             type="date"
                             value={rate.to}
                             onChange={(e) => updateSeasonRate(season, index, "to", e.target.value)}
                             className="flex-1 px-2 py-1 border border-gray-300 rounded"
+                            title="End date"
+                            placeholder="End date"
                           />
                           <input
                             type="number"

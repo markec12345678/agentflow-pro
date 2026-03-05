@@ -127,6 +127,8 @@ export default function ArrivalsPage() {
               value={format(selectedDate, "yyyy-MM-dd")}
               onChange={(e) => setSelectedDate(new Date(e.target.value))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              title="Select arrival date"
+              placeholder="Select arrival date"
             />
           </div>
         </div>

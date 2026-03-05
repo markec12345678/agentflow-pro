@@ -73,7 +73,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('MCP Call Error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to call MCP function' },
+      { success: false, error: (error as any).message || 'Failed to call MCP function' },
       { status: 500 }
     );
   }

@@ -70,7 +70,7 @@ export async function POST(
     // });
 
     // Log activity
-    await logActivity(userId, "Password Reset", `Password reset link sent to: ${targetUser.name}`, request.ip || "unknown");
+    await logActivity(userId, "Password Reset", `Password reset link sent to: ${targetUser.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

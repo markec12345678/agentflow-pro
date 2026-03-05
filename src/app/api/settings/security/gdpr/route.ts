@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     console.log('Updating GDPR consent:', consentId, consentGiven);
 
     // Log activity
-    await logActivity(userId, "GDPR Consent Updated", `Updated consent for ID: ${consentId}`, request.ip || "unknown");
+    await logActivity(userId, "GDPR Consent Updated", `Updated consent for ID: ${consentId}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

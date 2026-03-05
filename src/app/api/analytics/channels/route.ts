@@ -60,7 +60,6 @@ export async function GET(request: NextRequest) {
         status: 'confirmed'
       },
       select: {
-        source: true,
         channel: true
       }
     });
@@ -92,8 +91,8 @@ function calculateChannelBreakdown(reservations: any[]) {
   };
 
   reservations.forEach(reservation => {
-    const channel = (reservation.channel || reservation.source || 'other').toLowerCase();
-    
+    const channel = (reservation.channel || 'other').toLowerCase();
+
     switch (channel) {
       case 'direct':
       case 'website':
@@ -117,7 +116,7 @@ function calculateChannelBreakdown(reservations: any[]) {
 
   // Convert to percentages
   const total = Object.values(channels).reduce((sum, count) => sum + count, 0);
-  
+
   if (total === 0) {
     return channels;
   }

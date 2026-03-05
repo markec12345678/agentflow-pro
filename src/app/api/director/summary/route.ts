@@ -56,8 +56,8 @@ export async function GET(_request: NextRequest) {
       }),
       prisma.alertEvent.count({
         where: {
-          eventType: "eturizem_pending",
-          entityId: { in: propertyIds },
+          type: "eturizem_pending",
+          propertyId: { in: propertyIds },
           createdAt: { gte: subDays(now, 7) }
         }
       })

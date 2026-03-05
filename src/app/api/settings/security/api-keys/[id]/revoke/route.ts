@@ -67,7 +67,7 @@ export async function POST(
     console.log('Revoked API key:', keyId);
 
     // Log activity
-    await logActivity(userId, "API Key Revoked", `Revoked API key: ${mockAPIKey.name}`, request.ip || "unknown");
+    await logActivity(userId, "API Key Revoked", `Revoked API key: ${mockAPIKey.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

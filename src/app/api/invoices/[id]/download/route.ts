@@ -82,15 +82,16 @@ export async function GET(
     const downloadResult = await downloadInvoicePDF(mockInvoice, format);
 
     // Log activity
-    await logActivity(userId, "Invoice Downloaded", `Downloaded invoice ${mockInvoice.invoiceNumber} (${format})`, request.ip || "unknown");
+    await logActivity(userId, "Invoice Downloaded", `Downloaded invoice ${mockInvoice.invoiceNumber} (${format})`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     // Return PDF file
     if (format === 'pdf' && downloadResult.pdfBuffer) {
-      return new NextResponse(downloadResult.pdfBuffer, {
+      const pdfBuffer = downloadResult.pdfBuffer as unknown as ArrayBuffer;
+      return new NextResponse(pdfBuffer, {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="${mockInvoice.invoiceNumber}.pdf"`,
-          'Content-Length': downloadResult.pdfBuffer.length.toString()
+          'Content-Length': pdfBuffer.byteLength.toString()
         }
       });
     }

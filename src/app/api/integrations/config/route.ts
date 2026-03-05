@@ -47,29 +47,29 @@ export async function GET(request: NextRequest) {
 
     // Return safe configurations (hide sensitive data)
     const safeConfigs = {
-      stripe: user.stripeConfig ? {
-        apiKey: user.stripeConfig.apiKey ? "•••••••••••••••" : "",
-        webhookUrl: user.stripeConfig.webhookUrl || ""
+      stripe: user.stripeConfig && typeof user.stripeConfig === 'object' ? {
+        apiKey: (user.stripeConfig as any).apiKey ? "•••••••••••••••" : "",
+        webhookUrl: (user.stripeConfig as any).webhookUrl || ""
       } : null,
-      sendgrid: user.sendGridConfig ? {
-        apiKey: user.sendGridConfig.apiKey ? "•••••••••••••••" : "",
-        fromEmail: user.sendGridConfig.fromEmail || ""
+      sendgrid: user.sendGridConfig && typeof user.sendGridConfig === 'object' ? {
+        apiKey: (user.sendGridConfig as any).apiKey ? "•••••••••••••••" : "",
+        fromEmail: (user.sendGridConfig as any).fromEmail || ""
       } : null,
-      sentry: user.sentryConfig ? {
-        dsn: user.sentryConfig.dsn ? "•••••••••••••••" : "",
-        environment: user.sentryConfig.environment || "production"
+      sentry: user.sentryConfig && typeof user.sentryConfig === 'object' ? {
+        dsn: (user.sentryConfig as any).dsn ? "•••••••••••••••" : "",
+        environment: (user.sentryConfig as any).environment || "production"
       } : null,
-      github: user.githubConfig ? {
-        token: user.githubConfig.token ? "•••••••••••••••" : "",
-        repository: user.githubConfig.repository || ""
+      github: user.githubConfig && typeof user.githubConfig === 'object' ? {
+        token: (user.githubConfig as any).token ? "•••••••••••••••" : "",
+        repository: (user.githubConfig as any).repository || ""
       } : null,
-      vercel: user.vercelConfig ? {
-        projectId: user.vercelConfig.projectId || "",
-        teamId: user.vercelConfig.teamId || ""
+      vercel: user.vercelConfig && typeof user.vercelConfig === 'object' ? {
+        projectId: (user.vercelConfig as any).projectId || "",
+        teamId: (user.vercelConfig as any).teamId || ""
       } : null,
-      firecrawl: user.firecrawlConfig ? {
-        apiKey: user.firecrawlConfig.apiKey ? "•••••••••••••••" : "",
-        baseUrl: user.firecrawlConfig.baseUrl || "https://api.firecrawl.dev"
+      firecrawl: user.firecrawlConfig && typeof user.firecrawlConfig === 'object' ? {
+        apiKey: (user.firecrawlConfig as any).apiKey ? "•••••••••••••••" : "",
+        baseUrl: (user.firecrawlConfig as any).baseUrl || "https://api.firecrawl.dev"
       } : null
     };
 
@@ -148,27 +148,27 @@ export async function POST(request: NextRequest) {
 
     switch (integrationId) {
       case "stripe":
-        currentConfig = currentUser.stripeConfig || {};
+        currentConfig = (currentUser.stripeConfig as any) || {};
         updateData.stripeConfig = { ...currentConfig, ...config };
         break;
       case "sendgrid":
-        currentConfig = currentUser.sendGridConfig || {};
+        currentConfig = (currentUser.sendGridConfig as any) || {};
         updateData.sendGridConfig = { ...currentConfig, ...config };
         break;
       case "sentry":
-        currentConfig = currentUser.sentryConfig || {};
+        currentConfig = (currentUser.sentryConfig as any) || {};
         updateData.sentryConfig = { ...currentConfig, ...config };
         break;
       case "github":
-        currentConfig = currentUser.githubConfig || {};
+        currentConfig = (currentUser.githubConfig as any) || {};
         updateData.githubConfig = { ...currentConfig, ...config };
         break;
       case "vercel":
-        currentConfig = currentUser.vercelConfig || {};
+        currentConfig = (currentUser.vercelConfig as any) || {};
         updateData.vercelConfig = { ...currentConfig, ...config };
         break;
       case "firecrawl":
-        currentConfig = currentUser.firecrawlConfig || {};
+        currentConfig = (currentUser.firecrawlConfig as any) || {};
         updateData.firecrawlConfig = { ...currentConfig, ...config };
         break;
     }

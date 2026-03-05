@@ -157,6 +157,7 @@ export default function GuestSearchPage() {
                       value={searchType}
                       onChange={(e) => setSearchType(e.target.value as any)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      title="Select search type"
                     >
                       <option value="name">Name</option>
                       <option value="email">Email</option>
@@ -319,6 +320,7 @@ export default function GuestSearchPage() {
                       <button
                         onClick={() => setSelectedGuest(null)}
                         className="text-gray-400 hover:text-gray-600"
+                        title="Close guest details"
                       >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -7,6 +7,8 @@ import { format, addDays, startOfDay } from "date-fns";
 import { sl } from "date-fns/locale";
 import { toast } from "sonner";
 import { PropertySelector } from "@/web/components/PropertySelector";
+import { PaymentSelect } from "@/components/ui";
+import { PaymentMethod, PaymentStatus } from "@/types/payment";
 
 interface Payment {
   id: string;
@@ -373,6 +375,8 @@ export default function PaymentsPage() {
                       value={dateRange.start}
                       onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      title="Start date"
+                      placeholder="Select start date"
                     />
                     <span className="text-gray-500">to</span>
                     <input
@@ -380,6 +384,8 @@ export default function PaymentsPage() {
                       value={dateRange.end}
                       onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      title="End date"
+                      placeholder="Select end date"
                     />
                   </div>
                   
@@ -389,6 +395,7 @@ export default function PaymentsPage() {
                       value={filter}
                       onChange={(e) => setFilter(e.target.value)}
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      title="Filter payments"
                     >
                       <option value="all">All Payments</option>
                       <option value="completed">Completed</option>
@@ -402,6 +409,7 @@ export default function PaymentsPage() {
                 <button
                   onClick={() => setShowAddPayment(true)}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  title="Add new payment"
                 >
                   Add Payment
                 </button>
@@ -418,6 +426,7 @@ export default function PaymentsPage() {
                       <button
                         onClick={() => setShowAddPayment(false)}
                         className="text-gray-400 hover:text-gray-600"
+                        title="Close modal"
                       >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -432,6 +441,7 @@ export default function PaymentsPage() {
                           value={selectedReservation}
                           onChange={(e) => setSelectedReservation(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Select reservation"
                         >
                           <option value="">Select reservation</option>
                           {reservations.map((reservation) => (
@@ -444,17 +454,11 @@ export default function PaymentsPage() {
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Payment Type</label>
-                        <select
-                          value={newPayment.type}
-                          onChange={(e) => setNewPayment(prev => ({ ...prev, type: e.target.value as any }))}
+                        <PaymentSelect
+                          value={newPayment.type as PaymentMethod}
+                          onChange={(type) => setNewPayment(prev => ({ ...prev, type: type }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="deposit">Deposit</option>
-                          <option value="balance">Balance</option>
-                          <option value="tourist_tax">Tourist Tax</option>
-                          <option value="extra">Extra Charges</option>
-                          <option value="damage">Damage</option>
-                        </select>
+                        />
                       </div>
                       
                       <div>
@@ -471,17 +475,11 @@ export default function PaymentsPage() {
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
-                        <select
-                          value={newPayment.method}
-                          onChange={(e) => setNewPayment(prev => ({ ...prev, method: e.target.value as any }))}
+                        <PaymentSelect
+                          value={newPayment.method as PaymentMethod}
+                          onChange={(method) => setNewPayment(prev => ({ ...prev, method: method }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="cash">Cash</option>
-                          <option value="card">Card</option>
-                          <option value="transfer">Bank Transfer</option>
-                          <option value="online">Online</option>
-                          <option value="other">Other</option>
-                        </select>
+                        />
                       </div>
                       
                       <div>
@@ -491,6 +489,8 @@ export default function PaymentsPage() {
                           value={newPayment.dueDate}
                           onChange={(e) => setNewPayment(prev => ({ ...prev, dueDate: e.target.value }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Select payment due date"
+                          placeholder="Select payment due date"
                         />
                       </div>
                       
@@ -510,12 +510,14 @@ export default function PaymentsPage() {
                       <button
                         onClick={() => setShowAddPayment(false)}
                         className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                        title="Cancel payment"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleAddPayment}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        title="Confirm add payment"
                       >
                         Add Payment
                       </button>
@@ -588,6 +590,7 @@ export default function PaymentsPage() {
                               <button
                                 onClick={() => handlePaymentStatusChange(payment.id, "completed")}
                                 className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                                title="Mark payment as paid"
                               >
                                 Mark Paid
                               </button>
@@ -596,6 +599,7 @@ export default function PaymentsPage() {
                               <button
                                 onClick={() => handlePaymentStatusChange(payment.id, "refunded")}
                                 className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700"
+                                title="Refund payment"
                               >
                                 Refund
                               </button>

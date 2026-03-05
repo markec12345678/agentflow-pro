@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     if (!validationResult.success) {
       return NextResponse.json({ 
         error: "Validation failed", 
-        details: validationResult.error.errors 
+        details: validationResult.error.issues 
       }, { status: 400 });
     }
 
@@ -173,11 +173,11 @@ export async function POST(request: NextRequest) {
       data: {
         reservation: {
           id: reservation.id,
-          guestName: reservation.guest.name,
-          guestEmail: reservation.guest.email,
-          guestPhone: reservation.guest.phone,
-          roomNumber: reservation.room.name,
-          roomType: reservation.room.type,
+          guestName: reservation.guest?.name || "Unknown",
+          guestEmail: reservation.guest?.email || "",
+          guestPhone: reservation.guest?.phone || "",
+          roomNumber: reservation.room?.name || "Unassigned",
+          roomType: reservation.room?.type || "Standard",
           checkIn: reservation.checkIn.toISOString(),
           checkOut: reservation.checkOut.toISOString(),
           totalPrice: reservation.totalPrice,

@@ -77,7 +77,7 @@ export default function ContentAgentPage() {
       } else {
         toast.error("Napaka pri generiranju");
       }
-    } catch (error) {
+    } catch {
       toast.error("Sistemska napaka");
     } finally {
       setIsGenerating(false);
@@ -104,6 +104,7 @@ export default function ContentAgentPage() {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => router.push("/agents")}
+              title="Back to Agents"
               className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />

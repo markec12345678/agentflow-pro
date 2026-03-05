@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     }
 
     // Save to database
-    const savedState = await prisma.mcpBuilderState.upsert({
+    const savedState = await prisma.mCPBuilderState.upsert({
       where: { projectId },
       create: {
         projectId,
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('MCP Builder Save Error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to save MCP builder state' },
+      { success: false, error: (error as any).message || 'Failed to save MCP builder state' },
       { status: 500 }
     );
   }

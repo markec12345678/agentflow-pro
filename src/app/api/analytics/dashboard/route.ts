@@ -295,9 +295,9 @@ async function generateMockDashboardData(filters: AnalyticsFilter): Promise<Anal
         { rating: 1, count: 5, percentage: 0.01 },
       ],
       commonIssues: [
-        { category: 'cleanliness', count: 20, percentage: 0.04, trend: 'improving' },
-        { category: 'noise', count: 15, percentage: 0.03, trend: 'stable' },
-        { category: 'service', count: 10, percentage: 0.02, trend: 'worsening' },
+        { category: 'cleanliness', count: 20, percentage: 0.04, trend: 'improving' as const },
+        { category: 'noise', count: 15, percentage: 0.03, trend: 'stable' as const },
+        { category: 'service', count: 10, percentage: 0.02, trend: 'worsening' as const },
       ],
       positiveHighlights: [
         { category: 'location', count: 100, percentage: 0.22, examples: ['Great location', 'Close to attractions'] },
@@ -363,8 +363,8 @@ async function generateMockDashboardData(filters: AnalyticsFilter): Promise<Anal
       efficiencyScore: 0.80 + Math.random() * 0.15,
       peakHours: ['18:00', '19:00', '20:00'],
       savingsOpportunities: [
-        { area: 'Lighting', potentialSavings: 500, implementation: 'LED upgrade', priority: 'high' },
-        { area: 'HVAC', potentialSavings: 800, implementation: 'Smart thermostat', priority: 'medium' },
+        { area: 'Lighting', potentialSavings: 500, implementation: 'LED upgrade', priority: 'high' as const },
+        { area: 'HVAC', potentialSavings: 800, implementation: 'Smart thermostat', priority: 'medium' as const },
       ],
     },
     operationalCosts: {
@@ -372,11 +372,11 @@ async function generateMockDashboardData(filters: AnalyticsFilter): Promise<Anal
       costPerRoom: 50 + Math.random() * 10,
       costPerGuest: 45 + Math.random() * 8,
       costBreakdown: [
-        { category: 'staff', amount: 20000, percentage: 0.40, trend: 'up' },
-        { category: 'maintenance', amount: 8000, percentage: 0.16, trend: 'stable' },
-        { category: 'utilities', amount: 12000, percentage: 0.24, trend: 'down' },
-        { category: 'supplies', amount: 5000, percentage: 0.10, trend: 'stable' },
-        { category: 'other', amount: 5000, percentage: 0.10, trend: 'up' },
+        { category: 'staff', amount: 20000, percentage: 0.40, trend: 'up' as const },
+        { category: 'maintenance', amount: 8000, percentage: 0.16, trend: 'stable' as const },
+        { category: 'utilities', amount: 12000, percentage: 0.24, trend: 'down' as const },
+        { category: 'supplies', amount: 5000, percentage: 0.10, trend: 'stable' as const },
+        { category: 'other', amount: 5000, percentage: 0.10, trend: 'up' as const },
       ],
       trend: ['increasing', 'decreasing', 'stable'][Math.floor(Math.random() * 3)] as any,
       budgetVariance: 0.05 + Math.random() * 0.1,

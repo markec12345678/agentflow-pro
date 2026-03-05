@@ -38,7 +38,7 @@ export async function POST(
     if (!validationResult.success) {
       return NextResponse.json({ 
         error: "Validation failed", 
-        details: validationResult.error.errors 
+        details: validationResult.error.issues 
       }, { status: 400 });
     }
 
@@ -46,7 +46,7 @@ export async function POST(
 
     // Check if reservation exists
     const reservation = await prisma.reservation.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         guest: true,
         room: true,
@@ -71,11 +71,10 @@ export async function POST(
 
     // Calculate total payments for this reservation
     const totalPaid = reservation.payments
-      .filter(p => p.status === "completed")
       .reduce((sum, p) => sum + p.amount, 0);
     
     const newTotal = totalPaid + validatedData.amount;
-    const maxAllowed = reservation.totalPrice + 1000; // Allow some flexibility for extra charges
+    const maxAllowed = (reservation.totalPrice || 0) + 1000; // Allow some flexibility for extra charges
 
     if (newTotal > maxAllowed) {
       return NextResponse.json({ 
@@ -86,35 +85,29 @@ export async function POST(
     // Create payment record
     const payment = await prisma.payment.create({
       data: {
-        reservationId: params.id,
-        guestId: reservation.guestId,
-        propertyId: reservation.propertyId,
+        reservationId: id,
         type: validatedData.type,
         amount: validatedData.amount,
         currency: "EUR",
         method: validatedData.method,
-        status: "completed", // Assume payment is completed when added
         paidAt: new Date(),
-        dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
         notes: validatedData.notes,
-        processedBy: userId,
       },
       include: {
         reservation: {
           select: {
             id: true,
             totalPrice: true,
-            status: true,
           },
         },
       },
     });
 
     // Update reservation status if this is the final payment
-    const remainingBalance = reservation.totalPrice - newTotal;
+    const remainingBalance = (reservation.totalPrice || 0) - newTotal;
     if (remainingBalance <= 0 && reservation.status === "confirmed") {
       await prisma.reservation.update({
-        where: { id: params.id },
+        where: { id: id },
         data: {
           status: "paid",
           updatedAt: new Date(),
@@ -123,7 +116,7 @@ export async function POST(
     }
 
     // Send notification (placeholder for actual notification system)
-    console.log(`Payment of €${validatedData.amount} added to reservation ${params.id}`);
+    console.log(`Payment of €${validatedData.amount} added to reservation ${id}`);
 
     return NextResponse.json({
       success: true,
@@ -134,14 +127,12 @@ export async function POST(
           amount: payment.amount,
           currency: payment.currency,
           method: payment.method,
-          status: payment.status,
           paidAt: payment.paidAt.toISOString(),
           notes: payment.notes,
         },
         reservation: {
           id: payment.reservation.id,
           totalPrice: payment.reservation.totalPrice,
-          status: payment.reservation.status,
         },
         paymentSummary: {
           totalPaid: newTotal,

@@ -88,10 +88,10 @@ export async function POST(
     }
 
     // Generate PDF (in real implementation)
-    const pdfResult = await generateInvoicePDF(mockInvoice, template, currentUser.name);
+    const pdfResult = await generateInvoicePDF(mockInvoice, template, currentUser.name || "Unknown");
 
     // Log activity
-    await logActivity(userId, "Invoice PDF Generated", `Generated PDF for invoice ${mockInvoice.invoiceNumber}`, request.ip || "unknown");
+    await logActivity(userId, "Invoice PDF Generated", `Generated PDF for invoice ${mockInvoice.invoiceNumber}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

@@ -33,13 +33,18 @@ import {
   AlertCircle,
   X,
   Database,
-  Share2
+  Share2,
+  FileText,
+  Clock,
+  RefreshCcw,
+  MessageSquare,
+  Send
 } from "lucide-react";
 import { toast } from "sonner";
 
 // --- Custom Node Components ---
 
-const AgentNode = ({ data, selected }: any) => (
+const AgentNode = ({ data, selected }: { data: Node; selected: boolean }) => (
   <div className={`p-4 rounded-2xl border-2 bg-white dark:bg-gray-900 shadow-xl transition-all ${selected ? "border-indigo-500 scale-105" : "border-gray-100 dark:border-gray-800"}`}>
     <Handle type="target" position={Position.Top} className="w-3 h-3 bg-indigo-500 border-2 border-white" />
     <div className="flex items-center gap-3">
@@ -55,7 +60,27 @@ const AgentNode = ({ data, selected }: any) => (
   </div>
 );
 
-const TriggerNode = ({ data, selected }: any) => (
+interface TriggerNodeProps {
+  data: { label: string };
+  selected: boolean;
+}
+
+const TriggerNode = ({ data, selected }: { data: Node; selected: boolean }) => (
+  <div className={`p-4 rounded-2xl border-2 bg-white dark:bg-gray-900 shadow-xl transition-all ${selected ? "border-amber-500 scale-105" : "border-gray-100 dark:border-gray-800"}`}>
+    <div className="flex items-center gap-3">
+      <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
+        <Zap className="w-5 h-5" />
+      </div>
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-gray-400">Trigger</p>
+        <p className="text-sm font-bold">{data.label}</p>
+      </div>
+    </div>
+    <Handle type="source" position={Position.Bottom} className="w-3 h-3 bg-amber-500 border-2 border-white" />
+  </div>
+);
+
+const TourismWorkflowInput = ({ data, selected }: TourismWorkflowInputProps) => (
   <div className={`p-4 rounded-2xl border-2 bg-white dark:bg-gray-900 shadow-xl transition-all ${selected ? "border-amber-500 scale-105" : "border-gray-100 dark:border-gray-800"}`}>
     <div className="flex items-center gap-3">
       <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
@@ -82,7 +107,7 @@ export default function WorkflowBuilderPage() {
   const router = useRouter();
   const { id: workflowId } = useParams();
   
-  const [workflow, setWorkflow] = useState<any>(null);
+  const [workflow, setWorkflow] = useState<Workflow | null>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [loading, setLoading] = useState(true);
@@ -182,6 +207,7 @@ export default function WorkflowBuilderPage() {
           <button 
             onClick={() => router.push("/workflows")}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
+            title="Nazaj na delovne tokene"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -289,10 +315,11 @@ export default function WorkflowBuilderPage() {
             <Background color="#ccc" variant="dots" />
             <Controls />
             <Panel position="top-right" className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md p-2 rounded-xl border border-gray-100 dark:border-gray-800 shadow-xl flex gap-2">
-              <button className="p-2 text-gray-400 hover:text-indigo-600"><Settings className="w-4 h-4" /></button>
+              <button className="p-2 text-gray-400 hover:text-indigo-600" title="Settings"><Settings className="w-4 h-4" /></button>
               <button 
                 onClick={() => { setNodes([]); setEdges([]); }}
                 className="p-2 text-gray-400 hover:text-red-600"
+                title="Clear workflow"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

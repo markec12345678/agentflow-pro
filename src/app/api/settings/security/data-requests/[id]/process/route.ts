@@ -114,7 +114,7 @@ export async function POST(
     // Log activity
     await logActivity(userId, `Data Request ${action.charAt(0).toUpperCase() + action.slice(1)}`, 
       `${action}d data request for: ${mockRequest.guestName} (${mockRequest.requestType})`, 
-      request.ip || "unknown");
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

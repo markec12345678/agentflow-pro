@@ -505,6 +505,7 @@ export default function MaintenancePage() {
                                 value={task.assignedTo || ""}
                                 onChange={(e) => handleAssignTask(task.id, e.target.value)}
                                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                title="Assign maintenance task"
                               >
                                 <option value="">Assign to...</option>
                                 {staff.filter(s => s.isAvailable).map((staffMember) => (

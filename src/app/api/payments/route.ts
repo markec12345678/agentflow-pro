@@ -327,7 +327,7 @@ export async function POST(request: NextRequest) {
     console.log('Created payment:', newPayment);
 
     // Log activity
-    await logActivity(userId, "Payment Created", `Created payment for reservation: ${reservationId}`, request.ip || "unknown");
+    await logActivity(userId, "Payment Created", `Created payment for reservation: ${reservationId}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

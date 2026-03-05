@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     console.log('Updated agent timeout settings:', settings);
 
     // Log activity
-    await logActivity(userId, "Agent Timeout Settings Updated", `Updated agent timeout settings`, request.ip || "unknown");
+    await logActivity(userId, "Agent Timeout Settings Updated", `Updated agent timeout settings`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

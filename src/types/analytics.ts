@@ -124,7 +124,7 @@ export interface GuestAnalytics {
   averageStayDuration: number;
   guestDemographics: GuestDemographics;
   guestOrigin: GuestOrigin[];
-  guestLoyalty: GuestLoyalty;
+  guestLoyalty: GuestLoyaltyList;
   guestFeedback: GuestFeedback;
   repeatBookingRate: number;
   cancellationRate: number;
@@ -132,7 +132,7 @@ export interface GuestAnalytics {
 
 export interface GuestDemographics {
   ageGroups: AgeGroup[];
-  genderDistribution: GenderDistribution;
+  genderDistribution: GenderDistribution[];
   nationalities: Nationality[];
   purposeOfStay: PurposeOfStay[];
 }
@@ -175,6 +175,8 @@ export interface GuestLoyalty {
   averageRevenue: number;
   retentionRate: number;
 }
+
+export type GuestLoyaltyList = GuestLoyalty[];
 
 export interface GuestFeedback {
   averageRating: number;

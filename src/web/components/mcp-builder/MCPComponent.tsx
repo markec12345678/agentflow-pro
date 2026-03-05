@@ -1,17 +1,19 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
+import './MCPComponent.css';
+import './MCPComponentStyles.css';
 
 export interface MCPComponentProps {
   component: {
     id: string;
     type: string;
     position: { x: number; y: number };
-    properties: Record<string, any>;
-    mcpBindings: Record<string, string>;
+    properties: Record<string, string | number | boolean>;
+    columns?: string[];
   };
-  isSelected: boolean;
-  onSelect: (id: string) => void;
-  onUpdate: (id: string, updates: Partial<any>) => void;
+  selected?: boolean;
+  onSelect?: (id: string) => void;
+  _onUpdate?: (id: string, updates: Partial<unknown>) => void;
   mcpConnection?: {
     mcp: string;
     function: string;
@@ -23,69 +25,52 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
   component,
   isSelected,
   onSelect,
-  onUpdate,
+  _onUpdate,
   mcpConnection
 }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'MCP_COMPONENT',
-    item: { id: component.id },
+    item: () => ({ id: component.id }),
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
   }));
 
   const renderComponent = () => {
-    const style = {
-      position: 'absolute' as const,
-      left: `${component.position.x}px`,
-      top: `${component.position.y}px`,
-      opacity: isDragging ? 0.5 : 1,
-      cursor: 'move',
-      border: isSelected ? '2px solid #3b82f6' : '1px solid transparent',
-      borderRadius: '4px',
-      background: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent'
-    };
 
     switch (component.type) {
       case 'Button':
-        const buttonStyle = {
-          padding: '8px 16px',
-          backgroundColor:
-            component.properties.color === 'primary' ? '#3b82f6' :
-            component.properties.color === 'secondary' ? '#6b7280' : '#10b981',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        };
+        const buttonClasses = [
+          'mcp-button',
+          component.properties.color || 'primary'
+        ].join(' ');
         return (
-          <button style={buttonStyle} onClick={(e) => e.stopPropagation()}>
+          <button 
+            className={buttonClasses}
+            onClick={(e) => e.stopPropagation()}
+          >
             {component.properties.label || 'Button'}
           </button>
         );
 
       case 'Input':
+        const inputType = (component.properties.type as 'text' | 'password' | 'email' | 'number' | 'tel' | 'url') || 'text';
+        const inputPlaceholder = (component.properties.placeholder as string) || 'Input';
         return (
           <input
-            type={component.properties.type || 'text'}
-            placeholder={component.properties.placeholder || 'Input'}
-            style={{
-              padding: '8px 12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '4px'
-            }}
+            type={inputType}
+            placeholder={inputPlaceholder}
+            className="mcp-input"
             onClick={(e) => e.stopPropagation()}
           />
         );
 
       case 'Text':
+        const fontSize = (component.properties.fontSize as string) || '14px';
+        const textClass = fontSize === '14px' ? 'mcp-text' : 'mcp-text mcp-text-custom';
         return (
           <div
-            style={{
-              padding: '8px',
-              fontSize: component.properties.fontSize || '14px',
-              whiteSpace: 'pre-wrap'
-            }}
+            className={textClass}
             onClick={(e) => e.stopPropagation()}
           >
             {component.properties.content || 'Text'}
@@ -94,27 +79,24 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
 
       case 'Image':
         return (
-          <img
-            src={component.properties.src || '/placeholder.jpg'}
-            alt={component.properties.alt || 'Image'}
-            style={{
-              maxWidth: '200px',
-              maxHeight: '150px',
-              objectFit: 'cover'
-            }}
+          <div
+            className="mcp-image"
             onClick={(e) => e.stopPropagation()}
-          />
+          >
+            <img
+              src={(component.properties.src as string) || '/placeholder.jpg'}
+              alt={(component.properties.alt as string) || 'Image'}
+            />
+          </div>
         );
 
       case 'Container':
+        const padding = (component.properties.padding as string) || '16px';
+        const background = (component.properties.background as string) || '#f9fafb';
+        const containerClass = padding === '16px' && background === '#f9fafb' ? 'mcp-container' : 'mcp-container mcp-container-custom';
         return (
           <div
-            style={{
-              padding: component.properties.padding || '16px',
-              backgroundColor: component.properties.background || '#f9fafb',
-              minWidth: '200px',
-              minHeight: '100px'
-            }}
+            className={containerClass}
             onClick={(e) => e.stopPropagation()}
           >
             Container
@@ -124,29 +106,21 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
       case 'DataGrid':
         return (
           <div
-            style={{
-              border: '1px solid #e5e7eb',
-              minWidth: '300px',
-              minHeight: '150px',
-              padding: '8px',
-              overflow: 'auto'
-            }}
+            className="mcp-datagrid"
             onClick={(e) => e.stopPropagation()}
           >
-            {component.properties.columns?.length > 0 ?
-              `DataGrid with ${component.properties.columns.length} columns` :
-              'Empty DataGrid'}
+            {Array.isArray(component.properties.columns) ? (
+              `DataGrid with ${component.properties.columns.length} columns`
+            ) : (
+              'Empty DataGrid'
+            )}
           </div>
         );
 
       default:
         return (
           <div
-            style={{
-              padding: '12px',
-              background: '#f3f4f6',
-              borderRadius: '4px'
-            }}
+            className="mcp-default"
             onClick={(e) => e.stopPropagation()}
           >
             {component.type} Component
@@ -155,30 +129,33 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
     }
   };
 
+  const baseClasses = [
+    'mcp-component',
+    'positioned',
+    isSelected ? 'selected' : 'not-selected',
+    isDragging ? 'dragging' : ''
+  ].filter(Boolean).join(' ');
+
+  const positionStyle: React.CSSProperties = {
+    // Note: Inline styles are necessary here for dynamic positioning
+    // which cannot be achieved with CSS classes alone
+    left: `${component.position.x}px`,
+    top: `${component.position.y}px`
+  };
+
+  const positionClass = component.position.x === 0 && component.position.y === 0 ? 'mcp-component' : 'mcp-component positioned';
+
   return (
     <div
       ref={drag}
-      style={style}
+      style={positionStyle}
+      className={baseClasses}
       onClick={() => onSelect(component.id)}
-      className="mcp-component"
     >
       {renderComponent()}
       {mcpConnection && (
         <div
-          style={{
-            position: 'absolute',
-            top: '-8px',
-            right: '-8px',
-            background: '#10b981',
-            color: 'white',
-            borderRadius: '50%',
-            width: '16px',
-            height: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '10px'
-          }}
+          className="mcp-connection-indicator"
           title={`Connected to ${mcpConnection.mcp}`}
         >
           MCP

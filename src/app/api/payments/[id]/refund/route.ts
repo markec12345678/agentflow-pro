@@ -103,10 +103,10 @@ export async function POST(
     }
 
     // Process refund (in real implementation)
-    const refundResult = await processRefund(mockPayment, amount, reason, currentUser.name);
+    const refundResult = await processRefund(mockPayment, amount, reason, currentUser.name || "Unknown");
 
     // Log activity
-    await logActivity(userId, "Payment Refunded", `Refunded €${amount.toFixed(2)} for payment: ${paymentId}`, request.ip || "unknown");
+    await logActivity(userId, "Payment Refunded", `Refunded €${amount.toFixed(2)} for payment: ${paymentId}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

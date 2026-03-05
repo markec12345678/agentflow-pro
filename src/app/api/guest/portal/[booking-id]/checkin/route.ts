@@ -183,6 +183,7 @@ export async function POST(
 
     // Process check-in (in real implementation, this would save to database and generate keys)
     const checkInResponse = await processCheckIn(bookingId, {
+      bookingId,
       guestInfo,
       arrivalTime,
       specialRequests,

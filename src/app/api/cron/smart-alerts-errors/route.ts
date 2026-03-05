@@ -21,13 +21,13 @@ export async function GET(request: NextRequest) {
     const [count, lastEvent] = await Promise.all([
       prisma.alertEvent.count({
         where: {
-          eventType: "system_error",
+          type: "system_error",
           createdAt: { gte: since },
         },
       }),
       prisma.alertEvent.findFirst({
         where: {
-          eventType: "system_error",
+          type: "system_error",
           createdAt: { gte: since },
         },
         orderBy: { createdAt: "desc" },
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
       await prisma.alertEvent.deleteMany({
         where: {
-          eventType: "system_error",
+          type: "system_error",
           createdAt: { lt: since },
         },
       });

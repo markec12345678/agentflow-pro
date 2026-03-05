@@ -316,6 +316,7 @@ export default function BlockedDatesPage() {
                         <button
                           onClick={() => removeBlockedDate(blocked.id)}
                           className="p-1 text-red-600 hover:text-red-800"
+                          title="Remove blocked date"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -342,6 +343,8 @@ export default function BlockedDatesPage() {
                     value={newBlock.startDate}
                     onChange={(e) => setNewBlock({ ...newBlock, startDate: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    title="Start date for block"
+                    placeholder="Select start date"
                   />
                 </div>
 
@@ -353,6 +356,8 @@ export default function BlockedDatesPage() {
                     onChange={(e) => setNewBlock({ ...newBlock, endDate: e.target.value })}
                     min={newBlock.startDate}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    title="End date for block"
+                    placeholder="Select end date"
                   />
                 </div>
 
@@ -362,6 +367,7 @@ export default function BlockedDatesPage() {
                     value={newBlock.reason}
                     onChange={(e) => setNewBlock({ ...newBlock, reason: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    title="Reason for blocking dates"
                   >
                     {BLOCK_REASONS.map((reason) => (
                       <option key={reason.value} value={reason.value}>{reason.label}</option>
@@ -376,6 +382,7 @@ export default function BlockedDatesPage() {
                       value={newBlock.roomId}
                       onChange={(e) => setNewBlock({ ...newBlock, roomId: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      title="Select room to block"
                     >
                       <option value="">All Rooms</option>
                       {rooms.map((room) => (

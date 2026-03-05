@@ -80,7 +80,7 @@ const LANGUAGES = [
 export default function GuestMessagesPage() {
   const { status } = useSession();
   const router = useRouter();
-  const { id: guestId } = useParams();
+  const { id: guestId } = useParams() || {};
   
   const [guest, setGuest] = useState<any>(null);
   const [history, setHistory] = useState<Communication[]>([]);
@@ -194,6 +194,7 @@ export default function GuestMessagesPage() {
             <button 
               onClick={() => router.push(`/guests/${guestId}`)}
               className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-colors"
+              title="Nazaj na gostovne sporočile"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -238,6 +239,7 @@ export default function GuestMessagesPage() {
                       className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 appearance-none"
                       value={selectedTemplate}
                       onChange={(e) => handleApplyTemplate(e.target.value)}
+                      title="Izberite predlogo sporočila"
                     >
                       <option value="">Izberi predlogo...</option>
                       {TEMPLATES.map(tpl => (
@@ -310,6 +312,8 @@ export default function GuestMessagesPage() {
                   className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
+                  title="Čas pošiljanja sporočila"
+                  placeholder="Izberite čas pošiljanja"
                 />
                 <p className="text-[10px] text-gray-400 mt-2">Če pustite prazno, bo sporočilo poslano takoj.</p>
               </div>
@@ -320,6 +324,7 @@ export default function GuestMessagesPage() {
                 onClick={handleSendMessage}
                 disabled={isSending || !content.trim()}
                 className="flex items-center gap-3 px-8 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50"
+                title="Pošlji sporočilo"
               >
                 {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 {scheduledAt ? "Razporedi pošiljanje" : "Pošlji sporočilo zdaj"}

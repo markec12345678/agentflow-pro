@@ -130,6 +130,7 @@ export default function PropertyRoomsPage() {
             <button 
               onClick={() => router.push("/properties")}
               className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-colors"
+              title="Nazaj na sobe"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -161,10 +162,11 @@ export default function PropertyRoomsPage() {
                   <input 
                     type="text"
                     className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
-                    placeholder="Npr. Soba 101"
                     value={newRoom.name}
                     onChange={(e) => setNewRoom({...newRoom, name: e.target.value})}
                     required
+                    title="Ime sobe"
+                    placeholder="Npr. Soba 101"
                   />
                 </div>
                 <div>
@@ -173,6 +175,7 @@ export default function PropertyRoomsPage() {
                     className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
                     value={newRoom.type}
                     onChange={(e) => setNewRoom({...newRoom, type: e.target.value})}
+                    title="Izberite tip sobe"
                   >
                     <option value="single">Single Room</option>
                     <option value="double">Double Room</option>
@@ -193,6 +196,8 @@ export default function PropertyRoomsPage() {
                       onChange={(e) => setNewRoom({...newRoom, capacity: parseInt(e.target.value)})}
                       min="1"
                       required
+                      title="Število oseb"
+                      placeholder="Vnesite št. oseb"
                     />
                   </div>
                   <div>
@@ -203,6 +208,9 @@ export default function PropertyRoomsPage() {
                       value={newRoom.beds}
                       onChange={(e) => setNewRoom({...newRoom, beds: parseInt(e.target.value)})}
                       min="1"
+                      required
+                      title="Število postelj"
+                      placeholder="Vnesite št. postelj"
                     />
                   </div>
                 </div>
@@ -211,9 +219,13 @@ export default function PropertyRoomsPage() {
                   <input 
                     type="number"
                     className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
-                    placeholder="0.00"
                     value={newRoom.basePrice}
-                    onChange={(e) => setNewRoom({...newRoom, basePrice: e.target.value})}
+                    onChange={(e) => setNewRoom({...newRoom, basePrice: parseFloat(e.target.value)})}
+                    min="0"
+                    step="0.01"
+                    required
+                    title="Osnovna cena na noč"
+                    placeholder="Vnesite ceno"
                   />
                 </div>
               </div>
@@ -269,10 +281,10 @@ export default function PropertyRoomsPage() {
                     {room.type}
                   </div>
                   <div className="absolute bottom-3 right-3 flex gap-2">
-                    <button className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg text-gray-600 hover:text-blue-600 transition-colors">
+                    <button className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg text-gray-600 hover:text-blue-600 transition-colors" title="Uredi sobo">
                       <Edit className="w-3.5 h-3.5" />
                     </button>
-                    <button className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg text-gray-600 hover:text-red-600 transition-colors">
+                    <button className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg text-gray-600 hover:text-red-600 transition-colors" title="Izbriši sobo">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>

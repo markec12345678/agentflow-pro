@@ -48,6 +48,16 @@ coverage/
 test-results/
 playwright-report/
 screenshots/
+
+# Rust
+rust/target/
+rust/**/target/
+*.rlib
+*.pdb
+*.so
+*.dll
+*.dylib
+Cargo.lock
 playwright-*.txt
 
 # Prisma generated

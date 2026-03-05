@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       timeout: 30
     };
 
-    const config = user?.eturizemConfig as EturizemConfig || defaultConfig;
+    const config: EturizemConfig = (user?.eturizemConfig as any) || defaultConfig;
 
     // Hide API key in response for security
     const safeConfig = {
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
       select: { eturizemConfig: true }
     });
 
-    const currentConfig = currentUser?.eturizemConfig as EturizemConfig || {};
+    const currentConfig: EturizemConfig = (currentUser?.eturizemConfig as any) || {};
     
     // Merge with existing config, preserving API key if not provided
     const updatedConfig: EturizemConfig = {
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
     await prisma.user.update({
       where: { id: userId },
       data: {
-        eturizemConfig: updatedConfig
+        eturizemConfig: updatedConfig as any
       }
     });
 

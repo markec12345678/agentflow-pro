@@ -68,7 +68,7 @@ export async function POST(
     const jobResult = await executeCronJob(mockCronJob);
 
     // Log activity
-    await logActivity(userId, "Cron Job Triggered", `Manually triggered cron job: ${mockCronJob.name}`, request.ip || "unknown");
+    await logActivity(userId, "Cron Job Triggered", `Manually triggered cron job: ${mockCronJob.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

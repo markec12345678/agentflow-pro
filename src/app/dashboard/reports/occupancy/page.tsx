@@ -318,6 +318,7 @@ export default function OccupancyReportPage() {
                 value={selectedMetric}
                 onChange={(e) => setSelectedMetric(e.target.value as any)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                title="Select metric type"
               >
                 <option value="occupancy">Occupancy Rate</option>
                 <option value="revenue">Revenue</option>

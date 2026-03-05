@@ -97,7 +97,7 @@ export async function PUT(
     console.log('Updating user:', targetUserId, updates);
 
     // Log activity
-    await logActivity(userId, "User Updated", `Updated user: ${targetUser.name}`, request.ip || "unknown");
+    await logActivity(userId, "User Updated", `Updated user: ${targetUser.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,
@@ -172,7 +172,7 @@ export async function DELETE(
     console.log('Deactivating user:', targetUserId);
 
     // Log activity
-    await logActivity(userId, "User Deactivated", `Deactivated user: ${targetUser.name}`, request.ip || "unknown");
+    await logActivity(userId, "User Deactivated", `Deactivated user: ${targetUser.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

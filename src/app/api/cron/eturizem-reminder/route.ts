@@ -30,8 +30,9 @@ export async function GET(request: NextRequest) {
     if (pending.length > 0) {
       await prisma.alertEvent.create({
         data: {
-          eventType: "eturizem_pending",
-          entityId: "global",
+          type: "eturizem_pending",
+          title: "eTurizem Reminder",
+          message: `${pending.length} reservations pending eTurizem submission`,
           metadata: {
             count: pending.length,
             reservationIds: pending.map((r) => r.id),

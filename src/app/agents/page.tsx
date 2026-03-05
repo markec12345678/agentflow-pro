@@ -50,7 +50,7 @@ export default function AgentsDashboard() {
       } else {
         toast.error(data.error || "Napaka pri nalaganju agentov");
       }
-    } catch (error) {
+    } catch {
       toast.error("Sistemska napaka");
     } finally {
       setLoading(false);
@@ -63,7 +63,7 @@ export default function AgentsDashboard() {
         router.push("/login?callbackUrl=/agents");
       } else if (status === "authenticated") {
         // Get user role from database
-        const userId = session?.user?.userId || (session?.user as any)?.id;
+        const userId = session?.user?.userId || (session?.user as { id?: string })?.id;
         let userRole = null;
         
         if (userId) {
@@ -104,7 +104,7 @@ export default function AgentsDashboard() {
       } else {
         toast.error("Napaka pri izvajanju akcije");
       }
-    } catch (error) {
+    } catch {
       toast.error("Sistemska napaka");
     } finally {
       setActionLoading(null);
@@ -149,6 +149,7 @@ export default function AgentsDashboard() {
             </div>
             <button 
               onClick={fetchAgents}
+              title="Refresh agents"
               className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-all"
             >
               <RefreshCcw className="w-5 h-5 text-gray-400" />

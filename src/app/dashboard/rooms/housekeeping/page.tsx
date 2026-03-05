@@ -235,6 +235,8 @@ export default function HousekeepingPage() {
               value={format(selectedDate, "yyyy-MM-dd")}
               onChange={(e) => setSelectedDate(new Date(e.target.value))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              title="Select housekeeping date"
+              placeholder="Select housekeeping date"
             />
           </div>
           <div>
@@ -243,6 +245,7 @@ export default function HousekeepingPage() {
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              title="Filter housekeeping tasks"
             >
               <option value="all">All Tasks</option>
               <option value="pending">Pending</option>
@@ -434,6 +437,7 @@ export default function HousekeepingPage() {
                                 value={task.assignedTo || ""}
                                 onChange={(e) => handleAssignTask(task.id, e.target.value)}
                                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                title="Assign housekeeping task"
                               >
                                 <option value="">Assign to...</option>
                                 {staff.filter(s => s.isAvailable).map((staffMember) => (

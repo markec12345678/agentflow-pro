@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
     console.log('Created new user:', newUser);
 
     // Log activity
-    await logActivity(userId, "User Created", `Created new user: ${user.name}`, request.ip || "unknown");
+    await logActivity(userId, "User Created", `Created new user: ${user.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

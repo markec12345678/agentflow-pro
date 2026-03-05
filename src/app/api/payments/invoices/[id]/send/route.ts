@@ -83,13 +83,13 @@ export async function POST(
     const recipientEmail = email || mockInvoice.guestEmail;
 
     // Send invoice (in real implementation)
-    const sendResult = await sendInvoiceEmail(mockInvoice, recipientEmail, subject, message, currentUser.name);
+    const sendResult = await sendInvoiceEmail(mockInvoice, recipientEmail, subject, message, currentUser.name || undefined);
 
     // Update invoice status to "sent"
     console.log(`Invoice ${invoiceId} marked as sent`);
 
     // Log activity
-    await logActivity(userId, "Invoice Sent", `Sent invoice ${mockInvoice.invoiceNumber} to ${recipientEmail}`, request.ip || "unknown");
+    await logActivity(userId, "Invoice Sent", `Sent invoice ${mockInvoice.invoiceNumber} to ${recipientEmail}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

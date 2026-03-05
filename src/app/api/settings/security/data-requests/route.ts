@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
     console.log('Created data request:', newRequest);
 
     // Log activity
-    await logActivity(userId, "Data Request Created", `Created ${requestType} request for: ${guestEmail}`, request.ip || "unknown");
+    await logActivity(userId, "Data Request Created", `Created ${requestType} request for: ${guestEmail}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

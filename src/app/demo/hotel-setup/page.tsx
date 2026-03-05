@@ -91,12 +91,14 @@ export default function HotelSetupDemo() {
                     value={room.name}
                     onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
                     placeholder="Ime sobe"
+                    title="Ime sobe"
                     className="p-2 border rounded"
                   />
                   <select 
                     value={room.type}
                     onChange={(e) => updateRoom(room.id, 'type', e.target.value)}
                     className="p-2 border rounded"
+                    title="Izberite tip sobe"
                   >
                     <option value="single">Enoposteljna</option>
                     <option value="double">Dvoposteljna</option>
@@ -107,6 +109,7 @@ export default function HotelSetupDemo() {
                     value={room.capacity}
                     onChange={(e) => updateRoom(room.id, 'capacity', parseInt(e.target.value))}
                     placeholder="Št. oseb"
+                    title="Število oseb v sobi"
                     className="p-2 border rounded"
                   />
                   <input 
@@ -114,6 +117,7 @@ export default function HotelSetupDemo() {
                     value={room.basePrice}
                     onChange={(e) => updateRoom(room.id, 'basePrice', parseFloat(e.target.value))}
                     placeholder="Cena/nač"
+                    title="Cena na noč"
                     className="p-2 border rounded"
                   />
                   <div className={`p-2 rounded text-center font-medium ${

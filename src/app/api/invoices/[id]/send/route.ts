@@ -98,7 +98,7 @@ export async function POST(
     const recipientEmail = email || mockInvoice.guestEmail;
 
     // Send invoice (in real implementation)
-    const sendResult = await sendInvoiceEmail(mockInvoice, recipientEmail, subject, message, attachPDF, currentUser.name);
+    const sendResult = await sendInvoiceEmail(mockInvoice, recipientEmail, subject, message, attachPDF, currentUser.name || undefined);
 
     // Update invoice status to "sent"
     console.log(`Invoice ${invoiceId} marked as sent`);

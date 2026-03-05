@@ -27,8 +27,8 @@ export default function ContentDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const id = params.id as string;
-  const shouldOpenPublish = searchParams.get("publish") === "1";
+  const id = params?.id as string;
+  const shouldOpenPublish = searchParams?.get("publish") === "1";
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [publishModal, setPublishModal] = useState(false);
@@ -541,6 +541,7 @@ export default function ContentDetailPage() {
                   setPublishPlatform(e.target.value as "wordpress" | "medium" | "linkedin" | "twitter")
                 }
                 className="w-full mb-4 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                title="Select publishing platform"
               >
                 <option value="wordpress">WordPress</option>
                 <option value="medium">Medium</option>
@@ -669,6 +670,7 @@ export default function ContentDetailPage() {
                     value={publishStatus}
                     onChange={(e) => setPublishStatus(e.target.value as "draft" | "publish")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    title="Select publishing status"
                   >
                     <option value="draft">Draft</option>
                     <option value="publish">Publish now</option>
@@ -733,6 +735,8 @@ export default function ContentDetailPage() {
                         )
                       }
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Enter meta title"
+                      title="Meta title for SEO"
                     />
                   </div>
                   <div>
@@ -746,6 +750,8 @@ export default function ContentDetailPage() {
                       }
                       rows={2}
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Enter meta description"
+                      title="Meta description for SEO"
                     />
                   </div>
                   <div>

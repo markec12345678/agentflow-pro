@@ -339,6 +339,8 @@ export default function CheckInPage() {
                           value={checkInData.actualCheckInTime}
                           onChange={(e) => setCheckInData(prev => ({ ...prev, actualCheckInTime: e.target.value }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Actual check-in time"
+                          placeholder="Select check-in time"
                         />
                       </div>
                       
@@ -348,6 +350,7 @@ export default function CheckInPage() {
                           value={checkInData.roomCondition}
                           onChange={(e) => setCheckInData(prev => ({ ...prev, roomCondition: e.target.value }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Select room condition"
                         >
                           <option value="clean">Clean</option>
                           <option value="needs_cleaning">Needs Cleaning</option>
@@ -410,6 +413,7 @@ export default function CheckInPage() {
                           checked={checkInData.paymentCollected}
                           onChange={(e) => setCheckInData(prev => ({ ...prev, paymentCollected: e.target.checked }))}
                           className="mr-2"
+                          title="Payment collected status"
                         />
                         <label className="text-sm font-medium text-gray-700">Payment Collected</label>
                       </div>
@@ -433,6 +437,7 @@ export default function CheckInPage() {
                                 value={checkInData.paymentMethod}
                                 onChange={(e) => setCheckInData(prev => ({ ...prev, paymentMethod: e.target.value }))}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                title="Select payment method"
                               >
                                 <option value="">Select method</option>
                                 <option value="cash">Cash</option>

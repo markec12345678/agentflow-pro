@@ -140,9 +140,10 @@ export async function GET(request: NextRequest) {
         const checkIn = new Date(reservation.checkIn);
         const checkOut = new Date(reservation.checkOut);
         const currentDate = new Date(date);
-        
-        if (currentDate >= checkIn && currentDate < checkOut) {
-          return sum + (reservation.totalPrice / Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)));
+
+        if (currentDate >= checkIn && currentDate < checkOut && reservation.totalPrice) {
+          const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+          return sum + (reservation.totalPrice / (nights || 1));
         }
         return sum;
       }, 0);

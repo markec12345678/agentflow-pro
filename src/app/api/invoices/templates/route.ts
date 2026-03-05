@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
     console.log('Created invoice template:', newTemplate);
 
     // Log activity
-    await logActivity(userId, "Invoice Template Created", `Created template: ${name}`, request.ip || "unknown");
+    await logActivity(userId, "Invoice Template Created", `Created template: ${name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

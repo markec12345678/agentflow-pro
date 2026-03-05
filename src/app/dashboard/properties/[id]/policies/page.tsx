@@ -244,6 +244,7 @@ export default function PoliciesPage() {
                     <button
                       onClick={() => setEditingPolicy(existingPolicy.id)}
                       className="p-2 text-gray-600 hover:text-blue-600 mr-2"
+                      title="Edit policy"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
@@ -257,16 +258,18 @@ export default function PoliciesPage() {
                         <textarea
                           value={existingPolicy.content}
                           onChange={(e) => {
-                            const updated = { ...existingPolicy, content: e.target.value };
-                            setPolicies(policies.map(p => p.id === existingPolicy.id ? updated : p));
+                            setEditingPolicy({ ...existingPolicy, content: e.target.value });
                           }}
-                          rows={6}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          rows={6}
+                          placeholder="Enter policy content"
+                          title="Policy content"
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={() => updatePolicy(existingPolicy.id, existingPolicy.content)}
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            title="Save policy"
                           >
                             <Save className="w-4 h-4 mr-2" />
                             Save
@@ -274,21 +277,22 @@ export default function PoliciesPage() {
                           <button
                             onClick={() => setEditingPolicy(null)}
                             className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            title="Cancel editing"
                           >
                             Cancel
                           </button>
                           <button
                             onClick={() => removePolicy(existingPolicy.id)}
-                            className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                            className="p-2 text-red-600 hover:text-red-800"
+                            title="Delete policy"
                           >
-                            <X className="w-4 h-4 mr-2" />
-                            Remove
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <pre className="whitespace-pre-wrap text-sm text-gray-700">{existingPolicy.content}</pre>
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <p className="text-gray-700 whitespace-pre-wrap">{existingPolicy.content}</p>
                       </div>
                     )}
                   </div>
@@ -328,8 +332,9 @@ export default function PoliciesPage() {
                           value={newPolicyForm.content}
                           onChange={(e) => setNewPolicyForm({ ...newPolicyForm, content: e.target.value })}
                           placeholder="Enter your custom policy..."
-                          rows={4}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          rows={4}
+                          title="Custom policy content"
                         />
                         <div className="flex gap-2">
                           <button
@@ -379,6 +384,10 @@ export default function PoliciesPage() {
               value={newPolicyForm.content}
               onChange={(e) => setNewPolicyForm({ ...newPolicyForm, content: e.target.value })}
               placeholder="Policy content..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={6}
+              title="Policy content"
+            >
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />

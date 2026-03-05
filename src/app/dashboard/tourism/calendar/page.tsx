@@ -115,10 +115,10 @@ export default function CalendarPage() {
   }, [activePropertyId, currentDate, fetchCalendar]);
 
   useEffect(() => {
-    if (searchParams.get("open") === "new") {
+    if (searchParams?.get("open") === "new") {
       setShowNewReservation(true);
     }
-    const prop = searchParams.get("propertyId");
+    const prop = searchParams?.get("propertyId");
     if (prop) setActivePropertyId(prop);
   }, [searchParams]);
 
@@ -944,7 +944,7 @@ export default function CalendarPage() {
                   type="button"
                   onClick={() => setSimpleReservationMode((v) => !v)}
                   className="text-xs px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  aria-pressed={!simpleReservationMode}
+                  aria-pressed={simpleReservationMode ? "true" : "false"}
                 >
                   {simpleReservationMode ? "Enostavni" : "Napredni"} način
                 </button>

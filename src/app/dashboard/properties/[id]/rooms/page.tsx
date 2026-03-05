@@ -254,12 +254,14 @@ export default function RoomsPage() {
                       <button
                         onClick={() => startEdit(room)}
                         className="p-1 text-gray-600 hover:text-blue-600"
+                        title="Edit room"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => deleteRoom(room.id)}
                         className="p-1 text-gray-600 hover:text-red-600"
+                        title="Delete room"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -347,6 +349,7 @@ export default function RoomsPage() {
                       value={roomForm.type}
                       onChange={(e) => setRoomForm({ ...roomForm, type: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      title="Select room type"
                     >
                       {ROOM_TYPES.map((type) => (
                         <option key={type.value} value={type.value}>{type.label}</option>

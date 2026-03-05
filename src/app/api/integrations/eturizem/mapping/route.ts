@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       localPropertyName: property.name,
       eturizemId: property.eturizemId,
       eturizemName: property.eturizemId ? `eTurizem Property ${property.eturizemId}` : null,
-      lastSyncTime: property.eturizemSyncedAt,
+      lastSyncTime: property.eturizemSyncedAt ? property.eturizemSyncedAt.toISOString() : null,
       syncStatus: property.eturizemSyncStatus as any || "not_mapped",
       errorMessage: property.eturizemLastError || undefined
     }));
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
       localPropertyName: updatedProperty.name,
       eturizemId: updatedProperty.eturizemId,
       eturizemName: `eTurizem Property ${eturizemId}`,
-      lastSyncTime: updatedProperty.eturizemSyncedAt,
+      lastSyncTime: updatedProperty.eturizemSyncedAt ? updatedProperty.eturizemSyncedAt.toISOString() : null,
       syncStatus: "pending"
     };
 

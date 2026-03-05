@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
     console.log('Updated fallback rules:', rules);
 
     // Log activity
-    await logActivity(userId, "Fallback Rules Updated", `Updated ${rules.length} fallback rules`, request.ip || "unknown");
+    await logActivity(userId, "Fallback Rules Updated", `Updated ${rules.length} fallback rules`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
 
     return NextResponse.json({
       success: true,

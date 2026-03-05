@@ -148,7 +148,6 @@ export async function GET(request: NextRequest) {
         availableRooms: processedRooms.filter(r => r.status === "available").length,
         occupiedRooms: processedRooms.filter(r => r.status === "occupied").length,
         cleaningRooms: processedRooms.filter(r => r.status === "cleaning").length,
-        maintenanceRooms: processedRooms.filter(r => r.status === "maintenance").length,
         outOfOrderRooms: processedRooms.filter(r => r.status === "out-of-order").length,
       },
     });

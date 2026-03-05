@@ -134,9 +134,9 @@ export default function PropertiesPage() {
                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{prop.status}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {prop.eturizemStatus === "synced" && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" title="eTurizem Synced" />}
-                    {prop.eturizemStatus === "pending" && <AlertCircle className="w-3.5 h-3.5 text-amber-500" title="eTurizem Pending" />}
-                    {prop.eturizemStatus === "error" && <XCircle className="w-3.5 h-3.5 text-red-500" title="eTurizem Connection Error" />}
+                    {prop.eturizemStatus === "synced" && <span title="eTurizem Synced"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" /></span>}
+                    {prop.eturizemStatus === "pending" && <span title="eTurizem Pending"><AlertCircle className="w-3.5 h-3.5 text-amber-500" /></span>}
+                    {prop.eturizemStatus === "error" && <span title="eTurizem Connection Error"><XCircle className="w-3.5 h-3.5 text-red-500" /></span>}
                     <span className="text-[10px] font-bold text-gray-400">eTurizem</span>
                   </div>
                 </div>
@@ -175,9 +175,8 @@ export default function PropertiesPage() {
                   {/* Progress bar for occupancy */}
                   <div className="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-3 overflow-hidden">
                     <div 
-                      className={`h-full rounded-full ${prop.occupancyRate > 80 ? "bg-green-500" : prop.occupancyRate > 50 ? "bg-blue-500" : "bg-amber-500"}`} 
-                      style={{ width: `${prop.occupancyRate}%` }}
-                    />
+                      className={`h-full rounded-full ${prop.occupancyRate > 80 ? "bg-green-500" : prop.occupancyRate > 50 ? "bg-blue-500" : "bg-amber-500"}`}
+                    >
                   </div>
                 </div>
 
@@ -193,12 +192,14 @@ export default function PropertiesPage() {
                           value={editPrice}
                           onChange={(e) => setEditPrice(e.target.value)}
                           autoFocus
+                          title="Cena na noč"
+                          placeholder="Vnesite ceno"
                         />
                       </div>
-                      <button onClick={saveQuickEdit} disabled={isSaving} className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                      <button onClick={saveQuickEdit} disabled={isSaving} className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors" title="Shrani ceno">
                         {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                       </button>
-                      <button onClick={() => setQuickEditId(null)} className="p-2 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-300 transition-colors">
+                      <button onClick={() => setQuickEditId(null)} className="p-2 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-300 transition-colors" title="Prekliči urejanje">
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -235,6 +236,7 @@ export default function PropertiesPage() {
                   )}
                 </div>
               </div>
+            </div>
             ))
           ) : (
             <div className="col-span-full py-20 text-center bg-white dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
@@ -247,7 +249,6 @@ export default function PropertiesPage() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

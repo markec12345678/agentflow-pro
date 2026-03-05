@@ -246,6 +246,8 @@ export default function QuickReservationPage() {
                       onChange={(e) => handleInputChange("guests", parseInt(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
+                      title="Number of guests"
+                      placeholder="Enter number of guests"
                     />
                   </div>
                 </div>
@@ -265,6 +267,7 @@ export default function QuickReservationPage() {
                       onChange={(e) => handleInputChange("roomId", e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
+                      title="Select room"
                     >
                       <option value="">Select a room</option>
                       {availableRooms.map((room) => (
@@ -284,6 +287,7 @@ export default function QuickReservationPage() {
                       onChange={(e) => handleInputChange("channel", e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
+                      title="Select booking channel"
                     >
                       <option value="direct">Direct</option>
                       <option value="booking.com">Booking.com</option>
@@ -318,6 +322,8 @@ export default function QuickReservationPage() {
                       min={format(new Date(), "yyyy-MM-dd")}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
+                      title="Check-in date"
+                      placeholder="Select check-in date"
                     />
                   </div>
                   
@@ -332,6 +338,8 @@ export default function QuickReservationPage() {
                       min={form.checkIn}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
+                      title="Check-out date"
+                      placeholder="Select check-out date"
                     />
                   </div>
                 </div>

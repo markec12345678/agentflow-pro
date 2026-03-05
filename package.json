@@ -8,10 +8,27 @@
   },
   "scripts": {
     "clean": "node -e \"const fs=require('fs');const p='.next';fs.existsSync(p)&&fs.rmSync(p,{recursive:true});console.log('Cleaned .next')\"",
-    "dev": "next dev -p 3002",
-    "build": "next build",
-    "build:vercel": "prisma db push --force-reset --accept-data-loss && next build",
-    "build:rust": "cd rust/pricing-engine && cargo build --release",
+    "dev": "npm run build:bindings -- --debug && next dev -p 3002",
+
+    "build:bindings": "npm run build:bindings:pricing && npm run build:bindings:workflow",
+    "build:bindings:pricing": "cd rust/pricing-engine && napi build --platform --release",
+    "build:bindings:workflow": "cd rust/workflow-executor && napi build --platform --release",
+    "build:bindings:pricing:debug": "cd rust/pricing-engine && napi build --platform",
+    "build:bindings:workflow:debug": "cd rust/workflow-executor && napi build --platform",
+    "build:bindings:skip": "echo Skipping NAPI build - using existing binary",
+
+    "build": "npm run build:bindings:skip && next build",
+    "build:vercel": "npm run build:rust && npm run build:bindings && next build",
+    "build:rust": "cd rust && cargo build --workspace --release",
+    "build:rust:dev": "cd rust && cargo build --workspace",
+    "build:rust:all": "npm run build:rust && npm run build:bindings",
+    "build:rust:workflow": "cd rust/workflow-executor && cargo build --release",
+    "build:rust:pricing": "cd rust/pricing-engine && cargo build --release",
+    "build:napi": "npm run build:bindings",
+    "build:napi:pricing": "npm run build:bindings:pricing",
+    "build:napi:workflow": "npm run build:bindings:workflow",
+    "bench:ts": "npx tsx benchmarks/pricing-benchmark.ts",
+    "bench": "npm run build:rust && npm run bench:ts",
     "postinstall": "prisma generate",
     "start": "next start -p 3002",
     "lint": "eslint . --max-warnings 999",
@@ -30,6 +47,8 @@
     "test:e2e:hotel": "python tests/hotel-management-tests.py",
     "test:e2e:tourism": "playwright test tests/e2e/tourism tests/e2e/tourism-email tests/e2e/tourism-journey tests/e2e/copy-buttons --project=chromium",
     "test:e2e:checklist": "playwright test workflow-builder --project=chromium",
+    "test:napi": "node tests/napi-integration.test.js",
+    "test:rust": "cd rust && cargo test --workspace",
     "verify:production-env": "node scripts/verify-production-env.js",
     "check-links": "node scripts/check-links.js",
     "predeploy": "node scripts/predeploy.js",
@@ -76,6 +95,7 @@
     "@types/stripe": "^8.0.416",
     "@types/uuid": "^10.0.0",
     "@types/web-push": "^3.6.4",
+    "@vercel/analytics": "^1.6.1",
     "@xyflow/react": "^12.0.0",
     "ai": "^6.0.86",
     "axios": "^1.13.6",
@@ -147,5 +167,19 @@
     "tsx": "^4.21.0",
     "typescript": "^5.0.0",
     "vercel": "^50.25.1"
+  },
+  "napi": {
+    "name": "agentflow-rust-bindings",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "x86_64-pc-windows-msvc",
+        "x86_64-apple-darwin",
+        "x86_64-unknown-linux-gnu",
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-gnu"
+      ]
+    },
+    "npmDir": "./npm"
   }
 }

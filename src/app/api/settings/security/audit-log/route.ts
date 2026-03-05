@@ -257,7 +257,7 @@ export async function POST(request: NextRequest) {
       resource,
       details,
       timestamp: new Date().toISOString(),
-      ipAddress: request.ip || "unknown",
+      ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown",
       userAgent: request.headers.get('user-agent') || "unknown"
     };
 

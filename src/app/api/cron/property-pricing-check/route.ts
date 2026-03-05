@@ -59,8 +59,10 @@ export async function GET(request: NextRequest) {
 
       await prisma.alertEvent.create({
         data: {
-          eventType: "property_pricing_suggested",
-          entityId: property.id,
+          type: "property_pricing_suggested",
+          title: "Property Pricing Suggestion",
+          message: `Suggested base price for ${property.name}: €${suggestedBasePrice}`,
+          propertyId: property.id,
           metadata: {
             suggestedBasePrice,
             sampleCount: reservations.length,

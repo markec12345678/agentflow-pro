@@ -126,6 +126,7 @@ export default function ReviewAgentPage() {
             <button 
               onClick={() => router.push("/agents")}
               className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-all"
+              title="Back to agents"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -146,6 +147,7 @@ export default function ReviewAgentPage() {
             <button 
               onClick={fetchReviews}
               className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-all"
+              title="Refresh reviews"
             >
               <RefreshCcw className="w-5 h-5 text-gray-400" />
             </button>
@@ -274,6 +276,8 @@ export default function ReviewAgentPage() {
                           className="w-full p-4 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl text-xs focus:ring-2 focus:ring-blue-500 min-h-[100px]"
                           value={responseContent}
                           onChange={(e) => setResponseContent(e.target.value)}
+                          placeholder="Enter your response..."
+                          title="Response to review"
                         />
                         <div className="flex justify-end gap-2">
                           <button 

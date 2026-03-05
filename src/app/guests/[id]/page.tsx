@@ -58,7 +58,7 @@ interface GuestProfile {
 export default function GuestProfilePage() {
   const { status } = useSession();
   const router = useRouter();
-  const { id: guestId } = useParams();
+  const { id: guestId } = useParams() || {};
   const [guest, setGuest] = useState<GuestProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -149,6 +149,7 @@ export default function GuestProfilePage() {
             <button 
               onClick={() => router.push("/guests")}
               className="p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-gray-50 transition-colors"
+              title="Nazaj na seznam gostov"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -305,6 +306,7 @@ export default function GuestProfilePage() {
                   <button 
                     onClick={() => setEditData({...editData, isVip: !editData.isVip})}
                     className={`w-10 h-5 rounded-full relative transition-colors ${editData.isVip ? "bg-blue-600" : "bg-gray-200"}`}
+                    title="Preklopi VIP status gostu"
                   >
                     <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${editData.isVip ? "left-6" : "left-1"}`}></div>
                   </button>

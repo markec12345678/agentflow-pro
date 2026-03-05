@@ -34,7 +34,8 @@ test.describe('Receptor Workflow E2E Tests', () => {
     // Verify room status grid
     await expect(page.locator('[data-testid="room-grid"]')).toBeVisible();
     const roomCards = page.locator('[data-testid="room-card"]');
-    await expect(roomCards).toHaveCount.greaterThan(0);
+    const roomCount = await roomCards.count();
+    expect(roomCount).toBeGreaterThan(0);
     
     // Verify color-coded status indicators
     const availableRooms = page.locator('[data-testid="room-card"][data-status="available"]');
@@ -220,7 +221,7 @@ test.describe('Receptor Workflow E2E Tests', () => {
       
       // Verify form is scrollable on mobile
       const formHeight = await page.locator('[data-testid="mobile-check-in-form"]').evaluate(el => el.scrollHeight);
-      const viewportHeight = page.viewportSize().height;
+      const viewportHeight = page.viewportSize()?.height || 800;
       expect(formHeight).toBeLessThanOrEqual(viewportHeight);
     }
   });
@@ -243,8 +244,9 @@ test.describe('Receptor Workflow E2E Tests', () => {
       // Test access to allowed pages
       for (const allowedPage of role.allowedPages) {
         await page.goto(`http://localhost:3000${allowedPage}`);
-        await expect(page.locator('body')).not.toContain('Access denied');
-        await expect(page.locator('body')).not.toContain('403');
+        const bodyText = await page.locator('body').textContent();
+        expect(bodyText).not.toContain('Access denied');
+        expect(bodyText).not.toContain('403');
       }
       
       // Test access to restricted pages
@@ -252,7 +254,11 @@ test.describe('Receptor Workflow E2E Tests', () => {
       for (const restrictedPage of restrictedPages) {
         await page.goto(`http://localhost:3000${restrictedPage}`);
         // Should be redirected or denied access
-        await expect(page.url()).toContain('dashboard') || expect(page.locator('body')).toContain('Access denied');
+        const currentUrl = page.url();
+        const bodyText = await page.locator('body').textContent() || '';
+        const isRedirected = currentUrl.includes('dashboard');
+        const isDenied = bodyText.includes('Access denied');
+        expect(isRedirected || isDenied).toBeTruthy();
       }
       
       // Logout
@@ -380,7 +386,9 @@ test.describe('Receptor Workflow E2E Tests', () => {
     const formInputs = page.locator('input, select, textarea');
     for (let i = 0; i < await formInputs.count(); i++) {
       const input = formInputs.nth(i);
-      await expect(input).toHaveAttribute('aria-label') || await input).toHaveAttribute('placeholder');
+      const hasAriaLabel = await input.getAttribute('aria-label');
+      const hasPlaceholder = await input.getAttribute('placeholder');
+      expect(hasAriaLabel || hasPlaceholder).toBeTruthy();
     }
     
     // Test color contrast (basic check)

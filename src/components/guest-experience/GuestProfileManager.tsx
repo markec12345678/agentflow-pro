@@ -154,6 +154,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
                 value={profile.personalInfo.firstName}
                 disabled={editingSection !== 'personal'}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                title="Vnesite ime gosta"
                 onChange={(e) => {
                   if (editingSection === 'personal') {
                     handleProfileUpdate({
@@ -171,6 +172,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
                 value={profile.personalInfo.lastName}
                 disabled={editingSection !== 'personal'}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                title="Priimek gosta"
                 onChange={(e) => {
                   if (editingSection === 'personal') {
                     handleProfileUpdate({
@@ -188,6 +190,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
                 value={profile.personalInfo.email}
                 disabled={editingSection !== 'personal'}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                title="Elektronski naslov gosta"
                 onChange={(e) => {
                   if (editingSection === 'personal') {
                     handleProfileUpdate({
@@ -205,6 +208,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
                 value={profile.personalInfo.phone}
                 disabled={editingSection !== 'personal'}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                title="Telefonska številka gosta"
                 onChange={(e) => {
                   if (editingSection === 'personal') {
                     handleProfileUpdate({

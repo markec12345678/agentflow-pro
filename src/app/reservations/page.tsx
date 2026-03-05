@@ -202,12 +202,14 @@ export default function ReservationsPage() {
               <button 
                 onClick={() => setView("table")}
                 className={`p-2 rounded-lg transition-all ${view === "table" ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20" : "text-gray-400 hover:text-gray-600"}`}
+                title="Prikaz v tabeli"
               >
                 <List className="w-5 h-5" />
               </button>
               <button 
                 onClick={() => setView("calendar")}
                 className={`p-2 rounded-lg transition-all ${view === "calendar" ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20" : "text-gray-400 hover:text-gray-600"}`}
+                title="Prikaz v koledarju"
               >
                 <CalendarIcon className="w-5 h-5" />
               </button>
@@ -247,13 +249,14 @@ export default function ReservationsPage() {
             
             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
               <PropertySelector 
-                activePropertyId={activePropertyId} 
-                onSelect={setActivePropertyId} 
+                value={activePropertyId} 
+                onChange={setActivePropertyId} 
               />
               
               <button 
                 onClick={() => setShowAdvancedFilters(!showFilters)}
                 className={`p-2 rounded-xl border transition-all ${showFilters ? "bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-900/20 dark:border-blue-800" : "border-gray-200 dark:border-gray-800 text-gray-500"}`}
+                title="Napredni filtri"
               >
                 <Filter className="w-5 h-5" />
               </button>
@@ -288,6 +291,7 @@ export default function ReservationsPage() {
                   className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
+                  title="Filter rezervacij po statusu"
                 >
                   <option value="all">Vsi statusi</option>
                   <option value="confirmed">Potrjeno</option>
@@ -303,6 +307,8 @@ export default function ReservationsPage() {
                   className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
                   value={dateRange.start}
                   onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+                  title="Začetni datum filtra"
+                  placeholder="Izberite začetni datum"
                 />
               </div>
               <div>
@@ -312,6 +318,8 @@ export default function ReservationsPage() {
                   className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
                   value={dateRange.end}
                   onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+                  title="Končni datum filtra"
+                  placeholder="Izberite končni datum"
                 />
               </div>
             </div>
@@ -329,6 +337,7 @@ export default function ReservationsPage() {
                       <input 
                         type="checkbox" 
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        title="Izberi vse rezervacije"
                         onChange={(e) => {
                           if (e.target.checked) setSelectedIds(reservations.map(r => r.id));
                           else setSelectedIds([]);
@@ -362,6 +371,7 @@ export default function ReservationsPage() {
                           <input 
                             type="checkbox" 
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                            title={`Izberi rezervacijo ${res.id}`}
                             checked={selectedIds.includes(res.id)}
                             onChange={(e) => {
                               if (e.target.checked) setSelectedIds([...selectedIds, res.id]);
@@ -395,12 +405,12 @@ export default function ReservationsPage() {
                           <div className="flex items-center gap-2 text-sm">
                             {res.channel !== "direct" ? (
                               <>
-                                <Bot className="w-4 h-4 text-blue-500" title="Avtomatska rezervacija (OTA)" />
+                                <span title="Avtomatska rezervacija (OTA)"><Bot className="w-4 h-4 text-blue-500" /></span>
                                 <span className="capitalize">{res.channel}</span>
                               </>
                             ) : (
                               <>
-                                <User className="w-4 h-4 text-gray-400" title="Ročna rezervacija" />
+                                <span title="Ročna rezervacija"><User className="w-4 h-4 text-gray-400" /></span>
                                 <span>Direktno</span>
                               </>
                             )}
@@ -410,7 +420,7 @@ export default function ReservationsPage() {
                           <p className="text-sm font-bold">€{res.totalPrice?.toLocaleString("sl-SI") ?? "0"}</p>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                          <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors" title="Možnosti rezervacije">
                             <MoreVertical className="w-4 h-4" />
                           </button>
                         </td>
@@ -438,18 +448,21 @@ export default function ReservationsPage() {
                 <button 
                   onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  title="Prejšnji mesec"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={() => setCurrentMonth(new Date())}
                   className="px-3 py-1 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                  title="Pojdi na današnji dan"
                 >
                   Danes
                 </button>
                 <button 
                   onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  title="Naslednji mesec"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
