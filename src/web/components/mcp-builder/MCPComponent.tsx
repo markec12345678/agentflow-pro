@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
+import Image from 'next/image';
 import './MCPComponent.css';
 import './MCPComponentStyles.css';
 
@@ -23,14 +24,14 @@ export interface MCPComponentProps {
 
 export const MCPComponent: React.FC<MCPComponentProps> = ({
   component,
-  isSelected,
+  selected,
   onSelect,
   _onUpdate,
   mcpConnection
 }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'MCP_COMPONENT',
-    item: () => ({ id: component.id }),
+    item: { id: component.id, type: component.type },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -83,9 +84,11 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
             className="mcp-image"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <Image
               src={(component.properties.src as string) || '/placeholder.jpg'}
               alt={(component.properties.alt as string) || 'Image'}
+              width={48}
+              height={48}
             />
           </div>
         );
@@ -132,7 +135,7 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
   const baseClasses = [
     'mcp-component',
     'positioned',
-    isSelected ? 'selected' : 'not-selected',
+    selected ? 'selected' : 'not-selected',
     isDragging ? 'dragging' : ''
   ].filter(Boolean).join(' ');
 
@@ -142,8 +145,6 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
     left: `${component.position.x}px`,
     top: `${component.position.y}px`
   };
-
-  const positionClass = component.position.x === 0 && component.position.y === 0 ? 'mcp-component' : 'mcp-component positioned';
 
   return (
     <div

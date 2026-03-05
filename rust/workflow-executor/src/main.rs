@@ -10,7 +10,6 @@
 
 use workflow_executor::{WorkflowDefinition, execute_workflow};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use std::io;
 
 #[tokio::main]
 async fn main() {

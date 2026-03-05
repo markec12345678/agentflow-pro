@@ -6,7 +6,7 @@
 import { Orchestrator } from '../orchestrator/Orchestrator';
 import { createResearchAgent } from '../agents/research/ResearchAgent';
 import { createContentAgent } from '../agents/content/ContentAgent';
-import { createReservationAgent } from '../agents/reservation/ReservationAgent';
+import { createReservationAgent } from '../agents/reservation/reservationAgent';
 import { createCommunicationAgent } from '../agents/communication/CommunicationAgent';
 
 export interface TourismWorkflowInput {
@@ -150,13 +150,16 @@ export class TourismWorkflows {
     const contentResult = await this.orchestrator.getTask(contentTaskId);
     await new Promise(resolve => setTimeout(resolve, 3000));
 
+    const blogContent = (contentResult?.result as { blog?: string })?.blog;
+    const wordCount = blogContent ? blogContent.length : 0;
+
     return {
       success: true,
       content: {
-        description: (contentResult?.result as any)?.blog || 'Generated property description'
+        description: blogContent || 'Generated property description',
       },
       metadata: {
-        wordCount: (contentResult?.result as any)?.blog?.length || 0,
+        wordCount,
         generatedAt: new Date(),
         workflowType: 'property_description'
       }
