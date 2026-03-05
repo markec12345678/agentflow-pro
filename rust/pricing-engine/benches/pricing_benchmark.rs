@@ -12,8 +12,8 @@ fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| {
             calculate_price(
                 black_box(100.0),
-                black_box("2026-07-01"),
-                black_box("2026-07-08"),
+                black_box(String::from("2026-07-01")),
+                black_box(String::from("2026-07-08")),
                 black_box(None),
             )
         })
@@ -25,18 +25,18 @@ fn criterion_benchmark(c: &mut Criterion) {
             competitor_avg: None,
             season_rates: Some(SeasonRates {
                 high: Some(vec![SeasonRange {
-                    from: "2026-07-01".to_string(),
-                    to: "2026-08-31".to_string(),
+                    from: String::from("2026-07-01"),
+                    to: String::from("2026-08-31"),
                     rate: 150.0,
                 }]),
                 mid: Some(vec![SeasonRange {
-                    from: "2026-05-01".to_owned(),
-                    to: "2026-06-30".to_owned(),
+                    from: String::from("2026-05-01"),
+                    to: String::from("2026-06-30"),
                     rate: 120.0,
                 }]),
                 low: Some(vec![SeasonRange {
-                    from: "2026-01-01",
-                    to: "2026-04-30".to_owned(),
+                    from: String::from("2026-01-01"),
+                    to: String::from("2026-04-30"),
                     rate: 80.0,
                 }]),
             }),

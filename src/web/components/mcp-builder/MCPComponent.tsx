@@ -142,16 +142,17 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
   const positionStyle: React.CSSProperties = {
     // Note: Inline styles are necessary here for dynamic positioning
     // which cannot be achieved with CSS classes alone
+    /* eslint-disable react/no-inline-styles */
     left: `${component.position.x}px`,
     top: `${component.position.y}px`
   };
 
   return (
     <div
-      ref={drag}
+      ref={(drag as unknown) as React.RefObject<HTMLDivElement>}
       style={positionStyle}
       className={baseClasses}
-      onClick={() => onSelect(component.id)}
+      onClick={() => onSelect?.(component.id)}
     >
       {renderComponent()}
       {mcpConnection && (

@@ -98,6 +98,7 @@ pub struct NodeExecutionResult {
     pub retries: u32,
     pub started_at: Option<String>,
     pub completed_at: Option<String>,
+    pub error: Option<String>,
 }
 
 /// Overall workflow execution status
@@ -143,7 +144,7 @@ pub struct WorkflowProgress {
 
 struct Executor {
     workflow: WorkflowDefinition,
-    node_results: Arc<RwLock<HashMap<String, NodeExecutionResult>>>,
+    completed: Arc<RwLock<HashSet<String>>>,
 }
 
 impl Executor {
@@ -234,7 +235,6 @@ impl Executor {
     async fn execute_node(&self, node: &WorkflowNode) -> NodeExecutionResult {
         let started_at = Utc::now();
         let max_retries = node.retry_count.unwrap_or(0);
-        let timeout = node.timeout_ms.unwrap_or(30000.0);
 
         for attempt in 0..=max_retries {
             let start = std::time::Instant::now();
@@ -248,13 +248,13 @@ impl Executor {
             let duration_ms = start.elapsed().as_millis() as u64;
 
             if result.is_ok() {
-                return NodeExecutionResult {
-                    node_id: node.id.clone(),
-                    status: NodeStatus::Completed,
+                return WorkflowExecutionResult {
+                    workflow_id: self.workflow.id.clone(),
+                    execution_id: Uuid::new_v4().to_string(),
+                    status: WorkflowStatus::Completed,
                     output: result.ok().map(|v| v.to_string()),
                     error: None,
                     duration_ms: duration_ms as f64,
-                    retries: attempt,
                     started_at: Some(started_at.to_rfc3339()),
                     completed_at: Some(Utc::now().to_rfc3339()),
                 };
@@ -303,7 +303,7 @@ impl Executor {
 /// * `workflow` - Workflow definition with nodes and edges
 /// 
 /// # Returns
-/// WorkflowExecutionResult with status and node results
+/// WorkflowExecutionResult with status and output
 /// 
 /// # Example
 /// ```
@@ -322,17 +322,15 @@ pub async fn execute_workflow(workflow: WorkflowDefinition) -> WorkflowExecution
             workflow_id: workflow.id,
             execution_id,
             status: WorkflowStatus::Failed,
-            node_results: vec![],
-            total_duration_ms: 0.0,
+            output: None,
+            error: Some(e.to_string()),
+            duration_ms: 0.0,
             started_at,
             completed_at: Some(Utc::now().to_rfc3339()),
-            error: Some(e.to_string()),
         };
     }
 
-    let completed = Arc::new(RwLock::new(HashSet::<String>::new()));
-    let node_results = Arc::new(RwLock::new(Vec::<NodeExecutionResult>::new()));
-
+    let completed = Arc::new(HashSet::<String>::new());
     let start_time = std::time::Instant::now();
 
     // Execute nodes level by level (topological order)
@@ -342,7 +340,7 @@ pub async fn execute_workflow(workflow: WorkflowDefinition) -> WorkflowExecution
             break;
         }
 
-        let ready_nodes = executor.get_ready_nodes(&completed_guard);
+        let ready_nodes = executor.get_ready_nodes(&*completed_guard);
         if ready_nodes.is_empty() {
             break;
         }
@@ -350,31 +348,22 @@ pub async fn execute_workflow(workflow: WorkflowDefinition) -> WorkflowExecution
         // Execute ready nodes in parallel
         let mut handles = vec![];
         for node in ready_nodes {
-            let node_clone = node.clone();
-            let workflow_clone = executor.workflow.clone();
-            let handle = tokio::spawn(async move {
-                let temp_executor = Executor::new(workflow_clone);
-                temp_executor.execute_node(&node_clone).await
-            });
-            handles.push(handle);
+            handles.push(tokio::spawn(executor.execute_node(node)));
         }
-
         drop(completed_guard);
 
         // Collect results
         for handle in handles {
             if let Ok(result) = handle.await {
-                let node_id = result.node_id.clone();
-                node_results.write().await.push(result.clone());
-                if result.status == NodeStatus::Completed {
-                    completed.write().await.insert(node_id);
+                if result.status == WorkflowStatus::Completed {
+                    completed.write().await.insert(result.workflow_id.clone());
                 }
             }
         }
     }
 
     let total_duration_ms = start_time.elapsed().as_millis() as u64;
-    let results_guard = node_results.read().await;
+    let results_guard = completed.read().await;
     
     let all_completed = results_guard.iter()
         .all(|r| r.status == NodeStatus::Completed);
@@ -554,7 +543,7 @@ mod tests {
                     id: "a".to_owned(),
                     node_type: "test".to_string(),
                     name: "A".to_owned(),
-                    data: serde_json::Value::Object(serde_json::Map::new()),
+                    data: "{}".to_string(),
                     timeout_ms: None,
                     retry_count: None,
                 },
@@ -562,7 +551,7 @@ mod tests {
                     id: "b".to_owned(),
                     node_type: "test".to_string(),
                     name: "B".to_owned(),
-                    data: serde_json::Value::Object(serde_json::Map::new()),
+                    data: "{}".to_string(),
                     timeout_ms: None,
                     retry_count: None,
                 },
@@ -584,6 +573,6 @@ mod tests {
 
         let result = validate_workflow(workflow);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "Circular dependency detected");
+        assert_eq!(result.unwrap_err(), &WorkflowError::CircularDependency);
     }
 }

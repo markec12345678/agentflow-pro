@@ -198,7 +198,7 @@ export class TourismWorkflows {
     return {
       success: true,
       content: {
-        blogPost: (contentResult?.result as any)?.blog || 'Generated tour package content'
+        blogPost: contentResult?.result?.blog || 'Generated tour package content'
       },
       metadata: {
         wordCount: (contentResult?.result as any)?.blog?.length || 0,
@@ -324,13 +324,13 @@ export class TourismWorkflows {
 
     // For each target language, use communication agent for translation
     for (const language of input.translationData.targetLanguages) {
-      const translationTaskId = await this.orchestrator.queueTask('communication', {
+      const _translationTaskId = await this.orchestrator.queueTask('translation', {
         action: 'send_message',
         language,
         customMessage: input.translationData.content
       });
 
-      const translationResult = await this.orchestrator.getTask(translationTaskId);
+      const translationResult = await this.orchestrator.getTask(_translationTaskId);
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       translatedContent[language] = (translationResult?.result as any)?.content ||

@@ -116,9 +116,9 @@ fn calculate_price(
     
     // Apply length_of_stay discount
     let los_discounts = [(7, 0.25), (5, 0.20), (3, 0.15)];
-    if let Some((nights, discount)) = los_discounts.iter()
-        .filter(|(threshold, _)| nights >= *threshold)
-        .max_by_key(|(threshold, _)| threshold)
+    if let Some((_, discount)) = los_discounts.iter()
+        .filter(|threshold, _| nights >= *threshold)
+        .max_by_key(|threshold, _| threshold)
     {
         let discount_amount = running_total * Decimal::from_f64_retain(*discount).unwrap_or(Decimal::ZERO);
         running_total = running_total - discount_amount;
