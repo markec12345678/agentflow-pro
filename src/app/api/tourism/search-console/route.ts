@@ -2,12 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 // GET /api/tourism/search-console - fetch GSC data
 export async function GET(request: NextRequest) {
@@ -92,10 +88,10 @@ export async function GET(request: NextRequest) {
       topKeywords: keywordData.slice(0, 10),
       topPages: pageData.slice(0, 10),
       dailyTrend: aggregateByDate(metrics.filter(m => m.date).map(m => ({
-      date: m.date!,
-      clicks: m.clicks || 0,
-      impressions: m.impressions || 0
-    }))),
+        date: m.date!,
+        clicks: m.clicks || 0,
+        impressions: m.impressions || 0
+      }))),
     });
   } catch (error) {
     console.error("Search Console error:", error);

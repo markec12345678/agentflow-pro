@@ -45,6 +45,7 @@ Po povezavi: vsak `git push` na `master` sproži nov deploy.
 | `GITHUB_TOKEN` | GitHub PAT za Code Agent | GitHub → Settings → Developer settings |
 | `FIRECRAWL_API_KEY` | Firecrawl API key | [firecrawl.dev](https://firecrawl.dev) |
 | `CONTEXT7_API_KEY` | Context7 API key | context7.com |
+| `CRON_SECRET` | Zaščita cron endpointov (db-cleanup, pms-sync-all, email-scheduler, smart-alerts, smart-alerts-errors) | `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` – **brez presledkov ali novo vrstic** pri vnašanju v Vercel |
 
 **Preveri:** `npm run verify:production-env` (ob vsakem dodajanju env spremenljivk v .env.local)
 
@@ -93,7 +94,23 @@ Brez teh spremenljivk: registracija/reset/povabila delujejo, vendar uporabnik ne
 | `LANGSMITH_API_KEY` | API ključ iz smith.langchain.com |
 | `LANGSMITH_PROJECT` | Ime projekta (npr. agentflow-pro) |
 
----
+## Opcijsko (Smart Alerts)
+
+| Variable | Opis |
+|----------|------|
+| `SMART_ALERT_RECEPTIONIST_EMAIL` | Email za payment_failed alert (fallback: ESCALATION_NOTIFY_EMAIL) |
+| `SLACK_ALERTS_WEBHOOK_URL` | Slack za system_error (fallback: SLACK_ESCALATION_WEBHOOK_URL) |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` | SMS za occupancy (opcijsko) |
+
+Brez teh spremenljivk Smart Alerts ne pošiljajo obvestil; aplikacija deluje normalno.
+
+## Opcijsko (Dry Run)
+
+| Variable | Opis |
+|----------|------|
+| `DRY_RUN` | `true` za simulacijo email/Slack/SMS brez dejanskega pošiljanja (testiranje) |
+
+Brez te spremenljivke ali z `false`: aplikacija pošilja emaile in obvestila normalno.
 
 ## Po dodajanju
 

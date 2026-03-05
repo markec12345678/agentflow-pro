@@ -8,5 +8,5 @@ export interface IFaqLogRepository {
     responseTimeMs: number,
     confidence: number,
     propertyId: string | null
-  ): Promise<void>;
+  ): Promise<string | void>;
 }

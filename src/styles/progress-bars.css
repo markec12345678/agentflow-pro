@@ -1,0 +1,83 @@
+/* Progress Bar Styles */
+.progress-bar {
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  height: 0.5rem;
+}
+
+.dark .progress-bar {
+  background-color: #374151;
+}
+
+.progress-bar-fill {
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.progress-bar-fill.blue {
+  background-color: #3b82f6;
+}
+
+.progress-bar-fill.green {
+  background-color: #10b981;
+}
+
+.progress-bar-fill.yellow {
+  background-color: #eab308;
+}
+
+.progress-bar-fill.red {
+  background-color: #ef4444;
+}
+
+.progress-bar-fill.purple {
+  background-color: #a855f7;
+}
+
+/* Dynamic width classes */
+.progress-width-0 { width: 0%; }
+.progress-width-5 { width: 5%; }
+.progress-width-10 { width: 10%; }
+.progress-width-15 { width: 15%; }
+.progress-width-20 { width: 20%; }
+.progress-width-25 { width: 25%; }
+.progress-width-30 { width: 30%; }
+.progress-width-35 { width: 35%; }
+.progress-width-40 { width: 40%; }
+.progress-width-45 { width: 45%; }
+.progress-width-50 { width: 50%; }
+.progress-width-55 { width: 55%; }
+.progress-width-60 { width: 60%; }
+.progress-width-65 { width: 65%; }
+.progress-width-70 { width: 70%; }
+.progress-width-75 { width: 75%; }
+.progress-width-80 { width: 80%; }
+.progress-width-85 { width: 85%; }
+.progress-width-90 { width: 90%; }
+.progress-width-95 { width: 95%; }
+.progress-width-100 { width: 100%; }
+
+/* Slider position classes */
+.slider-position-0 { left: 0%; }
+.slider-position-5 { left: 5%; }
+.slider-position-10 { left: 10%; }
+.slider-position-15 { left: 15%; }
+.slider-position-20 { left: 20%; }
+.slider-position-25 { left: 25%; }
+.slider-position-30 { left: 30%; }
+.slider-position-35 { left: 35%; }
+.slider-position-40 { left: 40%; }
+.slider-position-45 { left: 45%; }
+.slider-position-50 { left: 50%; }
+.slider-position-55 { left: 55%; }
+.slider-position-60 { left: 60%; }
+.slider-position-65 { left: 65%; }
+.slider-position-70 { left: 70%; }
+.slider-position-75 { left: 75%; }
+.slider-position-80 { left: 80%; }
+.slider-position-85 { left: 85%; }
+.slider-position-90 { left: 90%; }
+.slider-position-95 { left: 95%; }
+.slider-position-100 { left: 100%; }

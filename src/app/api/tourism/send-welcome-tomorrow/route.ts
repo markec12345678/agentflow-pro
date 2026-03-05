@@ -8,14 +8,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { startOfDay, addDays, format } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
 import { getPropertyIdsForUser, getPropertyForUser } from "@/lib/tourism/property-access";
 import { sendPendingGuestEmails } from "@/lib/tourism/email-sender";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 function getBaseUrl(): string {
   return (

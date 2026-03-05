@@ -8,9 +8,13 @@ import { signOut, useSession } from "next-auth/react";
 // ─── Navigacijske točke (max 5) ───────────────────────────────────────────────
 const MAIN_NAV = [
   { href: "/dashboard", label: "Domov",    icon: "🏠" },
+  { href: "/reservations", label: "Rezervacije", icon: "📅" },
+  { href: "/properties", label: "Nastanitve", icon: "🏢" },
+  { href: "/guests", label: "Gostje", icon: "👥" },
+  { href: "/agents", label: "AI Agenti", icon: "🤖" },
+  { href: "/workflows", label: "Workflow", icon: "🔄" },
   { href: "/generate",  label: "Ustvari",  icon: "✍️" },
   { href: "/content",   label: "Vsebina",  icon: "📁" },
-  { href: "/pricing",   label: "Cenik",    icon: "💳" },
 ];
 
 // ─── Meni "Ustvari" za turizem ────────────────────────────────────────────────
@@ -47,9 +51,12 @@ export function AppNav() {
 
   // Zapri ob navigaciji
   useEffect(() => {
-    setCreateOpen(false);
-    setUserOpen(false);
-    setMobileOpen(false);
+    const closeAllMenus = () => {
+      setCreateOpen(false);
+      setUserOpen(false);
+      setMobileOpen(false);
+    };
+    closeAllMenus();
   }, [pathname]);
 
   const isActive = (href: string) =>
@@ -76,57 +83,46 @@ export function AppNav() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
+            {MAIN_NAV.map((item) => (
+              item.label === "Ustvari" ? (
+                /* Ustvari – z dropdown-om */
+                <div className="relative" key={item.href} ref={createRef}>
+                  <button
+                    type="button"
+                    onClick={() => setCreateOpen(v => !v)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      createOpen || isActive("/generate")
+                        ? "bg-blue-600/20 text-blue-400"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                    }`}
+                  >
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                    <span className="text-xs opacity-60">{createOpen ? "▲" : "▼"}</span>
+                  </button>
 
-            {/* Domov */}
-            <Link href="/dashboard" className={navLinkClass("/dashboard")}>
-              <span>🏠</span>
-              <span>Domov</span>
-            </Link>
-
-            {/* Ustvari – z dropdown-om */}
-            <div className="relative" ref={createRef}>
-              <button
-                type="button"
-                onClick={() => setCreateOpen(v => !v)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  createOpen || isActive("/generate")
-                    ? "bg-blue-600/20 text-blue-400"
-                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                }`}
-              >
-                <span>✍️</span>
-                <span>Ustvari</span>
-                <span className="text-xs opacity-60">{createOpen ? "▲" : "▼"}</span>
-              </button>
-
-              {createOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-2 z-50">
-                  {CREATE_ITEMS.map(item => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                    >
-                      <span>{item.icon}</span>
-                      <span className="text-sm font-medium">{item.label}</span>
-                    </Link>
-                  ))}
+                  {createOpen && (
+                    <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-2 z-50">
+                      {CREATE_ITEMS.map(subItem => (
+                        <Link
+                          key={subItem.href}
+                          href={subItem.href}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                        >
+                          <span>{subItem.icon}</span>
+                          <span className="text-sm font-medium">{subItem.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-
-            {/* Vsebina */}
-            <Link href="/content" className={navLinkClass("/content")}>
-              <span>📁</span>
-              <span>Vsebina</span>
-            </Link>
-
-            {/* Cenik */}
-            <Link href="/pricing" className={navLinkClass("/pricing")}>
-              <span>💳</span>
-              <span>Cenik</span>
-            </Link>
-
+              ) : (
+                <Link key={item.href} href={item.href} className={navLinkClass(item.href)}>
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
+              )
+            ))}
           </div>
 
           {/* Desni del: User menu */}

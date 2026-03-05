@@ -7,7 +7,7 @@ import { Orchestrator } from '../orchestrator/Orchestrator';
 import { createResearchAgent } from '../agents/research/ResearchAgent';
 import { createContentAgent } from '../agents/content/ContentAgent';
 import { createReservationAgent } from '../agents/reservation/reservationAgent';
-import { createCommunicationAgent } from '../agents/communication/communicationAgent';
+import { createCommunicationAgent } from '../agents/communication/CommunicationAgent';
 
 export interface TourismWorkflowInput {
   useCase: 'property_description' | 'tour_package' | 'destination_blog' | 'guest_automation' | 'social_media' | 'translation';
@@ -150,13 +150,16 @@ export class TourismWorkflows {
     const contentResult = await this.orchestrator.getTask(contentTaskId);
     await new Promise(resolve => setTimeout(resolve, 3000));
 
+    const blogContent = (contentResult?.result as { blog?: string })?.blog;
+    const wordCount = blogContent ? blogContent.length : 0;
+
     return {
       success: true,
       content: {
-        description: (contentResult?.result as any)?.blog || 'Generated property description'
+        description: blogContent || 'Generated property description',
       },
       metadata: {
-        wordCount: (contentResult?.result as any)?.blog?.length || 0,
+        wordCount,
         generatedAt: new Date(),
         workflowType: 'property_description'
       }
@@ -195,7 +198,7 @@ export class TourismWorkflows {
     return {
       success: true,
       content: {
-        blogPost: (contentResult?.result as any)?.blog || 'Generated tour package content'
+        blogPost: contentResult?.result?.blog || 'Generated tour package content'
       },
       metadata: {
         wordCount: (contentResult?.result as any)?.blog?.length || 0,
@@ -321,13 +324,13 @@ export class TourismWorkflows {
 
     // For each target language, use communication agent for translation
     for (const language of input.translationData.targetLanguages) {
-      const translationTaskId = await this.orchestrator.queueTask('communication', {
+      const _translationTaskId = await this.orchestrator.queueTask('translation', {
         action: 'send_message',
         language,
         customMessage: input.translationData.content
       });
 
-      const translationResult = await this.orchestrator.getTask(translationTaskId);
+      const translationResult = await this.orchestrator.getTask(_translationTaskId);
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       translatedContent[language] = (translationResult?.result as any)?.content ||

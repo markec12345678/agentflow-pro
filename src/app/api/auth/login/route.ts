@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserService } from '@/services/user.service';
-import { AuthService, AuthError } from '@/services/auth.service';
+import { AuthError } from '@/services/auth.service';
 
 const userService = new UserService();
 
@@ -14,6 +14,20 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password, rememberMe } = body;
+
+    // Validate input
+    if (!email || !password) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Email and password are required',
+          },
+        },
+        { status: 400 }
+      );
+    }
 
     const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
       || request.headers.get('x-real-ip')

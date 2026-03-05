@@ -28,5 +28,5 @@ Pre-launch documentation verification.
 
 ## Links
 
-- [ ] All internal links valid (manual verification)
+- [x] Internal links: avtomatizirano v `npm run predeploy` (check-links); CI tudi zažene. Za bypass: `--skip-links`
 - [ ] External links (Stripe, Supabase, etc.) correct (manual verification)

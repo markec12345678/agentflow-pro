@@ -2,12 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 // GET /api/tourism/guest-communication - list guest emails
 export async function GET(request: NextRequest) {
@@ -20,24 +16,17 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get("propertyId");
+    const guestId = searchParams.get("guestId");
     const type = searchParams.get("type"); // 'pre-arrival', 'post-stay', 'all'
 
-    if (!propertyId) {
-      return NextResponse.json(
-        { error: "Property ID is required" },
-        { status: 400 }
-      );
+    const where: any = {};
+    if (propertyId) {
+      const property = await getPropertyForUser(propertyId, userId);
+      if (!property) return NextResponse.json({ error: "Property not found" }, { status: 403 });
+      where.propertyId = propertyId;
     }
-
-    const property = await getPropertyForUser(propertyId, userId);
-    if (!property) {
-      return NextResponse.json({ error: "Property not found" }, { status: 403 });
-    }
-
-    const where: { propertyId: string; type?: string } = { propertyId };
-    if (type && type !== "all") {
-      where.type = type;
-    }
+    if (guestId) where.guestId = guestId;
+    if (type && type !== "all") where.type = type;
 
     const communications = await prisma.guestCommunication.findMany({
       where,
@@ -77,13 +66,15 @@ export async function POST(request: NextRequest) {
     const {
       propertyId,
       guestId,
-      guest: guestData, // { name, email?, phone? } – when creating new guest
-      type, // 'pre-arrival', 'post-stay'
-      channel = "email", // 'email' | 'whatsapp' – whatsapp requires guest.phone
+      guest: guestData,
+      type,
+      channel = "email",
       content,
       subject,
-      scheduledFor,
-      variables, // { ime_gosta, lokacija, datum_prihoda, email, phone, ... }
+      scheduledAt,
+      language = "sl",
+      templateId,
+      variables,
     } = body;
 
     if (!propertyId || !type || !content) {
@@ -146,10 +137,13 @@ export async function POST(request: NextRequest) {
         guestId: guest.id,
         type,
         channel: validChannel,
-        subject: subject ?? (validChannel === "email" ? "Message from your accommodation" : null),
+        subject: subject ?? (validChannel === "email" ? "Sporočilo nastanitve" : null),
         content,
         variables: variables || {},
-        status: "draft",
+        status: scheduledAt ? "scheduled" : "pending",
+        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+        language: language || "sl",
+        templateId: templateId || null,
       },
     });
 

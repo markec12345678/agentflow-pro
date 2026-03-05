@@ -31,6 +31,11 @@ export async function sendPendingGuestEmails(): Promise<SendPendingResult> {
     orderBy: { createdAt: "asc" },
   });
 
+  if (process.env.DRY_RUN === "true") {
+    console.log("[DRY RUN] Would send", pending.length, "guest emails");
+    return { sent: pending.length, failed: 0, skipped: 0 };
+  }
+
   for (const comm of pending) {
     const to = comm.guest?.email?.trim();
     if (!to || !to.includes("@")) {
@@ -75,6 +80,11 @@ export async function sendPendingWhatsAppMessages(): Promise<SendPendingResult> 
     include: { guest: { select: { phone: true } } },
     orderBy: { createdAt: "asc" },
   });
+
+  if (process.env.DRY_RUN === "true") {
+    console.log("[DRY RUN] Would send", pending.length, "WhatsApp messages");
+    return { sent: pending.length, failed: 0, skipped: 0 };
+  }
 
   for (const comm of pending) {
     const phone = comm.guest?.phone?.trim();

@@ -26,6 +26,7 @@ flowchart TD
 - Ustvari projekt na [Supabase](https://supabase.com) ali [Neon](https://neon.tech)
 - Skopiraj connection string (pooler za Vercel)
 - Glej [database-setup.md](./database-setup.md)
+- **Pred launchom:** Zaženi `npm run db:check` z produkcijskim `DATABASE_URL` v .env.local – preveri povezavo in TLS.
 
 ### 2. Stripe Live Keys
 
@@ -44,6 +45,7 @@ flowchart TD
 ### 4. Vercel Env Vars
 
 - Vse P0 spremenljivke iz [VERCEL-ENV-CHECKLIST.md](./VERCEL-ENV-CHECKLIST.md)
+- Preveri tudi CRON_SECRET (za cron endpointe)
 - Preveri: `npm run verify:production-env` (potrebuje .env.local z vrednostmi)
 
 ### 5. Build Command (opcijsko)

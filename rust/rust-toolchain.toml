@@ -1,0 +1,4 @@
+# Rust Toolchain
+[toolchain]
+channel = "stable"
+components = ["clippy", "rustfmt"]

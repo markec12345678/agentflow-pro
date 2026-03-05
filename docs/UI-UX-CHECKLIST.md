@@ -47,7 +47,7 @@ npm run start
 
 Chrome DevTools → Lighthouse → Run audit (Performance, Accessibility, Best Practices).
 
-Beležite rezultate pred/po spremembah.
+Beležite rezultate pred/po spremembah. Glej [PERFORMANCE-AUDIT.md](./PERFORMANCE-AUDIT.md) za step-by-step runbook.
 
 | Stran           | Performance | Accessibility | Best Practices |
 |-----------------|-------------|---------------|----------------|

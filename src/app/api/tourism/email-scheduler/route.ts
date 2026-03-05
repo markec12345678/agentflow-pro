@@ -8,15 +8,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
 import { subDays, addDays, startOfDay, isSameDay } from "date-fns";
 import { format } from "date-fns";
+import { verifyCronAuth } from "@/lib/cron-auth";
 import { sendPendingGuestEmails, sendPendingWhatsAppMessages } from "@/lib/tourism/email-sender";
-
-function verifyCronAuth(request: NextRequest): boolean {
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader === `Bearer ${cronSecret}`) return true;
-  if (request.headers.get("x-vercel-cron") === "1") return true;
-  return !cronSecret;
-}
 
 export async function GET(request: NextRequest) {
   try {

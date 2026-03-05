@@ -4,17 +4,13 @@ import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getPropertyIdsForUser } from "@/lib/tourism/property-access";
 import { getLlmFromUserKeys } from "@/config/env";
 import { getUserApiKeys } from "@/lib/user-keys";
 import { isMockMode } from "@/lib/mock-mode";
 import { OpenAIAdapter, DataSanitizer, PrismaAiUsageLogger } from "@/infrastructure/ai";
 import { AiService } from "@/services/ai.service";
-
-function getUserId(session: { user?: { userId?: string; id?: string; email?: string | null; name?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user?.id ?? session.user?.email ?? null;
-}
 
 // POST /api/tourism/bulk-generate - generate content for multiple properties
 export async function POST(request: NextRequest) {
@@ -81,10 +77,10 @@ export async function POST(request: NextRequest) {
     const llm = getLlmFromUserKeys(userKeys);
     const mock = isMockMode() || !llm.apiKey;
     const aiService = mock ? undefined : new AiService({
-  llm: new OpenAIAdapter(llm),
-  usageLogger: new PrismaAiUsageLogger(),
-  sanitizer: new DataSanitizer()
-});
+      llm: new OpenAIAdapter(llm),
+      usageLogger: new PrismaAiUsageLogger(),
+      sanitizer: new DataSanitizer()
+    });
 
     const results = [];
     const errors = [];

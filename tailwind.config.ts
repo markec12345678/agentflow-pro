@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 const config: Config = {
   content: [
@@ -10,6 +11,7 @@ const config: Config = {
     "./src/agents/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/workflows/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/styles/**/*.{css}",
   ],
   theme: {
     extend: {
@@ -42,7 +44,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
   darkMode: "class",
 };
 export default config;

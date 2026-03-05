@@ -1,0 +1,16 @@
+{
+  "name": "@agentflow/pricing-engine",
+  "version": "0.1.0",
+  "description": "Rust-powered pricing engine for AgentFlow Pro",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build:rust": "cd rust/pricing-engine && cargo build --release",
+    "build": "npm run build:rust",
+    "test": "node --test"
+  },
+  "keywords": ["pricing", "rust", "tourism", "agentflow"],
+  "author": "AgentFlow Pro",
+  "license": "MIT"
+}

@@ -23,7 +23,15 @@ interface GeneratedPost {
   fullContent?: string;
 }
 
-type TabMode = "content" | "hotel-core";
+type TabMode = "content" | "hotel-core" | "workflow";
+
+interface WorkflowUseCase {
+  id: string;
+  name: string;
+  target: string;
+  value: string;
+  description: string;
+}
 
 type CoreResult = {
   success: boolean;
@@ -57,6 +65,15 @@ export default function TourismGeneratePage() {
   const [coreSaving, setCoreSaving] = useState(false);
   const [coreResult, setCoreResult] = useState<CoreResult | null>(null);
   const [savedPageId, setSavedPageId] = useState<string | null>(null);
+  const [workflowUseCases, setWorkflowUseCases] = useState<WorkflowUseCase[]>([]);
+  const [workflowUseCaseId, setWorkflowUseCaseId] = useState<string>("");
+  const [workflowPropertyId, setWorkflowPropertyId] = useState<string | null>(null);
+  const [workflowPropName, setWorkflowPropName] = useState("");
+  const [workflowPropLocation, setWorkflowPropLocation] = useState("");
+  const [workflowPropType, setWorkflowPropType] = useState("");
+  const [workflowPropAmenities, setWorkflowPropAmenities] = useState("");
+  const [workflowRunning, setWorkflowRunning] = useState(false);
+  const [workflowResult, setWorkflowResult] = useState<{ success: boolean; content?: unknown; errors?: string[] } | null>(null);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -72,6 +89,15 @@ export default function TourismGeneratePage() {
       .then((data) => setActivePropertyId(data.activePropertyId ?? null))
       .catch(() => setActivePropertyId(null));
   }, []);
+
+  useEffect(() => {
+    if (tabMode === "workflow" && workflowUseCases.length === 0) {
+      fetch("/api/tourism/workflow")
+        .then((r) => r.json())
+        .then((data) => setWorkflowUseCases(data.useCases ?? []))
+        .catch(() => setWorkflowUseCases([]));
+    }
+  }, [tabMode, workflowUseCases.length]);
 
   const retryLoadTemplate = () => {
     if (!templateId) return;
@@ -273,6 +299,46 @@ export default function TourismGeneratePage() {
     URL.revokeObjectURL(a.href);
   };
 
+  const handleWorkflowRun = () => {
+    const useCase = workflowUseCaseId as TourismWorkflowInput["useCase"];
+    if (!useCase) {
+      toast.error("Izberi workflow.");
+      return;
+    }
+    let body: TourismWorkflowInput = { useCase };
+    if (useCase === "property_description") {
+      const amenities = workflowPropAmenities.split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
+      if (!workflowPropName.trim() || !workflowPropLocation.trim() || !workflowPropType.trim()) {
+        toast.error("Vpiši ime, lokacijo in tip nastanitve.");
+        return;
+      }
+      body.propertyData = {
+        name: workflowPropName.trim(),
+        location: workflowPropLocation.trim(),
+        type: workflowPropType.trim(),
+        amenities,
+      };
+    }
+    setWorkflowRunning(true);
+    setWorkflowResult(null);
+    fetch("/api/tourism/workflow", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        setWorkflowResult(data);
+        if (data.success) toast.success("Workflow zagnan.");
+        else toast.error(data.errors?.[0] ?? data.error ?? "Napaka");
+      })
+      .catch((err) => {
+        setWorkflowResult({ success: false, errors: [err instanceof Error ? err.message : "Napaka"] });
+        toast.error("Workflow ni uspel.");
+      })
+      .finally(() => setWorkflowRunning(false));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-4xl mx-auto">
@@ -297,9 +363,117 @@ export default function TourismGeneratePage() {
           >
             Hotel Core
           </button>
+          <button
+            type="button"
+            onClick={() => setTabMode("workflow")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${tabMode === "workflow" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"}`}
+          >
+            Workflow
+          </button>
         </div>
 
-        {tabMode === "hotel-core" ? (
+        {tabMode === "workflow" ? (
+          <div className="space-y-6 mb-8">
+            <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-lg font-semibold dark:text-white mb-4">Avtomatizirani workflow</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Izberi use case in izpolni parametre. Zagnaj s POST /api/tourism/workflow.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Workflow (use case)</label>
+                  <select
+                    value={workflowUseCaseId}
+                    onChange={(e) => setWorkflowUseCaseId(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    title="Izberite use case za generiranje"
+                  >
+                    <option value="">— Izberi —</option>
+                    {workflowUseCases.map((uc) => (
+                      <option key={uc.id} value={uc.id}>
+                        {uc.name} ({uc.value})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nastanitev (izbirno)</label>
+                  <PropertySelector value={workflowPropertyId} onChange={setWorkflowPropertyId} />
+                </div>
+                {workflowUseCaseId === "property_description" && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ime nastanitve</label>
+                      <input
+                        type="text"
+                        value={workflowPropName}
+                        onChange={(e) => setWorkflowPropName(e.target.value)}
+                        placeholder="Vila Bled"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lokacija</label>
+                      <input
+                        type="text"
+                        value={workflowPropLocation}
+                        onChange={(e) => setWorkflowPropLocation(e.target.value)}
+                        placeholder="Bled, Slovenija"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tip</label>
+                      <input
+                        type="text"
+                        value={workflowPropType}
+                        onChange={(e) => setWorkflowPropType(e.target.value)}
+                        placeholder="Vila, Apartma"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Značilnosti (vejica ali nova vrstica)</label>
+                      <textarea
+                        value={workflowPropAmenities}
+                        onChange={(e) => setWorkflowPropAmenities(e.target.value)}
+                        placeholder="WiFi, parkiranje, kuhinja"
+                        rows={2}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                  </>
+                )}
+                {workflowUseCaseId && workflowUseCaseId !== "property_description" && (
+                  <p className="text-sm text-gray-500">
+                    Za ta workflow izpolnite parametre prek API-ja (glej{" "}
+                    <Link href="/dashboard/tourism/use-cases" className="text-blue-400 hover:underline">Use cases</Link>).
+                  </p>
+                )}
+                <button
+                  type="button"
+                  onClick={handleWorkflowRun}
+                  disabled={workflowRunning || !workflowUseCaseId}
+                  className="px-6 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {workflowRunning ? "Zaganjam..." : "Zagnaj"}
+                </button>
+              </div>
+            </div>
+            {workflowResult && (
+              <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6">
+                <h3 className="text-lg font-semibold dark:text-white mb-2">Rezultat</h3>
+                {workflowResult.success ? (
+                  <pre className="overflow-x-auto rounded bg-gray-900 p-4 text-sm text-gray-300 whitespace-pre-wrap">
+                    {JSON.stringify(workflowResult.content ?? workflowResult, null, 2)}
+                  </pre>
+                ) : (
+                  <p className="text-red-400">{workflowResult.errors?.join(", ") ?? "Napaka"}</p>
+                )}
+              </div>
+            )}
+          </div>
+        ) : tabMode === "hotel-core" ? (
           <div className="space-y-6 mb-8">
             <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold dark:text-white mb-4">Hotel podatki</h2>

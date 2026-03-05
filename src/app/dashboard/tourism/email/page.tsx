@@ -177,6 +177,7 @@ export default function TourismEmailWorkflow() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    title="Vnesite ime nastanitve"
                     placeholder="npr. Apartmaji Bela Krajina"
                   />
                 </div>
@@ -189,6 +190,7 @@ export default function TourismEmailWorkflow() {
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    title="Vnesite lokacijo"
                     placeholder="npr. Črnomelj"
                   />
                 </div>
@@ -212,6 +214,7 @@ export default function TourismEmailWorkflow() {
                     value={formData.jezik}
                     onChange={(e) => setFormData({ ...formData, jezik: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    title="Izberite jezik za email"
                   >
                     <option value="sl">Slovenščina</option>
                     <option value="en">English</option>
@@ -228,6 +231,8 @@ export default function TourismEmailWorkflow() {
                     value={formData.checkin_time}
                     onChange={(e) => setFormData({ ...formData, checkin_time: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    title="Check-in čas"
+                    placeholder="Vnesite check-in čas"
                   />
                 </div>
                 <div>
@@ -239,6 +244,8 @@ export default function TourismEmailWorkflow() {
                     value={formData.checkout_time}
                     onChange={(e) => setFormData({ ...formData, checkout_time: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    title="Check-out čas"
+                    placeholder="Vnesite check-out čas"
                   />
                 </div>
               </div>
@@ -266,6 +273,7 @@ export default function TourismEmailWorkflow() {
                       onChange={(e) => setFormData({ ...formData, ponudba: e.target.value })}
                       rows={2}
                       className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      title="Vnesite ponudbo"
                       placeholder="npr. 15% popust za rezervacije do 31.3."
                     />
                   </div>
@@ -307,6 +315,8 @@ export default function TourismEmailWorkflow() {
                     readOnly
                     rows={15}
                     className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-sm resize-none"
+                    title="Generirana e-pošta"
+                    placeholder="Generirana e-pošta se bo prikazala tukaj"
                   />
                   <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                     <button

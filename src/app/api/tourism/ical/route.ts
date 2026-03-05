@@ -2,12 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { format } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
 
 // GET /api/tourism/ical/export - export calendar as iCal
 export async function GET(request: NextRequest) {
@@ -39,7 +35,7 @@ export async function GET(request: NextRequest) {
       `${request.nextUrl.origin}/api/tourism/calendar?propertyId=${propertyId}${roomId ? `&roomId=${roomId}` : ""}`,
       { headers: { cookie: request.headers.get("cookie") || "" } }
     );
-    
+
     if (!calendarRes.ok) {
       throw new Error("Failed to fetch calendar data");
     }
@@ -51,7 +47,7 @@ export async function GET(request: NextRequest) {
       .filter((day: { status: string }) => day.status === "booked" || day.status === "check-in")
       .map((day: { date: string; reservation: { id: string; guestName: string; channel: string; guestEmail: string } | null }) => {
         if (!day.reservation) return null;
-        
+
         return `BEGIN:VEVENT
 UID:${day.reservation.id}@agentflow.pro
 DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}
@@ -208,7 +204,7 @@ export async function PATCH(request: NextRequest) {
       }
       // Generate a unique token for the property
       const token = Buffer.from(`${propertyId}:${roomId || "all"}:${Date.now()}`).toString("base64");
-      
+
       // In production, store this token in database
       // await prisma.icalToken.create({ ... });
 

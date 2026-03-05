@@ -6,6 +6,11 @@
 
 import { prisma } from "@/database/schema";
 import type { PmsAdapter, PmsReservation, PmsSyncResult, PmsAdapterConfig } from "./pms-adapter";
+import {
+  shouldAutoApprove,
+  applyAutoApproval,
+  type AutoApprovalRules,
+} from "./auto-approval";
 
 const MEWS_API_BASE = "https://api.mews.com";
 
@@ -119,6 +124,7 @@ export class MewsAdapter implements PmsAdapter {
           guestId = guest.id;
         }
 
+        let reservationId: string;
         if (existing) {
           await prisma.reservation.update({
             where: { id: existing.id },
@@ -130,6 +136,7 @@ export class MewsAdapter implements PmsAdapter {
               guestId,
             },
           });
+          reservationId = existing.id;
         } else {
           result.created++;
           const reservation = await prisma.reservation.create({
@@ -144,12 +151,22 @@ export class MewsAdapter implements PmsAdapter {
               notes: `mews:${r.externalId}`,
             },
           });
+          reservationId = reservation.id;
           const { triggerBookingConfirmation } = await import("./email-triggers");
           triggerBookingConfirmation(
             reservation.id,
             config.propertyId,
             guestId
           ).catch((err) => console.error("Booking confirmation trigger:", err));
+        }
+        if (r.status === "pending") {
+          const property = await prisma.property.findUnique({
+            where: { id: config.propertyId },
+          });
+          const rules = (property as { reservationAutoApprovalRules?: unknown } | null)?.reservationAutoApprovalRules as AutoApprovalRules | null;
+          if (shouldAutoApprove(r, rules)) {
+            await applyAutoApproval(reservationId);
+          }
         }
         result.synced++;
       } catch (err) {

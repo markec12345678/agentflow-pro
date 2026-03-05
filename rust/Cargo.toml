@@ -1,0 +1,36 @@
+[workspace]
+resolver = "2"
+members = [
+    "pricing-engine",
+    "workflow-executor",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["AgentFlow Pro Team"]
+license = "MIT"
+repository = "https://github.com/agentflow-pro/agentflow-pro"
+
+[workspace.dependencies]
+# Core dependencies
+chrono = "0.4.44"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+thiserror = "2.0.0"
+tokio = { version = "1.46.0", features = ["full"] }
+uuid = { version = "1.0.0", features = ["v4", "serde"] }
+futures = "0.3.31"
+async-trait = "0.1.88"
+rust_decimal = "1.40.0"
+
+# NAPI-RS dependencies for Node.js bindings
+napi = { version = "3.8.3", features = ["async", "tokio_rt", "serde-json"] }
+napi-derive = "3.5.2"
+napi-sys = "3.0.0"
+napi-derive-backend = "2.2.0"
+
+# Development dependencies
+criterion = "0.5.1"
+napi-build = "2.3.1"
+tokio-test = "0.4.4"

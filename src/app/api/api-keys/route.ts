@@ -3,11 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHash, randomBytes } from "crypto";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
-
-function getUserId(session: { user?: { userId?: string; email?: string | null } } | null): string | null {
-  if (!session?.user) return null;
-  return (session.user as { userId?: string }).userId ?? session.user.email ?? null;
-}
+import { getUserId } from "@/lib/auth-users";
 
 function hashKey(key: string): string {
   return createHash("sha256").update(key).digest("hex");

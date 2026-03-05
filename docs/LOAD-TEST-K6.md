@@ -56,6 +56,15 @@ k6 run --out html=report.html load-tests/load.js
 
 Za load na auth endpointih ustvarite ločeno skripto s predlogom prijave (login → session cookie) in jo dodajte v `load-tests/`.
 
+## Auth-protected endpoints
+
+Naslednji endpointi zahtevajo prijavljenega uporabnika (session). Brez prijave vračajo 401:
+
+- `/api/tourism/complete` – POST (execute_workflow, create_unified_booking, ipd.)
+- `/api/billing/complete` – POST (create_customer, track_usage, ipd.)
+
+Za load na teh endpointih: uporabite login flow pred klici (npr. k6 login scenario → session cookie) **ali** izberite druge endpointe: `/api/health`, `/api/tourism/faq` GET.
+
 ## Blok B #5 – Preverjanje pred beta
 
 Zagnati proti produkciji (replace `BASE_URL` z dejanskim production URL):

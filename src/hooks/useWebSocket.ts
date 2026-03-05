@@ -2,13 +2,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 interface WebSocketMessage {
   type: string;
-  data: any;
+  data: unknown;
 }
 
 interface UseWebSocketReturn {
   socket: WebSocket | null;
   isConnected: boolean;
-  send: (type: string, data: any) => void;
+  send: (type: string, data: unknown) => void;
   disconnect: () => void;
 }
 
@@ -60,11 +60,11 @@ export function useWebSocket(url: string): UseWebSocketReturn {
     }
   }, [socket]);
 
-  const send = useCallback((type: string, data: any) => {
+  const send = useCallback((type: string, data: unknown) => {
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ type, data }));
     }
-  }, [socket, isConnected]);
+  }, [socket]);
 
   // Auto-reconnect logic
   useEffect(() => {
@@ -99,7 +99,7 @@ export function useWebSocket(url: string): UseWebSocketReturn {
       }
       disconnect();
     };
-  }, [isConnected, url]);
+  }, [isConnected, url, connect, disconnect]);
 
   return {
     socket,

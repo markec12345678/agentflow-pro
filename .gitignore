@@ -23,6 +23,7 @@ dist/
 build/
 .next/
 out/
+tsconfig.tsbuildinfo
 
 # Logs
 *.log
@@ -48,6 +49,22 @@ test-results/
 playwright-report/
 screenshots/
 
+# Rust binaries
+*.node
+rust/target/
+rust/*/target/
+
+# Rust
+rust/target/
+rust/**/target/
+*.rlib
+*.pdb
+*.so
+*.dll
+*.dylib
+Cargo.lock
+playwright-*.txt
+
 # Prisma generated
 prisma/generated/
 
@@ -61,3 +78,5 @@ gpt4all-*.chat
 .cache
 cookies.txt
 test-login-body.json
+.vercel
+.env*.local

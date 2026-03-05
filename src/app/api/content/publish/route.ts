@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
 import { setUserApiKey, getUserApiKeys } from "@/lib/user-keys";
 import { publishToWordPress } from "@/lib/publish/wordpress";
 import { publishToMedium } from "@/lib/publish/medium";
@@ -21,13 +22,6 @@ interface PublishBody {
     twitter?: { apiKey?: string; apiSecret?: string; accessToken: string; accessTokenSecret: string };
   };
   status?: "draft" | "publish";
-}
-
-function getUserId(session: unknown): string | null {
-  const s = session as { user?: { userId?: string; email?: string | null } } | null;
-  if (!s?.user) return null;
-  const email = s.user.email;
-  return s.user.userId ?? (typeof email === "string" ? email : null);
 }
 
 export async function POST(request: NextRequest) {
@@ -161,49 +155,49 @@ export async function POST(request: NextRequest) {
     }
 
     if (platform === "linkedin") {
-    let accessToken: string | null = null;
+      let accessToken: string | null = null;
 
-    if (creds?.linkedin?.accessToken) {
-      accessToken = creds.linkedin.accessToken;
-      await setUserApiKey(userId, "linkedin", accessToken);
-    } else {
-      const keys = await getUserApiKeys(userId, { masked: false });
-      accessToken = keys.linkedin ?? null;
-    }
+      if (creds?.linkedin?.accessToken) {
+        accessToken = creds.linkedin.accessToken;
+        await setUserApiKey(userId, "linkedin", accessToken);
+      } else {
+        const keys = await getUserApiKeys(userId, { masked: false });
+        accessToken = keys.linkedin ?? null;
+      }
 
-    if (!accessToken) {
-      return NextResponse.json(
-        { error: "LinkedIn access token required. Complete OAuth or add token in Settings." },
-        { status: 400 }
-      );
-    }
+      if (!accessToken) {
+        return NextResponse.json(
+          { error: "LinkedIn access token required. Complete OAuth or add token in Settings." },
+          { status: 400 }
+        );
+      }
 
-    const result = await publishToLinkedIn(accessToken, title, content);
+      const result = await publishToLinkedIn(accessToken, title, content);
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
+      if (!result.success) {
+        return NextResponse.json({ error: result.error }, { status: 400 });
+      }
 
-    await prisma.blogPost.update({
-      where: { id: postId },
-      data: { pipelineStage: "published" },
-    });
+      await prisma.blogPost.update({
+        where: { id: postId },
+        data: { pipelineStage: "published" },
+      });
 
-    return NextResponse.json({
-      success: true,
-      platform: "linkedin",
-      postUrl: result.postUrl,
-      postId: result.postId,
-    });
+      return NextResponse.json({
+        success: true,
+        platform: "linkedin",
+        postUrl: result.postUrl,
+        postId: result.postId,
+      });
     }
 
     // platform === "twitter"
     let twCreds: {
-    apiKey: string;
-    apiSecret: string;
-    accessToken: string;
-    accessTokenSecret: string;
-  } | null = null;
+      apiKey: string;
+      apiSecret: string;
+      accessToken: string;
+      accessTokenSecret: string;
+    } | null = null;
 
     if (
       creds?.twitter?.accessToken &&

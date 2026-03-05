@@ -5,8 +5,11 @@
  * Use: node scripts/migrate-dev.js  or  npm run db:migrate
  */
 
-require("dotenv").config({ path: ".env.local" });
-require("dotenv").config({ path: ".env" });
+import dotenv from "dotenv";
+import { spawnSync } from "child_process";
+
+dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env" });
 
 if (!process.env.DATABASE_URL) {
   console.error("\nError: DATABASE_URL not set.");
@@ -14,7 +17,6 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-const { spawnSync } = require("child_process");
 const r = spawnSync("npx", ["prisma", "migrate", "dev"], {
   stdio: "inherit",
   env: process.env,

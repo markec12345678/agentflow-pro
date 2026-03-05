@@ -5,7 +5,7 @@
 
 import { getBookingComAPI, BookingComAPI, MockBookingComAPI } from '@/integrations/bookingCom';
 import { prisma } from '@/database/schema';
-import { calculatePrice } from '@/lib/tourism/pricing-engine';
+import { calculatePrice } from '@/lib/tourism/pricing-engine-wrapper';
 
 // Airbnb API Integration
 export interface AirbnbProperty {
@@ -379,7 +379,7 @@ export class UnifiedBookingManager {
       select: { basePrice: true, currency: true },
     });
     const baseRate = property?.basePrice ?? 120;
-    const result = calculatePrice(baseRate, request.checkIn, request.checkOut);
+    const result = await calculatePrice(baseRate, request.checkIn, request.checkOut);
     const currency = property?.currency ?? 'EUR';
 
     return {

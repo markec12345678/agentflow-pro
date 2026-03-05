@@ -181,9 +181,27 @@ TRIPADVISOR_API_KEY=... (from TripAdvisor dashboard)
 SENTRY_DSN=... (from Sentry dashboard)
 GRAFANA_ADMIN_PASSWORD=... (for Grafana dashboard)
 
+# Cron (Vercel production – protects cron endpoints)
+CRON_SECRET=... (random string, e.g. openssl rand -hex 32)
+
 # Development
 NODE_OPTIONS=--max-old-space-size=4096
 ```
+
+---
+
+## ⏰ **Cron Jobs (Vercel)**
+
+When deployed on Vercel, the following cron jobs run in **production only** (not in preview deployments):
+
+| Cron | Schedule (UTC) | Endpoint | Purpose |
+|------|----------------|----------|---------|
+| db-cleanup | 0 3 * * * (daily 3:00) | `/api/cron/db-cleanup` | Removes expired Session and VerificationToken records |
+| email-scheduler | 0 8 * * * (daily 8:00) | `/api/tourism/email-scheduler` | Creates GuestCommunication and sends pending emails |
+| pms-sync-all | 0 6,12,18 * * * (3× daily) | `/api/cron/pms-sync-all` | Syncs reservations from PMS for all properties with PmsConnection |
+
+- Set `CRON_SECRET` in Vercel Production env to secure cron endpoints.
+- Vercel sends `x-vercel-cron: 1` when invoking; endpoints also accept `Authorization: Bearer <CRON_SECRET>` for manual triggers.
 
 ---
 
