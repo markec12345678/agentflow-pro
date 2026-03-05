@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDrag } from 'react-dnd';
 import Image from 'next/image';
 import './MCPComponent.css';
@@ -134,22 +134,44 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
 
   const baseClasses = [
     'mcp-component',
-    'positioned',
     selected ? 'selected' : 'not-selected',
     isDragging ? 'dragging' : ''
   ].filter(Boolean).join(' ');
 
-  const positionStyle: React.CSSProperties = {
-    // Inline styles are necessary here for dynamic positioning
-    // which cannot be achieved with CSS classes alone
-    left: `${component.position.x}px`,
-    top: `${component.position.y}px`
-  };
+  // Generate unique ID for this component instance
+  const componentId = `mcp-component-${component.id}`;
+
+  // Inject positioning styles into head to avoid inline styles
+  useEffect(() => {
+    const styleId = `style-${component.id}`;
+    let styleElement = document.getElementById(styleId) as HTMLStyleElement;
+    
+    if (!styleElement) {
+      styleElement = document.createElement('style');
+      styleElement.id = styleId;
+      styleElement.textContent = `
+        #${componentId} {
+          position: absolute;
+          left: ${component.position.x}px;
+          top: ${component.position.y}px;
+        }
+      `;
+      document.head.appendChild(styleElement);
+    }
+
+    return () => {
+      // Cleanup style element when component unmounts
+      const existingStyle = document.getElementById(styleId);
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+    };
+  }, [component.id, component.position.x, component.position.y, componentId]);
 
   return (
     <div
+      id={componentId}
       ref={(drag as unknown) as React.RefObject<HTMLDivElement>}
-      style={positionStyle}
       className={baseClasses}
       onClick={() => onSelect?.(component.id)}
     >
