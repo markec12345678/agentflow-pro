@@ -46,4 +46,4 @@ harness = false
 
 [package.metadata.napi]
 name = "agentflow-pricing"
-triples = { defaults = true, additional = ["x86_64-pc-windows-msvc", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu"] }
+targets = { defaults = true, additional = ["x86_64-apple-darwin", "x86_64-unknown-linux-gnu"] }

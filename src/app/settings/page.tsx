@@ -73,7 +73,7 @@ export default function SettingsPage() {
   const [billingAction, setBillingAction] = useState<"idle" | "checkout" | "cancel">("idle");
   const [mailchimpCampaigns, setMailchimpCampaigns] = useState<Array<{ id: string; status?: string; subject_line?: string; create_time?: string; send_time?: string }> | null>(null);
   const [mailchimpCampaignsLoading, setMailchimpCampaignsLoading] = useState(false);
-  const [hubspotCompanies, setHubspotCompanies] = useState<Array<{ id?: string; name?: string; domain?: string; industry?: string }>> | null > (null);
+  const [hubspotCompanies, setHubspotCompanies] = useState<Array<{ id?: string; name?: string; domain?: string; industry?: string }> | null>(null);
   const [hubspotCompaniesLoading, setHubspotCompaniesLoading] = useState(false);
 
   useEffect(() => {

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "clean": "node -e \"const fs=require('fs');const p='.next';fs.existsSync(p)&&fs.rmSync(p,{recursive:true});console.log('Cleaned .next')\"",
-    "dev": "npm run build:bindings -- --debug && next dev -p 3002",
+    "dev": "npm run build:bindings:skip && next dev -p 3002",
 
     "build:bindings": "npm run build:bindings:pricing && npm run build:bindings:workflow",
     "build:bindings:pricing": "cd rust/pricing-engine && napi build --platform --release",
