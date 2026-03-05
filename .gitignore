@@ -49,6 +49,11 @@ test-results/
 playwright-report/
 screenshots/
 
+# Rust binaries
+*.node
+rust/target/
+rust/*/target/
+
 # Rust
 rust/target/
 rust/**/target/
