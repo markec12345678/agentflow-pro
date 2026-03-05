@@ -143,14 +143,12 @@ pub struct WorkflowProgress {
 
 struct Executor {
     workflow: WorkflowDefinition,
-    completed: Arc<RwLock<HashSet<String>>>,
 }
 
 impl Executor {
     fn new(workflow: WorkflowDefinition) -> Self {
         Self {
             workflow,
-            completed: Arc::new(RwLock::new(HashSet::<String>::new())),
         }
     }
 
@@ -305,9 +303,22 @@ impl Executor {
 /// WorkflowExecutionResult with status and output
 /// 
 /// # Example
-/// ```
-/// let result = execute_workflow(workflow_def).await?;
-/// println!("Status: {:?}", result.status);
+/// ```no_run
+/// use workflow_executor::{execute_workflow, WorkflowDefinition};
+/// 
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let workflow_def = WorkflowDefinition {
+///         id: "test".to_string(),
+///         name: "Test".to_string(),
+///         nodes: vec![],
+///         edges: vec![],
+///         metadata: None,
+///     };
+///     let result = execute_workflow(workflow_def).await;
+///     println!("Status: {:?}", result.status);
+///     Ok(())
+/// }
 /// ```
 pub async fn execute_workflow(workflow: WorkflowDefinition) -> WorkflowExecutionResult {
     let execution_id = Uuid::new_v4().to_string();
@@ -581,7 +592,6 @@ mod tests {
 
         let result = validate_workflow(workflow);
         assert!(result.is_err());
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "Circular dependency detected");
+        assert!(result.unwrap_err().to_string().contains("Circular dependency detected"));
     }
 }

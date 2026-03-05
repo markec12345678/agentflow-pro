@@ -12,6 +12,9 @@
 
 .mcp-component.positioned {
   position: absolute;
+  /* CSS custom properties for dynamic positioning */
+  left: var(--component-x, 0px);
+  top: var(--component-y, 0px);
 }
 
 .mcp-component.selected {

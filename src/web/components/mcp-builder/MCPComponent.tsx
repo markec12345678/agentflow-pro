@@ -140,9 +140,8 @@ export const MCPComponent: React.FC<MCPComponentProps> = ({
   ].filter(Boolean).join(' ');
 
   const positionStyle: React.CSSProperties = {
-    // Note: Inline styles are necessary here for dynamic positioning
+    // Inline styles are necessary here for dynamic positioning
     // which cannot be achieved with CSS classes alone
-    /* eslint-disable react/no-inline-styles */
     left: `${component.position.x}px`,
     top: `${component.position.y}px`
   };
