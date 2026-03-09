@@ -112,7 +112,7 @@ export class PricingEngine {
       params.baseRate,
       params.checkIn,
       params.checkOut,
-      params.options ?? null
+      params.options
     );
 
     // Apply rounding
