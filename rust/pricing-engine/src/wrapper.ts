@@ -154,7 +154,7 @@ export class PricingEngine {
         baseRate: req.baseRate,
         checkIn: req.checkIn,
         checkOut: req.checkOut,
-        options: req.options ?? null,
+        options: req.options,
       })),
     };
 
