@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Mail, Plus, Clipboard, Receipt, MessageCircle } from "lucide-react";
 
 function toWhatsAppUrl(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -75,9 +76,9 @@ export function QuickActionsPanel({ propertyId, isReceptionMode }: QuickActionsP
   const actions = [
     {
       id: "welcome",
-      label: "Pošlji dobrodošlico jutrišnjim",
+      label: "Dobrodošlica jutri",
       sublabel: tomorrowCount != null && tomorrowCount > 0 ? `${tomorrowCount} gostov` : null,
-      icon: "✉️",
+      icon: Mail,
       onClick: handleSendWelcomeTomorrow,
       disabled: sendingWelcome || (tomorrowCount ?? 0) === 0,
       variant: "primary" as const,
@@ -85,21 +86,21 @@ export function QuickActionsPanel({ propertyId, isReceptionMode }: QuickActionsP
     {
       id: "new-res",
       label: "Nova rezervacija",
-      icon: "➕",
+      icon: Plus,
       href: calendarHref,
       variant: "default" as const,
     },
     {
       id: "eturizem",
-      label: "eTurizem prijava",
-      icon: "📋",
+      label: "eTurizem",
+      icon: Clipboard,
       href: preArrivalHref,
       variant: "default" as const,
     },
     {
       id: "invoice",
-      label: "Izpiši račun",
-      icon: "🧾",
+      label: "Račun",
+      icon: Receipt,
       href: propertyId
         ? `/dashboard/tourism/calendar?propertyId=${propertyId}`
         : "/dashboard/tourism/calendar",
@@ -107,9 +108,9 @@ export function QuickActionsPanel({ propertyId, isReceptionMode }: QuickActionsP
     },
     {
       id: "whatsapp",
-      label: "WhatsApp danes prihodom",
+      label: "WhatsApp",
       sublabel: todayArrivals.length > 0 ? `${todayArrivals.length} gostov` : null,
-      icon: "💬",
+      icon: MessageCircle,
       onClick: handleWhatsAppAll,
       disabled: todayArrivals.filter((a) => a.guestPhone && toWhatsAppUrl(a.guestPhone)).length === 0,
       variant: "default" as const,
@@ -120,15 +121,16 @@ export function QuickActionsPanel({ propertyId, isReceptionMode }: QuickActionsP
     <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Hitre akcije</h2>
+        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">Hitri dostopi do najpogostejših opravil</p>
       </div>
       <div className="p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {actions.map((a) => {
           const content = (
             <>
-              <span className="text-2xl mb-1 block" aria-hidden>{a.icon}</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white block truncate">{a.label}</span>
+              <a.icon className="w-8 h-8 mb-2" aria-hidden />
+              <span className="text-sm font-semibold text-gray-900 dark:text-white block text-center">{a.label}</span>
               {a.sublabel && (
-                <span className="text-xs text-gray-500 dark:text-gray-400 block truncate">{a.sublabel}</span>
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-200 block text-center">{a.sublabel}</span>
               )}
             </>
           );

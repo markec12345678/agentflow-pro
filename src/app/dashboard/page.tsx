@@ -63,25 +63,20 @@ const CHECKLIST_STEPS = [
 ];
 
 function OnboardingChecklist({ boot }: { boot?: BootData | null }) {
-  const [dismissed, setDismissed] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        return !!localStorage.getItem("agentflow-checklist-dismissed");
-      } catch { return false; }
-    }
-    return false;
-  });
-  const [completed, setCompleted] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("agentflow-checklist");
-        return saved ? JSON.parse(saved) : ["register"];
-      } catch { return ["register"]; }
-    }
-    return ["register"];
-  });
+  const [dismissed, setDismissed] = useState(false);
+  const [completed, setCompleted] = useState<string[]>(["register"]);
+  const [mounted, setMounted] = useState(false);
   const hasProperty = boot?.hasProperty ?? null;
   const hasContent = boot?.hasContent ?? null;
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const saved = localStorage.getItem("agentflow-checklist");
+      if (saved) setCompleted(JSON.parse(saved));
+      setDismissed(localStorage.getItem("agentflow-checklist-dismissed") === "1");
+    } catch { }
+  }, []);
 
   const resolvedDone = (id: string) => {
     if (id === "property") return hasProperty === true;
@@ -100,9 +95,9 @@ function OnboardingChecklist({ boot }: { boot?: BootData | null }) {
     try { localStorage.setItem("agentflow-checklist-dismissed", "1"); } catch { }
   };
 
-  if (dismissed) return null;
+  if (!mounted || dismissed) return null;
 
-  const doneCount = CHECKLIST_STEPS.filter(s => completed.includes(s.id)).length;
+  const doneCount = CHECKLIST_STEPS.filter(s => resolvedDone(s.id)).length;
   const pct = Math.round((doneCount / CHECKLIST_STEPS.length) * 100);
 
   if (doneCount === CHECKLIST_STEPS.length) return null;
@@ -117,7 +112,10 @@ function OnboardingChecklist({ boot }: { boot?: BootData | null }) {
         <button onClick={dismiss} className="text-gray-400 hover:text-gray-600 text-xl leading-none" aria-label="Zapri">×</button>
       </div>
       <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mb-5">
-        <div className={`progress-fill bg-blue-600 h-2 rounded-full transition-all duration-500 progress-width-${Math.round(pct / 5) * 5}`} />
+        <div
+          className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
       </div>
       <div className="space-y-3">
         {CHECKLIST_STEPS.map(step => {
@@ -378,6 +376,40 @@ export default function DashboardPage() {
             {/* Onboarding Checklist */}
             <OnboardingChecklist boot={boot} />
 
+            {/* Quick Start Guide */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">🚀 Začni tukaj</h3>
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-blue-100 dark:border-blue-700">
+                  <div className="text-2xl mb-2">1️⃣</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Dodaj nastanitev</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Prvi korak do tvoje prve rezervacije</p>
+                  <Link href="/dashboard/tourism/properties?onboarding=true" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                    Dodaj →
+                  </Link>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-blue-100 dark:border-blue-700">
+                  <div className="text-2xl mb-2">2️⃣</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Ustvari rezervacijo</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Testiraj sistem z prvo rezervacijo</p>
+                  <Link href="/dashboard/tourism/calendar?open=new" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                    Ustvari →
+                  </Link>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-blue-100 dark:border-blue-700">
+                  <div className="text-2xl mb-2">3️⃣</div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Pošlji email</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Avtomatiziraj komunikacijo z gosti</p>
+                  <Link href="/dashboard/tourism/guest-communication?type=pre-arrival" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                    Pošlji →
+                  </Link>
+                </div>
+              </div>
+              <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                💡 <strong>Nasvet:</strong> Ne rabiš API ključev za osnovno uporabo. AI funkcije so opcione.
+              </div>
+            </div>
+
             {/* 3 Main Actions */}
             <div className="grid sm:grid-cols-3 gap-5">
               <QuickCard
@@ -505,7 +537,10 @@ function UsageProgress({ usage }: { usage?: BootData["usage"] | null }) {
           <span className="font-medium">{usage.agentRuns} / {usage.limit}</span>
         </div>
         <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className={`progress-fill h-full bg-blue-500 rounded-full transition-all progress-width-${Math.round(runsPct / 5) * 5}`} />
+          <div
+            className="h-full bg-blue-500 rounded-full transition-all"
+            style={{ width: `${runsPct}%` }}
+          />
         </div>
       </div>
       <div>
@@ -514,7 +549,10 @@ function UsageProgress({ usage }: { usage?: BootData["usage"] | null }) {
           <span className="font-medium">{usage.creditsUsed} / {usage.creditsLimit}</span>
         </div>
         <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className={`progress-fill h-full bg-green-500 rounded-full transition-all progress-width-${Math.round(creditsPct / 5) * 5}`} />
+          <div
+            className="h-full bg-green-500 rounded-full transition-all"
+            style={{ width: `${creditsPct}%` }}
+          />
         </div>
       </div>
     </div>

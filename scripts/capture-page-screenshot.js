@@ -5,9 +5,9 @@
  * Default: http://localhost:3002/login -> screenshots/capture.png
  * Requires: npm run dev running, playwright installed
  */
-const { chromium } = require("playwright");
-const path = require("path");
-const fs = require("fs");
+import { chromium } from "playwright";
+import path from "path";
+import fs from "fs";
 
 const url = process.argv[2] || "http://localhost:3002/login";
 const outArg = process.argv[3] || "screenshots/capture.png";

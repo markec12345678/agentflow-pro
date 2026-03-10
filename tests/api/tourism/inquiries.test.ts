@@ -1,38 +1,39 @@
 /**
  * Tourism Inquiries API unit/integration tests
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockGetServerSession = jest.fn();
-const mockGetUserId = jest.fn();
-const mockGetPropertyForUser = jest.fn();
-const mockGetPropertyIdsForUser = jest.fn();
-const mockCheckRateLimitByIp = jest.fn();
-const mockInquiryFindMany = jest.fn();
-const mockInquiryCount = jest.fn();
-const mockInquiryCreate = jest.fn();
-const mockInquiryFindUnique = jest.fn();
-const mockInquiryUpdate = jest.fn();
-const mockPropertyFindUnique = jest.fn();
+const mockGetServerSession = vi.fn();
+const mockGetUserId = vi.fn();
+const mockGetPropertyForUser = vi.fn();
+const mockGetPropertyIdsForUser = vi.fn();
+const mockCheckRateLimitByIp = vi.fn();
+const mockInquiryFindMany = vi.fn();
+const mockInquiryCount = vi.fn();
+const mockInquiryCreate = vi.fn();
+const mockInquiryFindUnique = vi.fn();
+const mockInquiryUpdate = vi.fn();
+const mockPropertyFindUnique = vi.fn();
 
-jest.mock("next-auth", () => ({
+vi.mock("next-auth", () => ({
   getServerSession: () => mockGetServerSession(),
 }));
 
-jest.mock("@/lib/auth-users", () => ({
+vi.mock("@/lib/auth-users", () => ({
   getUserId: (session: unknown) => mockGetUserId(session),
 }));
 
-jest.mock("@/lib/tourism/property-access", () => ({
+vi.mock("@/lib/tourism/property-access", () => ({
   getPropertyForUser: (...args: unknown[]) => mockGetPropertyForUser(...args),
   getPropertyIdsForUser: (...args: unknown[]) => mockGetPropertyIdsForUser(...args),
 }));
 
-jest.mock("@/lib/rate-limit", () => ({
+vi.mock("@/lib/rate-limit", () => ({
   checkRateLimitByIp: (...args: unknown[]) => mockCheckRateLimitByIp(...args),
 }));
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     inquiry: {
       findMany: (...args: unknown[]) => mockInquiryFindMany(...args),
@@ -67,7 +68,7 @@ const sampleInquiry = {
 
 describe("Tourism Inquiries API", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGetUserId.mockImplementation((s) => (s ? "user-1" : null));
     mockCheckRateLimitByIp.mockReturnValue({ allowed: true });
     mockGetPropertyIdsForUser.mockResolvedValue(["prop-1", "prop-2"]);

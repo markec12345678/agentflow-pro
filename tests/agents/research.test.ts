@@ -2,6 +2,7 @@
  * Research Agent tests
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { createResearchAgent } from "../../src/agents/research/ResearchAgent";
 
 describe("ResearchAgent", () => {

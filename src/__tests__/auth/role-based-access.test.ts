@@ -3,6 +3,7 @@
  * Tests role permissions, middleware, and access control logic
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { hasPermission, hasAnyPermission, hasAllPermissions, canPerformAction, permissions, UserRole } from '@/lib/auth/roles';
 
 describe('Role-Based Access Control Tests', () => {

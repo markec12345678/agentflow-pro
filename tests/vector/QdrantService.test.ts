@@ -1,3 +1,5 @@
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+
 /**
  * QdrantService - Vector service tests with mocked Qdrant and fetch
  */
@@ -8,10 +10,10 @@ import {
   type IndexDocument,
 } from "@/vector/QdrantService";
 
-const mockGetCollections = jest.fn();
-const mockCreateCollection = jest.fn();
-const mockUpsert = jest.fn();
-const mockSearch = jest.fn();
+const mockGetCollections = vi.fn();
+const mockCreateCollection = vi.fn();
+const mockUpsert = vi.fn();
+const mockSearch = vi.fn();
 
 const mockClient = {
   getCollections: mockGetCollections,
@@ -20,8 +22,8 @@ const mockClient = {
   search: mockSearch,
 };
 
-jest.mock("@qdrant/qdrant-js", () => ({
-  QdrantClient: jest.fn().mockImplementation(() => mockClient),
+vi.mock("@qdrant/qdrant-js", () => ({
+  QdrantClient: vi.fn().mockImplementation(() => mockClient),
 }));
 
 const origFetch = global.fetch;
@@ -30,7 +32,7 @@ describe("QdrantService", () => {
   const origEnv = process.env;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     process.env = { ...origEnv };
     (global as { fetch?: typeof fetch }).fetch = origFetch;
   });
@@ -68,7 +70,7 @@ describe("QdrantService", () => {
   describe("when QDRANT_URL is set", () => {
     beforeEach(() => {
       process.env.QDRANT_URL = "http://qdrant:6333";
-      (global as { fetch?: typeof fetch }).fetch = jest.fn().mockResolvedValue({
+      (global as { fetch?: typeof fetch }).fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () =>
           Promise.resolve({

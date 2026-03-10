@@ -1,6 +1,7 @@
 /**
  * GET /api/health/resilience - Blok B #7 verification
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { GET } from "@/app/api/health/resilience/route";
 
 describe("GET /api/health/resilience", () => {

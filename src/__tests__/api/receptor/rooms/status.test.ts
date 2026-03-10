@@ -2,36 +2,37 @@
  * Unit tests for /api/receptor/rooms/status/route.ts
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from 'next/server';
 import { GET } from '@/app/api/receptor/rooms/status/route';
 import { prisma } from '@/database/schema';
 
 // Mock dependencies
-jest.mock('@/database/schema', () => ({
+vi.mock('@/database/schema', () => ({
   prisma: {
     room: {
-      findMany: jest.fn(),
+      findMany: vi.fn(),
     },
     reservation: {
-      findMany: jest.fn(),
+      findMany: vi.fn(),
     },
   },
 }));
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn(),
 }));
 
-jest.mock('@/lib/auth-options', () => ({
+vi.mock('@/lib/auth-options', () => ({
   authOptions: {},
 }));
 
-jest.mock('@/lib/auth-users', () => ({
-  getUserId: jest.fn(),
+vi.mock('@/lib/auth-users', () => ({
+  getUserId: vi.fn(),
 }));
 
-jest.mock('@/lib/tourism/property-access', () => ({
-  getPropertyForUser: jest.fn(),
+vi.mock('@/lib/tourism/property-access', () => ({
+  getPropertyForUser: vi.fn(),
 }));
 
 describe('/api/receptor/rooms/status', () => {
@@ -44,7 +45,7 @@ describe('/api/receptor/rooms/status', () => {
     mockPropertyId = 'property-123';
     
     // Reset all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Setup default successful auth
     const { getUserId } = require('@/lib/auth-users');

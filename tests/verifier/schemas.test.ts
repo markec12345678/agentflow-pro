@@ -1,3 +1,5 @@
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+
 /**
  * Verifier schemas - validateResearchOutput, validateContentOutput, etc.
  */

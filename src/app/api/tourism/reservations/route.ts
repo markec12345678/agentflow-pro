@@ -6,6 +6,7 @@ import { getUserId } from "@/lib/auth-users";
 import { getPropertyIdsForUser } from "@/lib/tourism/property-access";
 import { parseISO, startOfDay, endOfDay, format } from "date-fns";
 import { sendEmail } from "@/lib/email/send";
+import { MemoryMCP } from "@/ai/context-manager";
 
 export async function GET(request: NextRequest) {
   try {
@@ -195,7 +196,7 @@ export async function POST(request: NextRequest) {
       try {
         const checkInDate = format(newReservation.checkIn, "d. MMM yyyy");
         const checkOutDate = format(newReservation.checkOut, "d. MMM yyyy");
-        
+
         await sendEmail(
           newReservation.guest.email,
           `Potrditev rezervacije: ${newReservation.property.name}`,
@@ -207,7 +208,7 @@ export async function POST(request: NextRequest) {
   <h2 style="color: #1e3a8a;">Potrditev vaše rezervacije</h2>
   <p>Pozdravljeni, <strong>${newReservation.guest.name}</strong>!</p>
   <p>Z veseljem potrjujemo vašo rezervacijo v <strong>${newReservation.property.name}</strong>.</p>
-  
+
   <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 20px 0;">
     <p style="margin: 0; font-size: 14px; color: #64748b;">Šifra rezervacije: <strong>#${newReservation.id.slice(-6).toUpperCase()}</strong></p>
     <div style="display: flex; gap: 40px; margin-top: 15px;">
@@ -222,7 +223,7 @@ export async function POST(request: NextRequest) {
     </div>
     <p style="margin-top: 15px; font-size: 14px;">Skupni znesek: <strong>${newReservation.totalPrice?.toLocaleString("sl-SI")} €</strong></p>
   </div>
-  
+
   <p>Veselimo se vašega obiska!</p>
   <p style="margin-top: 30px; border-top: 1px solid #e2e8f0; pt: 15px; font-size: 12px; color: #94a3b8;">
     Ta e-pošta je bila poslana preko AgentFlow Pro sistema.
@@ -234,6 +235,44 @@ export async function POST(request: NextRequest) {
         console.error("Failed to send confirmation email:", emailErr);
         // We don't fail the whole request if email fails
       }
+    }
+
+    // Store guest preferences in Memory MCP (non-blocking)
+    try {
+      const memoryMCP = new MemoryMCP();
+      
+      // Store guest preferences
+      await memoryMCP.storeGuestPreference(newReservation.guestId, {
+        propertyId: newReservation.propertyId,
+        roomId: newReservation.roomId || undefined,
+        channel: newReservation.channel || undefined,
+        totalPrice: newReservation.totalPrice || undefined,
+        notes: newReservation.notes || undefined,
+        guests: newReservation.guests || undefined,
+        checkIn: newReservation.checkIn,
+        checkOut: newReservation.checkOut
+      });
+
+      // Update knowledge graph with reservation data
+      await memoryMCP.updateKnowledgeGraph({
+        type: 'reservation',
+        guestId: newReservation.guestId,
+        propertyId: newReservation.propertyId,
+        reservationId: newReservation.id,
+        reservation: {
+          channel: newReservation.channel,
+          status: newReservation.status,
+          totalPrice: newReservation.totalPrice,
+          guests: newReservation.guests,
+          roomId: newReservation.roomId,
+          checkIn: newReservation.checkIn,
+          checkOut: newReservation.checkOut
+        },
+        timestamp: new Date()
+      });
+    } catch (memoryErr) {
+      console.error("Failed to store guest preferences or update knowledge graph:", memoryErr);
+      // Don't fail the reservation if memory storage fails
     }
 
     return NextResponse.json(newReservation);

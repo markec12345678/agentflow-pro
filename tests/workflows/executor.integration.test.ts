@@ -1,3 +1,5 @@
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+
 /**
  * WorkflowExecutor integration tests - real agents via orchestrator-factory.
  * Uses MOCK_MODE=true so agents return mock data without API keys.
@@ -6,8 +8,8 @@
  * Note: octokit is mocked so Jest can load the orchestrator (CodeAgent depends on it).
  */
 
-jest.mock("octokit", () => ({
-  Octokit: jest.fn().mockImplementation(() => ({})),
+vi.mock("octokit", () => ({
+  Octokit: vi.fn().mockImplementation(() => ({})),
 }));
 
 describe("WorkflowExecutor (real agent integration, mock mode)", () => {

@@ -318,9 +318,17 @@ function CanvasList() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) throw new Error("Failed to create board");
+        const text = await r.text();
+        return text ? JSON.parse(text) : null;
+      })
       .then((data) => {
-        if (data.id) router.push(`/canvas?id=${data.id}`);
+        if (data?.id) router.push(`/canvas?id=${data.id}`);
+      })
+      .catch((err) => {
+        console.error("Error creating board:", err);
+        alert("Failed to create board. Please try again.");
       })
       .finally(() => setCreating(false));
   };

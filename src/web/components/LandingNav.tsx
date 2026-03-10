@@ -7,60 +7,60 @@ import { trackCTAClick } from "@/lib/analytics";
 
 const NAV_CONFIG = {
   solutions: {
-    label: "Solutions",
+    label: "Rešitve",
     items: [
       {
-        name: "Tourism & Hospitality",
+        name: "Turizem & Gostinstvo",
         href: "/solutions/industry/tourism",
-        desc: "Booking descriptions, destination guides, seasonal campaigns",
-        badge: "Popular",
+        desc: "Opisi bookingov, vodiči destinacij, sezonske kampanje",
+        badge: "Priljubljeno",
       },
       {
-        name: "Marketing Agencies",
+        name: "Marketing Agencije",
         href: "/solutions",
-        desc: "Bulk generation, brand guardrails, client reporting",
+        desc: "Hiter obseg vsebin, blagovne znamke, poročila",
       },
       {
-        name: "E-commerce",
+        name: "E-trgovina",
         href: "/solutions/industry/ecommerce",
-        desc: "Product descriptions, SEO, multi-language content",
+        desc: "Opisi produktov, SEO, večjezične vsebine",
       },
       {
-        name: "Tech & SaaS",
+        name: "Tehnologija & SaaS",
         href: "/solutions/industry/tech",
-        desc: "Technical docs, release notes, developer content",
+        desc: "Tehnična dokumentacija, objave, vsebine za razvijalce",
       },
     ],
   },
   resources: {
-    label: "Resources",
+    label: "Viri",
     items: [
       {
-        name: "Documentation",
+        name: "Dokumentacija",
         href: "/docs",
-        desc: "API reference, guides, tutorials",
+        desc: "API reference, vodiči, tutoriali",
       },
       {
-        name: "Video Tutorials",
+        name: "Video Tutoriali",
         href: "/docs",
-        desc: "Short guides for every feature",
+        desc: "Hitri vodiči za vsako funkcijo",
       },
       {
-        name: "Case Studies",
+        name: "Študije Primerov",
         href: "/stories",
-        desc: "How customers achieve results",
+        desc: "Kako stranke dosegajo rezultate",
       },
       {
-        name: "Support",
+        name: "Podpora",
         href: "/contact",
-        desc: "FAQ, chat, email support",
+        desc: "FAQ, klepet, email podpora",
       },
     ],
   },
 };
 
 const NAV_PRIMARY = [
-  { name: "Pricing", href: "/pricing", highlight: false },
+  { name: "Cenik", href: "/pricing", highlight: false },
   { name: "Demo", href: "/#demo-video", highlight: false },
 ];
 
@@ -329,7 +329,7 @@ export function LandingNav() {
                   href="/login"
                   className="outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 inline-block cursor-pointer px-4 py-2.5 font-medium text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                 >
-                  Sign In
+                  Prijava
                 </Link>
                 <div className="relative isolate">
                   <span className="absolute -top-2 -right-2 z-10 rounded-full bg-red-500 px-2 py-1 text-xs font-bold text-white shadow-sm animate-pulse">
@@ -340,7 +340,7 @@ export function LandingNav() {
                     className={`group block overflow-hidden rounded-xl bg-linear-to-r from-blue-600 via-cyan-500 to-emerald-400 px-6 py-3 text-base font-bold text-white shadow-xl transition-all hover:shadow-2xl hover:brightness-110 ${scrolled ? "ring-2 ring-emerald-400/50" : ""}`}
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      🔥 Start Free Trial
+                      🚀 Začni brezplačno
                       <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">
                         →
                       </span>
@@ -513,7 +513,7 @@ export function LandingNav() {
                 className="mb-3 flex min-h-[44px] w-full items-center justify-center font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Sign In
+                Prijava
               </Link>
               <div className="relative">
                 <span className="absolute -top-2 right-4 rounded-full bg-red-500 px-2 py-1 text-xs font-bold text-white animate-pulse">
@@ -528,7 +528,7 @@ export function LandingNav() {
                   }}
                 >
                   <span className="flex items-center justify-center gap-2">
-                    🔥 Start Free Trial
+                    🚀 Začni brezplačno
                     <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">
                       →
                     </span>

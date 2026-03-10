@@ -7,6 +7,22 @@ datasource db {
   provider = "postgresql"
 }
 
+// Template Usage Tracking
+model TemplateUsage {
+  id             String   @id @default(cuid())
+  templateId     String
+  system         String
+  count          Int      @default(0)
+  lastUsed       DateTime @updatedAt
+  totalRenderTime Int     @default(0)
+  errorCount     Int      @default(0)
+
+  @@unique([templateId, system])
+  @@index([system])
+  @@index([lastUsed])
+  @@map("template_usage")
+}
+
 model User {
   id                       String                    @id @default(cuid())
   email                    String                    @unique

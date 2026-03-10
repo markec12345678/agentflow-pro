@@ -1,23 +1,24 @@
 /**
  * auth-options.ts – NextAuth config unit tests
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 
-const mockGetUser = jest.fn();
-jest.mock("@/lib/auth-users", () => ({
+const mockGetUser = vi.fn();
+vi.mock("@/lib/auth-users", () => ({
   getUser: (...args: unknown[]) => mockGetUser(...args),
   getUserId: () => null,
   registerUser: async () => null,
 }));
 
-const mockPrismaUserUpsert = jest.fn();
-const mockPrismaUserFindUnique = jest.fn();
-const mockPrismaTeamMemberFindUnique = jest.fn();
-const mockPrismaTeamMemberFindMany = jest.fn();
+const mockPrismaUserUpsert = vi.fn();
+const mockPrismaUserFindUnique = vi.fn();
+const mockPrismaTeamMemberFindUnique = vi.fn();
+const mockPrismaTeamMemberFindMany = vi.fn();
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     user: {
       upsert: (...args: unknown[]) => mockPrismaUserUpsert(...args),
@@ -34,7 +35,7 @@ describe("authOptions", () => {
   const origEnv = process.env;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     process.env = { ...origEnv };
     mockPrismaTeamMemberFindMany.mockResolvedValue([]);
   });
@@ -101,7 +102,7 @@ describe("authOptions", () => {
 
     it("returns null when getUser throws", async () => {
       mockGetUser.mockRejectedValue(new Error("db error"));
-      const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation();
       expect(await authorize({ email: "a@b.com", password: "p" })).toBeNull();
       consoleSpy.mockRestore();
     });

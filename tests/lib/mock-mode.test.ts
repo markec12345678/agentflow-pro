@@ -1,3 +1,4 @@
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { isMockMode, mockMode } from "@/lib/mock-mode";
 
 describe("mock-mode", () => {

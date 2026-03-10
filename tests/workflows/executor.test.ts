@@ -2,20 +2,21 @@
  * Workflow executor tests
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { executeWorkflow } from "@/workflows/executor";
 import { WorkflowExecutor } from "@/workflows/WorkflowExecutor";
 import { Orchestrator } from "@/orchestrator/Orchestrator";
 import type { Workflow } from "@/workflows/types";
 
-jest.mock("@/lib/orchestrator-factory", () => ({
+vi.mock("@/lib/orchestrator-factory", () => ({
   getOrchestrator: () => new Orchestrator(),
 }));
 
-const mockWorkflowFindUnique = jest.fn().mockResolvedValue(null);
-jest.mock("@/database/schema", () => ({
+const mockWorkflowFindUnique = vi.fn().mockResolvedValue(null);
+vi.mock("@/database/schema", () => ({
   prisma: {
     workflow: { findUnique: (...args: unknown[]) => mockWorkflowFindUnique(...args) },
-    workflowCheckpoint: { create: jest.fn().mockResolvedValue({ id: "cp1" }) },
+    workflowCheckpoint: { create: vi.fn().mockResolvedValue({ id: "cp1" }) },
   },
   PLAN_LIMITS: { starter: {}, pro: {}, enterprise: {} },
 }));

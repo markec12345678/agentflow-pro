@@ -2,6 +2,7 @@
  * Content Agent tests
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { createContentAgent } from "../../src/agents/content/ContentAgent";
 
 describe("ContentAgent", () => {

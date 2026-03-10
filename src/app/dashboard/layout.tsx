@@ -3,16 +3,42 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { 
+  Home, 
+  ClipboardList, 
+  PenTool, 
+  FolderKanban, 
+  Building,
+  LayoutDashboard,
+  Calendar,
+  Mail,
+  Hotel,
+  FileText,
+  Globe,
+  BarChart3,
+  Zap,
+  MessageSquare,
+  Brain,
+  AlertCircle,
+  Settings,
+  Moon,
+  Sun,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Plus
+} from "lucide-react";
 import FloatingChat from "@/components/FloatingChat";
 import { NotificationSidePanel } from "@/web/components/NotificationSidePanel";
 
-// ─── Glavna navigacija ────────────────────────────────────────────────────────
+// ─── Glavna navigacija (5 osnovnih) ─────────────────────────────────────────
 const MAIN_NAV = [
-  { icon: "🏠", label: "Pregled", href: "/dashboard" },
-  { icon: "📋", label: "Director", href: "/dashboard/director" },
-  { icon: "✍️", label: "Ustvari", href: "/generate" },
-  { icon: "📁", label: "Vsebina", href: "/content" },
-  { icon: "🏨", label: "Nastanitve", href: "/settings" },
+  { icon: Home, label: "Pregled", href: "/dashboard" },
+  { icon: Calendar, label: "Koledar", href: "/dashboard/tourism/calendar" },
+  { icon: PenTool, label: "Ustvari", href: "/generate" },
+  { icon: FolderKanban, label: "Vsebina", href: "/content" },
+  { icon: Settings, label: "Nastavitve", href: "/settings" },
 ];
 
 // ─── Turizem podmeni ──────────────────────────────────────────────────────────
@@ -38,15 +64,15 @@ const TOURISM_NAV = [
 
 // ─── Napredno (skrito) ────────────────────────────────────────────────────────
 const ADVANCED_NAV = [
-  { icon: "📊", label: "Insights", href: "/dashboard/insights" },
-  { icon: "⚡", label: "Workflow Builder", href: "/workflows" },
-  { icon: "🌐", label: "Page Builder", href: "/dashboard/page-builder" },
-  { icon: "🔗", label: "MCP Builder", href: "/dashboard/mcp-builder" },
-  { icon: "💬", label: "Chat z agenti", href: "/chat" },
-  { icon: "🧠", label: "Memory", href: "/memory" },
-  { icon: "🔄", label: "Escalations", href: "/dashboard/escalations" },
-  { icon: "⚙️", label: "Nastavitve", href: "/settings" },
-  { icon: "📊", label: "Monitoring", href: "/monitoring" },
+  { icon: BarChart3, label: "Insights", href: "/dashboard/insights" },
+  { icon: Zap, label: "Workflow Builder", href: "/workflows" },
+  { icon: Globe, label: "Page Builder", href: "/dashboard/page-builder" },
+  { icon: MessageSquare, label: "MCP Builder", href: "/dashboard/mcp-builder" },
+  { icon: MessageSquare, label: "Chat z agenti", href: "/chat" },
+  { icon: Brain, label: "Memory", href: "/memory" },
+  { icon: AlertCircle, label: "Escalations", href: "/dashboard/escalations" },
+  { icon: Settings, label: "Nastavitve", href: "/settings" },
+  { icon: BarChart3, label: "Monitoring", href: "/monitoring" },
 ];
 
 const SHORTCUTS: Record<string, string> = {
@@ -186,7 +212,7 @@ export default function DashboardLayout({
           href="/dashboard"
           className="flex items-center gap-2 font-bold text-gray-900 dark:text-white"
         >
-          <span className="text-xl">⚡</span>
+          <Zap className="w-6 h-6 text-blue-600" />
           <span>
             AgentFlow<span className="text-blue-600"> Pro</span>
           </span>
@@ -197,7 +223,7 @@ export default function DashboardLayout({
           className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           aria-label={darkMode ? "Svetla tema" : "Temna tema"}
         >
-          {darkMode ? "☀️" : "🌙"}
+          {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
       </div>
 
@@ -206,7 +232,7 @@ export default function DashboardLayout({
         href="/generate"
         className="flex items-center justify-center gap-2 w-full py-2.5 mb-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-all shadow-xs"
       >
-        <span>+</span>
+        <Plus className="w-5 h-5" />
         <span>Nova vsebina</span>
       </Link>
 
@@ -217,7 +243,7 @@ export default function DashboardLayout({
           href={item.href}
           className={navLinkClass(item.href)}
         >
-          <span className="text-lg">{item.icon}</span>
+          <item.icon className="w-5 h-5" />
           <span>{item.label}</span>
         </Link>
       ))}
@@ -251,7 +277,7 @@ export default function DashboardLayout({
           onClick={() => setShowAdvanced((v) => !v)}
           className="flex items-center gap-2 px-3 py-2 w-full text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
         >
-          <span>{showAdvanced ? "▲" : "▼"}</span>
+          {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           <span>Napredno</span>
         </button>
         {showAdvanced && (
@@ -262,7 +288,7 @@ export default function DashboardLayout({
                 href={item.href}
                 className={navLinkClass(item.href)}
               >
-                <span>{item.icon}</span>
+                <item.icon className="w-5 h-5" />
                 <span>{item.label}</span>
               </Link>
             ))}
@@ -299,33 +325,9 @@ export default function DashboardLayout({
             aria-label="Meni"
           >
             {mobileOpen ? (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="w-6 h-6" />
             ) : (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+              <Menu className="w-6 h-6" />
             )}
           </button>
         </div>
@@ -364,14 +366,14 @@ export default function DashboardLayout({
             const base = [
               showTourismHub
                 ? {
-                    icon: "📅",
+                    icon: Calendar,
                     label: "Danes",
                     href: "/dashboard/tourism?mode=reception",
                   }
-                : { icon: "🏠", label: "Domov", href: "/dashboard" },
-              { icon: "✍️", label: "Ustvari", href: "/generate" },
-              { icon: "📁", label: "Vsebina", href: "/content" },
-              { icon: "⚙️", label: "Nastavitve", href: "/settings" },
+                : { icon: Home, label: "Domov", href: "/dashboard" },
+              { icon: PenTool, label: "Ustvari", href: "/generate" },
+              { icon: FolderKanban, label: "Vsebina", href: "/content" },
+              { icon: Settings, label: "Nastavitve", href: "/settings" },
             ];
             return base;
           })().map((item) => (
@@ -384,7 +386,7 @@ export default function DashboardLayout({
                   : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
-              <span className="text-xl">{item.icon}</span>
+              <item.icon className="w-6 h-6" />
               <span className="text-xs font-medium">{item.label}</span>
             </Link>
           ))}

@@ -1,14 +1,15 @@
 /**
  * Integration tests for /api/cron/smart-alerts-errors
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockAlertEventCount = jest.fn();
-const mockAlertEventFindFirst = jest.fn();
-const mockAlertEventDeleteMany = jest.fn();
-const mockTriggerAlert = jest.fn();
+const mockAlertEventCount = vi.fn();
+const mockAlertEventFindFirst = vi.fn();
+const mockAlertEventDeleteMany = vi.fn();
+const mockTriggerAlert = vi.fn();
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     alertEvent: {
       count: (...args: unknown[]) => mockAlertEventCount(...args),
@@ -18,7 +19,7 @@ jest.mock("@/database/schema", () => ({
   },
 }));
 
-jest.mock("@/alerts/smartAlerts", () => ({
+vi.mock("@/alerts/smartAlerts", () => ({
   triggerAlert: (...args: unknown[]) => mockTriggerAlert(...args),
 }));
 
@@ -26,7 +27,7 @@ const originalEnv = process.env;
 
 describe("GET /api/cron/smart-alerts-errors", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     process.env = { ...originalEnv };
     mockAlertEventCount.mockResolvedValue(0);
     mockAlertEventFindFirst.mockResolvedValue(null);

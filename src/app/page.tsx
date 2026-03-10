@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CASE_STUDIES } from "@/data/case-studies";
 import { SOLUTIONS, INDUSTRIES } from "@/data/solutions";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
+import { DashboardPreview } from "@/components/DashboardPreview";
 
 export default function HomePage() {
   return (
@@ -53,18 +54,17 @@ export default function HomePage() {
           {/* Right side: Dashboard Preview */}
           <div className="relative hidden md:block">
             <div className="bg-white/10 backdrop-blur rounded-xl shadow-2xl border-4 border-white/20 p-4">
-              {/* Placeholder for dashboard screenshot */}
-              <div className="bg-white rounded-lg h-80 flex items-center justify-center text-gray-400">
-                📊 Dashboard Screenshot
-              </div>
+              <DashboardPreview />
             </div>
 
             {/* Floating badges */}
-            <div className="absolute -top-4 -right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
-              🤖 87% Automated Bookings
+            <div className="absolute -top-4 -right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm flex items-center gap-2 animate-bounce">
+              <span>🤖</span>
+              <span>87% Automated Bookings</span>
             </div>
-            <div className="absolute -bottom-4 -left-4 bg-primary-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
-              ⏱️ 5 Mins/Day Management
+            <div className="absolute -bottom-4 -left-4 bg-primary-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm flex items-center gap-2 animate-bounce" style={{ animationDelay: "0.5s" }}>
+              <span>⏱️</span>
+              <span>5 Mins/Day Management</span>
             </div>
           </div>
         </div>

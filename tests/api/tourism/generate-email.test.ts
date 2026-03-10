@@ -1,34 +1,35 @@
 /**
  * Tourism Generate Email API integration tests
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockGetServerSession = jest.fn();
-const mockGetUserApiKeys = jest.fn();
-const mockGetOpenAiApiKey = jest.fn();
-const mockGenerateText = jest.fn();
+const mockGetServerSession = vi.fn();
+const mockGetUserApiKeys = vi.fn();
+const mockGetOpenAiApiKey = vi.fn();
+const mockGenerateText = vi.fn();
 let mockModeValue = true;
 
-jest.mock("next-auth", () => ({
+vi.mock("next-auth", () => ({
   getServerSession: () => mockGetServerSession(),
 }));
 
-jest.mock("@/lib/user-keys", () => ({
+vi.mock("@/lib/user-keys", () => ({
   getUserApiKeys: (...args: unknown[]) => mockGetUserApiKeys(...args),
 }));
 
-jest.mock("@/config/env", () => ({
+vi.mock("@/config/env", () => ({
   getOpenAiApiKey: () => mockGetOpenAiApiKey(),
   getLlmApiKey: () => ({ apiKey: mockGetOpenAiApiKey() || "mock-key", model: "gpt-4o-mini" }),
   getLlmFromUserKeys: (keys?: Record<string, string>) =>
     keys?.openai ? { apiKey: keys.openai, model: "gpt-4o-mini" } : { apiKey: mockGetOpenAiApiKey() || "", model: "gpt-4o-mini" },
 }));
 
-jest.mock("ai", () => ({
+vi.mock("ai", () => ({
   generateText: (...args: unknown[]) => mockGenerateText(...args),
 }));
 
-jest.mock("@/lib/mock-mode", () => ({
+vi.mock("@/lib/mock-mode", () => ({
   get mockMode() {
     return mockModeValue;
   },
@@ -46,7 +47,7 @@ const authSession = {
 
 describe("POST /api/tourism/generate-email", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockModeValue = true;
     mockGetUserApiKeys.mockResolvedValue({});
     mockGetOpenAiApiKey.mockReturnValue("");

@@ -6,7 +6,6 @@ import { Providers } from "./providers";
 import { Nav } from "@/web/components/Nav";
 import { ErrorBoundary } from "@/web/components/ErrorBoundary";
 import { AnalyticsLoader } from "@/web/components/AnalyticsLoader";
-import { FloatingAssistant } from "@/web/components/FloatingAssistant";
 
 // Service Worker Registration Component
 function ServiceWorkerRegistration() {
@@ -146,7 +145,6 @@ export default function RootLayout({
               {children}
             </div>
           </ErrorBoundary>
-          <FloatingAssistant />
         </Providers>
       </body>
     </html>

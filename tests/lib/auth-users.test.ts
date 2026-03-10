@@ -1,14 +1,16 @@
 /**
  * auth-users.ts - getUserId, registerUser, getUser
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import type { Session } from "next-auth";
-import bcrypt from "bcryptjs";
 import { getUserId, registerUser, getUser } from "@/lib/auth-users";
 
-const mockPrismaUserFindUnique = jest.fn();
-const mockPrismaUserCreate = jest.fn();
+const mockPrismaUserFindUnique = vi.fn();
+const mockPrismaUserCreate = vi.fn();
+const mockBcryptHash = vi.fn().mockResolvedValue("$hashed");
+const mockBcryptCompare = vi.fn().mockResolvedValue(true);
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     user: {
       findUnique: (...args: unknown[]) => mockPrismaUserFindUnique(...args),
@@ -17,15 +19,18 @@ jest.mock("@/database/schema", () => ({
   },
 }));
 
-jest.mock("bcryptjs", () => ({
-  hash: jest.fn().mockResolvedValue("$hashed"),
-  compare: jest.fn().mockResolvedValue(true),
+vi.mock("bcryptjs", () => ({
+  default: {
+    hash: (...args: unknown[]) => mockBcryptHash(...args),
+    compare: (...args: unknown[]) => mockBcryptCompare(...args),
+  },
 }));
 
 describe("auth-users", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    vi.clearAllMocks();
+    // Reset bcrypt mock to default (true)
+    mockBcryptCompare.mockResolvedValue(true);
   });
 
   describe("getUserId", () => {
@@ -103,13 +108,14 @@ describe("auth-users", () => {
 
     it("returns null when password invalid", async () => {
       mockPrismaUserFindUnique.mockResolvedValue({ id: "u1", passwordHash: "hash" });
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+      mockBcryptCompare.mockResolvedValue(false);
       const result = await getUser("u@b.com", "wrong");
       expect(result).toBeNull();
     });
 
     it("returns user id when valid", async () => {
       mockPrismaUserFindUnique.mockResolvedValue({ id: "u1", passwordHash: "hash" });
+      mockBcryptCompare.mockResolvedValue(true);
       const result = await getUser(" U@B.COM ", " pass ");
       expect(result).toEqual({ id: "u1" });
       expect(mockPrismaUserFindUnique).toHaveBeenCalledWith({

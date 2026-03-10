@@ -1,3 +1,4 @@
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TextPlugin } from '../plugins/TextPlugin';
 import { ImagePlugin } from '../plugins/ImagePlugin';
@@ -6,18 +7,18 @@ import { FormPlugin } from '../plugins/FormPlugin';
 
 // Mock WebSocket for testing (reserved for future WebSocket tests)
 const _mockWebSocket = {
-  send: jest.fn(),
-  on: jest.fn(),
-  close: jest.fn(),
+  send: vi.fn(),
+  on: vi.fn(),
+  close: vi.fn(),
 };
 
 // Mock PluginContext
 const mockPluginContext = {
   plugins: [],
-  registerPlugin: jest.fn(),
-  unregisterPlugin: jest.fn(),
-  getPlugin: jest.fn(),
-  getAllPlugins: jest.fn(() => [
+  registerPlugin: vi.fn(),
+  unregisterPlugin: vi.fn(),
+  getPlugin: vi.fn(),
+  getAllPlugins: vi.fn(() => [
     { id: "text", name: "Text Component", component: TextPlugin.component },
     { id: "image", name: "Image Component", component: ImagePlugin.component },
     { id: "button", name: "Button Component", component: ButtonPlugin.component },
@@ -27,11 +28,11 @@ const mockPluginContext = {
 
 describe('PageBuilder', () => {
   beforeEach(() => {
-    jest.mock('../context/PluginContext', () => mockPluginContext);
+    vi.mock('../context/PluginContext', () => mockPluginContext);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('renders plugin library correctly', () => {
@@ -66,7 +67,7 @@ describe('PageBuilder', () => {
   });
 
   test('plugin configuration works', () => {
-    const onUpdate = jest.fn();
+    const onUpdate = vi.fn();
 
     render(
       <div>

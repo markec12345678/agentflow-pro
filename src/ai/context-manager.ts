@@ -240,6 +240,241 @@ export class MemoryMCP {
   async getUserPreferences(userId: string): Promise<any> {
     return { theme: 'dark', language: 'en' };
   }
+
+  /**
+   * Store guest preferences from reservation data
+   * This builds a knowledge graph of guest preferences for personalization
+   */
+  async storeGuestPreference(
+    guestId: string,
+    preferences: {
+      propertyId?: string;
+      roomId?: string;
+      channel?: string;
+      totalPrice?: number;
+      notes?: string;
+      guests?: number;
+      checkIn?: Date;
+      checkOut?: Date;
+    }
+  ): Promise<void> {
+    try {
+      // Create guest entity if not exists
+      this.createEntities([{
+        name: `guest:${guestId}`,
+        entityType: 'Guest',
+        observations: [`Guest ID: ${guestId}`]
+      }]);
+
+      const observations: string[] = [];
+
+      // Store room preference
+      if (preferences.roomId) {
+        observations.push(`Preferred room: ${preferences.roomId}`);
+        this.createRelations([{
+          from: `guest:${guestId}`,
+          to: `room:${preferences.roomId}`,
+          relationType: 'PREFERS_ROOM'
+        }]);
+      }
+
+      // Store property preference
+      if (preferences.propertyId) {
+        observations.push(`Visited property: ${preferences.propertyId}`);
+        this.createRelations([{
+          from: `guest:${guestId}`,
+          to: `property:${preferences.propertyId}`,
+          relationType: 'VISITED_PROPERTY'
+        }]);
+      }
+
+      // Store channel preference
+      if (preferences.channel) {
+        observations.push(`Booking channel: ${preferences.channel}`);
+      }
+
+      // Store price range
+      if (preferences.totalPrice) {
+        const priceRange = preferences.totalPrice < 100 ? 'budget' 
+          : preferences.totalPrice < 300 ? 'mid-range' 
+          : 'luxury';
+        observations.push(`Price range: ${priceRange} (${preferences.totalPrice} EUR)`);
+      }
+
+      // Store guest count preference
+      if (preferences.guests) {
+        observations.push(`Typical guest count: ${preferences.guests}`);
+      }
+
+      // Store special notes
+      if (preferences.notes) {
+        observations.push(`Special requirements: ${preferences.notes}`);
+      }
+
+      // Store seasonality preference
+      if (preferences.checkIn) {
+        const month = new Date(preferences.checkIn).getMonth();
+        const season = this.getSeasonFromMonth(month);
+        observations.push(`Preferred season: ${season} (month: ${month + 1})`);
+      }
+
+      // Add observations to guest entity
+      if (observations.length > 0) {
+        this.addObservations([{
+          entityName: `guest:${guestId}`,
+          contents: observations
+        }]);
+      }
+
+      console.log(`[MemoryMCP] Stored preferences for guest: ${guestId}`);
+    } catch (error) {
+      console.error(`[MemoryMCP] Failed to store guest preferences:`, error);
+      // Don't throw - this is non-critical
+    }
+  }
+
+  /**
+   * Update knowledge graph with reservation data
+   * Creates entities and relations for reservations, guests, properties, and rooms
+   */
+  async updateKnowledgeGraph(data: {
+    type: 'reservation' | 'guest' | 'property' | 'inquiry';
+    guestId?: string;
+    propertyId?: string;
+    reservationId?: string;
+    reservation?: any;
+    timestamp?: Date;
+  }): Promise<void> {
+    try {
+      const timestamp = data.timestamp || new Date();
+      const timestampStr = timestamp.toISOString();
+
+      // Create reservation entity
+      if (data.type === 'reservation' && data.reservationId) {
+        this.createEntities([{
+          name: `reservation:${data.reservationId}`,
+          entityType: 'Reservation',
+          observations: [
+            `Reservation ID: ${data.reservationId}`,
+            `Created at: ${timestampStr}`,
+            ...(data.reservation?.channel ? [`Channel: ${data.reservation.channel}`] : []),
+            ...(data.reservation?.status ? [`Status: ${data.reservation.status}`] : []),
+            ...(data.reservation?.totalPrice ? [`Total price: ${data.reservation.totalPrice} EUR`] : []),
+            ...(data.reservation?.guests ? [`Guests: ${data.reservation.guests}`] : []),
+          ]
+        }]);
+
+        // Link reservation to guest
+        if (data.guestId) {
+          this.createRelations([{
+            from: `reservation:${data.reservationId}`,
+            to: `guest:${data.guestId}`,
+            relationType: 'BELONGS_TO_GUEST'
+          }]);
+
+          // Update guest's reservation history
+          this.addObservations([{
+            entityName: `guest:${data.guestId}`,
+            contents: [`Latest reservation: ${data.reservationId} (${timestampStr})`]
+          }]);
+        }
+
+        // Link reservation to property
+        if (data.propertyId) {
+          this.createRelations([{
+            from: `reservation:${data.reservationId}`,
+            to: `property:${data.propertyId}`,
+            relationType: 'AT_PROPERTY'
+          }]);
+
+          // Update property's reservation count
+          this.addObservations([{
+            entityName: `property:${data.propertyId}`,
+            contents: [`Latest reservation: ${data.reservationId} (${timestampStr})`]
+          }]);
+        }
+
+        // Link reservation to room if applicable
+        if (data.reservation?.roomId) {
+          this.createRelations([{
+            from: `reservation:${data.reservationId}`,
+            to: `room:${data.reservation.roomId}`,
+            relationType: 'ASSIGNED_TO_ROOM'
+          }]);
+        }
+
+        // Create temporal relations for seasonality
+        if (data.reservation?.checkIn) {
+          const checkInDate = new Date(data.reservation.checkIn);
+          const month = checkInDate.getMonth();
+          const season = this.getSeasonFromMonth(month);
+          
+          this.createRelations([{
+            from: `reservation:${data.reservationId}`,
+            to: `season:${season}`,
+            relationType: 'IN_SEASON'
+          }]);
+
+          this.createRelations([{
+            from: `reservation:${data.reservationId}`,
+            to: `month:${month + 1}`,
+            relationType: 'IN_MONTH'
+          }]);
+        }
+
+        console.log(`[MemoryMCP] Updated knowledge graph with reservation: ${data.reservationId}`);
+      }
+
+      // Handle guest entity updates
+      if (data.type === 'guest' && data.guestId) {
+        this.createEntities([{
+          name: `guest:${data.guestId}`,
+          entityType: 'Guest',
+          observations: [`Guest entity updated at: ${timestampStr}`]
+        }]);
+
+        console.log(`[MemoryMCP] Updated guest entity: ${data.guestId}`);
+      }
+
+      // Handle property entity updates
+      if (data.type === 'property' && data.propertyId) {
+        this.createEntities([{
+          name: `property:${data.propertyId}`,
+          entityType: 'Property',
+          observations: [`Property entity updated at: ${timestampStr}`]
+        }]);
+
+        console.log(`[MemoryMCP] Updated property entity: ${data.propertyId}`);
+      }
+    } catch (error) {
+      console.error(`[MemoryMCP] Failed to update knowledge graph:`, error);
+      // Don't throw - this is non-critical
+    }
+  }
+
+  private getSeasonFromMonth(month: number): string {
+    if (month >= 2 && month <= 4) return 'spring';
+    if (month >= 5 && month <= 8) return 'summer';
+    if (month >= 9 && month <= 10) return 'autumn';
+    return 'winter';
+  }
+
+  // Private methods for internal use
+  private createEntities(entities: Array<{ name: string; entityType: string; observations: string[] }>): void {
+    // In a real implementation, this would call the Memory MCP server
+    // For now, just log
+    console.log('[MemoryMCP] Creating entities:', entities);
+  }
+
+  private addObservations(obs: Array<{ entityName: string; contents: string[] }>): void {
+    // In a real implementation, this would call the Memory MCP server
+    console.log('[MemoryMCP] Adding observations:', obs);
+  }
+
+  private createRelations(relations: Array<{ from: string; to: string; relationType: string }>): void {
+    // In a real implementation, this would call the Memory MCP server
+    console.log('[MemoryMCP] Creating relations:', relations);
+  }
 }
 
 export class KnowledgeGraph {

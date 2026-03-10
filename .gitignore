@@ -80,3 +80,18 @@ cookies.txt
 test-login-body.json
 .vercel
 .env*.local
+
+# Large directories not needed for deployment
+pgsql/
+docs/
+*.chat
+*.pdf
+screenshots/
+test-results/
+playwright-report/
+
+# Rust source (only need binaries)
+rust/*/src/
+rust/**/src/
+
+.vercel

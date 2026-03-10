@@ -5,16 +5,28 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
-// ─── Navigacijske točke (max 5) ───────────────────────────────────────────────
+// ─── Glavna navigacija (5 osnovnih + "Več" za ostalo) ───────────────────────
 const MAIN_NAV = [
-  { href: "/dashboard", label: "Domov",    icon: "🏠" },
-  { href: "/reservations", label: "Rezervacije", icon: "📅" },
-  { href: "/properties", label: "Nastanitve", icon: "🏢" },
+  { href: "/dashboard", label: "Pregled", icon: "🏠" },
+  { href: "/dashboard/tourism/calendar", label: "Koledar", icon: "📅" },
+  { href: "/generate", label: "Ustvari", icon: "✍️" },
+  { href: "/content", label: "Vsebina", icon: "📁" },
+  { href: "/settings", label: "Nastavitve", icon: "⚙️" },
+];
+
+// ─── Dodatne funkcije (skrito pod "Več") ─────────────────────────────────────
+const MORE_NAV = [
+  { href: "/properties", label: "Nastanitve", icon: "🏨" },
+  { href: "/dashboard/tourism/competitors", label: "Cene", icon: "💰" },
+  { href: "/dashboard/insights", label: "Statistika", icon: "📊" },
   { href: "/guests", label: "Gostje", icon: "👥" },
-  { href: "/agents", label: "AI Agenti", icon: "🤖" },
-  { href: "/workflows", label: "Workflow", icon: "🔄" },
-  { href: "/generate",  label: "Ustvari",  icon: "✍️" },
-  { href: "/content",   label: "Vsebina",  icon: "📁" },
+  { href: "/workflows", label: "Avtomatizacija", icon: "🔄" },
+  { href: "/monitoring", label: "Monitoring", icon: "📈" },
+  { href: "/agents", label: "AI Orodja", icon: "🤖" },
+  { href: "/dashboard/tourism/email", label: "Email Kampanje", icon: "📧" },
+  { href: "/dashboard/tourism/landing", label: "Landing Strani", icon: "🌐" },
+  { href: "/dashboard/reports", label: "Poročila", icon: "📄" },
+  { href: "/support", label: "Podpora", icon: "❓" },
 ];
 
 // ─── Meni "Ustvari" za turizem ────────────────────────────────────────────────
@@ -34,8 +46,10 @@ export function AppNav() {
   const [createOpen, setCreateOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const createRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
 
   const firstName = session?.user?.name?.split(" ")[0] ?? session?.user?.email?.split("@")[0] ?? "";
 
@@ -44,6 +58,7 @@ export function AppNav() {
     function onClick(e: MouseEvent) {
       if (createRef.current && !createRef.current.contains(e.target as Node)) setCreateOpen(false);
       if (userRef.current && !userRef.current.contains(e.target as Node)) setUserOpen(false);
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
     }
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
@@ -84,45 +99,42 @@ export function AppNav() {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
             {MAIN_NAV.map((item) => (
-              item.label === "Ustvari" ? (
-                /* Ustvari – z dropdown-om */
-                <div className="relative" key={item.href} ref={createRef}>
-                  <button
-                    type="button"
-                    onClick={() => setCreateOpen(v => !v)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      createOpen || isActive("/generate")
-                        ? "bg-blue-600/20 text-blue-400"
-                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                    }`}
-                  >
-                    <span>{item.icon}</span>
-                    <span>{item.label}</span>
-                    <span className="text-xs opacity-60">{createOpen ? "▲" : "▼"}</span>
-                  </button>
-
-                  {createOpen && (
-                    <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-2 z-50">
-                      {CREATE_ITEMS.map(subItem => (
-                        <Link
-                          key={subItem.href}
-                          href={subItem.href}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                        >
-                          <span>{subItem.icon}</span>
-                          <span className="text-sm font-medium">{subItem.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Link key={item.href} href={item.href} className={navLinkClass(item.href)}>
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
-                </Link>
-              )
+              <Link key={item.href} href={item.href} className={navLinkClass(item.href)}>
+                <span>{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
             ))}
+            
+            {/* "Več" dropdown */}
+            <div className="relative" ref={moreRef}>
+              <button
+                type="button"
+                onClick={() => setMoreOpen(v => !v)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  moreOpen
+                    ? "bg-blue-600/20 text-blue-400"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+              >
+                <span>Več</span>
+                <span className="text-xs opacity-60">{moreOpen ? "▲" : "▼"}</span>
+              </button>
+
+              {moreOpen && (
+                <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-2 z-50">
+                  {MORE_NAV.map(item => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                    >
+                      <span>{item.icon}</span>
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Desni del: User menu */}
@@ -226,7 +238,7 @@ export function AppNav() {
 
         {/* Mobile meni */}
         {mobileOpen && (
-          <div className="md:hidden py-4 space-y-1 border-t border-gray-800">
+          <div className="md:hidden py-4 space-y-1 border-t border-gray-800 max-h-[70vh] overflow-y-auto">
 
             {/* Hitri gumb */}
             <Link
@@ -236,6 +248,7 @@ export function AppNav() {
               <span>✍️</span> Nova vsebina
             </Link>
 
+            {/* Glavna navigacija (5 items) */}
             {MAIN_NAV.map(item => (
               <Link
                 key={item.href}
@@ -251,6 +264,22 @@ export function AppNav() {
               </Link>
             ))}
 
+            {/* Dodatna navigacija (naravnost, brez podmenijev) */}
+            <div className="border-t border-gray-800 pt-3 mt-3">
+              <p className="px-4 text-xs font-semibold text-gray-500 uppercase mb-2">Več orodij</p>
+              {MORE_NAV.map(item => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors"
+                >
+                  <span>{item.icon}</span>
+                  <span className="text-sm">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+
+            {/* Ustvari section */}
             <div className="border-t border-gray-800 pt-3 mt-3">
               <p className="px-4 text-xs font-semibold text-gray-500 uppercase mb-2">Ustvari</p>
               {CREATE_ITEMS.slice(1).map(item => (

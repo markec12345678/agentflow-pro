@@ -2,6 +2,7 @@
  * Tourism KG Sync - Blok C #10
  * Tests with mocked prisma and MemoryBackend
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import type { MemoryBackend } from "@/memory/memory-backend";
 import {
   syncPropertyToKg,
@@ -10,36 +11,36 @@ import {
 } from "@/lib/tourism/tourism-kg-sync";
 import { prisma } from "@/database/schema";
 
-const mockCreateEntities = jest.fn();
-const mockCreateRelations = jest.fn();
+const mockCreateEntities = vi.fn();
+const mockCreateRelations = vi.fn();
 
 const mockBackend: MemoryBackend = {
   createEntities: mockCreateEntities,
   createRelations: mockCreateRelations,
-  addObservations: jest.fn(),
-  deleteObservations: jest.fn(),
-  deleteRelations: jest.fn(),
-  searchNodes: jest.fn().mockReturnValue({ entities: [], relations: [] }),
-  readGraph: jest.fn().mockReturnValue({ entities: [], relations: [] }),
+  addObservations: vi.fn(),
+  deleteObservations: vi.fn(),
+  deleteRelations: vi.fn(),
+  searchNodes: vi.fn().mockReturnValue({ entities: [], relations: [] }),
+  readGraph: vi.fn().mockReturnValue({ entities: [], relations: [] }),
 };
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     property: {
-      findUnique: jest.fn(),
+      findUnique: vi.fn(),
     },
     guest: {
-      findUnique: jest.fn(),
+      findUnique: vi.fn(),
     },
     reservation: {
-      findUnique: jest.fn(),
+      findUnique: vi.fn(),
     },
   },
 }));
 
 describe("tourism-kg-sync", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("syncPropertyToKg", () => {

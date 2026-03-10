@@ -14,15 +14,12 @@ export type {
   WorkflowEdge,
   WorkflowDefinition,
   NodeExecutionResult,
-  NodeStatus,
   WorkflowExecutionResult,
-  WorkflowStatus,
   WorkflowProgress,
 } from '../index.js';
 
-// Re-export native enums
-export const NodeStatus = native.NodeStatus;
-export const WorkflowStatus = native.WorkflowStatus;
+// Re-export native types (not enums - using type-only exports)
+export type { NodeStatus, WorkflowStatus } from '../index.js';
 
 // Re-export native functions
 export const {
@@ -68,8 +65,8 @@ export interface WorkflowEvent {
   workflowId: string;
   nodeId?: string;
   status?: native.NodeStatus | native.WorkflowStatus;
-  progress?: WorkflowProgress;
-  result?: NodeExecutionResult | WorkflowExecutionResult;
+  progress?: native.WorkflowProgress;
+  result?: native.NodeExecutionResult | native.WorkflowExecutionResult;
   error?: string;
   timestamp: string;
 }
@@ -115,7 +112,7 @@ export interface WorkflowEvent {
 export class WorkflowExecutor {
   private config: Required<WorkflowExecutorConfig>;
   private eventListeners: Map<WorkflowEventType, Set<WorkflowEventHandler>>;
-  private executionHistory: Map<string, WorkflowExecutionResult>;
+  private executionHistory: Map<string, native.WorkflowExecutionResult>;
 
   constructor(config: WorkflowExecutorConfig = {}) {
     this.config = {
@@ -131,13 +128,13 @@ export class WorkflowExecutor {
 
   /**
    * Execute a workflow with all nodes and edges
-   * 
+   *
    * @param workflow - Workflow definition
    * @returns Execution result with status and node results
    */
   async execute(
     workflow: native.WorkflowDefinition
-  ): Promise<WorkflowExecutionResult> {
+  ): Promise<native.WorkflowExecutionResult> {
     // Validate workflow first
     this.validate(workflow);
 
@@ -156,32 +153,36 @@ export class WorkflowExecutor {
       // Execute workflow using native function
       const result = await executeWorkflow(enrichedWorkflow);
 
+      // Generate execution ID if not present
+      const executionId = (result as any).executionId || `exec-${Date.now()}`;
+      const resultWithId = { ...result, executionId };
+
       // Store in history
-      this.executionHistory.set(result.executionId, result);
+      this.executionHistory.set(executionId, resultWithId);
 
       // Emit completion event
       if (result.status === native.WorkflowStatus.Completed) {
         await this.emitEvent({
           type: 'workflow-complete',
-          executionId: result.executionId,
+          executionId,
           workflowId: workflow.id,
           status: result.status,
-          result,
+          result: resultWithId,
           timestamp: new Date().toISOString(),
         });
       } else {
         await this.emitEvent({
           type: 'workflow-failed',
-          executionId: result.executionId,
+          executionId,
           workflowId: workflow.id,
           status: result.status,
-          result,
-          error: result.error,
+          result: resultWithId,
+          error: (result as any).error,
           timestamp: new Date().toISOString(),
         });
       }
 
-      return result;
+      return resultWithId;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       
@@ -287,13 +288,13 @@ export class WorkflowExecutor {
 
   /**
    * Get execution history
-   * 
+   *
    * @param executionId - Optional execution ID to retrieve specific result
    * @returns Execution result or all history
    */
   getHistory(
     executionId?: string
-  ): WorkflowExecutionResult | Map<string, WorkflowExecutionResult> {
+  ): native.WorkflowExecutionResult | Map<string, native.WorkflowExecutionResult> {
     if (executionId) {
       return this.executionHistory.get(executionId)!;
     }
@@ -488,7 +489,7 @@ export class WorkflowBuilder {
 
   /**
    * Add an edge (dependency) between nodes
-   * 
+   *
    * @param source - Source node ID
    * @param target - Target node ID
    * @param condition - Optional condition for edge execution
@@ -497,8 +498,8 @@ export class WorkflowBuilder {
     const edge: native.WorkflowEdge = {
       source,
       target,
-      condition,
-    };
+      ...(condition && { condition }),
+    } as native.WorkflowEdge;
 
     if (!this.workflow.edges) {
       this.workflow.edges = [];
@@ -547,7 +548,7 @@ export class WorkflowBuilder {
   /**
    * Build and execute the workflow
    */
-  async execute(): Promise<WorkflowExecutionResult> {
+  async execute(): Promise<native.WorkflowExecutionResult> {
     const workflow = this.build();
     return this.executor.execute(workflow);
   }

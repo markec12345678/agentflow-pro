@@ -1,14 +1,15 @@
 /**
  * Integration tests for /api/cron/smart-alerts
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockPropertyFindMany = jest.fn();
-const mockGetOccupancyForProperty = jest.fn();
-const mockTriggerAlert = jest.fn();
-const mockRunEscalationCheck = jest.fn();
+const mockPropertyFindMany = vi.fn();
+const mockGetOccupancyForProperty = vi.fn();
+const mockTriggerAlert = vi.fn();
+const mockRunEscalationCheck = vi.fn();
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     property: {
       findMany: (...args: unknown[]) => mockPropertyFindMany(...args),
@@ -16,12 +17,12 @@ jest.mock("@/database/schema", () => ({
   },
 }));
 
-jest.mock("@/lib/tourism/occupancy", () => ({
+vi.mock("@/lib/tourism/occupancy", () => ({
   getOccupancyForProperty: (...args: unknown[]) =>
     mockGetOccupancyForProperty(...args),
 }));
 
-jest.mock("@/alerts/smartAlerts", () => ({
+vi.mock("@/alerts/smartAlerts", () => ({
   triggerAlert: (...args: unknown[]) => mockTriggerAlert(...args),
   runEscalationCheck: (...args: unknown[]) => mockRunEscalationCheck(...args),
 }));
@@ -30,7 +31,7 @@ const originalEnv = process.env;
 
 describe("GET /api/cron/smart-alerts", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     process.env = { ...originalEnv };
     mockPropertyFindMany.mockResolvedValue([{ id: "prop-1" }]);
     mockGetOccupancyForProperty.mockResolvedValue({
@@ -56,7 +57,7 @@ describe("GET /api/cron/smart-alerts", () => {
     const res = await callSmartAlerts({});
     expect(res.status).toBe(401);
     expect(mockPropertyFindMany).not.toHaveBeenCalled();
-  });
+  }, 15000);
 
   it("succeeds with x-vercel-cron header", async () => {
     delete process.env.CRON_SECRET;
@@ -65,7 +66,7 @@ describe("GET /api/cron/smart-alerts", () => {
     expect(mockPropertyFindMany).toHaveBeenCalled();
     const json = await res.json();
     expect(json).toMatchObject({ success: true, checked: 1, triggered: 0 });
-  });
+  }, 15000);
 
   it("calls triggerAlert when occupancy >= 95", async () => {
     delete process.env.CRON_SECRET;

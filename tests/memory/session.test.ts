@@ -2,6 +2,7 @@
  * Session Manager tests - session CRUD
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { SessionManager } from "@/memory/session-manager";
 
 describe("SessionManager", () => {

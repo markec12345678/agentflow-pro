@@ -3,7 +3,7 @@
  * Core functionality unit tests
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { Orchestrator } from '../src/orchestrator/Orchestrator';
 
 describe('Orchestrator', () => {
@@ -11,7 +11,7 @@ describe('Orchestrator', () => {
 
   beforeEach(() => {
     orchestrator = new Orchestrator();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should initialize correctly', () => {
@@ -25,7 +25,7 @@ describe('Orchestrator', () => {
       id: 'test-agent',
       type: 'research' as const,
       name: 'Test Agent',
-      execute: jest.fn().mockResolvedValue({ result: 'test' }) as (input: unknown) => Promise<unknown>
+      execute: vi.fn().mockResolvedValue({ result: 'test' }) as (input: unknown) => Promise<unknown>
     };
 
     orchestrator.registerAgent(mockAgent);
@@ -44,7 +44,7 @@ describe('Orchestrator', () => {
       id: 'fail-agent',
       type: 'content' as const,
       name: 'Fail Agent',
-      execute: jest.fn().mockRejectedValue(new Error('Agent error')) as (input: unknown) => Promise<unknown>,
+      execute: vi.fn().mockRejectedValue(new Error('Agent error')) as (input: unknown) => Promise<unknown>,
     };
     orchestrator.registerAgent(mockAgent);
 

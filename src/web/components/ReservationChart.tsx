@@ -26,10 +26,26 @@ interface ReservationChartProps {
 }
 
 export function ReservationChart({ data, loading }: ReservationChartProps) {
-  if (loading || !data) {
+  if (loading) {
     return (
       <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl animate-pulse">
         <span className="text-gray-400">Nalaganje grafa...</span>
+      </div>
+    );
+  }
+
+  // Empty state - no data
+  const total = data.direct + data.bookingcom + data.airbnb + data.expedia + data.other;
+  if (!data || total === 0) {
+    return (
+      <div className="h-64 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center p-6">
+        <div className="text-4xl mb-3">📊</div>
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Še ni rezervacij
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Ko boste dodali rezervacije, boste tukaj videli vir bookings.
+        </p>
       </div>
     );
   }
