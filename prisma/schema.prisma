@@ -348,9 +348,11 @@ model Property {
   amenities                    Amenity[]
   blockedDates                 BlockedDate[]
   competitors                  Competitor[]
+  employees                    Employee[]
   faqResponseLogs              FaqResponseLog[]
   communications               GuestCommunication[]
   guests                       Guest[]
+  housekeepingTasks            HousekeepingTask[]
   inquiries                    Inquiry[]
   itineraries                  Itinerary[]
   landingPages                 LandingPage[]
@@ -360,6 +362,7 @@ model Property {
   reviews                      Review[]
   rooms                        Room[]
   seoMetrics                   SeoMetric[]
+  staffAssignments             StaffAssignment[]
   userTemplates                UserTemplate[]
   workflows                    Workflow[]
   pageDesigns                  PageDesign[]         @relation("PageDesignProperties")
@@ -396,22 +399,23 @@ model Review {
 }
 
 model Room {
-  id           String        @id @default(cuid())
-  propertyId   String
-  name         String
-  type         String
-  capacity     Int
-  beds         Int?
-  description  String?
-  basePrice    Float?
-  amenities    String[]
-  photos       String[]
-  seasonRates  Json?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  blockedDates BlockedDate[]
-  reservations Reservation[]
-  property     Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  id                String             @id @default(cuid())
+  propertyId        String
+  name              String
+  type              String
+  capacity          Int
+  beds              Int?
+  description       String?
+  basePrice         Float?
+  amenities         String[]
+  photos            String[]
+  seasonRates       Json?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  blockedDates      BlockedDate[]
+  reservations      Reservation[]
+  housekeepingTasks HousekeepingTask[]
+  property          Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([propertyId])
   @@map("rooms")
@@ -1025,6 +1029,74 @@ model WorkflowExecution {
 
   @@index([workflowId])
   @@map("workflow_executions")
+}
+
+model Employee {
+  id           String            @id @default(cuid())
+  propertyId   String
+  name         String
+  role         String            // housekeeping, maintenance, front-desk, etc.
+  email        String?
+  phone        String?
+  status       String            @default("active") // active, inactive, on-leave
+  maxTasks     Int               @default(10)
+  currentTasks Int               @default(0)
+  avatar       String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  property     Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tasks        HousekeepingTask[]
+  assignments  StaffAssignment[]
+
+  @@index([propertyId])
+  @@index([status])
+  @@map("employees")
+}
+
+model HousekeepingTask {
+  id            String   @id @default(cuid())
+  propertyId    String
+  roomId        String?
+  taskType      String   // check_out_clean, stayover_clean, deep_clean, maintenance
+  priority      String   // low, medium, high, urgent
+  status        String   @default("pending") // pending, in_progress, completed, delayed
+  assignedToId  String?
+  scheduledDate DateTime
+  estimatedTime Int      // minutes
+  actualTime    Int?
+  completedAt   DateTime?
+  notes         String?
+  guestName     String?
+  checkOutTime  DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  property      Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  assignedTo    Employee? @relation(fields: [assignedToId], references: [id])
+  room          Room?    @relation(fields: [roomId], references: [id])
+
+  @@index([propertyId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@index([assignedToId])
+  @@map("housekeeping_tasks")
+}
+
+model StaffAssignment {
+  id          String   @id @default(cuid())
+  propertyId  String
+  employeeId  String
+  taskId      String
+  status      String   @default("assigned") // assigned, accepted, completed
+  assignedAt  DateTime @default(now())
+  completedAt DateTime?
+  notes       String?
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([employeeId])
+  @@index([taskId])
+  @@map("staff_assignments")
 }
 
 enum UserRole {

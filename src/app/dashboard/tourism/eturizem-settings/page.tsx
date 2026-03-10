@@ -12,9 +12,19 @@ interface AjpesConnection {
   rnoId?: number | null;
 }
 
+interface EturizemStats {
+  totalSubmissions: number;
+  successfulSubmissions: number;
+  failedSubmissions: number;
+  lastSubmissionAt: string | null;
+  lastSubmissionStatus: "success" | "failed" | null;
+  successRate: number;
+}
+
 export default function EturizemSettingsPage() {
   const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
   const [connection, setConnection] = useState<AjpesConnection | null>(null);
+  const [stats, setStats] = useState<EturizemStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
@@ -33,18 +43,25 @@ export default function EturizemSettingsPage() {
   useEffect(() => {
     if (!activePropertyId) {
       setConnection(null);
+      setStats(null);
       setForm({ username: "", password: "", rnoId: "" });
       return;
     }
     setLoading(true);
-    fetch(`/api/tourism/eturizem/connection?propertyId=${activePropertyId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setConnection(data);
-        if (data.username) setForm((f) => ({ ...f, username: data.username }));
-        if (data.rnoId != null) setForm((f) => ({ ...f, rnoId: String(data.rnoId) }));
+    Promise.all([
+      fetch(`/api/tourism/eturizem/connection?propertyId=${activePropertyId}`).then((r) => r.json()),
+      fetch(`/api/tourism/eturizem/stats?propertyId=${activePropertyId}`).then((r) => r.json()).catch(() => null),
+    ])
+      .then(([connData, statsData]) => {
+        setConnection(connData);
+        setStats(statsData);
+        if (connData.username) setForm((f) => ({ ...f, username: connData.username }));
+        if (connData.rnoId != null) setForm((f) => ({ ...f, rnoId: String(connData.rnoId) }));
       })
-      .catch(() => setConnection(null))
+      .catch(() => {
+        setConnection(null);
+        setStats(null);
+      })
       .finally(() => setLoading(false));
   }, [activePropertyId]);
 
@@ -114,6 +131,30 @@ export default function EturizemSettingsPage() {
       <p className="text-gray-600 dark:text-gray-400">
         Povežite AJPES račun za prijavo gostov v knjigo gostov. Uporabniško ime in geslo iz AJPES portala ter RNO ID nastanitvenega obrata.
       </p>
+
+      {/* Statistics Cards */}
+      {stats && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Skupaj prijav</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalSubmissions}</p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Uspešne</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.successfulSubmissions}</p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Neuspešne</p>
+            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.failedSubmissions}</p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Uspešnost</p>
+            <p className={`text-2xl font-bold ${stats.successRate >= 90 ? "text-green-600" : stats.successRate >= 70 ? "text-amber-600" : "text-red-600"}`}>
+              {stats.successRate}%
+            </p>
+          </div>
+        </div>
+      )}
 
       <PropertySelector
         value={activePropertyId}
