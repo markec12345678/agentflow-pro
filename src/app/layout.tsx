@@ -30,7 +30,14 @@ function ServiceWorkerRegistration() {
   );
 }
 
-const inter = Inter({ subsets: ["latin"] });
+// Optimized font loading with next/font
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  fallback: ["system-ui", "arial"],
+  variable: "--font-inter",
+});
 
 const baseUrl =
   process.env.NEXT_PUBLIC_APP_URL ||
