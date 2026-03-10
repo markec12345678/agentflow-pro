@@ -35,8 +35,22 @@ export function ReservationChart({ data, loading }: ReservationChartProps) {
   }
 
   // Empty state - no data
+  if (!data) {
+    return (
+      <div className="h-64 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center p-6">
+        <div className="text-4xl mb-3">📊</div>
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Še ni rezervacij
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Ko boste dodali rezervacije, boste tukaj videli vir bookings.
+        </p>
+      </div>
+    );
+  }
+
   const total = data.direct + data.bookingcom + data.airbnb + data.expedia + data.other;
-  if (!data || total === 0) {
+  if (total === 0) {
     return (
       <div className="h-64 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center p-6">
         <div className="text-4xl mb-3">📊</div>

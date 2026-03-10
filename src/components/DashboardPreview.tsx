@@ -83,11 +83,11 @@ export function DashboardPreview() {
             <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Today's Revenue</div>
               <div className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-1">
-                €{revenue.toLocaleString()}
+                €{mounted ? revenue.toLocaleString('en-US') : '2,847'}
                 <span className="text-xs text-green-500">↑ 12%</span>
               </div>
               <div className="mt-2 h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-1000"
                   style={{ width: `${mounted ? 68 : 0}%` }}
                 />

@@ -46,15 +46,24 @@ Primer: "Hotel Slon v Ljubljani" ali "Apartma Bled z 10 sobami"`,
 
   const sendMessage = async (userMessage: string) => {
     setLoading(true);
-    
+
     // Add user message to UI
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    
+
     try {
+      // Get session token from cookies
+      const sessionToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('next-auth.session-token='))
+        ?.split('=')[1];
+
       // Call Concierge Agent API
       const response = await fetch('/api/agents/concierge/execute', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),
+        },
         body: JSON.stringify({
           message: userMessage,
           context,
