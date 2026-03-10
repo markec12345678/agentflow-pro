@@ -119,6 +119,47 @@
         "Google Docs"
       ],
       "env": {}
+    },
+    "sentry": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sentry/mcp",
+        "--project",
+        "agentflow-pro"
+      ],
+      "env": {
+        "SENTRY_DSN": "${SENTRY_DSN}"
+      }
+    },
+    "firecrawl": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      }
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "context7-mcp"
+      ],
+      "env": {}
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/src/memory/mcp-server.js"
+      ],
+      "env": {}
     }
   }
 }

@@ -58,6 +58,8 @@ const TOURISM_NAV = [
   { name: "SEO", href: "/dashboard/tourism/seo" },
   { name: "Prevodi", href: "/dashboard/tourism/translate" },
   { name: "Konkurenti", href: "/dashboard/tourism/competitors" },
+  { name: "Dinamične cene", href: "/dashboard/tourism/dynamic-pricing" },
+  { name: "Revenue", href: "/dashboard/tourism/revenue" },
   { name: "Obvestila", href: "/dashboard/tourism/notifications" },
   { name: "eTurizem", href: "/dashboard/tourism/eturizem-settings" },
 ];

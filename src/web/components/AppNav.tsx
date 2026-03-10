@@ -45,8 +45,9 @@ const PLATFORM_MENU = [
     category: "Revenue",
     items: [
       { href: "/dashboard/tourism/competitors", label: "Cene", icon: "💰", description: "Rate management" },
-      { href: "/pricing", label: "Dynamic Pricing", icon: "📊", description: "AI pricing optimization" },
-      { href: "/dashboard/insights", label: "Analytics", icon: "📈", description: "Reports in insights" },
+      { href: "/dashboard/tourism/dynamic-pricing", label: "Dinamične cene", icon: "📊", description: "AI pricing optimization" },
+      { href: "/dashboard/tourism/revenue", label: "Revenue Analytics", icon: "📈", description: "RevPAR, ADR, occupancy" },
+      { href: "/dashboard/insights", label: "Analytics", icon: "📉", description: "Reports in insights" },
       { href: "/dashboard/reports", label: "Poročila", icon: "📄", description: "Custom reports" },
     ],
   },
