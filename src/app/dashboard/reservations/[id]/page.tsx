@@ -520,22 +520,57 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold text-gray-900">Payment History</h3>
-                      <button
-                        onClick={() => {
-                          const amount = prompt("Enter payment amount:");
-                          if (amount && !isNaN(Number(amount))) {
-                            handleAddPayment({
-                              type: "balance",
-                              amount: Number(amount),
-                              method: "cash",
-                              notes: "Manual payment"
-                            });
-                          }
-                        }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                      >
-                        Add Payment
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={async () => {
+                            try {
+                              const res = await fetch("/api/tourism/invoices/generate", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  reservationId: resolvedParams!.id,
+                                  language: "sl",
+                                }),
+                              });
+                              const data = await res.json();
+                              if (data.invoiceNumber) {
+                                toast.success(`Invoice generated: ${data.invoiceNumber}`);
+                                // Download HTML invoice
+                                const invoiceRes = await fetch(`/api/tourism/invoices/${data.invoiceId}/html`);
+                                const html = await invoiceRes.text();
+                                const blob = new Blob([html], { type: "text/html" });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = `invoice-${data.invoiceNumber}.html`;
+                                a.click();
+                              }
+                            } catch (error) {
+                              toast.error("Failed to generate invoice");
+                              console.error(error);
+                            }
+                          }}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                        >
+                          📄 Generate Invoice
+                        </button>
+                        <button
+                          onClick={() => {
+                            const amount = prompt("Enter payment amount:");
+                            if (amount && !isNaN(Number(amount))) {
+                              handleAddPayment({
+                                type: "balance",
+                                amount: Number(amount),
+                                method: "cash",
+                                notes: "Manual payment"
+                              });
+                            }
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                        >
+                          Add Payment
+                        </button>
+                      </div>
                     </div>
 
                     {/* Payment Summary */}
@@ -557,6 +592,17 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
                         </div>
                       </div>
                     </div>
+
+                    {/* Payment UI Component */}
+                    {remainingBalance > 0 && (
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-4">Process Payment</h4>
+                        {/* Import and use PaymentUI component */}
+                        <div className="text-sm text-gray-500">
+                          Payment integration available - import PaymentUI component from @/web/components/PaymentUI
+                        </div>
+                      </div>
+                    )}
 
                     {/* Payments List */}
                     {payments.length === 0 ? (

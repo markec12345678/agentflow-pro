@@ -725,6 +725,7 @@ model Reservation {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   payments            Payment[]
+  invoices            Invoice[]
   guest               Guest?    @relation(fields: [guestId], references: [id])
   property            Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   room                Room?     @relation(fields: [roomId], references: [id])
@@ -736,19 +737,63 @@ model Reservation {
 }
 
 model Payment {
-  id            String      @id @default(cuid())
-  reservationId String
-  type          String
-  amount        Float
-  currency      String      @default("EUR")
-  paidAt        DateTime    @default(now())
-  method        String?
-  notes         String?
-  createdAt     DateTime    @default(now())
-  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  id                  String      @id @default(cuid())
+  reservationId       String
+  type                String      // deposit, full_payment, refund, chargeback, incidental
+  amount              Float
+  currency            String      @default("EUR")
+  status              String      @default("pending") // pending, succeeded, failed, refunded
+  stripePaymentIntent String?     @unique // Stripe PaymentIntent ID
+  stripeChargeId      String?     @unique // Stripe Charge ID
+  stripeCustomerId    String?     // Stripe Customer ID
+  paymentMethod       String?     // card, apple_pay, google_pay, bank_transfer
+  cardLast4           String?     // Last 4 digits of card
+  cardBrand           String?     // visa, mastercard, amex
+  paidAt              DateTime?
+  refundedAt          DateTime?
+  refundAmount        Float?
+  notes               String?
+  metadata            Json?       // Additional Stripe data
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  reservation         Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
 
   @@index([reservationId])
+  @@index([stripePaymentIntent])
+  @@index([status])
   @@map("payments")
+}
+
+model Invoice {
+  id              String      @id @default(cuid())
+  reservationId   String
+  invoiceNumber   String      @unique // INV-2024-00001
+  propertyId      String
+  guestId         String?
+  issueDate       DateTime    @default(now())
+  dueDate         DateTime
+  status          String      @default("draft") // draft, sent, paid, overdue, cancelled
+  subtotal        Float
+  taxRate         Float       @default(0) // VAT percentage
+  taxAmount       Float
+  totalAmount     Float
+  paidAmount      Float       @default(0)
+  currency        String      @default("EUR")
+  items           Json        // Line items [{description, quantity, unitPrice, total}]
+  notes           String?
+  pdfUrl          String?     // URL to generated PDF
+  stripeInvoiceId String?     @unique // Stripe Invoice ID
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  reservation     Reservation @relation(fields: [reservationId], references: [id])
+  property        Property    @relation(fields: [propertyId], references: [id])
+  guest           Guest?      @relation(fields: [guestId], references: [id])
+
+  @@index([reservationId])
+  @@index([invoiceNumber])
+  @@index([propertyId])
+  @@index([status])
+  @@map("invoices")
 }
 
 model Guest {

@@ -15,6 +15,7 @@ import {
   submitToAjpes,
   type EturizemRow,
 } from "@/lib/tourism/eturizem-client";
+import { withSentryLogging, ApiOperations } from "@/lib/sentry-api-logging";
 
 function parseName(fullName: string): { ime: string; pri: string } {
   const parts = fullName.trim().split(/\s+/);
@@ -25,7 +26,7 @@ function parseName(fullName: string): { ime: string; pri: string } {
   };
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withSentryLogging(async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   const userId = getUserId(session);
   if (!userId) {

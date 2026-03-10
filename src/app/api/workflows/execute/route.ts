@@ -6,8 +6,9 @@ import { getUserApiKeysForExecution } from "@/lib/user-keys";
 import { getAppBackend } from "@/memory/app-backend";
 import { getUserId } from "@/lib/auth-users";
 import { canRunAgent, recordAgentRun } from "@/api/usage";
+import { withSentryLogging, ApiOperations } from "@/lib/sentry-api-logging";
 
-export async function POST(request: NextRequest) {
+export const POST = withSentryLogging(async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {

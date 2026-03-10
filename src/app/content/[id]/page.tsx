@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 
 interface Post {
@@ -902,10 +903,11 @@ export default function ContentDetailPage() {
         <article className="rounded-xl bg-white dark:bg-gray-800 p-8 shadow-lg">
           {post.imageUrl && (
             <div className="mb-6 rounded-lg overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={post.imageUrl}
-                alt=""
+                alt={post.title || "Blog post"}
+                width={800}
+                height={400}
                 className="w-full max-h-80 object-cover"
               />
             </div>

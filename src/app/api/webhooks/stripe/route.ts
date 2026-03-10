@@ -1,141 +1,143 @@
 /**
- * AgentFlow Pro - Stripe webhook handler
- * Uses raw body for signature verification
+ * POST /api/webhooks/stripe
+ * Stripe webhook handler for payment events
+ * 
+ * Events handled:
+ * - payment_intent.succeeded
+ * - payment_intent.payment_failed
+ * - charge.refunded
+ * - customer.created
  */
 
-import { NextResponse } from "next/server";
-import type Stripe from "stripe";
-import {
-  handleStripeWebhook,
-  extractCheckoutMetadata,
-  extractSubscriptionMetadata,
-} from "@/stripe/webhooks";
+import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
+import Stripe from "stripe";
 import { prisma } from "@/database/schema";
-import { triggerAlert } from "@/alerts/smartAlerts";
 
-export async function POST(request: Request) {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-12-18.acacia',
+});
+
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+export async function POST(request: NextRequest) {
+  const body = await request.text();
+  const signature = (await headers()).get("stripe-signature")!;
+
+  let event: Stripe.Event;
+
   try {
-    const rawBody = await request.text();
-    const signature = request.headers.get("stripe-signature");
-    if (!signature) {
-      return NextResponse.json(
-        { error: "Missing stripe-signature header" },
-        { status: 400 }
-      );
-    }
-
-    const event = await handleStripeWebhook(rawBody, signature, {
-      "checkout.session.completed": async (evt) => {
-        const session = evt.data.object as Stripe.Checkout.Session;
-        const meta = extractCheckoutMetadata(session);
-        if (!meta) return;
-
-        const subscriptionId =
-          typeof session.subscription === "string"
-            ? session.subscription
-            : session.subscription?.id;
-        const customerIdRaw =
-          typeof session.customer === "string"
-            ? session.customer
-            : (session.customer as { id?: string })?.id ?? null;
-        const customerId = typeof customerIdRaw === "string" ? customerIdRaw : undefined;
-
-        if (subscriptionId) {
-          const stripe = (await import("@/stripe/config")).getStripe();
-          const sub = await stripe.subscriptions.retrieve(subscriptionId, {
-            expand: ["items.data"],
-          });
-          const periodEndUnix = sub.items.data[0]?.current_period_end ?? (sub as { current_period_end?: number }).current_period_end;
-          const periodEnd = periodEndUnix
-            ? new Date(periodEndUnix * 1000)
-            : null;
-
-          await prisma.subscription.upsert({
-            where: { userId: meta.userId },
-            create: {
-              userId: meta.userId,
-              stripeCustomerId: customerId,
-              stripeSubscriptionId: subscriptionId,
-              planId: meta.planId,
-              status: sub.status,
-              currentPeriodEnd: periodEnd,
-            },
-            update: {
-              stripeCustomerId: customerId,
-              stripeSubscriptionId: subscriptionId,
-              planId: meta.planId,
-              status: sub.status,
-              currentPeriodEnd: periodEnd,
-            },
-          });
-        }
-      },
-      "customer.subscription.updated": async (evt) => {
-        const subscription = evt.data.object as Stripe.Subscription;
-        const meta = extractSubscriptionMetadata(subscription);
-        if (!meta) return;
-
-        const periodEndUnix = subscription.items?.data?.[0]?.current_period_end ?? (subscription as { current_period_end?: number }).current_period_end;
-        const periodEnd = periodEndUnix
-          ? new Date(periodEndUnix * 1000)
-          : null;
-
-        await prisma.subscription.upsert({
-          where: { userId: meta.userId },
-          create: {
-            userId: meta.userId,
-            stripeSubscriptionId: subscription.id,
-            planId: meta.planId,
-            status: subscription.status,
-            currentPeriodEnd: periodEnd,
-          },
-          update: {
-            planId: meta.planId,
-            status: subscription.status,
-            currentPeriodEnd: periodEnd,
-          },
-        });
-      },
-      "customer.subscription.deleted": async (evt) => {
-        const subscription = evt.data.object as Stripe.Subscription;
-        const meta = extractSubscriptionMetadata(subscription);
-        if (!meta) return;
-
-        await prisma.subscription.updateMany({
-          where: { userId: meta.userId },
-          data: {
-            status: "canceled",
-            stripeSubscriptionId: null,
-          },
-        });
-      },
-      "invoice.payment_failed": async (evt) => {
-        const invoice = evt.data.object as Stripe.Invoice;
-        const customerId =
-          typeof invoice.customer === "string"
-            ? invoice.customer
-            : (invoice.customer as { id?: string })?.id ?? null;
-        if (!customerId) return;
-
-        const sub = await prisma.subscription.findFirst({
-          where: { stripeCustomerId: customerId },
-          select: { userId: true },
-        });
-        if (!sub) return;
-
-        triggerAlert("payment_failed", {
-          userId: sub.userId,
-          detail: invoice.id ?? "unknown",
-        }).catch((e) => console.error("[SmartAlerts] payment_failed trigger failed:", e));
-      },
-    });
-
-    return NextResponse.json({ received: true, type: event.type });
-  } catch (err) {
-    console.error("Stripe webhook error:", err);
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+  } catch (err: any) {
+    console.error(`Webhook signature verification failed: ${err.message}`);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : String(err) },
+      { error: `Webhook Error: ${err.message}` },
       { status: 400 }
     );
   }
+
+  // Handle the event
+  switch (event.type) {
+    case "payment_intent.succeeded": {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      
+      // Update payment record in database
+      const payment = await prisma.payment.findFirst({
+        where: { stripePaymentIntent: paymentIntent.id },
+      });
+
+      if (payment) {
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: {
+            status: "succeeded",
+            paidAt: new Date(),
+            stripeChargeId: paymentIntent.latest_charge as string,
+            metadata: paymentIntent.metadata as any,
+          },
+        });
+
+        // Update reservation status if full payment
+        if (payment.type === "full_payment") {
+          await prisma.reservation.updateMany({
+            where: { id: payment.reservationId },
+            data: {
+              status: "confirmed",
+            },
+          });
+        }
+
+        console.log(`Payment succeeded: ${payment.id}`);
+      }
+      break;
+    }
+
+    case "payment_intent.payment_failed": {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      
+      const payment = await prisma.payment.findFirst({
+        where: { stripePaymentIntent: paymentIntent.id },
+      });
+
+      if (payment) {
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: {
+            status: "failed",
+            metadata: {
+              ...paymentIntent.metadata,
+              failure_reason: paymentIntent.last_payment_error?.message || "Unknown error",
+            },
+          },
+        });
+
+        console.log(`Payment failed: ${payment.id}`);
+      }
+      break;
+    }
+
+    case "charge.refunded": {
+      const charge = event.data.object as Stripe.Charge;
+      
+      if (charge.payment_intent) {
+        const payment = await prisma.payment.findFirst({
+          where: { stripePaymentIntent: charge.payment_intent },
+        });
+
+        if (payment) {
+          const refund = charge.refunds?.data[0];
+          
+          await prisma.payment.update({
+            where: { id: payment.id },
+            data: {
+              status: "refunded",
+              refundedAt: new Date(),
+              refundAmount: refund?.amount ? refund.amount / 100 : payment.amount,
+              metadata: {
+                ...payment.metadata,
+                refundId: refund?.id,
+                refundReason: refund?.reason,
+              },
+            },
+          });
+
+          console.log(`Refund processed: ${payment.id}`);
+        }
+      }
+      break;
+    }
+
+    case "customer.created": {
+      const customer = event.data.object as Stripe.Customer;
+      
+      // Could save customer ID to guest record if needed
+      console.log(`Customer created: ${customer.id}`);
+      break;
+    }
+
+    default:
+      console.log(`Unhandled event type: ${event.type}`);
+  }
+
+  return NextResponse.json({ received: true });
 }

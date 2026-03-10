@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { CASE_STUDIES } from "@/data/case-studies";
 import { SOLUTIONS, INDUSTRIES } from "@/data/solutions";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
@@ -80,67 +81,56 @@ export default function HomePage() {
           <div className="flex justify-center items-center gap-8 md:gap-12 flex-wrap">
             {/* Logo 1: eTurizem */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/eturizem.svg"
                 alt="eTurizem AJPES"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  // Fallback če slika ne obstaja
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">eTurizem</text></svg>';
-                }}
               />
             </div>
 
             {/* Logo 2: Booking.com */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/booking.svg"
                 alt="Booking.com"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">Booking.com</text></svg>';
-                }}
               />
             </div>
 
             {/* Logo 3: Airbnb */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/airbnb.svg"
                 alt="Airbnb"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">Airbnb</text></svg>';
-                }}
               />
             </div>
 
             {/* Logo 4: Stripe */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/stripe.svg"
                 alt="Stripe"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">Stripe</text></svg>';
-                }}
               />
             </div>
 
             {/* Logo 5: Custom Partner */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/partner-placeholder.svg"
                 alt="Partner"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">Partner</text></svg>';
-                }}
               />
             </div>
           </div>

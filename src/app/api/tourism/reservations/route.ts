@@ -7,8 +7,9 @@ import { getPropertyIdsForUser } from "@/lib/tourism/property-access";
 import { parseISO, startOfDay, endOfDay, format } from "date-fns";
 import { sendEmail } from "@/lib/email/send";
 import { MemoryMCP } from "@/ai/context-manager";
+import { withSentryLogging, logApiError, ApiOperations } from "@/lib/sentry-api-logging";
 
-export async function GET(request: NextRequest) {
+export const GET = withSentryLogging(async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const userId = getUserId(session);
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withSentryLogging(async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const userId = getUserId(session);
