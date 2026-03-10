@@ -16,16 +16,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "prisma/seed.ts",
     "load-tests/**",
-    "src/lib/alert-thresholds-implementation.ts",
-    "src/lib/api-partnership-production-readiness.ts",
-    "src/lib/ai-agent-production-best-practices.ts",
-    "src/lib/beta-launch-production-readiness.ts",
-    "src/lib/kpis-implementation.ts",
-    "src/lib/payment-system-production-readiness.ts",
-    "src/lib/production-testing-readiness.ts",
-    "src/lib/realistic-production-timeline.ts",
-    "src/lib/revised-production-readiness.ts",
-    "src/lib/sentry.ts",
+    "scripts/**", // Documentation scripts moved to scripts/
   ]),
   {
     rules: {
@@ -37,6 +28,7 @@ const eslintConfig = defineConfig([
       "prefer-const": "warn",
       "@typescript-eslint/no-unsafe-declaration-merging": "warn",
       "react-hooks/set-state-in-effect": "warn",
+      "no-console": ["warn", { allow: ["warn", "error"] }], // Allow console.warn and console.error for error handling
     },
   },
   {
