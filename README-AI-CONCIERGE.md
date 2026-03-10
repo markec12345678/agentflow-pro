@@ -4,48 +4,48 @@
 
 ---
 
-## 🎯 VIZIJA:
+## 🎯 VISION:
 
-**"Lastniki nastanitev ne želijo izpolnjevati obrazcev. Želijo pogovor."**
+**"Property owners don't want to fill out forms. They want a conversation."**
 
-Namesto 50 polj in 30 minut → Samo pogovor in 3 minute.
+Instead of 50 fields and 30 minutes → Just a conversation and 3 minutes.
 
 ---
 
-## ✅ Kaj Smo Naredili Danes:
+## ✅ What We Did Today:
 
 ### **1. Core System** ✅
 ```
-✅ ConciergeAgent.ts - AI agent za pogovor
-✅ useConcierge.ts - React hook za state
-✅ AIConciergeChat.tsx - Chat UI komponenta
-✅ onboarding/page.tsx - Onboarding stran
+✅ ConciergeAgent.ts - AI agent for conversation
+✅ useConcierge.ts - React hook for state
+✅ AIConciergeChat.tsx - Chat UI component
+✅ onboarding/page.tsx - Onboarding page
 ✅ API route.ts - Backend endpoint
 ✅ magic-fill.ts - Auto-fill forms feature
 ```
 
-### **2. Arhitektura** ✅
+### **2. Architecture** ✅
 ```
 User → Chat UI → Hook → API → Agent → Memory MCP
 ```
 
-### **3. Dokumentacija** ✅
+### **3. Documentation** ✅
 ```
 ✅ AI-CONCIERGE-COMPLETE.md
-✅ AI-CONCIERGE-IMPLEMENTIRANO.md
+✅ AI-CONCIERGE-IMPLEMENTED.md
 ✅ BASE-PLUS-MODULES.md
-✅ UX-POPRAVKI-KONCANO.md
+✅ UX-FIXES-FINISHED.md
 ✅ FINAL-STATUS-REPORT.md
 ✅ MAGIC-FILL-FORMS.md
 ```
 
 ---
 
-## 🎁 BONUS FUNKCIJE:
+## 🎁 BONUS FEATURES:
 
 ### **1. Magic Fill** ✅
 ```typescript
-// Ko user kasneje odpre formo:
+// When user opens the form later:
 useEffect(() => {
   if (conciergeContext?.extractedData) {
     // Auto-fill form with AI data
@@ -56,30 +56,30 @@ useEffect(() => {
 }, [conciergeContext]);
 ```
 
-**User lahko samo potrdi ali popravi - najboljše iz obeh svetov!**
+**User can just confirm or edit - best of both worlds!**
 
 ### **2. Contextual Quick Replies** ✅
 ```
-Glede na kontekst pogovora:
-- "Imam 10 sob"
-- "Naslov: Testna 1, Ljubljana"
-- "WiFi in parkirišče"
-- "Ja, vse vklopi"
+Based on conversation context:
+- "I have 10 rooms"
+- "Address: Testna 1, Ljubljana"
+- "WiFi and parking"
+- "Yes, enable everything"
 ```
 
 ### **3. Real-time Feedback** ✅
 ```
-⏳ Ustvarjam "Hotel Slon"...
-✅ Nastanitev ustvarjena
+⏳ Creating "Hotel Slon"...
+✅ Property created
 ```
 
 ---
 
-## 📊 PRIČAKOVANI REZULTATI:
+## 📊 EXPECTED RESULTS:
 
-| Metrika | Tradicionalni | AI Concierge | Izboljšanje |
-|---------|---------------|--------------|-------------|
-| ⏱️ Čas setup-a | 25-35 min | 3-5 min | **10x hitreje** |
+| Metric | Traditional | AI Concierge | Improvement |
+|--------|-------------|--------------|-------------|
+| ⏱️ Setup time | 25-35 min | 3-5 min | **10x faster** |
 | 😊 User Satisfaction | 6/10 | 9/10 | **+50%** |
 | 📉 Drop-off Rate | ~40% | ~15% | **-62%** |
 | 🎯 Data Quality | Missing fields | Complete | **100% better** |
@@ -87,18 +87,18 @@ Glede na kontekst pogovora:
 
 ---
 
-## 🚀 IMPLEMENTACIJSKI TIMELINE:
+## 🚀 IMPLEMENTATION TIMELINE:
 
-### **Teden 1: MVP** ✅
+### **Week 1: MVP** ✅
 ```
-✅ Dan 1-2: Core Agent + Memory Integration
-✅ Dan 3-4: Chat UI + Hook
-✅ Dan 5: API Endpoint + Magic Fill
-✅ Dan 6: Testing + Polish
-✅ Dan 7: Launch preparation
+✅ Day 1-2: Core Agent + Memory Integration
+✅ Day 3-4: Chat UI + Hook
+✅ Day 5: API Endpoint + Magic Fill
+✅ Day 6: Testing + Polish
+✅ Day 7: Launch preparation
 ```
 
-### **Teden 2: Production** ⏳
+### **Week 2: Production** ⏳
 ```
 ⏳ Database integration (Prisma)
 ⏳ eTurizem connection
@@ -106,7 +106,7 @@ Glede na kontekst pogovora:
 ⏳ Analytics tracking
 ```
 
-### **Teden 3: Advanced** ⏳
+### **Week 3: Advanced** ⏳
 ```
 ⏳ Voice input (speech-to-text)
 ⏳ Smart defaults (AI suggests prices)
@@ -116,112 +116,112 @@ Glede na kontekst pogovora:
 
 ---
 
-## 💡 ZAKAJ JE TO POPOLNO ZA TEBE?
+## 💡 WHY THIS IS PERFECT FOR YOU:
 
-### **1. Izkoristi Obstoječo Infrastrukturo** ✅
+### **1. Leverages Existing Infrastructure** ✅
 ```
-✅ Memory MCP (že imaš)
-✅ AI Agenti (že imaš)
-✅ Skills (že imaš)
-✅ Prisma (že imaš)
-✅ eTurizem (že imaš)
+✅ Memory MCP (you already have it)
+✅ AI Agents (you already have them)
+✅ Skills (you already have them)
+✅ Prisma (you already have it)
+✅ eTurizem (you already have it)
 
-Ni potrebe po novih API-jih ali modelih!
-```
-
-### **2. Rešuje Realen Problem** ✅
-```
-❌ Lastniki ne želijo izpolnjevati 50 polj
-✅ Lastniki želijo samo povedati kaj imajo
-✅ AI sliši in razume
-✅ AI sam izpolni vse
+No need for new APIs or models!
 ```
 
-### **3. Diferencira Od Konkurence** ✅
+### **2. Solves a Real Problem** ✅
 ```
-Cloudbeds: ❌ Obrazci
-Mews: ❌ Obrazci
-eTurizem: ❌ Stari obrazci
-
-AgentFlow Pro: ✅ AI Pogovor
-```
-
-### **4. Skalabilno** ✅
-```
-Isti agent deluje za:
-✅ Hotele
-✅ Apartmaje
-✅ Kampe
-✅ Kmetije
-✅ Hostle
+❌ Owners don't want to fill 50 fields
+✅ Owners just want to tell what they have
+✅ AI hears and understands
+✅ AI fills everything automatically
 ```
 
-### **5. Prihodnost-Proof** ✅
+### **3. Differentiates from Competition** ✅
 ```
-2026 trendi:
+Cloudbeds: ❌ Forms
+Mews: ❌ Forms
+eTurizem: ❌ Old forms
+
+AgentFlow Pro: ✅ AI Conversation
+```
+
+### **4. Scalable** ✅
+```
+Same agent works for:
+✅ Hotels
+✅ Apartments
+✅ Camps
+✅ Farms
+✅ Hostels
+```
+
+### **5. Future-Proof** ✅
+```
+2026 trends:
 ✅ Conversational UI
 ✅ AI-first experiences
 ✅ Zero-form onboarding
 ✅ Voice interfaces
 
-AgentFlow Pro je pripravljen!
+AgentFlow Pro is ready!
 ```
 
 ---
 
-## 🎯 KONKURENČNA PREDNOST:
+## 🎯 COMPETITIVE ADVANTAGE:
 
 ### **Booking.com Partner Hub:**
 ```
-❌ 50+ polj obrazca
-❌ 30+ minut setupa
-❌ Ni AI assistance
-❌ Ni slovenski
+❌ 50+ form fields
+❌ 30+ min setup
+❌ No AI assistance
+❌ Not in Slovenian
 ```
 
 ### **AgentFlow Pro:**
 ```
-✅ Samo pogovor
-✅ 3 minute setupa
-✅ AI vodi korak za korakom
-✅ Slovenski + angleški
+✅ Just conversation
+✅ 3 minute setup
+✅ AI guides step by step
+✅ Slovenian + English
 ```
 
-**Rezultat:** 10x hitreje, 90% konverzija namesto 40%
+**Result:** 10x faster, 90% conversion instead of 40%
 
 ---
 
 ## 📈 BUSINESS IMPACT:
 
-### **Za Uporabnike:**
+### **For Users:**
 ```
-✅ 27 minut prihranjenih na onboarding
-✅ Ni frustracij z obrazci
-✅ Osebni asistent 24/7
-✅ Vse nastavitve pravilne
+✅ 27 minutes saved on onboarding
+✅ No form frustrations
+✅ Personal assistant 24/7
+✅ All settings correct
 ```
 
-### **Za Tebe:**
+### **For You:**
 ```
-✅ 2.25x več konverzij (40% → 90%)
-✅ -80% support ticketov
+✅ 2.25x more conversions (40% → 90%)
+✅ -80% support tickets
 ✅ +50% user satisfaction
-✅ Viralni efekt ("To je noro!")
+✅ Viral effect ("This is insane!")
 ```
 
 ---
 
 ## 🔥 NEXT STEPS:
 
-### **Takoj (Danes):**
+### **Today:**
 ```
-1. ✅ Vse komponente so narejene
-2. ✅ Dokumentacija je končana
-3. ⏳ Testiraj na localhost:3002/onboarding
-4. ⏳ Poveži s Prisma database
+1. ✅ All components are built
+2. ✅ Documentation is complete
+3. ⏳ Test at localhost:3002/onboarding
+4. ⏳ Connect to Prisma database
 ```
 
-### **Jutri:**
+### **Tomorrow:**
 ```
 1. ⏳ Database integration
 2. ⏳ Create property from AI data
@@ -229,7 +229,7 @@ AgentFlow Pro je pripravljen!
 4. ⏳ Setup eTurizem connection
 ```
 
-### **Ta Teden:**
+### **This Week:**
 ```
 1. ⏳ Production deployment
 2. ⏳ User testing (5-10 users)
@@ -239,7 +239,7 @@ AgentFlow Pro je pripravljen!
 
 ---
 
-## 🎯 METRIKE ZA SPREMLJANJE:
+## 🎯 METRICS TO TRACK:
 
 ### **Day 1:**
 ```
@@ -267,86 +267,86 @@ AgentFlow Pro je pripravljen!
 
 ---
 
-## 💬 PRIMERI POGOVOROV:
+## 💬 CONVERSATION EXAMPLES:
 
 ### **Scenario 1: Hotel**
 ```
-User: "Sem direktor hotela Slon v Ljubljani, želim uporabljati vaš program."
+User: "I'm the director of Hotel Slon in Ljubljana, I want to use your program."
 
-AI: "Odlično! 🎉 Veseli me, da ste izbrali AgentFlow Pro.
+AI: "Excellent! 🎉 I'm thrilled you chose AgentFlow Pro.
 
-Za začetek mi povejte:
-• Koliko sob ima vaš hotel?
-• Kakšen je naslov?
+To get started, please tell me:
+• How many rooms does your hotel have?
+• What is the address?
 
-Lahko odgovorite naravno, jaz bom vse uredil. ✨"
+You can answer naturally, I'll take care of everything. ✨"
 
-User: "Imamo 12 sob, naslov je Slovenska cesta 34, Ljubljana."
+User: "We have 12 rooms, address is Slovenska cesta 34, Ljubljana."
 
-AI: "Hvala! 📝 Kreiram vaš hotel 'Slon'...
+AI: "Thank you! 📝 Creating your hotel 'Slon'...
 
-✅ Hotel ustvarjen
-✅ Lokacija nastavljena: Slovenska cesta 34, Ljubljana
-✅ 12 sob dodanih
+✅ Hotel created
+✅ Location set: Slovenska cesta 34, Ljubljana
+✅ 12 rooms added
 
-Zdaj mi povejte:
-• Kakšne tipe sob imate? (single, double, suite...)
-• Imate WiFi, parkirišče, zajtrk?
+Now please tell me:
+• What room types do you have? (single, double, suite...)
+• Do you have WiFi, parking, breakfast?
 
-Lahko naštejete vse naenkrat! 😊"
+You can list everything at once! 😊"
 
-User: "Imamo 8 double sob, 4 suite. WiFi je, parkirišče je, zajtrk vključen."
+User: "We have 8 double rooms, 4 suites. WiFi yes, parking yes, breakfast included."
 
-AI: "Popolno! 🏨 Konfiguriram vaše sobe...
+AI: "Perfect! 🏨 Configuring your rooms...
 
-✅ 8x Double soba – €85/noč
-✅ 4x Suite – €150/noč
+✅ 8x Double room – €85/night
+✅ 4x Suite – €150/night
 ✅ Amenities: WiFi ✓, Parking ✓, Breakfast ✓
 
-Zadnje vprašanje:
-• Želite sinhronizacijo z eTurizem/AJPES?
-• Želite avtomatske email-e gostom?
+Last question:
+• Do you want synchronization with eTurizem/AJPES?
+• Do you want automatic emails to guests?
 
-(Lahko rečete samo 'ja' za oboje!)"
+(You can just say 'yes' to both!)"
 
-User: "Ja, vse."
+User: "Yes, everything."
 
-AI: "🎉 Čestitam! Vaš AgentFlow Pro je pripravljen!
+AI: "🎉 Congratulations! Your AgentFlow Pro is ready!
 
-✅ eTurizem sinhronizacija: VKLOPLJENA
-✅ Avtomatski email-i: VKLOPLJENI
-✅ Dashboard pripravljen
+✅ eTurizem synchronization: ENABLED
+✅ Automatic emails: ENABLED
+✅ Dashboard ready
 
-[🏠 Pojdi na Dashboard]  [📚 Ogled vodiča]
+[🏠 Go to Dashboard]  [📚 View Guide]
 
-P.S. Kadarkoli potrebujete pomoč, samo vprašajte! 💬"
+P.S. Whenever you need help, just ask! 💬"
 ```
 
 ---
 
-## ✅ SKLEP:
+## ✅ CONCLUSION:
 
-**To ni "mogoče neumna" ideja.**
+**This is not a "maybe stupid" idea.**
 
-**To je next-level UX ki ga pričakujejo uporabniki v 2026.**
+**This is next-level UX that users expect in 2026.**
 
-Imaš vso infrastrukturo da to narediš zdaj. Ne rabiš:
-- ❌ Novega AI modela
-- ❌ Novih API-jev
-- ❌ Ničesar novega
+You have all the infrastructure to do this now. You don't need:
+- ❌ New AI model
+- ❌ New APIs
+- ❌ Anything new
 
-Samo povežeš obstoječe komponente na nov način.
+Just connect existing components in a new way.
 
 ---
 
 ## 🚀 STATUS:
 
-**Version:** 2.0.0  
-**Status:** ✅ **POPOLNOMA KONČANO**  
-**Ready for:** Database integration & Production testing  
+**Version:** 2.0.0
+**Status:** ✅ **COMPLETE**
+**Ready for:** Database integration & Production testing
 
 ---
 
-**Narejeno z ❤️ za prihodnost SaaS onboardinga**
+**Made with ❤️ for the future of SaaS onboarding**
 
 🎯 **AgentFlow Pro - The Future of Property Management**

@@ -1,209 +1,209 @@
-# 🏨 AgentFlow Pro - Base + Module Sistem
+# 🏨 AgentFlow Pro - Base + Module System
 
-## 🎯 Koncept
+## 🎯 Concept
 
-**Eno jedro za vse + specializirani moduli po tipu nastanitve.**
+**One core for everyone + specialized modules by property type.**
 
 ---
 
-## 📊 Struktura:
+## 📊 Structure:
 
-### **Base Paket (Za Vse)**
+### **Base Package (For Everyone)**
 ```
-Cena: 29€/mesec
-Vključuje:
-✅ Upravljanje rezervacij
-✅ Koledar
-✅ Gostje baza
-✅ Osnovne statistike
-✅ Email komunikacija
-✅ Cene in availability
-✅ eTurizem povezava
-✅ Osnovne vsebine (AI)
+Price: €29/month
+Includes:
+✅ Booking management
+✅ Calendar
+✅ Guest database
+✅ Basic statistics
+✅ Email communication
+✅ Pricing and availability
+✅ eTurizem connection
+✅ Basic content (AI)
 ```
 
-### **Moduli (Dodatno)**
+### **Modules (Additional)**
 
-#### 🏨 Hotel Modul (+15€/mesec)
+#### 🏨 Hotel Module (+€15/month)
 ```
-Za: Hotele, penezione, boutique hotele
-Funkcije:
+For: Hotels, guesthouses, boutique hotels
+Features:
 ✅ Housekeeping management
-✅ Room status (čisto/s umazano)
+✅ Room status (clean/dirty)
 ✅ Multi-property support
 ✅ Room service ordering
 ✅ Shift management
-✅ Porčila po nadstropjih
+✅ Reports by floors
 ```
 
-#### ⛺ Kamp Modul (+15€/mesec)
+#### ⛺ Camp Module (+€15/month)
 ```
-Za: Kampinge, glamping resort-e
-Funkcije:
-✅ Parcelno upravljanje (A1, A2, B1...)
-✅ Oprema (elektrika, voda, kanalizacija)
-✅ Dnevne cene po sezoni
-✅ Rezervacija opreme
+For: Campsites, glamping resorts
+Features:
+✅ Parcel management (A1, A2, B1...)
+✅ Equipment (electricity, water, sewage)
+✅ Daily rates by season
+✅ Equipment reservation
 ✅ Sanitary facilities tracking
-✅ Aktivnosti (kolesa, čolni...)
+✅ Activities (bikes, boats...)
 ```
 
-#### 🏡 Kmetija Modul (+15€/mesec)
+#### 🏡 Farm Module (+€15/month)
 ```
-Za: Turistične kmetije, vinotoče
-Funkcije:
-✅ Aktivnosti (jahanje, degustacije)
-✅ Prodaja izdelkov (sir, vino, med)
-✅ Doživetja booking
-✅ Restavracija/miza
-✅ Kolesa/aktivnosti rental
+For: Tourist farms, wineries
+Features:
+✅ Activities (horseback riding, tastings)
+✅ Product sales (cheese, wine, honey)
+✅ Experience booking
+✅ Restaurant/table
+✅ Bike/activity rental
 ✅ Tour booking
 ```
 
-#### 🏠 Apartma Modul (+10€/mesec)
+#### 🏠 Apartment Module (+€10/month)
 ```
-Za: Apartmaje, sobe, studio
-Funkcije:
-✅ Poenostavljen interface
-✅ Self check-in navodila
-✅ Ključavnica codes
-✅ Brez housekeeping
-✅ Enostavnejša poročila
+For: Apartments, rooms, studios
+Features:
+✅ Simplified interface
+✅ Self check-in instructions
+✅ Lock codes
+✅ No housekeeping
+✅ Simplified reports
 ```
 
 ---
 
-## 💰 Cenik:
+## 💰 Pricing:
 
-| Paket | Cena | Letno | Prihranek |
-|-------|------|-------|-----------|
-| **Base** | 29€/mesec | 290€ | 2 meseca brezplačno |
-| **Base + Hotel** | 44€/mesec | 440€ | 2 meseca brezplačno |
-| **Base + Kamp** | 44€/mesec | 440€ | 2 meseca brezplačno |
-| **Base + Kmetija** | 44€/mesec | 440€ | 2 meseca brezplačno |
-| **Base + Apartma** | 39€/mesec | 390€ | 2 meseca brezplačno |
-| **Base + Vsi** | 69€/mesec | 690€ | 2 meseca brezplačno |
+| Package | Price | Annual | Savings |
+|---------|-------|--------|---------|
+| **Base** | €29/month | €290 | 2 months free |
+| **Base + Hotel** | €44/month | €440 | 2 months free |
+| **Base + Camp** | €44/month | €440 | 2 months free |
+| **Base + Farm** | €44/month | €440 | 2 months free |
+| **Base + Apartment** | €39/month | €390 | 2 months free |
+| **Base + All** | €69/month | €690 | 2 months free |
 
 ---
 
 ## 🎯 Onboarding Flow:
 
-### Korak 1: Prijava
+### Step 1: Sign Up
 ```
-Email + Geslo
+Email + Password
 →
 ```
 
-### Korak 2: Tip Nastanitve
+### Step 2: Property Type
 ```
-"Kakšen tip nastanitve imate?"
+"What type of property do you have?"
 
 [🏨 Hotel]
-[⛺ Kamp]
-[🏡 Kmetija]
-[🏠 Apartma]
-[Drugo]
+[⛺ Camp]
+[🏡 Farm]
+[🏠 Apartment]
+[Other]
 
 →
 ```
 
-### Korak 3: Osnovni Podatki
+### Step 3: Basic Info
 ```
-Ime: _______________
-Lokacija: _______________
-Število sob/enot: _______________
+Name: _______________
+Location: _______________
+Number of rooms/units: _______________
 
 →
 ```
 
-### Korak 4: Prilagoditev
+### Step 4: Customization
 ```
-Glede na tip:
+Based on type:
 
 Hotel:
-- Število nadstropij
+- Number of floors
 - Housekeeping team size
 - Room types
 
-Kamp:
-- Število parcel
-- Tipi priključkov
-- Sezona
+Camp:
+- Number of parcels
+- Connection types
+- Season
 
-Kmetija:
-- Aktivnosti
-- Prodaja izdelkov
-- Restavracija
+Farm:
+- Activities
+- Product sales
+- Restaurant
 
-Apartma:
-- Število apartmajev
+Apartment:
+- Number of apartments
 - Self check-in?
 
 →
 ```
 
-### Korak 5: Končano!
+### Step 5: Complete!
 ```
-✅ Račun ustvarjen
-✅ Interface prilagojen
-✅ Priporočeni moduli
+✅ Account created
+✅ Interface customized
+✅ Recommended modules
 
-[Na Dashboard] [Dodaj Module]
+[Go to Dashboard] [Add Modules]
 ```
 
 ---
 
-## 📊 Dashboard Prilagoditve:
+## 📊 Dashboard Customizations:
 
-### Base (Vsi Vidijo):
+### Base (Everyone Sees):
 ```
-🏠 Pregled
-📅 Koledar
-🏨 Nastanitve
-💰 Cene
-📊 Statistika
-👥 Gostje
-⚙️ Nastavitve
+🏠 Overview
+📅 Calendar
+🏨 Properties
+💰 Pricing
+📊 Statistics
+👥 Guests
+⚙️ Settings
 ```
 
 ### + Hotel:
 ```
-Dodatno:
+Additional:
 🧹 Housekeeping
-📊 Po nadstropjih
+📊 By floors
 🛎️ Room service
-👥 Shifti
+👥 Shifts
 ```
 
-### + Kamp:
+### + Camp:
 ```
-Dodatno:
-🏕️ Parceles
-⚡ Oprema
-📅 Sezonski koledar
-🚴 Aktivnosti
-```
-
-### + Kmetija:
-```
-Dodatno:
-🍷 Degustacije
-🐴 Aktivnosti
-🧀 Prodaja
-🍽️ Restavracija
+Additional:
+🏕️ Parcels
+⚡ Equipment
+📅 Seasonal calendar
+🚴 Activities
 ```
 
-### + Apartma:
+### + Farm:
 ```
-Poenostavljeno:
-- Manj menijev
-- Self check-in navodila
-- Enostavna statistika
+Additional:
+🍷 Tastings
+🐴 Activities
+🧀 Sales
+🍽️ Restaurant
+```
+
+### + Apartment:
+```
+Simplified:
+- Fewer menus
+- Self check-in instructions
+- Simple statistics
 ```
 
 ---
 
-## 🔧 Tehnična Izvedba:
+## 🔧 Technical Implementation:
 
 ### Database Schema:
 ```prisma
@@ -211,47 +211,47 @@ model Property {
   id             String @id @default(cuid())
   propertyType   String // "hotel", "kamp", "kmetija", "apartma"
   modules        Json?  // ["housekeeping", "parcels", "activities"]
-  // ... ostali fieldi
+  // ... other fields
 }
 ```
 
 ### UI Logic:
 ```typescript
-// Prikazi module glede na tip
+// Show modules based on type
 const showModule = (type: string, module: string) => {
   if (type === 'hotel' && module === 'housekeeping') return true;
   if (type === 'kamp' && module === 'parcels') return true;
   if (type === 'kmetija' && module === 'activities') return true;
-  if (type === 'apartma') return false; // poenostavljeno
+  if (type === 'apartma') return false; // simplified
   return false;
 };
 ```
 
 ---
 
-## 📈 Upsell Strategija:
+## 📈 Upsell Strategy:
 
-### Ob Onboarding:
+### During Onboarding:
 ```
-1. Uporabnik izbere tip
-2. Sistem priporoči module
-3. 14-dnevni trial za module
-4. Po trialu: upgrade ali ostani Base
+1. User selects type
+2. System recommends modules
+3. 14-day trial for modules
+4. After trial: upgrade or stay Base
 ```
 
-### Med Uporabo:
+### During Use:
 ```
 1. Usage tracking
-2. Ko doseže limit → predlog upgrade
-3. Feature gating (nekatere funkcije zaklenjene)
-4. "Upgrade to unlock" gumbi
+2. When limit reached → upgrade suggestion
+3. Feature gating (some features locked)
+4. "Upgrade to unlock" buttons
 ```
 
-### Email Kampanje:
+### Email Campaigns:
 ```
-Day 1: Dobrodošel + Base features
-Day 3: Ali ste vedeli? (Module features)
-Day 7: Posebna ponudba (20% popust na module)
+Day 1: Welcome + Base features
+Day 3: Did you know? (Module features)
+Day 7: Special offer (20% discount on modules)
 Day 14: Trial ends tomorrow
 Day 15: Upgrade now
 ```
@@ -260,39 +260,39 @@ Day 15: Upgrade now
 
 ## 🎯 Roadmap:
 
-### Faza 1 (Zdaj):
-- ✅ Base sistem za vse
-- ✅ Tip nastanitve v bazi
-- ✅ Onboarding vprašanje
-- ✅ Preprost interface
+### Phase 1 (Now):
+- ✅ Base system for everyone
+- ✅ Property type in database
+- ✅ Onboarding question
+- ✅ Simple interface
 
-### Faza 2 (1-2 meseca):
-- ⏳ Hotel modul
-- ⏳ Kamp modul
-- ⏳ Kmetija modul
-- ⏳ Apartma modul
+### Phase 2 (1-2 months):
+- ⏳ Hotel module
+- ⏳ Camp module
+- ⏳ Farm module
+- ⏳ Apartment module
 
-### Faza 3 (3-4 meseca):
+### Phase 3 (3-4 months):
 - ⏳ Module pricing page
 - ⏳ Upgrade flow
 - ⏳ Usage tracking
-- ⏳ Email avtomatizacije
+- ⏳ Email automation
 
 ---
 
-## ✅ Prednosti:
+## ✅ Benefits:
 
 ```
-✅ Ena koda (Base)
-✅ Lahko začneš takoj
-✅ Dodajaš module postopoma
-✅ Upsell priložnosti
-✅ Prilagodljivo za vsakega
-✅ Ni preveč kompleksno na začetku
+✅ One codebase (Base)
+✅ Can start immediately
+✅ Add modules gradually
+✅ Upsell opportunities
+✅ Customizable for each user
+✅ Not too complex at start
 ```
 
 ---
 
 **Version:** 1.0.0
-**Status:** ✅ Implementacija se začne
+**Status:** ✅ Implementation starting
 **Last Updated:** 2026-03-09
