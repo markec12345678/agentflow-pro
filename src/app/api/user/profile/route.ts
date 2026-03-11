@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateAuth, createErrorResponse, createSuccessResponse } from '@/lib/api-middleware';
 import { prisma } from '@/database/schema';
+import { z } from 'zod';
 
 export const dynamic = "force-dynamic";
+
+// Zod schema for profile update
+const updateProfileSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100, 'Name too long').optional(),
+});
 
 /**
  * GET /api/user/profile
@@ -60,6 +66,9 @@ export async function PUT(request: NextRequest) {
     const auth = validateAuth(request);
     const body = await request.json();
 
+    // Validate input with Zod
+    const validatedData = updateProfileSchema.parse(body);
+
     const user = await prisma.user.findFirst({
       where: {
         OR: [{ id: auth.userId }, { email: auth.userId }],
@@ -74,12 +83,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const allowedFields = ['name'];
     const updateData: { name?: string } = {};
-    for (const key of allowedFields) {
-      if (body[key] !== undefined) {
-        (updateData as any)[key] = body[key];
-      }
+    if (validatedData.name !== undefined) {
+      updateData.name = validatedData.name;
     }
 
     if (Object.keys(updateData).length === 0) {
