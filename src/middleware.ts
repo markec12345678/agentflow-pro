@@ -25,6 +25,40 @@ const ALLOWED_HEADERS = [
   'Origin',
 ];
 
+// Custom CORS rules for specific routes
+const CUSTOM_CORS_RULES: Record<string, { origins: string[]; methods: string[]; headers?: string[] }> = {
+  '/api/public': {
+    origins: ['*'],
+    methods: ['GET', 'POST'],
+    headers: ['Content-Type', 'X-API-Key'],
+  },
+  '/api/webhooks': {
+    origins: ['*'],
+    methods: ['POST'],
+    headers: ['Content-Type'],
+  },
+  '/api/v1': {
+    origins: ['*'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    headers: ['Content-Type', 'Authorization', 'X-API-Key'],
+  },
+  '/api/analytics/export': {
+    origins: ['*'],
+    methods: ['POST'],
+    headers: ['Content-Type', 'Authorization'],
+  },
+};
+
+// Get CORS rules for specific route
+function getCorsRules(pathname: string) {
+  for (const [prefix, rules] of Object.entries(CUSTOM_CORS_RULES)) {
+    if (pathname.startsWith(prefix)) {
+      return rules;
+    }
+  }
+  return null;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const origin = request.headers.get('origin') || '';
@@ -58,31 +92,50 @@ export async function middleware(request: NextRequest) {
 
   // ─── CORS Headers (all API responses) ───────────────────────────────────────
   const isApiRoute = pathname.startsWith('/api/');
-  
+
   let response = NextResponse.next();
-  
+
   if (isApiRoute) {
-    // Set CORS headers
-    if (ALLOWED_ORIGINS.includes(origin)) {
-      response.headers.set('Access-Control-Allow-Origin', origin);
-    } else if (process.env.NODE_ENV === 'development') {
-      response.headers.set('Access-Control-Allow-Origin', origin || '*');
+    // Check for custom CORS rules
+    const customRules = getCorsRules(pathname);
+    
+    if (customRules) {
+      // Apply custom CORS rules
+      const allowedOrigin = customRules.origins.includes('*') 
+        ? '*' 
+        : customRules.origins.find(o => o === origin) || customRules.origins[0];
+      
+      response.headers.set('Access-Control-Allow-Origin', allowedOrigin);
+      response.headers.set('Access-Control-Allow-Methods', customRules.methods.join(', '));
+      response.headers.set('Access-Control-Allow-Headers', (customRules.headers || ALLOWED_HEADERS).join(', '));
+      
+      if (allowedOrigin !== '*') {
+        response.headers.set('Access-Control-Allow-Credentials', 'true');
+      }
+    } else {
+      // Apply default CORS rules
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        response.headers.set('Access-Control-Allow-Origin', origin);
+      } else if (process.env.NODE_ENV === 'development') {
+        response.headers.set('Access-Control-Allow-Origin', origin || '*');
+      }
+
+      response.headers.set('Access-Control-Allow-Methods', ALLOWED_METHODS.join(', '));
+      response.headers.set('Access-Control-Allow-Headers', ALLOWED_HEADERS.join(', '));
+      response.headers.set('Access-Control-Allow-Credentials', 'true');
     }
     
-    response.headers.set('Access-Control-Allow-Methods', ALLOWED_METHODS.join(', '));
-    response.headers.set('Access-Control-Allow-Headers', ALLOWED_HEADERS.join(', '));
-    response.headers.set('Access-Control-Allow-Credentials', 'true');
     response.headers.set('Access-Control-Max-Age', '86400'); // 24 hours
-    
+
     // Handle preflight requests
     if (request.method === 'OPTIONS') {
       return new NextResponse(null, {
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : '*',
-          'Access-Control-Allow-Methods': ALLOWED_METHODS.join(', '),
-          'Access-Control-Allow-Headers': ALLOWED_HEADERS.join(', '),
-          'Access-Control-Allow-Credentials': 'true',
+          'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin') || '*',
+          'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods') || '',
+          'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers') || '',
+          'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials') || '',
           'Access-Control-Max-Age': '86400',
         },
       });
@@ -94,6 +147,14 @@ export async function middleware(request: NextRequest) {
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // HSTS (Strict Transport Security) - Production only
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains; preload'
+    );
+  }
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   
   // Content Security Policy (CSP)

@@ -1,19 +1,14 @@
 /**
  * Email Templates for AgentFlow Pro
- * 
- * Professional email templates for all guest communication scenarios:
- * - Pre-arrival emails
- * - During-stay emails
- * - Post-stay emails
- * - Booking confirmations
- * - Payment confirmations
- * - Cancellations
- * 
+ *
+ * Professional email templates for all guest communication scenarios.
  * All templates support variable substitution and multi-language.
- * 
+ *
  * @version 1.0.0
  * @author AgentFlow Pro Team
  */
+
+import { sanitizeText } from '@/lib/sanitize';
 
 export interface EmailTemplate {
   id: string;
@@ -363,7 +358,9 @@ export function renderEmailTemplate(
 
   const render = (text: string) => {
     return text.replace(/{{(\w+)}}/g, (match, key) => {
-      return variables[key] || match;
+      // Sanitize variables to prevent XSS attacks
+      const value = variables[key] || match;
+      return sanitizeText(value);
     });
   };
 

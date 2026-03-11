@@ -5,6 +5,23 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { AnalyticsFilter, AnalyticsDashboard } from '@/types/analytics';
+import { z } from 'zod';
+
+// Zod schema for analytics filters
+const analyticsFilterSchema = z.object({
+  dateRange: z.object({
+    start: z.date().or(z.string()),
+    end: z.date().or(z.string()),
+  }),
+  propertyId: z.string().optional(),
+  category: z.string().optional(),
+});
+
+// Zod schema for dashboard actions
+const dashboardActionSchema = z.object({
+  filters: analyticsFilterSchema,
+  action: z.enum(['refresh', 'export', 'reset']),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -73,23 +90,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { filters, action } = body;
-
-    if (!filters) {
-      return NextResponse.json(
-        { error: 'Missing required field: filters' },
-        { status: 400 }
-      );
-    }
-
-    // Validate filters
-    if (!filters.dateRange || !filters.dateRange.start || !filters.dateRange.end) {
-      return NextResponse.json(
-        { error: 'Invalid date range in filters' },
-        { status: 400 }
-      );
-    }
-
+    
+    // Validate with Zod
+    const validatedData = dashboardActionSchema.parse(body);
+    const { filters, action } = validatedData;
+    
     const start = new Date(filters.dateRange.start);
     const end = new Date(filters.dateRange.end);
 
