@@ -1,12 +1,16 @@
 /**
  * Analytics Tracking Helper
  * Track agent runs, content generation, user sessions, and conversions.
+ * 
+ * NOTE: This file is used in both server and client components.
+ * For client-side usage, we use API calls instead of direct Prisma.
  */
 
 import { prisma } from "@/database/schema";
 
 /**
  * Track agent run with performance and cost metrics
+ * SERVER-SIDE ONLY - use trackAgentRunClient for client-side
  */
 export async function trackAgentRun(data: {
   agentType: string;
@@ -39,6 +43,26 @@ export async function trackAgentRun(data: {
     });
   } catch (error) {
     console.error('Error tracking agent run:', error);
+  }
+}
+
+/**
+ * Client-side tracker - sends data to API endpoint
+ */
+export async function trackAgentRunClient(data: {
+  agentType: string;
+  status: 'success' | 'failed' | 'partial';
+  duration: number;
+  tokensUsed?: number;
+}) {
+  try {
+    // Fire-and-forget - don't await to avoid blocking UI
+    navigator.sendBeacon?.('/api/analytics/track', JSON.stringify({
+      type: 'agent_run',
+      ...data,
+    }));
+  } catch (error) {
+    console.error('Error tracking client event:', error);
   }
 }
 

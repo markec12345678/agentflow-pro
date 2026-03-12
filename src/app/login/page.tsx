@@ -120,11 +120,42 @@ function LoginForm() {
     }
   }
 
+  async function handleCredentialsSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    
+    try {
+      const result = await signIn("credentials", {
+        email: email.trim().toLowerCase(),
+        password,
+        callbackUrl: "/dashboard",
+        redirect: false, // Don't auto-redirect, we'll handle it
+      });
+      
+      console.log('[Login] signIn result:', result);
+      
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.url) {
+        // Successful login, redirect
+        window.location.href = result.url;
+      } else {
+        setError("Neznana napaka pri prijavi");
+      }
+    } catch (err) {
+      console.error('[Login] Login error:', err);
+      setError("Napaka pri prijavi. Poskusite ponovno.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center p-8 relative z-40">
       <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 relative z-50">
         <h1 className="mb-4 text-xl font-bold dark:text-white">Prijava</h1>
-        
+
         {/* Error Display */}
         {error && (
           <div className="mb-4 relative">
@@ -181,7 +212,12 @@ function LoginForm() {
           </>
         )}
         
-        <form method="post" action="/api/auth/callback/credentials" className="space-y-4">
+        <form
+          method="post"
+          action="/api/auth/callback/credentials"
+          onSubmit={handleCredentialsSubmit}
+          className="space-y-4"
+        >
           <input type="hidden" name="csrfToken" value={csrfToken} />
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
           <div>
@@ -262,10 +298,10 @@ function LoginForm() {
           )}
           <button
             type="submit"
-            disabled={!csrfToken}
+            disabled={loading || !csrfToken}
             className="w-full rounded-sm bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
           >
-            Prijava
+            {loading ? "Prijava..." : "Prijava"}
           </button>
         </form>
         

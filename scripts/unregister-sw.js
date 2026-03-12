@@ -1,28 +1,39 @@
-/**
- * Unregister Service Worker
- * Run this in browser console to clear old Service Workers
- */
+// Service Worker Unregister Script
+// Run this in browser console to completely remove Service Worker
 
-if ('serviceWorker' in navigator) {
-  // Unregister all service workers
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    console.log('Found registrations:', registrations.length);
-    for (const registration of registrations) {
-      registration.unregister()
-        .then(() => console.log('✓ Service Worker unregistered'))
-        .catch(err => console.error('✗ Failed to unregister:', err));
+(async function unregisterServiceWorker() {
+  console.log('🔍 Checking for Service Workers...');
+  
+  if ('serviceWorker' in navigator) {
+    try {
+      // Get all registrations
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      
+      console.log(`📋 Found ${registrations.length} Service Worker registration(s)`);
+      
+      // Unregister all
+      for (const registration of registrations) {
+        const success = await registration.unregister();
+        console.log(`✅ Service Worker ${success ? 'UNREGISTERED' : 'FAILED'}: ${registration.scope}`);
+      }
+      
+      // Clear all caches
+      const cacheNames = await caches.keys();
+      console.log(`🗑️  Found ${cacheNames.length} cache(s)`);
+      
+      for (const cacheName of cacheNames) {
+        await caches.delete(cacheName);
+        console.log(`✅ Cache DELETED: ${cacheName}`);
+      }
+      
+      console.log('\n✅✅✅ ALL DONE! ✅✅✅');
+      console.log('🔄 NOW HARD REFRESH: Press Ctrl+Shift+R');
+      console.log('🔐 Then try to login again!');
+      
+    } catch (error) {
+      console.error('❌ Error:', error);
     }
-  });
-
-  // Clear all caches
-  caches.keys().then((names) => {
-    console.log('Found caches:', names);
-    for (const name of names) {
-      caches.delete(name)
-        .then(() => console.log('✓ Cache deleted:', name))
-        .catch(err => console.error('✗ Failed to delete cache:', err));
-    }
-  });
-
-  console.log('Service Workers and caches cleared!');
-}
+  } else {
+    console.log('❌ Service Workers not supported in this browser');
+  }
+})();

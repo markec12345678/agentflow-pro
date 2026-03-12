@@ -130,22 +130,31 @@ export const authOptions = {
           token.subscriptionActive as boolean | undefined;
         (session.user as { teamId?: string }).teamId = token.teamId as string | undefined;
         (session.user as { teamRole?: string }).teamRole = token.teamRole as string | undefined;
+        
+        // Debug logging
+        console.log('[auth] session callback:', {
+          userId: uid,
+          hasTeamId: !!token.teamId,
+          subscriptionActive: token.subscriptionActive,
+        });
       }
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith(baseUrl)) return url;
-      if (url.startsWith("/")) return `${baseUrl.replace(/\/$/, "")}${url}`;
-      try {
-        const u = new URL(url);
-        if (u.pathname) return `${baseUrl.replace(/\/$/, "")}${u.pathname}${u.search || ""}`;
-      } catch {
-        // ignore
+      // Allows relative callback URLs
+      if (url.startsWith("/")) {
+        return `${baseUrl.replace(/\/$/, "")}${url}`;
       }
-      return baseUrl;
+      // Allows callback URLs on the same origin
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      // Default redirect to dashboard
+      return `${baseUrl}/dashboard`;
     },
   },
   pages: {
     signIn: "/login", // Custom sign-in page
+    error: "/login", // Error code passed in query string as ?error=
   },
 } as NextAuthOptions;

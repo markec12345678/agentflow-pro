@@ -171,17 +171,20 @@ export async function middleware(request: NextRequest) {
   response.headers.set('Content-Security-Policy', cspDirectives.join('; '));
 
   // ─── Authentication (protected routes) ──────────────────────────────────────
+  // DISABLED FOR DEVELOPMENT - Enable for production
+  const developmentMode = process.env.NODE_ENV === 'development';
   const sessionToken = request.cookies.get('next-auth.session-token')?.value;
-  
+
   const isProtectedApi = isApiRoute &&
     !pathname.includes('/auth/') &&
     !pathname.includes('/webhook') &&
     !pathname.includes('/health');
 
-  if (isProtectedApi && !sessionToken) {
+  // Skip auth check in development mode
+  if (isProtectedApi && !sessionToken && !developmentMode) {
     return NextResponse.json(
       { error: 'Unauthorized' },
-      { 
+      {
         status: 401,
         headers: {
           'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : '*',

@@ -1,3 +1,6 @@
+// Service Worker disabled for development
+// Uncomment for production PWA support
+
 const CACHE_NAME = 'agentflow-pro-v1';
 const urlsToCache = [
   '/',
@@ -7,6 +10,8 @@ const urlsToCache = [
   // Add other critical assets
 ];
 
+// Disabled for development - uncomment for production
+/*
 self.addEventListener('install', (event: Event) => {
   const extendableEvent = event as ExtendableEvent;
   extendableEvent.waitUntil(
@@ -40,13 +45,14 @@ self.addEventListener('activate', (event: Event) => {
     })
   );
 });
+*/
 
 // Type declarations for service worker
 declare global {
   interface ExtendableEvent extends Event {
     waitUntil(promise: Promise<void>): void;
   }
-  
+
   interface FetchEvent extends Event {
     respondWith(response: Promise<Response> | Response): void;
     request: Request;

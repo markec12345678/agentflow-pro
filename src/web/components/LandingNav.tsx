@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { trackCTAClick } from "@/lib/analytics";
 
 const NAV_CONFIG = {
   solutions: {
@@ -523,7 +522,6 @@ export function LandingNav() {
                   href="/onboarding"
                   className="outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 group flex min-h-[44px] w-full items-center justify-center rounded-xl bg-linear-to-r from-blue-600 via-cyan-500 to-emerald-400 py-3.5 font-semibold text-white shadow-lg"
                   onClick={() => {
-                    trackCTAClick("/onboarding");
                     setMobileMenuOpen(false);
                   }}
                 >

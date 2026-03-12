@@ -1,4 +1,2 @@
-A subdirectory or file rust already exists.
-Error occurred while processing: rust.
-A subdirectory or file rust already exists.
-Error occurred while processing: rust.
+ERROR: The process with PID 11532 could not be terminated.
+Reason: There is no running instance of the task.

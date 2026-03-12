@@ -1,24 +1,33 @@
 /**
  * AgentFlow Pro - Redis client singleton
- * Used for conversation context and session caching.
+ * Uses Upstash Redis (serverless) for production.
  * Gracefully returns null when REDIS_URL is not set.
  */
 
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
 
 let _client: Redis | null = null;
 
 export function getRedisClient(): Redis | null {
-  const url = process.env.REDIS_URL;
-  if (!url?.trim()) return null;
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.REDIS_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  
+  // Return null if URL or token is missing
+  if (!url?.trim() || !token?.trim()) {
+    return null;
+  }
+  
   if (_client) return _client;
+  
   try {
-    _client = new Redis(url, {
-      maxRetriesPerRequest: 2,
-      retryStrategy: (times) => (times <= 2 ? 500 : null),
+    // Use Upstash Redis (serverless HTTP-based Redis)
+    _client = new Redis({
+      url: url,
+      token: token,
     });
     return _client;
-  } catch {
+  } catch (error) {
+    console.error('[Redis] Failed to initialize:', error);
     return null;
   }
 }
