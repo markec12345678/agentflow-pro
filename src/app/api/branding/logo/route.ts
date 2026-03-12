@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { authOptions } from "@/lib/auth-options";
 
 // Simple in-memory storage for demo (use S3/blob storage in production)
 const uploadedLogos = new Map<string, string>();

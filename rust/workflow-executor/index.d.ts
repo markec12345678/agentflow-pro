@@ -19,8 +19,8 @@ export interface WorkflowEdge {
 export interface WorkflowDefinition {
   id: string;
   name: string;
-  nodes: WorkflowNode[];
-  edges: WorkflowEdge[];
+  nodes?: WorkflowNode[];
+  edges?: WorkflowEdge[];
   metadata?: string; // JSON stringified metadata
 }
 
