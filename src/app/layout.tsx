@@ -6,7 +6,6 @@ import { Providers } from "./providers";
 import { Nav } from "@/web/components/Nav";
 import { ErrorBoundary } from "@/web/components/ErrorBoundary";
 import { AnalyticsLoader } from "@/web/components/AnalyticsLoader";
-import { FloatingAssistant } from "@/web/components/FloatingAssistant";
 
 // Service Worker Registration Component
 function ServiceWorkerRegistration() {
@@ -31,7 +30,14 @@ function ServiceWorkerRegistration() {
   );
 }
 
-const inter = Inter({ subsets: ["latin"] });
+// Optimized font loading with next/font
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  fallback: ["system-ui", "arial"],
+  variable: "--font-inter",
+});
 
 const baseUrl =
   process.env.NEXT_PUBLIC_APP_URL ||
@@ -146,7 +152,6 @@ export default function RootLayout({
               {children}
             </div>
           </ErrorBoundary>
-          <FloatingAssistant />
         </Providers>
       </body>
     </html>

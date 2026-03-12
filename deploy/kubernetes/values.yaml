@@ -1,0 +1,134 @@
+# Default values for AgentFlow Pro
+# Declare name/value pairs to be passed into your chart
+
+replicaCount: 3
+
+image:
+  repository: agentflow-pro
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: agentflow.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: agentflow-tls
+      hosts:
+        - agentflow.example.com
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Application Configuration
+config:
+  nodeEnv: "production"
+  port: 3000
+  logLevel: "info"
+  
+  # Database
+  databaseUrl: ""
+  
+  # Redis
+  redisUrl: ""
+  
+  # JWT
+  jwtSecret: ""
+  
+  # Stripe
+  stripeSecretKey: ""
+  stripePublishableKey: ""
+  
+  # AI Providers
+  openaiApiKey: ""
+  anthropicApiKey: ""
+  
+  # Feature Flags
+  enableAgentExecution: true
+  enableWorkflowBuilder: true
+
+# PostgreSQL Configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "changeme"
+    database: agentflow_pro
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Redis Configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "changeme"
+  master:
+    persistence:
+      enabled: true
+      size: 2Gi
+
+# Monitoring
+monitoring:
+  enabled: false
+  prometheus:
+    enabled: false
+  grafana:
+    enabled: false
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retentionDays: 30

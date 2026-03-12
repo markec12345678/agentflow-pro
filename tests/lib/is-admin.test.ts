@@ -1,6 +1,7 @@
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { isAdminEmail } from "@/lib/is-admin";
 
-jest.mock("@/config/env", () => ({
+vi.mock("@/config/env", () => ({
   getAdminEmails: () => ["admin@test.com", "super@test.com"],
 }));
 

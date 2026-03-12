@@ -3,6 +3,7 @@
  * Tests mobile layout, touch interactions, and responsive behavior
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { test, expect } from '@playwright/test';
 
 test.describe('Receptor Mobile Responsive Tests', () => {

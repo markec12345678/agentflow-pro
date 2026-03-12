@@ -9,8 +9,23 @@ import { useState, useEffect } from 'react';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { AnalyticsWidget, WidgetType, ReportType } from '@/types/analytics';
 import { format, subDays, subMonths } from 'date-fns';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
+
+// Lazy load recharts components (saves ~150KB on initial load)
+const LineChart = dynamic(() => import('recharts').then(mod => mod.LineChart), { ssr: false, loading: () => <div className="h-64 flex items-center justify-center bg-gray-100 rounded">Loading chart...</div> });
+const Line = dynamic(() => import('recharts').then(mod => mod.Line), { ssr: false });
+const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { ssr: false, loading: () => <div className="h-64 flex items-center justify-center bg-gray-100 rounded">Loading chart...</div> });
+const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false });
+const PieChart = dynamic(() => import('recharts').then(mod => mod.PieChart), { ssr: false, loading: () => <div className="h-64 flex items-center justify-center bg-gray-100 rounded">Loading chart...</div> });
+const Pie = dynamic(() => import('recharts').then(mod => mod.Pie), { ssr: false });
+const Cell = dynamic(() => import('recharts').then(mod => mod.Cell), { ssr: false });
+const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false });
+const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
+const Legend = dynamic(() => import('recharts').then(mod => mod.Legend), { ssr: false });
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false, loading: () => <div className="h-64 flex items-center justify-center bg-gray-100 rounded">Loading chart...</div> });
 
 interface AnalyticsDashboardProps {
   propertyId?: string;

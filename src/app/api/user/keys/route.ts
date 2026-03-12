@@ -7,6 +7,7 @@ import {
   type ApiKeyProvider,
 } from "@/lib/user-keys";
 import { getUserId } from "@/lib/auth-users";
+import { z } from 'zod';
 
 const ALLOWED_PROVIDERS: ApiKeyProvider[] = [
   "firecrawl",
@@ -24,6 +25,12 @@ const ALLOWED_PROVIDERS: ApiKeyProvider[] = [
   "mailchimp",
   "hubspot",
 ];
+
+// Zod schema for API key submission
+const apiKeySchema = z.object({
+  provider: z.enum(ALLOWED_PROVIDERS as [string, ...string[]]),
+  key: z.string().min(1, 'API key is required'),
+});
 
 export async function GET() {
   try {
@@ -57,28 +64,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No user ID" }, { status: 401 });
     }
 
-    const body = (await request.json().catch(() => ({}))) as Record<
-      string,
-      string | undefined
-    >;
-
-    const keys: Record<string, string | null> = {};
+    const body = await request.json().catch(() => ({}));
+    
+    // Validate each provider key with Zod
+    const validatedKeys: Record<string, string> = {};
     for (const provider of ALLOWED_PROVIDERS) {
-      const value = body[provider];
-      // If the value is an empty string, set it to null to delete the key
-      if (typeof value === "string" && value.trim() === "") {
-        keys[provider] = null;
-      } else if (typeof value === "string" && value.trim()) {
-        keys[provider] = value.trim();
+      const value = body[provider] as string | undefined;
+      if (value && value.trim()) {
+        try {
+          const validated = apiKeySchema.parse({ provider, key: value.trim() });
+          validatedKeys[validated.provider] = validated.key;
+        } catch (error) {
+          // Skip invalid keys
+          console.warn(`Invalid API key for ${provider}:`, error);
+        }
       }
     }
-
-    // Filter out null values before saving
-    const validKeys: Record<string, string> = {};
-    for (const [k, v] of Object.entries(keys)) {
-      if (v !== null) validKeys[k] = v;
-    }
-    await setUserApiKeys(userId, validKeys);
+    
+    await setUserApiKeys(userId, validatedKeys);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Error in user keys POST API:", err);

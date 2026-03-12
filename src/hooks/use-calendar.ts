@@ -3,10 +3,10 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { 
-  CalendarEvent, 
-  CalendarResource, 
-  CalendarView, 
+import {
+  CalendarEvent,
+  CalendarResource,
+  CalendarView,
   CalendarConfig,
   ConflictInfo,
   CalendarAction,
@@ -15,6 +15,14 @@ import {
 } from '@/types/calendar';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addWeeks, addMonths, startOfDay, endOfDay, isSameDay, isWithinInterval, differenceInHours, differenceInMinutes } from 'date-fns';
 import { toast } from 'sonner';
+
+function getSessionToken(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  return document.cookie
+    .split('; ')
+    .find(row => row.startsWith('next-auth.session-token='))
+    ?.split('=')[1];
+}
 
 interface UseCalendarOptions {
   propertyId: string;
@@ -126,7 +134,12 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
       })) || [];
 
       // Fetch resources
-      const resourcesResponse = await fetch(`/api/calendar/resources?propertyId=${propertyId}`);
+      const sessionToken = getSessionToken();
+      const resourcesResponse = await fetch(`/api/calendar/resources?propertyId=${propertyId}`, {
+        headers: {
+          ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),
+        },
+      });
       
       if (!resourcesResponse.ok) {
         throw new Error('Failed to fetch calendar resources');
@@ -301,10 +314,12 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
   // Event Management
   const createEvent = useCallback(async (eventData: Omit<CalendarEvent, 'id'>) => {
     try {
+      const sessionToken = getSessionToken();
       const response = await fetch('/api/calendar/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),
         },
         body: JSON.stringify({
           ...eventData,
@@ -337,10 +352,12 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
 
   const updateEvent = useCallback(async (eventId: string, updates: Partial<CalendarEvent>) => {
     try {
+      const sessionToken = getSessionToken();
       const response = await fetch(`/api/calendar/events/${eventId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),
         },
         body: JSON.stringify(updates),
       });
@@ -371,8 +388,12 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
 
   const deleteEvent = useCallback(async (eventId: string) => {
     try {
+      const sessionToken = getSessionToken();
       const response = await fetch(`/api/calendar/events/${eventId}`, {
         method: 'DELETE',
+        headers: {
+          ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),
+        },
       });
       
       if (!response.ok) {

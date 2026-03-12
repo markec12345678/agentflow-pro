@@ -23,11 +23,11 @@ export default function CalendarPage() {
       try {
         const response = await fetch('/api/auth/check');
         if (!response.ok) {
-          router.push('/auth/signin');
+          router.push('/login');
           return;
         }
       } catch (error) {
-        router.push('/auth/signin');
+        router.push('/login');
         return;
       }
       setLoading(false);

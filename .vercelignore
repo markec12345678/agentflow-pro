@@ -1,0 +1,44 @@
+# Test results
+test-results/
+playwright-report/
+
+# Node modules (will be installed on Vercel)
+node_modules/
+
+# Build artifacts
+.vercel/
+.vercel-build.log
+vercel-build*.log
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
+
+# Rust build artifacts (we're using pre-built binary)
+rust/workflow-executor/target/
+
+# Local env files
+.env.local
+.env.*.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp

@@ -1,12 +1,13 @@
 /**
  * Unit tests for /api/cron/db-cleanup
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockSessionDeleteMany = jest.fn();
-const mockVerificationTokenDeleteMany = jest.fn();
+const mockSessionDeleteMany = vi.fn();
+const mockVerificationTokenDeleteMany = vi.fn();
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     session: {
       deleteMany: (...args: unknown[]) => mockSessionDeleteMany(...args),
@@ -21,7 +22,7 @@ const originalEnv = process.env;
 
 describe("GET /api/cron/db-cleanup", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     process.env = { ...originalEnv };
     mockSessionDeleteMany.mockResolvedValue({ count: 0 });
     mockVerificationTokenDeleteMany.mockResolvedValue({ count: 0 });

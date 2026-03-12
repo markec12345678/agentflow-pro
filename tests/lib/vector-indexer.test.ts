@@ -1,3 +1,5 @@
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+
 /**
  * vector-indexer.ts – Fire-and-forget indexing for Qdrant
  */
@@ -7,16 +9,16 @@ import {
   indexBlogPost,
 } from "@/lib/vector-indexer";
 
-const mockIndexDocuments = jest.fn();
+const mockIndexDocuments = vi.fn();
 
-jest.mock("@/vector/QdrantService", () => ({
+vi.mock("@/vector/QdrantService", () => ({
   indexDocuments: (...args: unknown[]) => mockIndexDocuments(...args),
 }));
 
 
 describe("vector-indexer", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockIndexDocuments.mockResolvedValue({ indexed: 1 });
     delete process.env.OPENAI_API_KEY;
   });

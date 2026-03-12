@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { TourismContext, SeasonalIndicator, PropertyTypeBadge, OccupancyStatus, FeatureBadge } from './TourismContext';
 import { TourismIcons } from './TourismIcons';
 
@@ -51,10 +52,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick, s
   return (
     <div className="property-card" onClick={onClick}>
       <div className="property-image">
-        <img
+        <Image
           src={getSeasonalImage(property.type, property.season)}
           alt={property.name}
+          fill
           className="property-img"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
 
         {showSeasonal && (
@@ -394,10 +397,12 @@ export const PropertyDetail: React.FC<{
         </button>
 
         <div className="detail-image">
-          <img
+          <Image
             src={property.imageUrl}
             alt={property.name}
+            fill
             className="detail-img"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           <SeasonalIndicator season={property.season} size="lg" />
         </div>

@@ -1,18 +1,37 @@
 "use client";
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  PieChart,
-  Pie,
-  Legend,
-} from "recharts";
+import dynamic from 'next/dynamic';
+
+// Lazy load recharts components (saves ~150KB on initial load)
+const ResponsiveContainer = dynamic(
+  () => import('recharts').then(mod => mod.ResponsiveContainer),
+  { ssr: false }
+);
+
+const PieChart = dynamic(
+  () => import('recharts').then(mod => mod.PieChart),
+  { ssr: false }
+);
+
+const Pie = dynamic(
+  () => import('recharts').then(mod => mod.Pie),
+  { ssr: false }
+);
+
+const Cell = dynamic(
+  () => import('recharts').then(mod => mod.Cell),
+  { ssr: false }
+);
+
+const Tooltip = dynamic(
+  () => import('recharts').then(mod => mod.Tooltip),
+  { ssr: false }
+);
+
+const Legend = dynamic(
+  () => import('recharts').then(mod => mod.Legend),
+  { ssr: false }
+);
 
 interface ReservationChartProps {
   data: {
@@ -26,10 +45,40 @@ interface ReservationChartProps {
 }
 
 export function ReservationChart({ data, loading }: ReservationChartProps) {
-  if (loading || !data) {
+  if (loading) {
     return (
       <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl animate-pulse">
         <span className="text-gray-400">Nalaganje grafa...</span>
+      </div>
+    );
+  }
+
+  // Empty state - no data
+  if (!data) {
+    return (
+      <div className="h-64 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center p-6">
+        <div className="text-4xl mb-3">📊</div>
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Še ni rezervacij
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Ko boste dodali rezervacije, boste tukaj videli vir bookings.
+        </p>
+      </div>
+    );
+  }
+
+  const total = data.direct + data.bookingcom + data.airbnb + data.expedia + data.other;
+  if (total === 0) {
+    return (
+      <div className="h-64 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center p-6">
+        <div className="text-4xl mb-3">📊</div>
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Še ni rezervacij
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Ko boste dodali rezervacije, boste tukaj videli vir bookings.
+        </p>
       </div>
     );
   }

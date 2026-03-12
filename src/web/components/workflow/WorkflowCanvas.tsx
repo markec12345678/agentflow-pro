@@ -1,189 +1,195 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef } from "react";
-import {
-  ReactFlow,
-  ReactFlowProvider,
-  addEdge,
-  useNodesState,
-  useEdgesState,
-  useReactFlow,
+/**
+ * AgentFlow Pro - Workflow Canvas
+ * Main drag-and-drop canvas for workflow building
+ */
+
+import { useCallback, useMemo } from 'react';
+import ReactFlow, {
+  Node,
+  Edge,
   Controls,
   Background,
-  type Node,
-  type Edge,
-  type Connection,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
-import type { Workflow, WorkflowNode, WorkflowEdge } from "@/workflows/types";
-import { createNode } from "@/workflows/nodes";
-import { WorkflowNode as WorkflowNodeComponent } from "./WorkflowNode";
+  MiniMap,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  Connection,
+  BackgroundVariant,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
 
-const nodeTypes = { workflowNode: WorkflowNodeComponent };
+import { useWorkflowStore } from '@/lib/workflow/workflow-store';
+import WorkflowNode from './WorkflowNode';
+import { WorkflowNodeType } from '@/lib/workflow/types';
 
-const defaultNodeData: Record<string, Record<string, unknown>> = {
-  Agent: { agentType: "research", label: "Agent" },
-  Condition: { operator: "eq", operandA: "", operandB: "", label: "Condition" },
-  Action: { action: "log", label: "Action" },
-  Trigger: { triggerType: "manual", label: "Trigger" },
+// Define node types
+const nodeTypes = {
+  trigger: WorkflowNode,
+  agent: WorkflowNode,
+  action: WorkflowNode,
+  condition: WorkflowNode,
+  end: WorkflowNode,
 };
 
-function workflowToFlow(workflow: Workflow): { nodes: Node[]; edges: Edge[] } {
-  const nodes: Node[] = workflow.nodes.map((n) => ({
-    id: n.id,
-    type: "workflowNode",
-    position: n.position ?? { x: 0, y: 0 },
-    data: { ...n.data, type: n.type },
-  }));
-  const edges: Edge[] = workflow.edges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    sourceHandle: e.sourceHandle,
-    targetHandle: e.targetHandle,
-  }));
-  return { nodes, edges };
+interface WorkflowCanvasProps {
+  selectedNodeId: string | null;
+  onNodeSelect: (nodeId: string | null) => void;
 }
 
-function flowToWorkflow(
-  nodes: Node[],
-  edges: Edge[],
-  base: Pick<Workflow, "id" | "name">
-): Workflow {
-  const workflowNodes: WorkflowNode[] = nodes.map((n) => ({
-    id: n.id,
-    type: (n.data?.type as WorkflowNode["type"]) ?? "Action",
-    data: { ...n.data, type: undefined } as Record<string, unknown>,
-    position: n.position,
-  }));
-  const workflowEdges: WorkflowEdge[] = edges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    sourceHandle: e.sourceHandle ?? undefined,
-    targetHandle: e.targetHandle ?? undefined,
-  }));
-  return {
-    ...base,
-    nodes: workflowNodes,
-    edges: workflowEdges,
-  };
-}
+export default function WorkflowCanvas({ selectedNodeId, onNodeSelect }: WorkflowCanvasProps) {
+  const { 
+    currentWorkflow, 
+    addNode, 
+    updateNode, 
+    deleteNode,
+    addConnection, 
+    deleteConnection 
+  } = useWorkflowStore();
 
-let nodeId = 0;
-const getId = () => `node_${++nodeId}_${Date.now()}`;
+  // Convert workflow nodes to React Flow nodes
+  const initialNodes: Node[] = useMemo(() => {
+    if (!currentWorkflow) return [];
+    return currentWorkflow.nodes.map(n => ({
+      id: n.id,
+      type: n.type as WorkflowNodeType,
+      position: n.position,
+      data: {
+        label: n.data.label,
+        icon: n.data.icon,
+        description: n.data.description,
+        config: n.data.config,
+        type: n.type,
+      },
+    }));
+  }, [currentWorkflow]);
 
-interface WorkflowCanvasInnerProps {
-  workflow?: Workflow;
-  onWorkflowChange?: (w: Workflow) => void;
-}
+  // Convert workflow connections to React Flow edges
+  const initialEdges: Edge[] = useMemo(() => {
+    if (!currentWorkflow) return [];
+    return currentWorkflow.connections.map(c => ({
+      id: c.id,
+      source: c.source,
+      target: c.target,
+      sourceHandle: c.sourceHandle,
+      targetHandle: c.targetHandle,
+      label: c.label,
+    }));
+  }, [currentWorkflow]);
 
-function WorkflowCanvasInner({ workflow, onWorkflowChange }: WorkflowCanvasInnerProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition } = useReactFlow();
+  // React Flow state
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  const initial = workflow
-    ? workflowToFlow(workflow)
-    : { nodes: [] as Node[], edges: [] as Edge[] };
+  // Handle node drag from palette
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
+      const type = event.dataTransfer.getData('application/reactflow/node-type') as WorkflowNodeType;
+      const label = event.dataTransfer.getData('application/reactflow/node-label');
+      const icon = event.dataTransfer.getData('application/reactflow/node-icon');
 
-  const prevWorkflowId = useRef(workflow?.id);
-  useEffect(() => {
-    if (workflow && workflow.id !== prevWorkflowId.current) {
-      prevWorkflowId.current = workflow.id;
-      const { nodes: n, edges: e } = workflowToFlow(workflow);
-      setNodes(n);
-      setEdges(e);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- setNodes/setEdges are stable; workflow.id is the sync key
-  }, [workflow?.id]);
+      if (!type) return;
 
-  useEffect(() => {
-    if (workflow && onWorkflowChange && (nodes.length > 0 || edges.length > 0)) {
-      const w = flowToWorkflow(nodes, edges, { id: workflow.id, name: workflow.name });
-      onWorkflowChange(w);
-    }
-  }, [workflow, onWorkflowChange, nodes, edges]);
+      const reactFlowBounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const position = {
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      };
 
-  const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- setEdges is stable
-    []
+      const newNode: Node = {
+        id: `node_${Date.now()}`,
+        type,
+        position,
+        data: {
+          label: label || type,
+          icon: icon || '📦',
+          config: {},
+          type,
+        },
+      };
+
+      addNode({
+        id: newNode.id,
+        type: type as WorkflowNodeType,
+        position,
+        data: newNode.data as any,
+      });
+
+      setNodes((nds) => [...nds, newNode]);
+    },
+    [addNode, setNodes]
   );
 
-  const onDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+  // Handle drag over
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
   }, []);
 
-  const onDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      const type = e.dataTransfer.getData("application/reactflow") as WorkflowNode["type"];
-      if (!type || !["Agent", "Condition", "Action", "Trigger"].includes(type)) return;
-
-      const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
-      const data = defaultNodeData[type] ?? { label: type };
-      const wNode = createNode(getId(), type, data, position);
-      const newNode: Node = {
-        id: wNode.id,
-        type: "workflowNode",
-        position: wNode.position!,
-        data: { ...wNode.data, type: wNode.type },
+  // Handle connection
+  const onConnect = useCallback(
+    (params: Connection) => {
+      const connection = {
+        id: `connection_${Date.now()}`,
+        source: params.source || '',
+        target: params.target || '',
+        sourceHandle: params.sourceHandle,
+        targetHandle: params.targetHandle,
       };
-      setNodes((nds) => nds.concat(newNode));
+      addConnection(connection);
+      setEdges((eds) => addEdge(connection, eds));
     },
-    [screenToFlowPosition, setNodes]
+    [addConnection, setEdges]
   );
 
-  const onDragStart = (e: React.DragEvent, nodeType: string) => {
-    e.dataTransfer.setData("application/reactflow", nodeType);
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  return (
-    <div className="flex h-full w-full" data-testid="workflow-canvas">
-      <div ref={wrapperRef} className="flex-1" data-testid="workflow-drop-zone">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          nodeTypes={nodeTypes}
-          fitView
-        >
-          <Background />
-          <Controls />
-        </ReactFlow>
-      </div>
-      <aside className="w-48 border-l bg-gray-50 p-2">
-        <div className="mb-2 text-sm font-medium text-gray-700">Add node</div>
-        {(["Trigger", "Agent", "Condition", "Action"] as const).map((t) => (
-          <div
-            key={t}
-            draggable
-            onDragStart={(e) => onDragStart(e, t)}
-            className="mb-2 cursor-grab rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm shadow-xs hover:bg-gray-50"
-          >
-            {t}
-          </div>
-        ))}
-      </aside>
-    </div>
+  // Handle node click
+  const onNodeClick = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      onNodeSelect(node.id);
+    },
+    [onNodeSelect]
   );
-}
 
-export function WorkflowCanvas(props: WorkflowCanvasInnerProps) {
   return (
-    <div className="h-[600px] w-full">
-      <ReactFlowProvider>
-        <WorkflowCanvasInner {...props} />
-      </ReactFlowProvider>
+    <div className="flex-1 bg-white">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onNodeClick={onNodeClick}
+        nodeTypes={nodeTypes}
+        fitView
+        snapToGrid
+        snapGrid={[15, 15]}
+        minZoom={0.5}
+        maxZoom={2}
+      >
+        <Controls />
+        <MiniMap 
+          nodeStrokeColor={(n) => {
+            if (n.type === 'trigger') return '#10b981';
+            if (n.type === 'agent') return '#3b82f6';
+            if (n.type === 'action') return '#8b5cf6';
+            if (n.type === 'condition') return '#f59e0b';
+            return '#6b7280';
+          }}
+          nodeColor={(n) => {
+            if (n.type === 'trigger') return '#d1fae5';
+            if (n.type === 'agent') return '#dbeafe';
+            if (n.type === 'action') return '#ede9fe';
+            if (n.type === 'condition') return '#fef3c7';
+            return '#f3f4f6';
+          }}
+        />
+        <Background variant={BackgroundVariant.Dots} gap={15} size={1} />
+      </ReactFlow>
     </div>
   );
 }

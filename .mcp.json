@@ -1,0 +1,165 @@
+{
+  "mcpServers": {
+    "G": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://backend.composio.dev/v3/mcp/531301e8-911c-4db7-b865-72f474390e14/mcp?user_id=833e18c8-219c-4327-a965-18c3ae88bce9&connected_account_id=ca_Pi2rGqfPkzq2"
+      ],
+      "env": {}
+    },
+    "gmail": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Gmail"
+      ],
+      "env": {}
+    },
+    "googlecalendar": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Google Calendar"
+      ],
+      "env": {}
+    },
+    "notion": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Notion"
+      ],
+      "env": {}
+    },
+    "g": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Google Sheets"
+      ],
+      "env": {}
+    },
+    "sub": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Supabase"
+      ],
+      "env": {}
+    },
+    "airtable": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Airtable"
+      ],
+      "env": {}
+    },
+    "youtube": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "YouTube"
+      ],
+      "env": {}
+    },
+    "K": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Slackbot"
+      ],
+      "env": {}
+    },
+    "facebook": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Facebook"
+      ],
+      "env": {}
+    },
+    "googledrive": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Google Drive"
+      ],
+      "env": {}
+    },
+    "googledocs": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "Google Docs"
+      ],
+      "env": {}
+    },
+    "sentry": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sentry/mcp",
+        "--project",
+        "agentflow-pro"
+      ],
+      "env": {
+        "SENTRY_DSN": "${SENTRY_DSN}"
+      }
+    },
+    "firecrawl": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      }
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "context7-mcp"
+      ],
+      "env": {}
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/src/memory/mcp-server.js"
+      ],
+      "env": {}
+    }
+  }
+}

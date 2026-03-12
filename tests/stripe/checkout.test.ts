@@ -2,13 +2,14 @@
  * Stripe checkout tests
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { createCheckoutSession } from "@/stripe/checkout";
 
-jest.mock("@/stripe/config", () => ({
+vi.mock("@/stripe/config", () => ({
   getStripe: () => ({
     checkout: {
       sessions: {
-        create: jest.fn().mockResolvedValue({
+        create: vi.fn().mockResolvedValue({
           id: "cs_test_123",
           url: "https://checkout.stripe.com/test",
         }),

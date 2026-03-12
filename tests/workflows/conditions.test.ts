@@ -8,6 +8,7 @@ import {
   executeParallel,
   type ExecutionContext,
 } from "@/workflows/conditions";
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import type { ConditionOperator } from "@/workflows/nodes";
 import type { WorkflowNode, WorkflowEdge } from "@/workflows/types";
 

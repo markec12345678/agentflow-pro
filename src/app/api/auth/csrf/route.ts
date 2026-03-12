@@ -1,31 +1,37 @@
 /**
- * Standalone CSRF endpoint - workaround for [...nextauth] 500 on catch-all.
- * Replicates NextAuth CSRF format (token|hash) for credentials flow.
+ * GET /api/auth/csrf
+ * Get CSRF token for form submissions
  */
-import { createHash, randomBytes } from "crypto";
 
-export const dynamic = "force-dynamic";
-
-const CSRF_COOKIE = "next-auth.csrf-token";
+import { NextResponse } from 'next/server';
+import { randomBytes } from 'crypto';
 
 export async function GET() {
-  const secret = process.env.NEXTAUTH_SECRET || "development-secret-change-in-prod";
-  const csrfToken = randomBytes(32).toString("hex");
-  const hash = createHash("sha256").update(`${csrfToken}${secret}`).digest("hex");
-  const cookieValue = `${csrfToken}|${hash}`;
+  try {
+    // Generate secure CSRF token
+    const csrfToken = randomBytes(32).toString('hex');
+    
+    // Create response
+    const response = NextResponse.json({
+      csrfToken,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour
+    });
 
-  const isSecure = process.env.NEXTAUTH_URL?.startsWith("https");
-  const cookieName = isSecure ? "__Host-next-auth.csrf-token" : CSRF_COOKIE;
+    // Set HTTP-only cookie with token
+    response.cookies.set('csrf_token', csrfToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60, // 1 hour
+      path: '/',
+    });
 
-  const headers = new Headers();
-  headers.set("Content-Type", "application/json");
-  headers.append(
-    "Set-Cookie",
-    `${cookieName}=${cookieValue}; Path=/; HttpOnly; SameSite=Lax${isSecure ? "; Secure" : ""}; Max-Age=86400`
-  );
-
-  return new Response(JSON.stringify({ csrfToken }), {
-    status: 200,
-    headers,
-  });
+    return response;
+  } catch (error) {
+    console.error('CSRF token generation error:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate CSRF token' },
+      { status: 500 }
+    );
+  }
 }

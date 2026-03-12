@@ -13,8 +13,7 @@ async function main() {
     const page = await browser.newPage();
     const base = "http://localhost:3002";
 
-    const useSimple = process.argv.includes("--simple");
-    const loginUrl = useSimple ? `${base}/login-simple` : `${base}/login`;
+    const loginUrl = `${base}/login`;
     console.log("1. Going to", loginUrl, "...");
     await page.goto(loginUrl, { waitUntil: "networkidle", timeout: 20000 });
 

@@ -112,7 +112,7 @@ export class PricingEngine {
       params.baseRate,
       params.checkIn,
       params.checkOut,
-      params.options ?? null
+      params.options
     );
 
     // Apply rounding
@@ -154,7 +154,7 @@ export class PricingEngine {
         baseRate: req.baseRate,
         checkIn: req.checkIn,
         checkOut: req.checkOut,
-        options: req.options ?? null,
+        options: req.options,
       })),
     };
 
@@ -306,7 +306,9 @@ export class PricingEngine {
 
     return {
       ...result,
-      baseTotal: Math.round(result.baseTotal * multiplier) / multiplier,
+      baseTotal: result.baseTotal
+        ? Math.round(result.baseTotal * multiplier) / multiplier
+        : 0,
       finalPrice: Math.round(result.finalPrice * multiplier) / multiplier,
       breakdown: result.breakdown
         ? {
@@ -324,10 +326,12 @@ export class PricingEngine {
               multiplier,
           }
         : result.breakdown,
-      adjustments: result.adjustments.map((adj) => ({
-        ...adj,
-        amount: Math.round(adj.amount * multiplier) / multiplier,
-      })),
+      adjustments: result.adjustments
+        ? result.adjustments.map((adj) => ({
+            ...adj,
+            amount: Math.round(adj.amount * multiplier) / multiplier,
+          }))
+        : [],
     };
   }
 

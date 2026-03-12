@@ -1,17 +1,18 @@
 /**
  * Content Export API integration tests
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockGetServerSession = jest.fn();
-const mockBlogPostFindMany = jest.fn();
-const mockContentHistoryFindMany = jest.fn();
+const mockGetServerSession = vi.fn();
+const mockBlogPostFindMany = vi.fn();
+const mockContentHistoryFindMany = vi.fn();
 
-jest.mock("next-auth", () => ({
+vi.mock("next-auth", () => ({
   getServerSession: () => mockGetServerSession(),
 }));
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     blogPost: {
       findMany: (...args: unknown[]) => mockBlogPostFindMany(...args),
@@ -29,7 +30,7 @@ async function importHandler() {
 
 describe("GET /api/content/export", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockBlogPostFindMany.mockResolvedValue([
       {
         id: "post-1",

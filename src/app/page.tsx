@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { CASE_STUDIES } from "@/data/case-studies";
 import { SOLUTIONS, INDUSTRIES } from "@/data/solutions";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
+import { DashboardPreview } from "@/components/DashboardPreview";
 
 export default function HomePage() {
   return (
@@ -53,18 +55,17 @@ export default function HomePage() {
           {/* Right side: Dashboard Preview */}
           <div className="relative hidden md:block">
             <div className="bg-white/10 backdrop-blur rounded-xl shadow-2xl border-4 border-white/20 p-4">
-              {/* Placeholder for dashboard screenshot */}
-              <div className="bg-white rounded-lg h-80 flex items-center justify-center text-gray-400">
-                📊 Dashboard Screenshot
-              </div>
+              <DashboardPreview />
             </div>
 
             {/* Floating badges */}
-            <div className="absolute -top-4 -right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
-              🤖 87% Automated Bookings
+            <div className="absolute -top-4 -right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm flex items-center gap-2 animate-bounce">
+              <span>🤖</span>
+              <span>87% Automated Bookings</span>
             </div>
-            <div className="absolute -bottom-4 -left-4 bg-primary-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
-              ⏱️ 5 Mins/Day Management
+            <div className="absolute -bottom-4 -left-4 bg-primary-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm flex items-center gap-2 animate-bounce" style={{ animationDelay: "0.5s" }}>
+              <span>⏱️</span>
+              <span>5 Mins/Day Management</span>
             </div>
           </div>
         </div>
@@ -80,67 +81,56 @@ export default function HomePage() {
           <div className="flex justify-center items-center gap-8 md:gap-12 flex-wrap">
             {/* Logo 1: eTurizem */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/eturizem.svg"
                 alt="eTurizem AJPES"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  // Fallback če slika ne obstaja
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">eTurizem</text></svg>';
-                }}
               />
             </div>
 
             {/* Logo 2: Booking.com */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/booking.svg"
                 alt="Booking.com"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">Booking.com</text></svg>';
-                }}
               />
             </div>
 
             {/* Logo 3: Airbnb */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/airbnb.svg"
                 alt="Airbnb"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">Airbnb</text></svg>';
-                }}
               />
             </div>
 
             {/* Logo 4: Stripe */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/stripe.svg"
                 alt="Stripe"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">Stripe</text></svg>';
-                }}
               />
             </div>
 
             {/* Logo 5: Custom Partner */}
             <div className="logo-item opacity-60 hover:opacity-100 transition duration-300 grayscale hover:grayscale-0">
-              <img
+              <Image
                 src="/logos/partner-placeholder.svg"
                 alt="Partner"
+                width={120}
+                height={40}
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="12" fill="%23666">Partner</text></svg>';
-                }}
               />
             </div>
           </div>

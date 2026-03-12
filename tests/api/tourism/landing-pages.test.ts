@@ -1,21 +1,22 @@
 /**
  * Tourism LandingPages API integration tests
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockGetServerSession = jest.fn();
-const mockFindMany = jest.fn();
-const mockCreate = jest.fn();
-const mockFindFirst = jest.fn();
-const mockUpdate = jest.fn();
-const mockDelete = jest.fn();
-const mockSeoDeleteMany = jest.fn();
+const mockGetServerSession = vi.fn();
+const mockFindMany = vi.fn();
+const mockCreate = vi.fn();
+const mockFindFirst = vi.fn();
+const mockUpdate = vi.fn();
+const mockDelete = vi.fn();
+const mockSeoDeleteMany = vi.fn();
 
-jest.mock("next-auth", () => ({
+vi.mock("next-auth", () => ({
   getServerSession: () => mockGetServerSession(),
 }));
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     landingPage: {
       findMany: (...args: unknown[]) => mockFindMany(...args),
@@ -52,7 +53,7 @@ const samplePage = {
 
 describe("Tourism LandingPages API", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockFindMany.mockResolvedValue([]);
     mockCreate.mockResolvedValue(samplePage);
     mockFindFirst.mockResolvedValue(samplePage);

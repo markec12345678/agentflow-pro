@@ -7,6 +7,22 @@ datasource db {
   provider = "postgresql"
 }
 
+// Template Usage Tracking
+model TemplateUsage {
+  id             String   @id @default(cuid())
+  templateId     String
+  system         String
+  count          Int      @default(0)
+  lastUsed       DateTime @updatedAt
+  totalRenderTime Int     @default(0)
+  errorCount     Int      @default(0)
+
+  @@unique([templateId, system])
+  @@index([system])
+  @@index([lastUsed])
+  @@map("template_usage")
+}
+
 model User {
   id                       String                    @id @default(cuid())
   email                    String                    @unique
@@ -53,6 +69,13 @@ model User {
   userTemplates            UserTemplate[]
   workflows                Workflow[]
   properties               Property[]                @relation("PropertyToUser")
+  branding                 Branding?
+  customRoles              CustomRole[]
+  sentMessages             Message[]                 @relation("MessageSender")
+  receivedMessages         Message[]                 @relation("MessageRecipient")
+  messageGroups            MessageGroupMember[]
+  ownerProfile             Owner?
+  guestPreferences         GuestPreference[]         @relation("UserPreferences")
 
   @@map("users")
 }
@@ -179,15 +202,49 @@ model Workflow {
   slackWebhookUrl String?
   status          String               @default("draft")
   agentId         String?
+  currentVersion  Int                  @default(1)
+  isTemplate      Boolean              @default(false)
+  isSubWorkflow   Boolean              @default(false)
+  parentWorkflowId String?
   checkpoints     WorkflowCheckpoint[]
   executions      WorkflowExecution[]
+  versions        WorkflowVersion[]
+  subWorkflows    Workflow[]           @relation("ParentSubWorkflow")
+  parentWorkflow  Workflow?            @relation("ParentSubWorkflow", fields: [parentWorkflowId], references: [id])
   agent           Agent?               @relation(fields: [agentId], references: [id])
   property        Property?            @relation(fields: [propertyId], references: [id])
   user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([propertyId])
+  @@index([isTemplate])
+  @@index([parentWorkflowId])
   @@map("workflows")
+}
+
+model WorkflowVersion {
+  id              String    @id @default(cuid())
+  workflowId      String
+  versionNumber   Int
+  name            String
+  description     String?
+  nodes           Json      @default("[]")
+  edges           Json      @default("[]")
+  metadata        Json?
+  changeSummary   String?
+  changeType      String    @default("minor") // major, minor, patch
+  isCurrent       Boolean   @default(false)
+  parentVersionId String?
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  workflow        Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  parentVersion   WorkflowVersion? @relation("WorkflowVersionHistory", fields: [parentVersionId], references: [id])
+  childVersions   WorkflowVersion[] @relation("WorkflowVersionHistory")
+
+  @@index([workflowId])
+  @@index([versionNumber])
+  @@index([isCurrent])
+  @@map("workflow_versions")
 }
 
 model WorkflowCheckpoint {
@@ -310,6 +367,7 @@ model LandingPage {
 model Property {
   id                           String               @id @default(cuid())
   userId                       String?
+  ownerId                      String?
   name                         String
   location                     String?
   type                         String?
@@ -328,13 +386,16 @@ model Property {
   eturizemSyncedAt             DateTime?
   eturizemLastError            String?
   ajpesConnection              AjpesConnection?
+  owner                        Owner?               @relation(fields: [ownerId], references: [id])
   alertEvents                  AlertEvent[]
   amenities                    Amenity[]
   blockedDates                 BlockedDate[]
   competitors                  Competitor[]
+  employees                    Employee[]
   faqResponseLogs              FaqResponseLog[]
   communications               GuestCommunication[]
   guests                       Guest[]
+  housekeepingTasks            HousekeepingTask[]
   inquiries                    Inquiry[]
   itineraries                  Itinerary[]
   landingPages                 LandingPage[]
@@ -344,10 +405,20 @@ model Property {
   reviews                      Review[]
   rooms                        Room[]
   seoMetrics                   SeoMetric[]
+  staffAssignments             StaffAssignment[]
   userTemplates                UserTemplate[]
   workflows                    Workflow[]
   pageDesigns                  PageDesign[]         @relation("PageDesignProperties")
   users                        User[]               @relation("PropertyToUser")
+  invoices                     Invoice[]            @relation("PropertyInvoices")
+  revenueSplits                RevenueSplit[]
+  staffSchedules               StaffSchedule[]
+  sustainabilityMetrics        SustainabilityMetric[]
+  ecoPractices                 EcoPractice[]
+  ecoCertifications            EcoCertification[]
+  photoAnalyses                PhotoAnalysis[]
+  taskCollaborations           TaskCollaboration[]
+  performanceMetrics           PerformanceMetric[]
 
   @@map("properties")
 }
@@ -380,22 +451,23 @@ model Review {
 }
 
 model Room {
-  id           String        @id @default(cuid())
-  propertyId   String
-  name         String
-  type         String
-  capacity     Int
-  beds         Int?
-  description  String?
-  basePrice    Float?
-  amenities    String[]
-  photos       String[]
-  seasonRates  Json?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  blockedDates BlockedDate[]
-  reservations Reservation[]
-  property     Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  id                String             @id @default(cuid())
+  propertyId        String
+  name              String
+  type              String
+  capacity          Int
+  beds              Int?
+  description       String?
+  basePrice         Float?
+  amenities         String[]
+  photos            String[]
+  seasonRates       Json?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  blockedDates      BlockedDate[]
+  reservations      Reservation[]
+  housekeepingTasks HousekeepingTask[]
+  property          Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([propertyId])
   @@map("rooms")
@@ -705,6 +777,8 @@ model Reservation {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   payments            Payment[]
+  invoices            Invoice[]
+  revenueSplits       RevenueSplit[]
   guest               Guest?    @relation(fields: [guestId], references: [id])
   property            Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   room                Room?     @relation(fields: [roomId], references: [id])
@@ -716,19 +790,63 @@ model Reservation {
 }
 
 model Payment {
-  id            String      @id @default(cuid())
-  reservationId String
-  type          String
-  amount        Float
-  currency      String      @default("EUR")
-  paidAt        DateTime    @default(now())
-  method        String?
-  notes         String?
-  createdAt     DateTime    @default(now())
-  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  id                  String      @id @default(cuid())
+  reservationId       String
+  type                String      // deposit, full_payment, refund, chargeback, incidental
+  amount              Float
+  currency            String      @default("EUR")
+  status              String      @default("pending") // pending, succeeded, failed, refunded
+  stripePaymentIntent String?     @unique // Stripe PaymentIntent ID
+  stripeChargeId      String?     @unique // Stripe Charge ID
+  stripeCustomerId    String?     // Stripe Customer ID
+  paymentMethod       String?     // card, apple_pay, google_pay, bank_transfer
+  cardLast4           String?     // Last 4 digits of card
+  cardBrand           String?     // visa, mastercard, amex
+  paidAt              DateTime?
+  refundedAt          DateTime?
+  refundAmount        Float?
+  notes               String?
+  metadata            Json?       // Additional Stripe data
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  reservation         Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
 
   @@index([reservationId])
+  @@index([stripePaymentIntent])
+  @@index([status])
   @@map("payments")
+}
+
+model Invoice {
+  id              String      @id @default(cuid())
+  reservationId   String
+  invoiceNumber   String      @unique // INV-2024-00001
+  propertyId      String
+  guestId         String?
+  issueDate       DateTime    @default(now())
+  dueDate         DateTime
+  status          String      @default("draft") // draft, sent, paid, overdue, cancelled
+  subtotal        Float
+  taxRate         Float       @default(0) // VAT percentage
+  taxAmount       Float
+  totalAmount     Float
+  paidAmount      Float       @default(0)
+  currency        String      @default("EUR")
+  items           Json        // Line items [{description, quantity, unitPrice, total}]
+  notes           String?
+  pdfUrl          String?     // URL to generated PDF
+  stripeInvoiceId String?     @unique // Stripe Invoice ID
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  reservation     Reservation @relation(fields: [reservationId], references: [id])
+  property        Property    @relation(fields: [propertyId], references: [id], name: "PropertyInvoices")
+  guest           Guest?      @relation(fields: [guestId], references: [id], name: "GuestInvoices")
+
+  @@index([reservationId])
+  @@index([invoiceNumber])
+  @@index([propertyId])
+  @@index([status])
+  @@map("invoices")
 }
 
 model Guest {
@@ -745,7 +863,7 @@ model Guest {
   riskScore      String?
   isVip          Boolean              @default(false)
   gdprConsent    Boolean              @default(false)
-  preferences    String?
+  preferencesNotes String?
   notes          String?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
@@ -753,6 +871,8 @@ model Guest {
   property       Property?            @relation(fields: [propertyId], references: [id])
   reservations   Reservation[]
   reviews        Review[]
+  invoices       Invoice[]            @relation("GuestInvoices")
+  preferences    GuestPreference[]    @relation("GuestPreferences")
 
   @@index([propertyId])
   @@map("guests")
@@ -1011,8 +1131,573 @@ model WorkflowExecution {
   @@map("workflow_executions")
 }
 
+model Employee {
+  id           String            @id @default(cuid())
+  propertyId   String
+  name         String
+  role         String            // housekeeping, maintenance, front-desk, etc.
+  email        String?
+  phone        String?
+  status       String            @default("active") // active, inactive, on-leave
+  maxTasks     Int               @default(10)
+  currentTasks Int               @default(0)
+  avatar       String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  property     Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tasks        HousekeepingTask[]
+  assignments  StaffAssignment[]
+  schedules    StaffSchedule[]
+  performanceMetrics PerformanceMetric[]
+  assignedTasks TaskCollaboration[] @relation("TaskAssignee")
+
+  @@index([propertyId])
+  @@index([status])
+  @@map("employees")
+}
+
+model HousekeepingTask {
+  id            String   @id @default(cuid())
+  propertyId    String
+  roomId        String?
+  taskType      String   // check_out_clean, stayover_clean, deep_clean, maintenance
+  priority      String   // low, medium, high, urgent
+  status        String   @default("pending") // pending, in_progress, completed, delayed
+  assignedToId  String?
+  scheduledDate DateTime
+  estimatedTime Int      // minutes
+  actualTime    Int?
+  completedAt   DateTime?
+  notes         String?
+  guestName     String?
+  checkOutTime  DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  property      Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  assignedTo    Employee? @relation(fields: [assignedToId], references: [id])
+  room          Room?    @relation(fields: [roomId], references: [id])
+
+  @@index([propertyId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@index([assignedToId])
+  @@map("housekeeping_tasks")
+}
+
+model StaffAssignment {
+  id          String   @id @default(cuid())
+  propertyId  String
+  employeeId  String
+  taskId      String
+  status      String   @default("assigned") // assigned, accepted, completed
+  assignedAt  DateTime @default(now())
+  completedAt DateTime?
+  notes       String?
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([employeeId])
+  @@index([taskId])
+  @@map("staff_assignments")
+}
+
 enum UserRole {
   ADMIN
   EDITOR
   VIEWER
+}
+
+// Custom Branding Configuration
+model Branding {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  logoUrl               String?
+  logoSmall             String?  // For email footer
+  primaryColor          String   @default("#3B82F6")
+  secondaryColor        String   @default("#1E40AF")
+  accentColor           String   @default("#60A5FA")
+  fontFamily            String   @default("Inter")
+  removeAgentFlowBranding Boolean @default(false)
+  customDomain          String?
+  customCSS             String?  @db.Text
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("branding")
+}
+
+// Granular Permissions
+model Permission {
+  id          String   @id @default(cuid())
+  name        String   @unique  // e.g., "reservations.create", "reports.view"
+  description String
+  category    String   // reservations, reports, settings, etc.
+  createdAt   DateTime @default(now())
+  roles       RolePermission[]
+
+  @@index([category])
+  @@map("permissions")
+}
+
+model CustomRole {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String   // e.g., "Front Desk Manager"
+  description String?
+  isSystem    Boolean  @default(false)  // System roles can't be deleted
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissions RolePermission[]
+
+  @@index([userId])
+  @@index([name])
+  @@map("custom_roles")
+}
+
+model RolePermission {
+  id         String   @id @default(cuid())
+  roleId     String
+  permissionId String
+  granted    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  customRole CustomRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+// Property-level Access Control
+model PropertyAccess {
+  id         String   @id @default(cuid())
+  userId     String
+  propertyId String
+  canView    Boolean  @default(true)
+  canEdit    Boolean  @default(false)
+  canDelete  Boolean  @default(false)
+  canManageReservations Boolean @default(false)
+  canManageReports    Boolean @default(false)
+  canManageSettings   Boolean @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+  @@map("property_access")
+}
+
+// Internal Messaging System
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  recipientId String?
+  groupId    String?
+  content    String   @db.Text
+  isRead     Boolean  @default(false)
+  readAt     DateTime?
+  messageType String  @default("direct") // direct, group, announcement
+  attachments Json?    // [{url, name, type}]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  sender     User     @relation(fields: [senderId], references: [id], onDelete: Cascade, name: "MessageSender")
+  recipient  User?    @relation(fields: [recipientId], references: [id], onDelete: Cascade, name: "MessageRecipient")
+  group      MessageGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([groupId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model MessageGroup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  propertyId  String?
+  createdBy   String
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  members     MessageGroupMember[]
+  messages    Message[]
+
+  @@index([propertyId])
+  @@index([createdBy])
+  @@map("message_groups")
+}
+
+model MessageGroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  role      String   @default("member") // admin, member
+  joinedAt  DateTime @default(now())
+  group     MessageGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@map("message_group_members")
+}
+
+// Owner Portal & Revenue Distribution
+model Owner {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  companyNumber  String?
+  taxNumber      String?
+  bankAccount    String?
+  bankName       String?
+  payoutMethod   String   @default("bank_transfer") // bank_transfer, paypal, stripe
+  payoutEmail    String?
+  revenueShare   Float    @default(1.0) // Percentage (0.0-1.0)
+  minimumPayout  Float    @default(100.0)
+  currency       String   @default("EUR")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  properties     Property[]
+  payouts        OwnerPayout[]
+  revenueSplits  RevenueSplit[]
+  documents      OwnerDocument[]
+  reports        OwnerReport[]
+
+  @@index([userId])
+  @@map("owners")
+}
+
+model RevenueSplit {
+  id           String   @id @default(cuid())
+  ownerId      String
+  propertyId   String
+  reservationId String
+  grossAmount  Float
+  platformFee  Float    @default(0.0)
+  netAmount    Float
+  ownerShare   Float
+  managementFee Float   @default(0.0)
+  finalPayout  Float
+  currency     String   @default("EUR")
+  status       String   @default("pending") // pending, approved, paid
+  calculatedAt DateTime @default(now())
+  paidAt       DateTime?
+  notes        String?
+  owner        Owner    @relation(fields: [ownerId], references: [id])
+  property     Property @relation(fields: [propertyId], references: [id])
+  reservation  Reservation @relation(fields: [reservationId], references: [id])
+
+  @@index([ownerId])
+  @@index([propertyId])
+  @@index([reservationId])
+  @@index([status])
+  @@map("revenue_splits")
+}
+
+model OwnerPayout {
+  id           String   @id @default(cuid())
+  ownerId      String
+  amount       Float
+  currency     String   @default("EUR")
+  payoutMethod String   @default("bank_transfer")
+  status       String   @default("pending") // pending, processing, paid, failed
+  reference    String?  // Bank reference, PayPal ID, etc.
+  processedBy  String?
+  processedAt  DateTime?
+  failureReason String?
+  splits       Json     // Array of revenue split IDs included
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  owner        Owner    @relation(fields: [ownerId], references: [id])
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("owner_payouts")
+}
+
+// Shift Scheduling & Swap Requests
+model StaffSchedule {
+  id           String   @id @default(cuid())
+  employeeId   String
+  propertyId   String
+  shiftDate    DateTime
+  shiftStart   DateTime
+  shiftEnd     DateTime
+  shiftType    String   @default("regular") // regular, overtime, holiday, sick
+  role         String
+  status       String   @default("scheduled") // scheduled, confirmed, completed, cancelled
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  employee     Employee @relation(fields: [employeeId], references: [id])
+  property     Property @relation(fields: [propertyId], references: [id])
+  swapRequests ShiftSwapRequest[]
+
+  @@index([employeeId])
+  @@index([propertyId])
+  @@index([shiftDate])
+  @@map("staff_schedules")
+}
+
+model ShiftSwapRequest {
+  id           String   @id @default(cuid())
+  scheduleId   String
+  fromEmployeeId String
+  toEmployeeId String?
+  reason       String?
+  status       String   @default("pending") // pending, approved, rejected, completed
+  requestedAt  DateTime @default(now())
+  approvedAt   DateTime?
+  approvedBy   String?
+  completedAt  DateTime?
+  schedule     StaffSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId])
+  @@index([fromEmployeeId])
+  @@index([status])
+  @@map("shift_swap_requests")
+}
+
+// Sustainability & Carbon Tracking
+model SustainabilityMetric {
+  id           String   @id @default(cuid())
+  propertyId   String
+  date         DateTime
+  energyKwh    Float    @default(0)
+  waterM3      Float    @default(0)
+  wasteKg      Float    @default(0)
+  recyclingKg  Float    @default(0)
+  carbonKg     Float    @default(0) // CO2 equivalent
+  source       String   @default("manual") // manual, meter, iot
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  property     Property @relation(fields: [propertyId], references: [id])
+
+  @@unique([propertyId, date])
+  @@index([propertyId])
+  @@index([date])
+  @@map("sustainability_metrics")
+}
+
+model EcoPractice {
+  id           String   @id @default(cuid())
+  propertyId   String
+  name         String
+  category     String   // energy, water, waste, sourcing, mobility
+  description  String?
+  impactLevel  String   @default("medium") // low, medium, high
+  implemented  Boolean  @default(false)
+  implementedAt DateTime?
+  impactMetrics Json?   // {savings: number, unit: string}
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  property     Property @relation(fields: [propertyId], references: [id])
+
+  @@index([propertyId])
+  @@index([category])
+  @@map("eco_practices")
+}
+
+model GuestPreference {
+  id           String   @id @default(cuid())
+  guestId      String?
+  userId       String?
+  preferenceType String // sustainability, room, amenity, dietary
+  key          String
+  value        String
+  source       String   @default("manual") // manual, booking, survey
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  guest        Guest?   @relation(fields: [guestId], references: [id], name: "GuestPreferences")
+  user         User?    @relation(fields: [userId], references: [id], name: "UserPreferences")
+
+  @@index([guestId])
+  @@index([userId])
+  @@index([preferenceType])
+  @@map("guest_preferences")
+}
+
+// Computer Vision - Photo Analysis
+model PhotoAnalysis {
+  id              String   @id @default(cuid())
+  propertyId      String
+  photoId         String?
+  imageUrl        String
+  analysisType    String   // quality, amenity, damage, virtual-tour
+  qualityScore    Float?   // 0-100
+  amenities       Json?    // detected amenities: [{name, confidence}]
+  damageDetected  Boolean? @default(false)
+  damageType      String?  // water, fire, structural, wear
+  damageSeverity  String?  // minor, moderate, severe
+  virtualTourOrder Int?
+  metadata        Json?    // AI model info, processing time
+  processedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  property        Property @relation(fields: [propertyId], references: [id])
+
+  @@index([propertyId])
+  @@index([analysisType])
+  @@index([createdAt])
+  @@map("photo_analysis")
+}
+
+model EcoCertification {
+  id              String   @id @default(cuid())
+  propertyId      String
+  name            String   // EU Ecolabel, Green Key, Travelife
+  certificationBody String
+  level           String   // bronze, silver, gold, platinum
+  validFrom       DateTime
+  validUntil      DateTime
+  certificateUrl  String?
+  status          String   @default("active") // active, expired, pending
+  criteria        Json?    // met criteria checklist
+  verifiedAt      DateTime?
+  verifiedBy      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  property        Property @relation(fields: [propertyId], references: [id])
+
+  @@index([propertyId])
+  @@index([status])
+  @@map("eco_certifications")
+}
+
+// Voice Assistant - Conversation Logs
+model VoiceInteraction {
+  id              String   @id @default(cuid())
+  userId          String?
+  propertyId      String?
+  sessionId       String
+  interactionType String   // inquiry, command, booking
+  audioUrl        String?
+  transcript      String
+  intent          String
+  confidence      Float?
+  response        String?
+  responseAudioUrl String?
+  duration        Int?     // seconds
+  language        String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([propertyId])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("voice_interactions")
+}
+
+// Performance Tracking - Employee KPIs
+model PerformanceMetric {
+  id              String   @id @default(cuid())
+  employeeId      String
+  propertyId      String?
+  metricType      String   // tasks_completed, guest_rating, response_time
+  value           Float
+  target          Float?
+  unit            String   // count, percentage, minutes
+  period          String   // daily, weekly, monthly
+  periodStart     DateTime
+  periodEnd       DateTime
+  rating          String?  // poor, fair, good, excellent
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  property        Property? @relation(fields: [propertyId], references: [id])
+
+  @@index([employeeId])
+  @@index([propertyId])
+  @@index([periodStart, periodEnd])
+  @@map("performance_metrics")
+}
+
+model TaskCollaboration {
+  id              String   @id @default(cuid())
+  propertyId      String
+  title           String
+  description     String?
+  type            String   // housekeeping, maintenance, guest-request, admin
+  priority        String   @default("medium") // low, medium, high, urgent
+  status          String   @default("open") // open, in-progress, completed, cancelled
+  assigneeId      String?
+  creatorId       String
+  dueDate         DateTime?
+  completedAt     DateTime?
+  completedBy     String?
+  tags            String[]
+  attachments     Json?    // [{url, type}]
+  comments        Json?    // [{userId, text, createdAt}]
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  property        Property @relation(fields: [propertyId], references: [id])
+  assignee        Employee? @relation(fields: [assigneeId], references: [id], name: "TaskAssignee")
+
+  @@index([propertyId])
+  @@index([status])
+  @@index([assigneeId])
+  @@index([createdAt])
+  @@map("task_collaborations")
+}
+
+model OwnerDocument {
+  id              String   @id @default(cuid())
+  ownerId         String
+  propertyId      String?
+  title           String
+  description     String?
+  category        String   // financial, legal, operational, marketing
+  fileUrl         String
+  fileType        String   // pdf, docx, xlsx, image
+  fileSize        Int?     // bytes
+  uploadedBy      String
+  visibility      String   @default("private") // private, shared, public
+  sharedWith      String[] // user IDs
+  downloadCount   Int      @default(0)
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  owner           Owner    @relation(fields: [ownerId], references: [id])
+
+  @@index([ownerId])
+  @@index([propertyId])
+  @@index([category])
+  @@map("owner_documents")
+}
+
+model OwnerReport {
+  id              String   @id @default(cuid())
+  ownerId         String
+  propertyId      String?
+  reportType      String   // revenue, occupancy, performance, sustainability
+  period          String   // daily, weekly, monthly, quarterly, yearly
+  periodStart     DateTime
+  periodEnd       DateTime
+  data            Json     // report metrics
+  generatedAt     DateTime @default(now())
+  sentAt          DateTime?
+  sentTo          String[]
+  status          String   @default("generated") // generated, sent, viewed
+  fileUrl         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  owner           Owner    @relation(fields: [ownerId], references: [id])
+
+  @@index([ownerId])
+  @@index([propertyId])
+  @@index([reportType])
+  @@index([periodStart, periodEnd])
+  @@map("owner_reports")
 }

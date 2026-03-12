@@ -1,3 +1,4 @@
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { CASE_STUDIES, getCaseStudyById } from "@/data/case-studies";
 
 describe("case-studies", () => {

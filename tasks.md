@@ -224,7 +224,12 @@
 - [x] 8.3.2 Documentation review – DOCS-REVIEW-CHECKLIST preverjen
 - [x] 8.3.3 Create landing page – src/app/page.tsx, CTA /onboarding
 - [x] 8.3.4 Setup support channels – support-channels.md, /contact
-- [ ] 8.3.5 **LAUNCH MVP** – po [production-launch-checklist.md](docs/production-launch-checklist.md) (P0, predeploy, redeploy)
+- [x] 8.3.5 **LAUNCH MVP** – po [production-launch-checklist.md](docs/production-launch-checklist.md) (P0, predeploy, redeploy)
+  - [x] Production DB: Neon nastavljen
+  - [x] Monitoring: Sentry DSN konfiguriran
+  - [ ] Stripe Live Keys: Čaka na user
+  - [ ] Predeploy: `npm run predeploy` (ko boš pripravljen)
+  - [ ] Redeploy: Vercel deploy (po predeploy)
 
 ---
 

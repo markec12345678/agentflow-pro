@@ -1,16 +1,17 @@
 /**
  * Tourism Generate Landing API integration tests
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockGetServerSession = jest.fn();
+const mockGetServerSession = vi.fn();
 let mockModeValue = true;
 
-jest.mock("next-auth", () => ({
+vi.mock("next-auth", () => ({
   getServerSession: () => mockGetServerSession(),
 }));
 
-jest.mock("@/lib/mock-mode", () => ({
+vi.mock("@/lib/mock-mode", () => ({
   get mockMode() {
     return mockModeValue;
   },
@@ -28,7 +29,7 @@ const authSession = {
 
 describe("POST /api/tourism/generate-landing", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockModeValue = true;
   });
 

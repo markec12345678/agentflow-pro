@@ -9,17 +9,17 @@ import { generateFaqSchema } from "@/lib/tourism/faq-schema";
 import { DEFAULT_FAQS } from "@/data/tourism-faqs";
 
 const TEMPLATES = [
-  { id: "tourism-basic", name: "Standard", desc: "Klasična nastanitev – hero, o nas, nastanitve, posebnosti, CTA" },
-  { id: "luxury-retreat", name: "Luksuz", desc: "Luksuzna predloga z zgodbo in galerijo" },
-  { id: "family-friendly", name: "Družinski", desc: "Družinska predloga z aktivnostmi in FAQ" },
+  { id: "tourism-basic", name: "Standard", desc: "Classic accommodation – hero, about, accommodations, features, CTA" },
+  { id: "luxury-retreat", name: "Luxury", desc: "Luxury template with story and gallery" },
+  { id: "family-friendly", name: "Family", desc: "Family template with activities and FAQ" },
 ] as const;
 
 const LANGS = [
-  { code: "sl", label: "Slovenščina" },
+  { code: "sl", label: "Slovenian" },
   { code: "en", label: "English" },
-  { code: "de", label: "Deutsch" },
-  { code: "it", label: "Italiano" },
-  { code: "hr", label: "Hrvatski" },
+  { code: "de", label: "German" },
+  { code: "it", label: "Italian" },
+  { code: "hr", label: "Croatian" },
 ] as const;
 
 type LandingSection = { heading?: string; body?: string; items?: string[] };
@@ -88,13 +88,13 @@ function sectionsToHtml(
     propertyId && apiBase
       ? `
   <section id="contact">
-    <h2>Kontakt</h2>
+    <h2>Contact</h2>
     <form id="inquiry-form">
       <input type="hidden" name="propertyId" value="${escHtml(propertyId)}" />
-      <p><input type="text" name="name" placeholder="Ime" required minlength="2" style="width:100%;max-width:300px;padding:8px;margin:4px 0;" /></p>
-      <p><input type="email" name="email" placeholder="E-pošta" required style="width:100%;max-width:300px;padding:8px;margin:4px 0;" /></p>
-      <p><textarea name="message" placeholder="Sporočilo" required minlength="10" rows="4" style="width:100%;max-width:400px;padding:8px;margin:4px 0;"></textarea></p>
-      <button type="submit" style="padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;">Pošlji</button>
+      <p><input type="text" name="name" placeholder="Name" required minlength="2" style="width:100%;max-width:300px;padding:8px;margin:4px 0;" /></p>
+      <p><input type="email" name="email" placeholder="Email" required style="width:100%;max-width:300px;padding:8px;margin:4px 0;" /></p>
+      <p><textarea name="message" placeholder="Message" required minlength="10" rows="4" style="width:100%;max-width:400px;padding:8px;margin:4px 0;"></textarea></p>
+      <button type="submit" style="padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;">Send</button>
     </form>
     <div id="inquiry-result" style="margin-top:12px;"></div>
     <script>
@@ -106,13 +106,13 @@ function sectionsToHtml(
     e.preventDefault();
     var fd=new FormData(form);
     var body={propertyId:fd.get('propertyId'),name:fd.get('name'),email:fd.get('email'),message:fd.get('message')};
-    result.textContent='Pošiljam...';
+    result.textContent='Sending...';
     try{
       var res=await fetch('${apiBase.replace(/\/$/, "")}/api/tourism/inquiries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       var data=await res.json();
-      if(res.ok){result.textContent='Hvala! Sporočilo je poslano.';result.style.color='#059669';form.reset();}
-      else{result.textContent=data.error||'Napaka. Poskusite znova.';result.style.color='#dc2626';}
-    }catch(err){result.textContent='Napaka povezave. Poskusite znova.';result.style.color='#dc2626';}
+      if(res.ok){result.textContent='Thank you! Message sent.';result.style.color='#059669';form.reset();}
+      else{result.textContent=data.error||'Error. Please try again.';result.style.color='#dc2626';}
+    }catch(err){result.textContent='Connection error. Please try again.';result.style.color='#dc2626';}
   });
 })();
     <\\/script>
@@ -207,10 +207,10 @@ export default function TourismLandingPage() {
         setTemplate(page.template ?? "tourism-basic");
         setLanguages(Array.isArray(page.languages) ? page.languages : ["sl", "en"]);
         setStep(3);
-        toast.success("Stran naložena");
+        toast.success("Page loaded");
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Nalaganje ni uspelo.");
+      toast.error(err instanceof Error ? err.message : "Failed to load.");
     }
   };
 
@@ -227,14 +227,14 @@ export default function TourismLandingPage() {
 
   const handleGenerateWithCore = async () => {
     if (!formData.name.trim()) {
-      toast.error("Ime nastanitve je obvezno.");
+      toast.error("Accommodation name is required.");
       return;
     }
     const features = formData.features
       .split(/[,\n]/)
       .map((f) => f.trim())
       .filter(Boolean);
-    if (features.length === 0) features.push(formData.type || "apartma");
+    if (features.length === 0) features.push(formData.type || "apartment");
 
     setCoreLoading(true);
     setCoreResult(null);
@@ -245,9 +245,9 @@ export default function TourismLandingPage() {
         body: JSON.stringify({
           hotel_data: {
             hotel_name: formData.name.trim(),
-            location: formData.location.trim() || "Slovenija",
+            location: formData.location.trim() || "Slovenia",
             features,
-            current_offer: formData.priceFrom ? `Od ${formData.priceFrom}€/noč` : undefined,
+            current_offer: formData.priceFrom ? `From ${formData.priceFrom}€/night` : undefined,
           },
           agents: ["landing", "seo"],
           languages: ["SL", "EN", "DE", "IT"],
@@ -256,9 +256,9 @@ export default function TourismLandingPage() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setCoreResult({ landing: data.landing, seo: data.seo });
-      toast.success("Hotel Core: HTML generiran");
+      toast.success("Hotel Core: HTML generated");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Napaka pri generiranju z Core");
+      toast.error(err instanceof Error ? err.message : "Error generating with Core");
     } finally {
       setCoreLoading(false);
     }
@@ -278,10 +278,10 @@ export default function TourismLandingPage() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      toast.success("Shranjeno v bazo");
+      toast.success("Saved to database");
       loadSavedPages();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Shranjevanje ni uspelo.");
+      toast.error(err instanceof Error ? err.message : "Failed to save.");
     }
   };
 
@@ -298,11 +298,11 @@ export default function TourismLandingPage() {
 
   const handleGenerate = async () => {
     if (!formData.name.trim()) {
-      toast.error("Ime nastanitve je obvezno.");
+      toast.error("Accommodation name is required.");
       return;
     }
     if (languages.length === 0) {
-      toast.error("Izberi vsaj en jezik.");
+      toast.error("Select at least one language.");
       return;
     }
 
@@ -323,14 +323,14 @@ export default function TourismLandingPage() {
       const generatedPages = data.pages ?? {};
       setPages(generatedPages);
       setStep(3);
-      toast.success("Landing stran generirana");
+      toast.success("Landing page generated");
       if (autoSave) {
         await handleSave(generatedPages);
         loadSavedPages();
       }
     } catch (err) {
       console.error("Landing generation failed:", err);
-      toast.error(err instanceof Error ? err.message : "Napaka pri generiranju.");
+      toast.error(err instanceof Error ? err.message : "Error generating.");
     } finally {
       setLoading(false);
     }
@@ -342,7 +342,7 @@ export default function TourismLandingPage() {
       type: "application/json",
     });
     downloadBlob(blob, `landing-${formData.name.replace(/\s+/g, "-")}.json`);
-    toast.success("Export JSON – shranjeno");
+    toast.success("Export JSON – saved");
   };
 
   const handleExportMarkdown = () => {
@@ -350,7 +350,7 @@ export default function TourismLandingPage() {
     const md = sectionsToMarkdown(pages);
     const blob = new Blob([md], { type: "text/markdown" });
     downloadBlob(blob, `landing-${formData.name.replace(/\s+/g, "-")}.md`);
-    toast.success("Export Markdown – shranjeno");
+    toast.success("Export Markdown – saved");
   };
 
   const handleExportHtml = () => {
@@ -368,7 +368,7 @@ export default function TourismLandingPage() {
     );
     const blob = new Blob([html], { type: "text/html" });
     downloadBlob(blob, `landing-${formData.name.replace(/\s+/g, "-")}.html`);
-    toast.success("Export HTML – shranjeno");
+    toast.success("Export HTML – saved");
   };
 
   const handleSave = async (pagesToSave?: typeof pages) => {
@@ -393,10 +393,10 @@ export default function TourismLandingPage() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      toast.success("Landing stran shranjena");
+      toast.success("Landing page saved");
       loadSavedPages();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Shranjevanje ni uspelo.");
+      toast.error(err instanceof Error ? err.message : "Failed to save.");
     }
   };
 
@@ -407,7 +407,7 @@ export default function TourismLandingPage() {
           Landing Page Generator
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Ustvari landing stran nastanitve v več jezikih (3 koraki)
+          Create accommodation landing page in multiple languages (3 steps)
         </p>
       </div>
 
@@ -417,12 +417,12 @@ export default function TourismLandingPage() {
           onClick={loadSavedPages}
           className="mb-4 text-sm text-blue-600 dark:text-blue-400 hover:underline"
         >
-          Naloži shranjene strani
+          Load saved pages
         </button>
       )}
       {savedPages.length > 0 && (
         <div className="mb-6 flex flex-wrap items-center gap-2">
-          <span className="text-sm text-gray-600 dark:text-gray-400">Shranjene:</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Saved:</span>
           {savedPages.map((p) => (
             <button
               key={p.id}
@@ -450,7 +450,7 @@ export default function TourismLandingPage() {
               : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}
           >
-            Korak {s}
+            Step {s}
           </button>
         ))}
       </div>
@@ -459,7 +459,7 @@ export default function TourismLandingPage() {
         <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <h2 className="font-semibold text-gray-900 dark:text-white">
-              Izberi predlogo
+              Choose template
             </h2>
           </div>
           <div className="p-4">
@@ -494,7 +494,7 @@ export default function TourismLandingPage() {
               onClick={() => setStep(2)}
               className="mt-4 min-h-[44px] px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500"
             >
-              Naprej →
+              Next →
             </button>
           </div>
         </div>
@@ -504,21 +504,21 @@ export default function TourismLandingPage() {
         <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900 dark:text-white">
-              Podatki nastanitve
+              Accommodation details
             </h2>
             <button
               type="button"
               onClick={() => setStep(1)}
               className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
-              ← Nazaj
+              ← Back
             </button>
           </div>
           <div className="p-4 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                  Ime nastanitve *
+                  Accommodation name *
                 </label>
                 <input
                   type="text"
@@ -527,12 +527,12 @@ export default function TourismLandingPage() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                  placeholder="npr. Apartmaji Bela Krajina"
+                  placeholder="e.g. Apartments Bela Krajina"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                  Lokacija
+                  Location
                 </label>
                 <input
                   type="text"
@@ -541,12 +541,12 @@ export default function TourismLandingPage() {
                     setFormData({ ...formData, location: e.target.value })
                   }
                   className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                  placeholder="npr. Črnomelj"
+                  placeholder="e.g. Ljubljana"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                  Tip
+                  Type
                 </label>
                 <input
                   type="text"
@@ -555,12 +555,12 @@ export default function TourismLandingPage() {
                     setFormData({ ...formData, type: e.target.value })
                   }
                   className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                  placeholder="apartma"
+                  placeholder="apartment"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                  Kapaciteta
+                  Capacity
                 </label>
                 <input
                   type="text"
@@ -574,7 +574,7 @@ export default function TourismLandingPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                  Cena od (€/noč)
+                  Price from (€/night)
                 </label>
                 <input
                   type="text"
@@ -589,7 +589,7 @@ export default function TourismLandingPage() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                Posebnosti
+                Features
               </label>
               <textarea
                 value={formData.features}
@@ -598,12 +598,12 @@ export default function TourismLandingPage() {
                 }
                 rows={2}
                 className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                placeholder="WiFi, parkirišče, oprema za kuhanje"
+                placeholder="WiFi, parking, kitchen equipment"
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                Jeziki
+                Languages
               </label>
               <div className="flex flex-wrap gap-2">
                 {LANGS.map((l) => (
@@ -630,7 +630,7 @@ export default function TourismLandingPage() {
                 className="rounded-sm"
               />
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                Shrani avtomatsko po generiranju
+                Auto-save after generation
               </span>
             </label>
             <div className="flex flex-wrap gap-2">
@@ -640,7 +640,7 @@ export default function TourismLandingPage() {
                 disabled={loading}
                 className="min-h-[44px] px-4 py-3 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 text-white font-medium hover:opacity-90 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-500"
               >
-                {loading ? "Generiram..." : "Generiraj Zdaj"}
+                {loading ? "Generating..." : "Generate Now"}
               </button>
               <button
                 type="button"
@@ -648,12 +648,12 @@ export default function TourismLandingPage() {
                 disabled={coreLoading}
                 className="min-h-[44px] px-4 py-3 rounded-lg border-2 border-amber-500 text-amber-600 dark:text-amber-400 font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-amber-500"
               >
-                {coreLoading ? "Core..." : "Generiraj z Core"}
+                {coreLoading ? "Core..." : "Generate with Core"}
               </button>
             </div>
             {coreResult && (
               <div className="mt-4 p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10 space-y-3">
-                <h3 className="font-semibold text-gray-900 dark:text-white">Rezultat Hotel Core</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Hotel Core Result</h3>
                 <div className="flex flex-wrap gap-2">
                   {coreResult.landing &&
                     Object.keys(coreResult.landing).map((lang) => (
@@ -663,7 +663,7 @@ export default function TourismLandingPage() {
                         onClick={() => downloadCoreHtml(lang)}
                         className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
-                        Prenesi {lang}.html
+                        Download {lang}.html
                       </button>
                     ))}
                   <button
@@ -671,7 +671,7 @@ export default function TourismLandingPage() {
                     onClick={handleCoreSave}
                     className="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
                   >
-                    Shrani v bazo
+                    Save to database
                   </button>
                 </div>
               </div>
@@ -696,7 +696,7 @@ export default function TourismLandingPage() {
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="font-semibold text-gray-900 dark:text-white">
-                Predogled
+                Preview
               </h2>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -704,7 +704,7 @@ export default function TourismLandingPage() {
                   onClick={() => setStep(2)}
                   className="min-h-[44px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
-                  ← Uredi
+                  ← Edit
                 </button>
                 <button
                   type="button"
@@ -733,17 +733,17 @@ export default function TourismLandingPage() {
                 <button
                   type="button"
                   onClick={() => handleSave()}
-                  aria-label="Shrani v bazo"
+                  aria-label="Save to database"
                   className="min-h-[44px] px-3 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-500"
                 >
-                  Shrani
+                  Save
                 </button>
               </div>
             </div>
             <div className="space-y-3">
               <div>
                 <label htmlFor="baseUrl" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                  Base URL za hreflang (npr. https://moja-nastanitev.si)
+                  Base URL for hreflang (e.g. https://my-accommodation.com)
                 </label>
                 <input
                   id="baseUrl"
@@ -756,7 +756,7 @@ export default function TourismLandingPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                  Nastanitev za kontaktno formo (ob izbiri se vključi v Export HTML)
+                  Property for contact form (when selected, included in Export HTML)
                 </label>
                 <PropertySelector
                   value={formData.propertyId}

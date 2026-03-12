@@ -1,14 +1,15 @@
 /**
  * Unit tests for /api/cron/pms-sync-all
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockPmsConnectionFindMany = jest.fn();
-const mockGetReservations = jest.fn();
-const mockSyncToAgentFlow = jest.fn();
-const mockGetPmsAdapter = jest.fn();
+const mockPmsConnectionFindMany = vi.fn();
+const mockGetReservations = vi.fn();
+const mockSyncToAgentFlow = vi.fn();
+const mockGetPmsAdapter = vi.fn();
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     pmsConnection: {
       findMany: (...args: unknown[]) => mockPmsConnectionFindMany(...args),
@@ -16,7 +17,7 @@ jest.mock("@/database/schema", () => ({
   },
 }));
 
-jest.mock("@/lib/tourism/mews-adapter", () => ({
+vi.mock("@/lib/tourism/mews-adapter", () => ({
   getPmsAdapter: (name: string) => mockGetPmsAdapter(name),
 }));
 
@@ -31,7 +32,7 @@ describe("GET /api/cron/pms-sync-all", () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     delete process.env.CRON_SECRET;
     mockPmsConnectionFindMany.mockResolvedValue([]);
     mockGetPmsAdapter.mockReturnValue(createMockAdapter());

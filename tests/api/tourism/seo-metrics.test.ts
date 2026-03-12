@@ -1,16 +1,17 @@
 /**
  * Tourism SEO Metrics API integration tests
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { NextRequest } from "next/server";
 
-const mockGetServerSession = jest.fn();
-const mockFindMany = jest.fn();
+const mockGetServerSession = vi.fn();
+const mockFindMany = vi.fn();
 
-jest.mock("next-auth", () => ({
+vi.mock("next-auth", () => ({
   getServerSession: () => mockGetServerSession(),
 }));
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     seoMetric: {
       findMany: (...args: unknown[]) => mockFindMany(...args),
@@ -35,7 +36,7 @@ const sampleMetrics = [
 
 describe("GET /api/tourism/seo-metrics", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockFindMany.mockResolvedValue([]);
   });
 

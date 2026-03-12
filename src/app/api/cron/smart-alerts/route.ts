@@ -10,6 +10,7 @@ import { verifyCronAuth } from "@/lib/cron-auth";
 import { getOccupancyForProperty } from "@/lib/tourism/occupancy";
 import { triggerAlert, runEscalationCheck } from "@/alerts/smartAlerts";
 import { startOfDay } from "date-fns";
+import { getEscalationPolicy, calculateEscalationLevel, getActionsForEscalationLevel, executeEscalationAction } from "@/alerts/escalation-policy";
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
     });
 
     let triggered = 0;
+    let escalated = 0;
 
     for (const property of properties) {
       try {
@@ -45,7 +47,36 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const escalated = await runEscalationCheck();
+    // Run escalation checks for existing alerts
+    escalated = await runEscalationCheck();
+
+    // Check and execute escalation actions for unacknowledged alerts
+    const activeAlerts = await prisma.alertEvent.findMany({
+      where: {
+        resolvedAt: null,
+        createdAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    for (const alert of activeAlerts) {
+      try {
+        const policy = getEscalationPolicy(alert.type);
+        if (!policy) continue;
+
+        const escalationLevel = calculateEscalationLevel(alert as any, policy);
+        const actions = getActionsForEscalationLevel(policy, escalationLevel);
+
+        for (const action of actions) {
+          await executeEscalationAction(alert as any, action);
+          escalated++;
+        }
+      } catch (e) {
+        console.error(`[SmartAlerts] Escalation failed for alert ${alert.id}:`, e);
+      }
+    }
 
     return NextResponse.json({
       success: true,

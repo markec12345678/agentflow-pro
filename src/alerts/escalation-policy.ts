@@ -1,0 +1,71 @@
+export interface EscalationRule {
+  id: string;
+  name: string;
+  alertType: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  conditions: { threshold?: number; duration?: number; };
+  actions: EscalationAction[];
+}
+
+export interface EscalationAction {
+  type: 'email' | 'sms' | 'slack' | 'webhook' | 'page';
+  recipient: string;
+  delayMinutes: number;
+}
+
+export interface AlertEvent {
+  id: string;
+  type: string;
+  severity: string;
+  createdAt: Date;
+  acknowledgedAt?: Date;
+  resolvedAt?: Date;
+}
+
+export const DEFAULT_ESCALATION_POLICIES: EscalationRule[] = [
+  {
+    id: 'occupancy-high',
+    name: 'High Occupancy',
+    alertType: 'occupancy',
+    severity: 'medium',
+    conditions: { threshold: 95 },
+    actions: [
+      { type: 'email', recipient: 'manager@example.com', delayMinutes: 0 },
+      { type: 'slack', recipient: '#alerts', delayMinutes: 15 }
+    ],
+  },
+  {
+    id: 'system-down',
+    name: 'System Down',
+    alertType: 'system_health',
+    severity: 'critical',
+    conditions: { duration: 5 },
+    actions: [
+      { type: 'slack', recipient: '#devops', delayMinutes: 0 },
+      { type: 'sms', recipient: '+38640123456', delayMinutes: 5 }
+    ],
+  },
+];
+
+export function getEscalationPolicy(alertType: string) {
+  return DEFAULT_ESCALATION_POLICIES.find(p => p.alertType === alertType);
+}
+
+export function calculateEscalationLevel(alert: AlertEvent, policy: EscalationRule) {
+  const now = new Date();
+  const mins = (now.getTime() - alert.createdAt.getTime()) / 60000;
+  let level = 0;
+  for (let i = 0; i < policy.actions.length; i++) {
+    if (mins >= policy.actions[i].delayMinutes) level = i + 1;
+  }
+  if (alert.acknowledgedAt && (now.getTime() - alert.acknowledgedAt.getTime()) / 60000 < 30) level = 0;
+  return level;
+}
+
+export function getActionsForEscalationLevel(policy: EscalationRule, level: number) {
+  return policy.actions.filter((_, i) => i + 1 === level);
+}
+
+export async function executeEscalationAction(alert: AlertEvent, action: EscalationAction) {
+  console.log('Executing ' + action.type + ' for alert ' + alert.id);
+}

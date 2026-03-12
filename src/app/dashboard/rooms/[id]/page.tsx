@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { format, addDays, startOfDay } from "date-fns";
 import { sl } from "date-fns/locale";
 import { toast } from "sonner";
@@ -340,11 +341,13 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Photos</h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           {room.photos.map((photo, index) => (
-                            <div key={index} className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-                              <img
+                            <div key={index} className="aspect-square bg-gray-200 rounded-lg overflow-hidden relative">
+                              <Image
                                 src={photo}
                                 alt={`Room photo ${index + 1}`}
-                                className="w-full h-full object-cover"
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 50vw, 25vw"
                               />
                             </div>
                           ))}

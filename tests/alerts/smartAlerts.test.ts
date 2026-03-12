@@ -1,18 +1,19 @@
 /**
  * Unit tests for Smart Alerts triggerAlert
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import type { AlertContext } from "@/alerts/smartAlerts";
 
-const mockFindFirst = jest.fn();
-const mockCreate = jest.fn();
-const mockSendSlack = jest.fn();
-const mockSendEmail = jest.fn();
-const mockSendSms = jest.fn();
-const mockGetDirectorContact = jest.fn();
-const mockGetReceptionistContact = jest.fn();
-const mockGetDevContact = jest.fn();
+const mockFindFirst = vi.fn();
+const mockCreate = vi.fn();
+const mockSendSlack = vi.fn();
+const mockSendEmail = vi.fn();
+const mockSendSms = vi.fn();
+const mockGetDirectorContact = vi.fn();
+const mockGetReceptionistContact = vi.fn();
+const mockGetDevContact = vi.fn();
 
-jest.mock("@/database/schema", () => ({
+vi.mock("@/database/schema", () => ({
   prisma: {
     smartAlertLog: {
       findFirst: (...args: unknown[]) => mockFindFirst(...args),
@@ -21,13 +22,13 @@ jest.mock("@/database/schema", () => ({
   },
 }));
 
-jest.mock("@/alerts/channels", () => ({
+vi.mock("@/alerts/channels", () => ({
   sendSlack: (...args: unknown[]) => mockSendSlack(...args),
   sendEmail: (...args: unknown[]) => mockSendEmail(...args),
   sendSms: (...args: unknown[]) => mockSendSms(...args),
 }));
 
-jest.mock("@/alerts/contacts", () => ({
+vi.mock("@/alerts/contacts", () => ({
   getDirectorContact: (...args: unknown[]) => mockGetDirectorContact(...args),
   getReceptionistContact: () => mockGetReceptionistContact(),
   getDevContact: () => mockGetDevContact(),
@@ -35,7 +36,7 @@ jest.mock("@/alerts/contacts", () => ({
 
 describe("triggerAlert", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockFindFirst.mockResolvedValue(null);
     mockCreate.mockResolvedValue({});
     mockGetDirectorContact.mockResolvedValue({ email: "dir@test.com", phone: null });

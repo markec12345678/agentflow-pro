@@ -2,6 +2,7 @@
  * AnswerFaqUseCase unit tests
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { createAnswerFaqUseCase, type FaqEntryForMatch } from "@/domain/tourism/use-cases/answer-faq";
 import type { IFaqLogRepository } from "@/domain/tourism/ports/faq-log-repository";
 import type { IGuestRetrieval } from "@/domain/tourism/ports/guest-retrieval.port";
@@ -24,18 +25,18 @@ const sampleFaqs: FaqEntryForMatch[] = [
 ];
 
 const mockFaqLogRepo: IFaqLogRepository = {
-  log: jest.fn().mockResolvedValue(undefined),
+  log: vi.fn().mockResolvedValue(undefined),
 };
 
 const mockGuestRetrieval: IGuestRetrieval = {
-  retrieve: jest.fn().mockResolvedValue({
+  retrieve: vi.fn().mockResolvedValue({
     property: { id: "p1", name: "Test", location: "Ljubljana", type: "apartment", capacity: 4, description: "Nice" },
     reservations: [{ checkIn: "2025-06-01", checkOut: "2025-06-05", status: "confirmed" }],
   }),
 };
 
 const mockPolicyAgent: IPolicyAgent = {
-  check: jest.fn().mockReturnValue({
+  check: vi.fn().mockReturnValue({
     allowed: null,
     reason: "",
     policyContext: "",
@@ -44,12 +45,12 @@ const mockPolicyAgent: IPolicyAgent = {
 };
 
 const mockCopyAgent: IGuestCopyAgent = {
-  run: jest.fn().mockResolvedValue({ answer: "Mock answer from agent", confidence: 0.85 }),
+  run: vi.fn().mockResolvedValue({ answer: "Mock answer from agent", confidence: 0.85 }),
 };
 
 describe("createAnswerFaqUseCase", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockPolicyAgent.check.mockReturnValue({
       allowed: null,
       reason: "",

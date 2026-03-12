@@ -18,9 +18,14 @@ import {
   type WorkflowExecutionResult as NapiWorkflowExecutionResult,
   type NodeExecutionResult as NapiNodeExecutionResult,
   type WorkflowProgress as NapiWorkflowProgress,
-  NodeStatus as NapiNodeStatus,
-  WorkflowStatus as NapiWorkflowStatus,
+  NodeStatus,
+  WorkflowStatus,
+  type NodeStatus as NapiNodeStatus,
+  type WorkflowStatus as NapiWorkflowStatus,
 } from '../../../rust/workflow-executor/index.js';
+
+// Re-export NodeStatus and WorkflowStatus from NAPI module
+export { NodeStatus, WorkflowStatus };
 
 // ============================================================================
 // Type Definitions
@@ -61,22 +66,6 @@ export interface WorkflowDefinition {
   edges: WorkflowEdge[];
   /** Optional metadata as JSON string */
   metadata?: string;
-}
-
-export enum NodeStatus {
-  Pending = 0,
-  Running = 1,
-  Completed = 2,
-  Failed = 3,
-  Skipped = 4,
-}
-
-export enum WorkflowStatus {
-  Queued = 0,
-  Running = 1,
-  Completed = 2,
-  Failed = 3,
-  Cancelled = 4,
 }
 
 export interface NodeExecutionResult {

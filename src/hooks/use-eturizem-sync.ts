@@ -13,20 +13,32 @@ interface SyncResult {
   errors: string[];
 }
 
+function getSessionToken(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  return document.cookie
+    .split('; ')
+    .find(row => row.startsWith('next-auth.session-token='))
+    ?.split('=')[1];
+}
+
 export function useEturizemSync() {
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState<SyncResult | null>(null);
 
   const triggerSync = useCallback(async (propertyIds?: string[]) => {
     setLoading(true);
-    
+
     try {
+      const sessionToken = getSessionToken();
       const response = await fetch('/api/integrations/eturizem/sync', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        headers: {
+          'Content-Type': 'application/json',
+          ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),
+        },
+        body: JSON.stringify({
           type: 'manual',
-          propertyIds 
+          propertyIds
         }),
       });
 
@@ -51,9 +63,14 @@ export function useEturizemSync() {
 
   const checkSyncStatus = useCallback(async () => {
     try {
-      const response = await fetch('/api/integrations/eturizem/status');
+      const sessionToken = getSessionToken();
+      const response = await fetch('/api/integrations/eturizem/status', {
+        headers: {
+          ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),
+        },
+      });
       const result = await response.json();
-      
+
       if (result.success) {
         return result.data;
       }

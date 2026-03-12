@@ -2,13 +2,14 @@
  * Code Agent tests
  */
 
-jest.mock("../../src/agents/code/github-client", () => ({
-  getFileContents: jest.fn(),
-  getDefaultBranchSha: jest.fn(),
-  pushFiles: jest.fn(),
-  createPullRequest: jest.fn(),
+vi.mock("../../src/agents/code/github-client", () => ({
+  getFileContents: vi.fn(),
+  getDefaultBranchSha: vi.fn(),
+  pushFiles: vi.fn(),
+  createPullRequest: vi.fn(),
 }));
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { createCodeAgent } from "../../src/agents/code/CodeAgent";
 
 describe("CodeAgent", () => {

@@ -15,8 +15,8 @@ export interface SeasonRates {
 }
 
 export interface PricingOptions {
-  competitor_avg?: number | null;
-  season_rates?: SeasonRates | null;
+  competitorAvg?: number | null;
+  seasonRates?: SeasonRates | null;
 }
 
 export interface Adjustment {
@@ -26,15 +26,16 @@ export interface Adjustment {
 }
 
 export interface PriceBreakdown {
-  rate_per_night: number;
+  ratePerNight: number;
   subtotal: number;
-  total_discounts: number;
-  total_premiums: number;
-  final_price: number;
+  totalDiscounts: number;
+  totalPremiums: number;
+  finalPrice: number;
 }
 
 export interface PricingResult {
-  final_price: number;
+  baseTotal?: number;
+  finalPrice: number;
   breakdown?: PriceBreakdown;
   adjustments?: Adjustment[];
 }

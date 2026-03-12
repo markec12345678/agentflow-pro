@@ -1,0 +1,124 @@
+{
+  "mcp": {
+    "G": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://backend.composio.dev/v3/mcp/531301e8-911c-4db7-b865-72f474390e14/mcp?user_id=833e18c8-219c-4327-a965-18c3ae88bce9&connected_account_id=ca_Pi2rGqfPkzq2"
+      ],
+      "environment": {}
+    },
+    "gmail": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Gmail"
+      ],
+      "environment": {}
+    },
+    "googlecalendar": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Google Calendar"
+      ],
+      "environment": {}
+    },
+    "notion": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Notion"
+      ],
+      "environment": {}
+    },
+    "g": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Google Sheets"
+      ],
+      "environment": {}
+    },
+    "sub": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Supabase"
+      ],
+      "environment": {}
+    },
+    "airtable": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Airtable"
+      ],
+      "environment": {}
+    },
+    "youtube": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "YouTube"
+      ],
+      "environment": {}
+    },
+    "K": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Slackbot"
+      ],
+      "environment": {}
+    },
+    "facebook": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Facebook"
+      ],
+      "environment": {}
+    },
+    "googledrive": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Google Drive"
+      ],
+      "environment": {}
+    },
+    "googledocs": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "Google Docs"
+      ],
+      "environment": {}
+    }
+  }
+}

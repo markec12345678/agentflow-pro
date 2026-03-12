@@ -16,6 +16,7 @@ import { getUserId } from "@/lib/auth-users";
 import { checkRateLimitByIp } from "@/lib/rate-limit";
 import { getPropertyForUser } from "@/lib/tourism/property-access";
 import { prisma } from "@/database/schema";
+import { getCachedContext, setCachedContext } from "@/lib/context-cache";
 
 const PostBodySchema = z.object({
   question: z.string().min(1),
@@ -92,6 +93,19 @@ export async function POST(request: NextRequest) {
     const faqs = [...DEFAULT_FAQS, ...(customFaqs || [])];
     const llm = getLlmApiKey();
 
+    // Try to get cached answer
+    const cacheKey = `faq:${propertyId || 'global'}:${question.toLowerCase().slice(0, 50)}`;
+    const cachedAnswer = await getCachedContext('faq-answer', { 
+      question, 
+      propertyId: propertyId || 'global',
+      useMultiAgent: useMultiAgent || false 
+    });
+
+    if (cachedAnswer) {
+      console.log('[FAQ] Cache hit for question:', question.slice(0, 50));
+      return NextResponse.json(cachedAnswer);
+    }
+
     const answerFaq = buildAnswerFaqUseCase();
     const result = await answerFaq({
       question,
@@ -106,6 +120,16 @@ export async function POST(request: NextRequest) {
         ? (await import("@/memory/app-backend")).getAppBackend()
         : undefined,
     });
+
+    // Cache the result (5 min TTL for high-confidence answers)
+    if (result.confidence >= 0.8) {
+      await setCachedContext('faq-answer', { 
+        question, 
+        propertyId: propertyId || 'global',
+        useMultiAgent: useMultiAgent || false 
+      }, result, { ttl: 300 });
+      console.log('[FAQ] Cached answer with confidence:', result.confidence);
+    }
 
     // FAQ escalation: low confidence -> create Inquiry for director inbox
     if (result.confidence < 0.7 && propertyId) {

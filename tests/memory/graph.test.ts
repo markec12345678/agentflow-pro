@@ -2,6 +2,7 @@
  * Graph tests - entity create/read, relations
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { InMemoryBackend } from "@/memory/memory-backend";
 import { EntityManager } from "@/memory/entity-manager";
 import { RelationManager } from "@/memory/relation-manager";

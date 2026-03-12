@@ -1,6 +1,7 @@
 /**
  * Tourism prompts and substitutePrompt unit tests
  */
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { PROMPTS, CATEGORY_LABELS, VARIABLE_LABELS } from "@/data/prompts";
 import { substitutePrompt } from "@/lib/tourism/substitute-prompt";
 

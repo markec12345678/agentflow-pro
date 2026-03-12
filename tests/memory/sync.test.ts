@@ -2,6 +2,7 @@
  * Sync Service tests
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { InMemoryBackend } from "@/memory/memory-backend";
 import { GraphManager } from "@/memory/graph-manager";
 import { SyncService } from "@/memory/sync-service";

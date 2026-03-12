@@ -4,8 +4,19 @@ import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
 import { prisma } from '@/database/schema';
 import { triggerAlert } from '@/alerts/smartAlerts';
+import { z } from 'zod';
 
 export const dynamic = "force-dynamic";
+
+// Zod schema for creating alerts
+const createAlertSchema = z.object({
+  title: z.string().min(1, 'Title required').max(200),
+  message: z.string().min(1, 'Message required'),
+  severity: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  type: z.string().max(50),
+  propertyId: z.string().cuid().optional(),
+  metadata: z.record(z.any()).optional(),
+});
 
 /**
  * GET /api/alerts
@@ -93,7 +104,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const userId = getUserId(session);
-    
+
     if (!userId) {
       return NextResponse.json(
         { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
@@ -102,37 +113,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { type, title, message, severity, propertyId, metadata } = body;
-
-    // Validate required fields
-    if (!type || !title || !message || !severity) {
-      return NextResponse.json(
-        { success: false, error: { code: 'INVALID_INPUT', message: 'Missing required fields' } },
-        { status: 400 }
-      );
-    }
-
-    // Validate severity
-    const validSeverities = ['low', 'medium', 'high', 'critical'];
-    if (!validSeverities.includes(severity)) {
-      return NextResponse.json(
-        { success: false, error: { code: 'INVALID_SEVERITY', message: 'Invalid severity level' } },
-        { status: 400 }
-      );
-    }
+    
+    // Validate input with Zod
+    const validatedData = createAlertSchema.parse(body);
 
     // Create alert
     const alert = await prisma.alertEvent.create({
       data: {
-        type,
-        title,
-        message,
-        severity,
+        type: validatedData.type,
+        title: validatedData.title,
+        message: validatedData.message,
+        severity: validatedData.severity,
         status: 'active',
         userId,
-        propertyId,
-        metadata: metadata || {}
-      }
+        propertyId: validatedData.propertyId,
+        metadata: validatedData.metadata,
+      },
     });
 
     // Trigger smart alert if needed

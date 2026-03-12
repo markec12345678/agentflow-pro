@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 
 interface Post {
@@ -784,29 +785,21 @@ export default function ContentDetailPage() {
                       </ul>
                     </div>
                   )}
-                  {optimizeResult.geoHints && (
-                    <div className="rounded-lg border border-purple-200 dark:border-purple-800 p-3">
-                      <p className="text-sm font-medium dark:text-gray-300 mb-2">
-                        GEO (Generative Engine Optimization)
+                  {/* Simplified - No technical GEO/AEO jargon */}
+                  {(optimizeResult.geoHints || optimizeResult.aeoHints) && (
+                    <div className="rounded-lg border border-blue-200 dark:border-blue-800 p-3 bg-blue-50 dark:bg-blue-900/20">
+                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+                        💡 Predlogi za Boljšo Vsebino
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">FAQ ideas for AI search:</p>
-                      <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc list-inside space-y-0.5">
-                        {optimizeResult.geoHints.faqSuggestions.slice(0, 3).map((f, i) => (
+                      <ul className="text-sm text-blue-800 dark:text-blue-200 list-disc list-inside space-y-1">
+                        {optimizeResult.geoHints?.faqSuggestions?.slice(0, 3).map((f, i) => (
                           <li key={i}>{f}</li>
                         ))}
-                      </ul>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Conversion patterns: {optimizeResult.geoHints.conversionPatterns.slice(0, 2).join("; ")}</p>
-                    </div>
-                  )}
-                  {optimizeResult.aeoHints && (
-                    <div className="rounded-lg border border-indigo-200 dark:border-indigo-800 p-3">
-                      <p className="text-sm font-medium dark:text-gray-300 mb-2">
-                        AEO (Answer Engine Optimization)
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Featured snippet tips:</p>
-                      <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc list-inside space-y-0.5">
-                        {optimizeResult.aeoHints.featuredSnippetHints.slice(0, 2).map((s, i) => (
+                        {optimizeResult.aeoHints?.featuredSnippetHints?.slice(0, 2).map((s, i) => (
                           <li key={i}>{s}</li>
+                        ))}
+                        {optimizeResult.geoHints?.conversionPatterns?.slice(0, 2).map((p, i) => (
+                          <li key={i}>{p}</li>
                         ))}
                       </ul>
                     </div>
@@ -910,10 +903,11 @@ export default function ContentDetailPage() {
         <article className="rounded-xl bg-white dark:bg-gray-800 p-8 shadow-lg">
           {post.imageUrl && (
             <div className="mb-6 rounded-lg overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={post.imageUrl}
-                alt=""
+                alt={post.title || "Blog post"}
+                width={800}
+                height={400}
                 className="w-full max-h-80 object-cover"
               />
             </div>
