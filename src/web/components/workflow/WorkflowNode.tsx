@@ -1,69 +1,131 @@
-"use client";
+'use client';
 
-import { Handle, Position, type NodeProps } from "@xyflow/react";
-import type { WorkflowNode } from "@/workflows/types";
+/**
+ * AgentFlow Pro - Workflow Node
+ * Custom node component for React Flow
+ */
 
-export type WorkflowNodeData = WorkflowNode["data"] & { label?: string };
+import { memo } from 'react';
+import { Handle, Position, NodeProps } from 'reactflow';
 
-const typeColors: Record<string, string> = {
-  Agent: "border-blue-500 bg-blue-50",
-  Condition: "border-amber-500 bg-amber-50",
-  Action: "border-emerald-500 bg-emerald-50",
-  Trigger: "border-violet-500 bg-violet-50",
-};
+interface WorkflowNodeData {
+  label: string;
+  icon: string;
+  description?: string;
+  config?: Record<string, any>;
+  type?: string;
+}
 
-const agentTypeToLabel: Record<string, string> = {
-  research: "Research Agent",
-  content: "Content Agent",
-  code: "Code Agent",
-  deploy: "Deploy Agent",
-};
+function WorkflowNodeComponent({ data, selected }: NodeProps<WorkflowNodeData>) {
+  const getNodeTypeColor = (type?: string) => {
+    switch (type) {
+      case 'trigger':
+        return 'border-green-500 bg-green-50';
+      case 'agent':
+        return 'border-blue-500 bg-blue-50';
+      case 'action':
+        return 'border-purple-500 bg-purple-50';
+      case 'condition':
+        return 'border-yellow-500 bg-yellow-50';
+      case 'end':
+        return 'border-gray-500 bg-gray-50';
+      default:
+        return 'border-gray-300 bg-white';
+    }
+  };
 
-const getAgentLabel = (data: Record<string, unknown> = {}): string => {
-  const label = data?.label as string;
-  const agentType = String(data?.agentType ?? "").toLowerCase();
-  if (label && label !== "Agent") return label;
-  return agentTypeToLabel[agentType] ?? (agentType || "Agent");
-};
-
-export function WorkflowNode(props: NodeProps) {
-  const { data } = props;
-  const nodeType = (data?.type as string) ?? "Action";
-  const label =
-    nodeType === "Agent"
-      ? getAgentLabel(data as Record<string, unknown>)
-      : ((data?.label as string) ?? nodeType ?? "Node");
-  const typeKey = nodeType;
-  const style = typeColors[typeKey] ?? "border-gray-400 bg-gray-50";
+  const getIconColor = (type?: string) => {
+    switch (type) {
+      case 'trigger':
+        return 'text-green-600';
+      case 'agent':
+        return 'text-blue-600';
+      case 'action':
+        return 'text-purple-600';
+      case 'condition':
+        return 'text-yellow-600';
+      case 'end':
+        return 'text-gray-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
 
   return (
     <div
-      className={`nodrag nopan min-w-[140px] rounded-lg border-2 px-4 py-3 shadow-xs ${style}`}
+      className={`px-4 py-3 rounded-lg shadow-lg border-2 transition-all cursor-pointer
+        ${getNodeTypeColor(data.type)}
+        ${selected ? 'ring-2 ring-blue-500 shadow-xl' : 'hover:shadow-xl'}
+        min-w-[200px] max-w-[300px]`}
     >
-      <Handle type="target" position={Position.Left} id="target" />
-      <div className="font-medium">{label}</div>
-      {nodeType === "Agent" && data?.agentType ? (
-        <div className="mt-1 text-xs text-gray-600 capitalize">
-          {String(data.agentType)}
+      {/* Input handle */}
+      {data.type !== 'trigger' && (
+        <Handle
+          type="target"
+          position={Position.Top}
+          className="!bg-gray-400 !w-3 !h-3"
+        />
+      )}
+
+      {/* Node content */}
+      <div className="flex items-center gap-3">
+        <div className={`text-2xl ${getIconColor(data.type)}`}>
+          {data.icon || '📦'}
         </div>
-      ) : null}
-      {nodeType === "Condition" && data?.operator ? (
-        <div className="mt-1 text-xs text-gray-600">{String(data.operator)}</div>
-      ) : null}
-      {nodeType === "Trigger" && data?.triggerType ? (
-        <div className="mt-1 text-xs text-gray-600">{String(data.triggerType)}</div>
-      ) : null}
-      {nodeType === "Action" && data?.action ? (
-        <div className="mt-1 text-xs text-gray-600">{String(data.action)}</div>
-      ) : null}
-      {nodeType === "Condition" ? (
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-sm text-gray-900 truncate">
+            {data.label}
+          </div>
+          {data.description && (
+            <div className="text-xs text-gray-500 truncate mt-1">
+              {data.description}
+            </div>
+          )}
+          {data.config && Object.keys(data.config).length > 0 && (
+            <div className="text-xs text-gray-400 mt-1">
+              {Object.keys(data.config).length} settings configured
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Output handle */}
+      {data.type !== 'end' && (
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          className="!bg-blue-500 !w-3 !h-3"
+          id="output"
+        />
+      )}
+
+      {/* Condition handles */}
+      {data.type === 'condition' && (
         <>
-          <Handle type="source" position={Position.Right} id="true" />
-          <Handle type="source" position={Position.Bottom} id="false" className="left-1/2!" />
+          <Handle
+            type="source"
+            position={Position.Right}
+            className="!bg-green-500 !w-3 !h-3"
+            id="true"
+            style={{ top: '60%' }}
+          />
+          <Handle
+            type="source"
+            position={Position.Right}
+            className="!bg-red-500 !w-3 !h-3"
+            id="false"
+            style={{ top: '80%' }}
+          />
+          <div className="absolute right-0 top-[55%] text-xs text-green-600 font-medium ml-6">
+            Yes
+          </div>
+          <div className="absolute right-0 top-[75%] text-xs text-red-600 font-medium ml-6">
+            No
+          </div>
         </>
-      ) : (
-        <Handle type="source" position={Position.Right} id="source" />
       )}
     </div>
   );
 }
+
+export default memo(WorkflowNodeComponent);

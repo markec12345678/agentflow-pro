@@ -335,23 +335,37 @@ export const EMAIL_TEMPLATES: Record<string, EmailTemplate> = {
 
 /**
  * Render email template with variables
- * 
+ *
  * @param templateId - Template ID from EMAIL_TEMPLATES
  * @param variables - Object with variable key-value pairs
+ * @param branding - Optional branding configuration for white-label
  * @returns Rendered subject and body
- * 
+ *
  * @example
  * const { subject, body } = renderEmailTemplate('welcome', {
  *   guest_name: 'John Doe',
  *   property_name: 'Villa Bled'
+ * }, {
+ *   logoUrl: 'https://example.com/logo.png',
+ *   primaryColor: '#3B82F6',
+ *   removeAgentFlowBranding: true
  * });
  */
 export function renderEmailTemplate(
   templateId: string,
-  variables: Record<string, string>
+  variables: Record<string, string>,
+  branding?: {
+    logoUrl?: string | null;
+    logoSmall?: string | null;
+    primaryColor?: string;
+    secondaryColor?: string;
+    accentColor?: string;
+    fontFamily?: string;
+    removeAgentFlowBranding?: boolean;
+  }
 ): { subject: string; body: string } {
   const template = EMAIL_TEMPLATES[templateId];
-  
+
   if (!template) {
     throw new Error(`Template ${templateId} not found`);
   }
@@ -364,9 +378,53 @@ export function renderEmailTemplate(
     });
   };
 
+  let body = render(template.body);
+
+  // Apply white-label branding if provided
+  if (branding) {
+    // Replace default gradient with brand colors
+    if (branding.primaryColor || branding.secondaryColor) {
+      const gradient = branding.secondaryColor && branding.primaryColor
+        ? `background: linear-gradient(135deg, ${branding.primaryColor} 0%, ${branding.secondaryColor} 100%);`
+        : `background: ${branding.primaryColor || '#667eea'};`;
+      body = body.replace(
+        /background: linear-gradient\(135deg,.*?\);/,
+        gradient
+      );
+    }
+
+    // Add logo if provided
+    if (branding.logoUrl) {
+      const logoHTML = `<div style="text-align: center; margin-bottom: 20px;">
+        <img src="${branding.logoUrl}" alt="Logo" style="max-height: 80px; max-width: 300px;" />
+      </div>`;
+      body = body.replace('<div style="background: linear-gradient', logoHTML + '<div style="background: linear-gradient');
+    }
+
+    // Remove AgentFlow branding if requested
+    if (branding.removeAgentFlowBranding) {
+      body = body.replace(
+        /<div style="background: #333; color: white; padding: 20px; text-align: center; font-size: 12px;">[\s\S]*?<\/div>\s*<\/div>\s*$/,
+        `<div style="background: #f9f9f9; color: #666; padding: 20px; text-align: center; font-size: 12px; border-top: 2px solid ${branding.primaryColor || '#667eea'};">
+          <p>© 2026 {{property_name}}. Vse pravice pridržane.</p>
+          ${branding.logoSmall ? `<p><img src="${branding.logoSmall}" alt="Logo" style="height: 40px; margin-top: 10px;" /></p>` : ''}
+        </div>
+      </div>`
+      );
+    }
+
+    // Apply custom font family
+    if (branding.fontFamily) {
+      body = body.replace(
+        /font-family: Arial, sans-serif;/g,
+        `font-family: ${branding.fontFamily}, sans-serif;`
+      );
+    }
+  }
+
   return {
     subject: render(template.subject),
-    body: render(template.body),
+    body,
   };
 }
 
