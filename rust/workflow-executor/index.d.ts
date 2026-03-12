@@ -21,6 +21,7 @@ export interface WorkflowDefinition {
   name: string;
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
+  metadata?: string; // JSON stringified metadata
 }
 
 export enum NodeStatus {
