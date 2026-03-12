@@ -513,7 +513,7 @@ export class WorkflowBuilder {
    * Set workflow metadata
    */
   metadata(metadata: Record<string, unknown>): this {
-    (this.workflow as any).metadata = JSON.stringify(metadata);
+    (this.workflow as WorkflowDefinition).metadata = JSON.stringify(metadata);
     return this;
   }
 
