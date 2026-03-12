@@ -54,7 +54,7 @@ const nextConfig: NextConfig = {
     if (!isServer) {
       config.optimization = {
         ...config.optimization,
-        usedExports: true,
+        usedExports: false, // Disable to fix cacheUnaffected conflict
         splitChunks: {
           chunks: 'all',
           cacheGroups: {
@@ -73,6 +73,12 @@ const nextConfig: NextConfig = {
         },
       };
     }
+    
+    // Fix for Next.js 15 + Webpack 5 cache conflict
+    if (config.optimization) {
+      config.optimization.usedExports = false;
+    }
+    
     return config;
   },
   
