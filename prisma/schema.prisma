@@ -69,6 +69,101 @@ model EventLog {
 }
 
 // ============================================================================
+// ANALYTICS & PROJECTION MODELS
+// ============================================================================
+
+// Agent Run View (Read Model za queries)
+model AgentRunView {
+  id              String   @id @default(cuid())
+  workflowId      String
+  status          String   // pending, running, completed, failed
+  inputData       Json?
+  result          Json?
+  error           String?
+  errorType       String?
+  totalSteps      Int      @default(0)
+  totalDuration   Int      @default(0) // milliseconds
+  totalTokensUsed Int      @default(0)
+  userId          String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  failedAtStep    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  steps           AgentRunStep[]
+  
+  @@index([workflowId])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@map("agent_run_view")
+}
+
+// Agent Run Step (Read Model)
+model AgentRunStep {
+  id          String   @id @default(cuid())
+  runId       String
+  name        String
+  status      String   // pending, running, completed, failed
+  input       Json?
+  result      Json?
+  error       String?
+  duration    Int      @default(0) // milliseconds
+  tokensUsed  Int      @default(0)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  run         AgentRunView @relation(fields: [runId], references: [id], onDelete: Cascade)
+  
+  @@index([runId])
+  @@index([status])
+  @@map("agent_run_steps")
+}
+
+// Analytics Run Statistics
+model AnalyticsRunStats {
+  id            String   @id @default(cuid())
+  workflowId    String   @unique
+  totalRuns     Int      @default(0)
+  successfulRuns Int     @default(0)
+  failedRuns    Int      @default(0)
+  avgDuration   Int      @default(0) // milliseconds
+  avgTokens     Int      @default(0)
+  lastRunAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([workflowId])
+  @@map("analytics_run_stats")
+}
+
+// Analytics Daily Statistics
+model AnalyticsDailyStats {
+  id            String   @id @default(cuid())
+  date          DateTime @unique
+  totalRuns     Int      @default(0)
+  completedRuns Int      @default(0)
+  failedRuns    Int      @default(0)
+  totalDuration Int      @default(0) // milliseconds
+  totalTokens   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([date])
+  @@map("analytics_daily_stats")
+}
+
+// ============================================================================
+// END ANALYTICS & PROJECTION MODELS
+// ============================================================================
+
+
+// ============================================================================
 // END EVENT SOURCING MODELS
 // ============================================================================
 
