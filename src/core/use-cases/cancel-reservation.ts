@@ -1,6 +1,6 @@
 /**
  * Use Case: Cancel Reservation
- * 
+ *
  * Prekliči rezervacijo.
  * Izračuna refundacijo glede na cancellation policy.
  */
@@ -9,6 +9,7 @@ import { Reservation } from '../tourism/entities/reservation'
 import { Property } from '../tourism/entities/property'
 import { Money } from '../shared/value-objects/money'
 import { ReservationCancelled } from '../tourism/events/reservation-events'
+import type { EventBus } from '../domain/shared/events/domain-event'
 
 // ============================================================================
 // Input/Output DTOs
@@ -44,6 +45,10 @@ export interface CancellationPolicy {
 // ============================================================================
 
 export class CancelReservation {
+  constructor(
+    private eventBus?: EventBus  // Optional for backward compatibility
+  ) {}
+
   /**
    * Prekliči rezervacijo
    */
@@ -77,8 +82,10 @@ export class CancelReservation {
       refundAmount
     )
 
-    // 6. Objavi dogodek (če bi imeli event bus)
-    // await eventBus.publish(event)
+    // 6. Objavi dogodek
+    if (this.eventBus) {
+      await this.eventBus.publish(event)
+    }
 
     return {
       reservation,

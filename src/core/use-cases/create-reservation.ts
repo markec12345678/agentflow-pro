@@ -1,6 +1,6 @@
 /**
  * Use Case: Create Reservation
- * 
+ *
  * Ustvari novo rezervacijo za gosta.
  * Preveri razpoložljivost, izračuna ceno, ustvari rezervacijo.
  */
@@ -11,6 +11,8 @@ import { Guest } from '../guest/entities/guest'
 import { DateRange } from '../shared/value-objects/date-range'
 import { Money } from '../shared/value-objects/money'
 import { CalculatePrice } from './calculate-price'
+import { ReservationCreated } from '../domain/tourism/events/reservation-events'
+import type { EventBus } from '../domain/shared/events/domain-event'
 
 // ============================================================================
 // Input/Output DTOs
@@ -36,26 +38,14 @@ export interface CreateReservationOutput {
 }
 
 // ============================================================================
-// Domain Events
-// ============================================================================
-
-export class ReservationCreatedEvent {
-  constructor(
-    public readonly reservationId: string,
-    public readonly propertyId: string,
-    public readonly guestId: string,
-    public readonly dateRange: DateRange,
-    public readonly totalPrice: Money,
-    public readonly confirmationCode: string,
-    public readonly timestamp: Date = new Date()
-  ) {}
-}
-
-// ============================================================================
 // Use Case Class
 // ============================================================================
 
 export class CreateReservation {
+  constructor(
+    private eventBus?: EventBus  // Optional for backward compatibility
+  ) {}
+
   /**
    * Ustvari novo rezervacijo
    */
@@ -116,8 +106,19 @@ export class CreateReservation {
     // 7. Zabeleži v guest zgodovino (če bi imeli repository)
     // guest.recordStay(priceResult.totalPrice)
 
-    // 8. Objavi dogodek (če bi imeli event bus)
-    // await eventBus.publish(new ReservationCreatedEvent(...))
+    // 8. Objavi dogodek
+    if (this.eventBus) {
+      const event = new ReservationCreated(
+        reservation.id,
+        property.id,
+        guest.id,
+        checkIn,
+        checkOut,
+        guests,
+        priceResult.totalPrice
+      )
+      await this.eventBus.publish(event)
+    }
 
     return {
       reservation,
