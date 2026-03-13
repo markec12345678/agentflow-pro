@@ -21,11 +21,20 @@ async function main() {
   try {
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle", timeout: 15000 });
+    // Use domcontentloaded for faster capture, then wait a bit for JS to render
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
+    // Wait for page to stabilize (max 5 seconds)
+    await page.waitForLoadState('domcontentloaded', { timeout: 5000 }).catch(() => {});
+    // Additional wait for JS rendering
+    await page.waitForTimeout(2000);
     await page.screenshot({ path: outputPath, fullPage: true });
     console.log(outputPath);
   } catch (err) {
     console.error(err.message);
+    // Still try to save screenshot even on error
+    try {
+      await page?.screenshot({ path: outputPath, fullPage: true }).catch(() => {});
+    } catch {}
     process.exit(1);
   } finally {
     if (browser) await browser.close();

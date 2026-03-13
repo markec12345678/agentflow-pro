@@ -106,4 +106,4 @@ export const POST = withSentryLogging(async function POST(request: NextRequest) 
       { status: 500 }
     );
   }
-}
+});

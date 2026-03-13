@@ -1,50 +1,40 @@
-import type { Config } from "tailwindcss";
-import tailwindcssAnimate from "tailwindcss-animate";
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: [
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/web/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/page-builder/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/agents/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/workflows/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/styles/**/*.{css}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: "#eff6ff",
-          100: "#dbeafe",
-          200: "#bfdbfe",
-          300: "#93c5fd",
-          400: "#60a5fa",
-          500: "#3b82f6",
-          600: "#2563eb",
-          700: "#1d4ed8",
-          800: "#1e40af",
-          900: "#1e3a8a",
+        indigo: {
+          600: '#2563EB',
         },
-        receptor: {
-          primary: "#7c3aed",
-          secondary: "#0d9488",
-          "purple-blue": "linear-gradient(to right, #7c3aed, #2563eb)",
-          "green-teal": "linear-gradient(to right, #10b981, #0d9488)",
+        emerald: {
+          500: '#10B981',
         },
-      },
-      backgroundImage: {
-        "gradient-receptor-primary": "linear-gradient(to right, #7c3aed, #2563eb)",
-        "gradient-receptor-secondary": "linear-gradient(to right, #10b981, #0d9488)",
-      },
-      fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        amber: {
+          500: '#F59E0B',
+        },
+        red: {
+          500: '#EF4444',
+        },
+        gray: {
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
+        },
       },
     },
   },
-  plugins: [tailwindcssAnimate],
-  darkMode: "class",
+  plugins: [],
 };
+
 export default config;

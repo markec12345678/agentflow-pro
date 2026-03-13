@@ -97,3 +97,9 @@ rust/*/src/
 rust/**/src/
 
 .vercel
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

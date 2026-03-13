@@ -1,555 +1,461 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  PropertyCard,
-  PropertyGrid,
-  SeasonalShowcase,
-  PropertyDetail,
-} from "@/components/tourism/PropertyCard";
-import {
-  SeasonalCalendar,
-  AvailabilityHeatmap,
-  SeasonalPricingCalendar,
-} from "@/components/tourism/SeasonalCalendar";
-import {
-  TourismContext,
-  SeasonalIndicator,
-} from "@/components/tourism/TourismContext";
+import { useState } from "react";
 import Link from "next/link";
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  DollarSign, 
+  Percent, 
+  Users, 
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  ChevronRight,
+  Plus,
+  Download,
+  Filter
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Mock data for demonstration
-const mockProperties = [
-  {
-    id: "1",
-    name: "Sunset Beach Resort",
-    location: "Bled, Slovenia",
-    type: "hotel",
-    price: 180,
-    rating: 4.8,
-    reviews: 245,
-    features: ["wifi", "pool", "breakfast", "spa", "gym"],
-    imageUrl: "/images/properties/hotel-summer.jpg",
-    season: "summer",
-    occupancyStatus: "available",
-    description:
-      "Luxurious beachfront resort with stunning sunset views, infinity pool, and world-class spa facilities.",
-  },
-  {
-    id: "2",
-    name: "Alpine Chalet",
-    location: "Kranjska Gora, Slovenia",
-    type: "villa",
-    price: 250,
-    rating: 4.9,
-    reviews: 187,
-    features: ["wifi", "pool", "parking", "breakfast"],
-    imageUrl: "/images/properties/villa-winter.jpg",
-    season: "winter",
-    occupancyStatus: "booked",
-    description:
-      "Cozy alpine chalet with fireplace, private hot tub, and breathtaking mountain views.",
-  },
-  {
-    id: "3",
-    name: "City Center Apartments",
-    location: "Ljubljana, Slovenia",
-    type: "apartment",
-    price: 120,
-    rating: 4.6,
-    reviews: 312,
-    features: ["wifi", "parking", "breakfast"],
-    imageUrl: "/images/properties/apartment-summer.jpg",
-    season: "summer",
-    occupancyStatus: "available",
-    description:
-      "Modern apartments in the heart of Ljubljana with easy access to all major attractions.",
-  },
-  {
-    id: "4",
-    name: "Lake View Camping",
-    location: "Bohinj, Slovenia",
-    type: "camping",
-    price: 65,
-    rating: 4.7,
-    reviews: 198,
-    features: ["wifi", "parking", "pets"],
-    imageUrl: "/images/properties/camping-summer.jpg",
-    season: "summer",
-    occupancyStatus: "pending",
-    description:
-      "Eco-friendly camping site with direct lake access and stunning alpine views.",
-  },
+// ─── Mock Data (zamenjaj z API kliki) ────────────────────────────────────────
+const KPIS = {
+  occupancy: { value: 78, change: 12, trend: "up" as const },
+  revPAR: { value: 142, change: 8, trend: "up" as const },
+  adr: { value: 182, change: -3, trend: "down" as const },
+  direct: { value: 35, change: 15, trend: "up" as const },
+  tasks: { value: 12, change: -5, trend: "up" as const },
+};
+
+const ARRIVALS = [
+  { id: "1", guestName: "John Smith", room: "201", time: "14:00", source: "booking.com", price: 180, status: "confirmed" },
+  { id: "2", guestName: "Maria Garcia", room: "Suite 5", time: "15:00", source: "airbnb", price: 250, status: "pending" },
+  { id: "3", guestName: "Thomas Mueller", room: "105", time: "16:00", source: "direct", price: 150, status: "confirmed" },
+  { id: "4", guestName: "Anna Novak", room: "302", time: "17:00", source: "expedia", price: 200, status: "confirmed" },
 ];
 
-const mockReservations = [
-  { date: "2023-07-15", status: "booked", price: 180 },
-  { date: "2023-07-16", status: "booked", price: 180 },
-  { date: "2023-07-20", status: "pending", price: 180 },
-  { date: "2023-07-25", status: "available", price: 200 },
+const DEPARTURES = [
+  { id: "5", guestName: "Pierre Dubois", room: "201", time: "09:00", source: "booking.com", price: 180, status: "checked-out" },
+  { id: "6", guestName: "Laura Johnson", room: "105", time: "10:00", source: "airbnb", price: 150, status: "pending" },
+  { id: "7", guestName: "Marco Rossi", room: "302", time: "11:00", source: "direct", price: 200, status: "pending" },
 ];
 
-const mockAvailability = [
-  { month: 6, year: 2023, availability: 95 },
-  { month: 7, year: 2023, availability: 85 },
-  { month: 8, year: 2023, availability: 75 },
-  { month: 9, year: 2023, availability: 65 },
+const TASKS = [
+  { id: "1", title: "Clean Room 201", type: "cleaning", priority: "high", due: "12:00", assignedTo: "Maria", status: "pending" },
+  { id: "2", title: "Check-in: John Smith", type: "check-in", priority: "high", due: "14:00", assignedTo: null, status: "pending" },
+  { id: "3", title: "Fix AC in Room 105", type: "maintenance", priority: "medium", due: "15:00", assignedTo: "Janez", status: "in-progress" },
+  { id: "4", title: "Restock minibar - Suite 5", type: "cleaning", priority: "low", due: "16:00", assignedTo: null, status: "pending" },
+  { id: "5", title: "Welcome VIP guest", type: "check-in", priority: "high", due: "17:00", assignedTo: "Ana", status: "pending" },
 ];
 
-const mockPricing = [
-  { month: 6, year: 2023, basePrice: 150, peakPrice: 220, currentPrice: 180 },
-  { month: 7, year: 2023, basePrice: 160, peakPrice: 240, currentPrice: 200 },
-  { month: 8, year: 2023, basePrice: 170, peakPrice: 260, currentPrice: 220 },
-  { month: 9, year: 2023, basePrice: 140, peakPrice: 200, currentPrice: 160 },
+const RECENT_ACTIVITY = [
+  { id: "1", type: "booking", description: "New booking from Booking.com - Room 201", time: "5 min ago", icon: "📋" },
+  { id: "2", type: "message", description: "Message from Maria Garcia (Airbnb)", time: "15 min ago", icon: "💬" },
+  { id: "3", type: "task", description: "Housekeeping completed - Room 302", time: "30 min ago", icon: "✅" },
+  { id: "4", type: "payment", description: "Payment received - €180", time: "1 hour ago", icon: "💳" },
+  { id: "5", type: "cancel", description: "Booking cancelled - Room 105", time: "2 hours ago", icon: "❌" },
 ];
+
+// ─── Helper Components ───────────────────────────────────────────────────────
+
+function KPICard({ title, value, change, trend, icon: Icon, suffix = "" }: any) {
+  return (
+    <Card className="relative overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          {title}
+        </CardTitle>
+        <Icon className="h-4 w-4 text-gray-400" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}{suffix}</div>
+        <div className="flex items-center mt-2">
+          {trend === "up" ? (
+            <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+          )}
+          <span className={`text-xs ${trend === "up" ? "text-green-500" : "text-red-500"}`}>
+            {trend === "up" ? "+" : ""}{change}%
+          </span>
+          <span className="text-xs text-gray-500 ml-2">vs last month</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SourceBadge({ source }: { source: string }) {
+  const colors: Record<string, string> = {
+    "booking.com": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    "airbnb": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    "direct": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    "expedia": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+  };
+  
+  return (
+    <Badge variant="outline" className={colors[source] || "bg-gray-100 text-gray-800"}>
+      {source}
+    </Badge>
+  );
+}
+
+function PriorityBadge({ priority }: { priority: string }) {
+  const colors: Record<string, string> = {
+    "high": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    "medium": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+    "low": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+  };
+  
+  return (
+    <Badge variant="outline" className={colors[priority] || "bg-gray-100"}>
+      {priority}
+    </Badge>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const colors: Record<string, string> = {
+    "confirmed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    "pending": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+    "checked-out": "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+    "cancelled": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+  };
+  
+  return (
+    <Badge variant="outline" className={colors[status] || "bg-gray-100"}>
+      {status}
+    </Badge>
+  );
+}
+
+// ─── Main Dashboard Component ────────────────────────────────────────────────
 
 export default function TourismDashboard() {
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<
-    "properties" | "calendar" | "analytics"
-  >("properties");
-
-  const selectedPropertyData = mockProperties.find(
-    (p) => p.id === selectedProperty,
-  );
+  const [timeRange, setTimeRange] = useState("today");
 
   return (
-    <div className="tourism-dashboard">
-      {/* Dashboard Header */}
-      <div className="dashboard-header">
-        <div className="header-left">
-          <h1 className="dashboard-title">🌍 Tourism Management</h1>
-          <TourismContext
-            location="Slovenia"
-            season="summer"
-            propertyType="hotel"
-          />
+    <div className="space-y-6">
+      {/* ─── Header ────────────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Dobrodošel nazaj! 👋
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Here's what's happening with your properties today
+          </p>
         </div>
-        <div className="header-right">
-          <Link href="/dashboard" className="btn-tourism btn-tourism-secondary">
-            ← Back to Dashboard
-          </Link>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+          <Button size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Nova rezervacija
+          </Button>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="dashboard-tabs">
-        <button
-          className={`tab-button ${activeTab === "properties" ? "active" : ""}`}
-          onClick={() => setActiveTab("properties")}
-        >
-          <span>🏨 Properties</span>
-        </button>
-        <button
-          className={`tab-button ${activeTab === "calendar" ? "active" : ""}`}
-          onClick={() => setActiveTab("calendar")}
-        >
-          <span>📅 Calendar</span>
-        </button>
-        <button
-          className={`tab-button ${activeTab === "analytics" ? "active" : ""}`}
-          onClick={() => setActiveTab("analytics")}
-        >
-          <span>📊 Analytics</span>
-        </button>
-      </div>
+      {/* ─── Time Range Filter ─────────────────────────────────────────────── */}
+      <Tabs value={timeRange} onValueChange={setTimeRange} className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-4">
+          <TabsTrigger value="today">Danes</TabsTrigger>
+          <TabsTrigger value="week">Teden</TabsTrigger>
+          <TabsTrigger value="month">Mesec</TabsTrigger>
+          <TabsTrigger value="year">Leto</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-      {/* Tab Content */}
-      <div className="tab-content">
-        {activeTab === "properties" && (
-          <div className="properties-tab">
-            {/* Seasonal Showcase */}
-            <SeasonalShowcase
-              season="summer"
-              properties={mockProperties.filter((p) => p.season === "summer")}
-              title="🌞 Summer Highlights"
-            />
-
-            {/* All Properties */}
-            <div className="section-header">
-              <h2>All Properties</h2>
-              <div className="section-actions">
-                <button className="btn-tourism btn-tourism-primary">
-                  + Add Property
-                </button>
-              </div>
-            </div>
-
-            <PropertyGrid
-              properties={mockProperties}
-              onPropertyClick={setSelectedProperty}
-            />
-          </div>
-        )}
-
-        {activeTab === "calendar" && (
-          <div className="calendar-tab">
-            <div className="calendar-grid">
-              <div className="calendar-section">
-                <SeasonalCalendar
-                  season="summer"
-                  year={2023}
-                  month={7}
-                  reservations={mockReservations}
-                />
-              </div>
-              <div className="analytics-section">
-                <AvailabilityHeatmap
-                  season="summer"
-                  availabilityData={mockAvailability}
-                />
-                <SeasonalPricingCalendar
-                  season="summer"
-                  pricingData={mockPricing}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "analytics" && (
-          <div className="analytics-tab">
-            <div className="analytics-grid">
-              {/* Seasonal Performance */}
-              <div className="analytics-card">
-                <h3>📈 Seasonal Performance</h3>
-                <div className="performance-metrics">
-                  <div className="metric">
-                    <span className="metric-value">85%</span>
-                    <span className="metric-label">Occupancy Rate</span>
-                  </div>
-                  <div className="metric">
-                    <span className="metric-value">€180</span>
-                    <span className="metric-label">Avg. Daily Rate</span>
-                  </div>
-                  <div className="metric">
-                    <span className="metric-value">4.7</span>
-                    <span className="metric-label">Guest Rating</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Revenue Overview */}
-              <div className="analytics-card">
-                <h3>💰 Revenue Overview</h3>
-                <div className="revenue-chart">
-                  <div className="revenue-bar" style={{ height: "75%" }}>
-                    <span className="revenue-value">€45,200</span>
-                    <span className="revenue-month">July</span>
-                  </div>
-                  <div className="revenue-bar" style={{ height: "65%" }}>
-                    <span className="revenue-value">€38,900</span>
-                    <span className="revenue-month">June</span>
-                  </div>
-                  <div className="revenue-bar" style={{ height: "85%" }}>
-                    <span className="revenue-value">€51,300</span>
-                    <span className="revenue-month">August</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Guest Demographics */}
-              <div className="analytics-card">
-                <h3>👥 Guest Demographics</h3>
-                <div className="demographics-chart">
-                  <div className="demo-section">
-                    <h4>Nationalities</h4>
-                    <div className="demo-item">
-                      <span
-                        className="demo-color"
-                        style={{ backgroundColor: "#4CAF50" }}
-                      ></span>
-                      <span>Slovenia - 35%</span>
-                    </div>
-                    <div className="demo-item">
-                      <span
-                        className="demo-color"
-                        style={{ backgroundColor: "#2196F3" }}
-                      ></span>
-                      <span>Germany - 25%</span>
-                    </div>
-                    <div className="demo-item">
-                      <span
-                        className="demo-color"
-                        style={{ backgroundColor: "#FFC107" }}
-                      ></span>
-                      <span>Italy - 15%</span>
-                    </div>
-                  </div>
-                  <div className="demo-section">
-                    <h4>Age Groups</h4>
-                    <div className="demo-item">
-                      <span
-                        className="demo-color"
-                        style={{ backgroundColor: "#9C27B0" }}
-                      ></span>
-                      <span>25-34 - 40%</span>
-                    </div>
-                    <div className="demo-item">
-                      <span
-                        className="demo-color"
-                        style={{ backgroundColor: "#FF5722" }}
-                      ></span>
-                      <span>35-44 - 30%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Property Detail Modal */}
-      {selectedProperty && selectedPropertyData && (
-        <PropertyDetail
-          property={selectedPropertyData}
-          onClose={() => setSelectedProperty(null)}
+      {/* ─── KPI Cards ─────────────────────────────────────────────────────── */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <KPICard
+          title="Occupancy Rate"
+          value={KPIS.occupancy.value}
+          change={KPIS.occupancy.change}
+          trend={KPIS.occupancy.trend}
+          icon={Percent}
+          suffix="%"
         />
-      )}
+        <KPICard
+          title="RevPAR"
+          value={KPIS.revPAR.value}
+          change={KPIS.revPAR.change}
+          trend={KPIS.revPAR.trend}
+          icon={DollarSign}
+          suffix="€"
+        />
+        <KPICard
+          title="ADR"
+          value={KPIS.adr.value}
+          change={KPIS.adr.change}
+          trend={KPIS.adr.trend}
+          icon={DollarSign}
+          suffix="€"
+        />
+        <KPICard
+          title="Direct Bookings"
+          value={KPIS.direct.value}
+          change={KPIS.direct.change}
+          trend={KPIS.direct.trend}
+          icon={Users}
+          suffix="%"
+        />
+        <KPICard
+          title="Tasks Pending"
+          value={KPIS.tasks.value}
+          change={KPIS.tasks.change}
+          trend={KPIS.tasks.trend}
+          icon={CheckCircle2}
+        />
+      </div>
 
-      <style jsx>{`
-        .tourism-dashboard {
-          max-width: 1400px;
-          margin: 0 auto;
-          padding: var(--tourism-spacing-lg);
-        }
+      {/* ─── Main Content Grid ─────────────────────────────────────────────── */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* ─── Arrivals ────────────────────────────────────────────────────── */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  🤝 Arrivals Today
+                </CardTitle>
+                <CardDescription>{ARRIVALS.length} guests checking in</CardDescription>
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/dashboard/tourism/calendar">
+                  View all
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {ARRIVALS.map((arrival) => (
+                <div
+                  key={arrival.id}
+                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-12 rounded-full bg-gradient-to-b from-green-400 to-green-600" />
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {arrival.guestName}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Room {arrival.room} • {arrival.time}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <SourceBadge source={arrival.source} />
+                        <span className="text-xs text-gray-500">€{arrival.price}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/dashboard/reservations/${arrival.id}`}>
+                      View
+                    </Link>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        .dashboard-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: var(--tourism-spacing-lg);
-        }
+        {/* ─── Departures ──────────────────────────────────────────────────── */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  📤 Departures Today
+                </CardTitle>
+                <CardDescription>{DEPARTURES.length} guests checking out</CardDescription>
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/dashboard/tourism/calendar">
+                  View all
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {DEPARTURES.map((departure) => (
+                <div
+                  key={departure.id}
+                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-12 rounded-full bg-gradient-to-b from-gray-400 to-gray-600" />
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {departure.guestName}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Room {departure.room} • {departure.time}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <SourceBadge source={departure.source} />
+                        <span className="text-xs text-gray-500">€{departure.price}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/dashboard/reservations/${departure.id}`}>
+                      View
+                    </Link>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        .header-left {
-          display: flex;
-          flex-direction: column;
-          gap: var(--tourism-spacing-sm);
-        }
+        {/* ─── Tasks ───────────────────────────────────────────────────────── */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  ✅ Tasks
+                </CardTitle>
+                <CardDescription>{TASKS.filter(t => t.status === "pending").length} pending tasks</CardDescription>
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/dashboard/housekeeping">
+                  View all
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {TASKS.slice(0, 4).map((task) => (
+                <div
+                  key={task.id}
+                  className="flex items-start justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <div className="flex items-start gap-3">
+                    {task.type === "cleaning" ? (
+                      <div className="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
+                        🧹
+                      </div>
+                    ) : task.type === "check-in" ? (
+                      <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                        🤝
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                        🔧
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white text-sm">
+                        {task.title}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <PriorityBadge priority={task.priority} />
+                        <span className="text-xs text-gray-500">Due: {task.due}</span>
+                      </div>
+                      {task.assignedTo && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          👤 {task.assignedTo}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <Button variant="outline" className="w-full mt-2" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add new task
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        .dashboard-title {
-          font-family: var(--tourism-font-secondary);
-          font-size: 28px;
-          font-weight: 600;
-          color: var(--tourism-dark);
-          margin: 0;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
+      {/* ─── Recent Activity & Performance ─────────────────────────────────── */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              📰 Recent Activity
+            </CardTitle>
+            <CardDescription>Latest updates from your properties</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {RECENT_ACTIVITY.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <div className="text-xl">{activity.icon}</div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {activity.description}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        .dashboard-tabs {
-          display: flex;
-          gap: 4px;
-          margin-bottom: var(--tourism-spacing-lg);
-          border-bottom: 1px solid var(--tourism-light);
-        }
-
-        .tab-button {
-          padding: var(--tourism-spacing-sm) var(--tourism-spacing-md);
-          background: transparent;
-          border: none;
-          font-size: 14px;
-          font-weight: 500;
-          color: var(--tourism-primary);
-          cursor: pointer;
-          transition: all 0.2s ease;
-          position: relative;
-        }
-
-        .tab-button:hover {
-          color: var(--tourism-dark);
-        }
-
-        .tab-button.active {
-          color: var(--tourism-dark);
-          border-bottom: 2px solid var(--tourism-primary);
-        }
-
-        .tab-button.active::after {
-          content: "";
-          position: absolute;
-          bottom: -1px;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: var(--tourism-primary);
-        }
-
-        .tab-content {
-          min-height: 600px;
-        }
-
-        .section-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin: var(--tourism-spacing-lg) 0;
-        }
-
-        .section-header h2 {
-          font-family: var(--tourism-font-secondary);
-          font-size: 20px;
-          font-weight: 600;
-          color: var(--tourism-dark);
-          margin: 0;
-        }
-
-        .calendar-grid {
-          display: grid;
-          grid-template-columns: 1fr 300px;
-          gap: var(--tourism-spacing-lg);
-        }
-
-        .calendar-section {
-          background: white;
-          border-radius: var(--tourism-radius-lg);
-          box-shadow: var(--tourism-shadow-md);
-          padding: var(--tourism-spacing-md);
-        }
-
-        .analytics-section {
-          display: flex;
-          flex-direction: column;
-          gap: var(--tourism-spacing-lg);
-        }
-
-        .analytics-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: var(--tourism-spacing-lg);
-        }
-
-        .analytics-card {
-          background: white;
-          border-radius: var(--tourism-radius-lg);
-          box-shadow: var(--tourism-shadow-md);
-          padding: var(--tourism-spacing-md);
-        }
-
-        .analytics-card h3 {
-          color: var(--tourism-primary);
-          font-size: 16px;
-          font-weight: 600;
-          margin-bottom: var(--tourism-spacing-md);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .performance-metrics {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: var(--tourism-spacing-md);
-        }
-
-        .metric {
-          text-align: center;
-        }
-
-        .metric-value {
-          font-family: var(--tourism-font-secondary);
-          font-size: 24px;
-          font-weight: 600;
-          color: var(--tourism-primary);
-          display: block;
-        }
-
-        .metric-label {
-          font-size: 12px;
-          color: var(--tourism-dark);
-          opacity: 0.7;
-        }
-
-        .revenue-chart {
-          display: flex;
-          align-items: flex-end;
-          gap: var(--tourism-spacing-sm);
-          height: 200px;
-          margin-top: var(--tourism-spacing-md);
-        }
-
-        .revenue-bar {
-          flex: 1;
-          background: linear-gradient(
-            to top,
-            var(--tourism-primary),
-            var(--tourism-secondary)
-          );
-          border-radius: var(--tourism-radius-sm);
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-end;
-          padding: var(--tourism-spacing-xs);
-        }
-
-        .revenue-value {
-          font-size: 12px;
-          color: white;
-          font-weight: 600;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        .revenue-month {
-          font-size: 10px;
-          color: rgba(255, 255, 255, 0.8);
-          margin-top: 2px;
-        }
-
-        .demographics-chart {
-          display: flex;
-          gap: var(--tourism-spacing-lg);
-          margin-top: var(--tourism-spacing-md);
-        }
-
-        .demo-section {
-          flex: 1;
-        }
-
-        .demo-section h4 {
-          font-size: 14px;
-          color: var(--tourism-primary);
-          margin-bottom: var(--tourism-spacing-xs);
-        }
-
-        .demo-item {
-          display: flex;
-          align-items: center;
-          gap: var(--tourism-spacing-xs);
-          font-size: 12px;
-          margin: var(--tourism-spacing-xs) 0;
-        }
-
-        .demo-color {
-          display: inline-block;
-          width: 12px;
-          height: 12px;
-          border-radius: 2px;
-        }
-
-        @media (max-width: 1024px) {
-          .calendar-grid {
-            grid-template-columns: 1fr;
-          }
-          .analytics-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .dashboard-header {
-            flex-direction: column;
-            gap: var(--tourism-spacing-md);
-            align-items: flex-start;
-          }
-          .dashboard-tabs {
-            overflow-x: auto;
-            padding-bottom: var(--tourism-spacing-sm);
-          }
-        }
-      `}</style>
+        {/* Performance Overview */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              📊 Performance (7 days)
+            </CardTitle>
+            <CardDescription>Key metrics overview</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Occupancy (7 days)</span>
+                  <span className="font-medium">78%</span>
+                </div>
+                <Progress value={78} className="h-2" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Revenue vs. forecast</span>
+                  <span className="font-medium text-green-600">+12%</span>
+                </div>
+                <Progress value={112} className="h-2" indicatorClassName="bg-green-600" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Direct bookings</span>
+                  <span className="font-medium">35%</span>
+                </div>
+                <Progress value={35} className="h-2" indicatorClassName="bg-purple-600" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Guest satisfaction</span>
+                  <span className="font-medium">4.8/5</span>
+                </div>
+                <Progress value={96} className="h-2" indicatorClassName="bg-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

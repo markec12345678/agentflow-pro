@@ -15,7 +15,11 @@ declare global {
 function createPrisma() {
   const url = process.env.DATABASE_URL ?? "postgresql://localhost:5432/placeholder";
   const sep = url.includes("?") ? "&" : "?";
-  const withPool = url.includes("connection_limit=") ? url : `${url}${sep}connection_limit=5&connect_timeout=15`;
+  // Increased connection limit for dev (20) to handle multiple dashboard tabs
+  // Production should use proper connection pooling (PgBouncer)
+  const isDev = process.env.NODE_ENV === "development";
+  const connectionLimit = isDev ? 20 : 5;
+  const withPool = url.includes("connection_limit=") ? url : `${url}${sep}connection_limit=${connectionLimit}&connect_timeout=15`;
   const adapter = new PrismaPg({ connectionString: withPool });
   return new PrismaClient({
     adapter,

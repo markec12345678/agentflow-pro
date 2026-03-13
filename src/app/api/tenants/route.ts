@@ -1,1 +1,1 @@
-\"// Multi-Tenant API - Coming Soon\"  
+// Tenants API - Coming Soon

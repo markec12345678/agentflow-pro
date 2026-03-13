@@ -8,18 +8,14 @@ const DYNAMIC_CACHE_NAME = 'agentflow-dynamic-v1';
 const STATIC_ASSETS = [
   '/',
   '/dashboard',
-  '/book',
-  '/guest/portal',
+  '/login',
+  '/register',
+  '/pricing',
   '/_next/static/css/app/layout.css',
   '/_next/static/css/app/page.css',
-  '/_next/static/chunks/webpack.js',
-  '/_next/static/chunks/main-app.js',
-  '/_next/static/chunks/app/_app.js',
-  '/_next/static/chunks/app/page.js',
   '/favicon.ico',
-  '/images/logo.png',
-  '/images/placeholder.jpg',
-  '/sounds/notification.mp3'
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png'
 ];
 
 // Install event - cache static assets

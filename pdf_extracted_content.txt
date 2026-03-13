@@ -1,0 +1,692 @@
+PDF Extraction Report
+================================================================================
+Source: Odstranjevanje strogosti_ Arhitektura modularnih vmesnikov za turistične sisteme leta 2026.pdf
+Extracted: 2026-03-13T05:32:53.379865
+Pages: 18
+Words: 5,807
+================================================================================
+
+
+================================================================================
+PAGE 1 (298 words)
+================================================================================
+
+Odstranjevanje strogosti: Arhitektura
+modularnih vmesnikov za turistične
+sisteme leta 2026
+Arhitektonski Okvir: Modulnost, Neodvisnost in
+Skalabilnost
+Profesionalna programska rešitev za turizem v letu 2026 ne bo več monolitno aplikacijo,
+temveč kompleksen ekosistem samostojnih, vendar medsebojno povezanih modulov. Ta
+arhitektonski premik je odraz napredka v tehnologiji, sprememb v poslovnih potrebah in
+političnih okvirih, kot sta razvoj evropskega prostora za turistične podatke (D3Hub) 23
+26 in uveljavljanje trajnostnosti kot ključnega cilja 1 2 . Centralna zamisel tega okvira
+je dekompozicija velikega sistema na manjše, bolj upravljive enote, kar omogoča hitrejši
+razvoj, lažjo skalabilnost in večjo odpornost sistema. Ta princip se prenaša tako na
+backendu, kjer prevladuje arhitektonski vzorec mikrostoritev, kot tudi na frontendu, kjer
+se pojavlja koncept modulnih vmesnikov. Sistemska koordinacija pa bo opravljal
+orkestrator, ki bo upravljal kompleksne poslovne procese.
+Glavni princip, ki oblikuje to arhitekturo, je Domain-Driven Design (DDD), ki predlaga,
+da se software modeli temeljijo na poslovnih domenah, namesto da bi se organizirali po
+strogo tehničnih slojih 8 31. To pomeni, da je meja med storitvami določena glede na
+poslovno logiko, ne glede na to, kako se bo shranile podatki ali s katerim jezikom bo
+napisan kod. Na primer, storitev BookingService bo imela svoje lastne notranje
+procese, neodvisne od storitve PaymentService 33. Ta pristop, znano kot 'meje
+omejene domene', zagotavlja, da vsaka storitev ima jasno določeno odgovornost in se
+lahko razvija ločeno 19 33. Razvoj v skupinah, katere so specializirane za poslovne
+domeine, kot so CustomerManagement, InventoryControl ali
+RevenueOptimization, omogoča, da se posloveni znanstveni znanje neposredno
+prenese v kodno bazo, kar izboljša razumljivost in ohranjanje sistema 31. Uporaba DDD
+je še posebej koristna za velike, dolgotrajne projekte z zapletenimi in spreminjajočimi se
+poslovnimi pravili, saj ustvari jasno meje in omogoča, da se posloveni jezik (Ubiquitous
+Language) uporablja kot orodje za komunikacijo med razvijalci in poslovnimi
+strokovnjaki 31.
+
+================================================================================
+PAGE 2 (435 words)
+================================================================================
+
+Na backendu bo arhitektura temeljila na mikrostoritvah, ki jih je mogoče opazovati kot
+majhne, samostojne storitve, vsaka zlasti namenjena izvedbi posameznega poslovnega
+posla 17 19. Ključni element tega pristopa je princip ene odgovornosti, ki ga sledijo vsake
+mikrostoritve 20. To pomeni, da storitva za upravljanje rezervacij ni odgovorna tudi za
+upravljanje profila uporabnika; ta naloga pripada drugi, ločeni storitvi. Ta logika je
+centralna za Domain-Driven Design (DDD) 33. Neodvisnost se še dodatno krepi z
+vzorcem »posebna shramba za vsako storitev«, ki predpisuje, da vsaka mikrostoritev
+upravlja z lastno, izolirano podatkovno bazo 19 20. Ta pristop omogoča, da vsaka ekipa
+izbere najprimernejši tip podatkovne baze za svoje specifične potrebe, kar se imenuje
+poliglotno shranjevanje 9 . Na primer, transakcijsko strogo podatkovno bazo (relacijsko)
+bi lahko uporabila storitva za prodajo, fleksibilno dokumentno bazo za shranjevanje
+profilov gostiteljev, grafsko bazo za iskanje povezav med atrakcijami in gostitelji, ter
+vektorsko bazo za semantično iskanje po opisih destinacij 9 . Ta diverzifikacija
+podatkovnih shramb omogoča optimizacijo za različne vrste dostopa do podatkov in
+življenjske cikle, vendar zahteva previdno upravljanje, da se izogne antipatternom, kot so
+prekomerno zapletene kombinacije modelov ali deljenje ene baze med več
+mikrostoritvami 9 .
+Komunikacija med mikrostoritvami bo asinhrona, kar je bistveno za dosego odpornosti in
+skalabilnosti sistema 19 20. Namesto da bi ena storitev sinhrono klical drugega, kar bi
+ustvarilo verigo odvisnosti in slabšalo celotni sistem v primeru izpadka katere koli
+storitve, se bodo dogodki objavljala na dogodkovni zbirki, kot je Apache Kafka 19 25. Ko
+se zgodi poslovni dogodek, na primer novi plačilni prenos, se ta dogodek objavi na zbirki.
+Storitve, ki jih zanima ta dogodek – na primer InventoryService za posodobitev na
+voljo stanja in NotificationService za pošiljanje emaila uporabniku – se ga bodo
+samodejno prejemale in obdelovala. Ta asinhroni model pomeni, da so storitve med seboj
+popolnoma ločene in lahko delujejo neodvisno, kar poveča celotno odpornost sistema. Če
+InventoryService trenutno ne more obdelati zahtevka zaradi visoke obremenitve,
+ostane dogodek v čakalni vrsti in se obdeluje takoj, ko je storitev sposobna. Za
+usmerjanje vseh zunanjih zahtev, ki prihajajo iz spletnih brskalnikov, mobilnih aplikacij
+in tretjih storitvev, bo postal edinstven vstopni točka v sistem: API vodnik 19 20. API
+vodnik bo upravljal vse osnovne funkcionalnosti, ki jih pogosto zahtevajo različni klienti,
+kot so avtentikacija, nadzor pretoka, keširanje, protokoliranje in usmerjanje zahtev do
+ustrezne mikrostoritve 11. To omogoča, da se glavna logika poslovnih procesov hkrati
+ohrani v mikrostoritvah, medtem ko je API vodnik odgovoren za tehnične vidike
+interakcije z zunanjimi svetovi.
+Znotraj tega arhitektonskega okvirja bo ključna vloga tudi orkestratorjem. Ko se zahteva
+uporabnika razširi preko več kot ene mikrostoritve, na primer pri kreiranju nove
+
+================================================================================
+PAGE 3 (395 words)
+================================================================================
+
+rezervacije, ki vključuje preverjanje na voljo stanja, ustvarjanje plačilnega prenosa in
+pošiljanje potrditve, bo tok dela koordiniral poseben orkestrator 19. Ta orkestrator, ki
+lahko obstaja kot ločena mikrostoritev ali se implementira z uporabo platform kot je
+Microsoft Fabric, upravlja zaporedje operacij in koordinira vsebino med posameznimi
+koraki 10. Primeren pristop za modeliranje takšnih kompleksnih poslovnih procesov je
+uporaba orodij, kot je Kogito, ki omogočajo modeliranje poslovnih procesov prek BPMN
+2.0 diagramov 25. Tako modeliran proces se lahko prevede v samostojno delujočo
+mikrostoritev, ki sama po sebi izpostavi REST vmesnike za začetek in upravljanje procesa
+25. To omogoča, da so zapletene poslovne logike abstrahirane v razumljive procesne
+modele, ki jih lahko spremljajo poslovni analitiki, ne le razvijalci. Sledenje in indeksiranje
+stanja takšnih procesov je ključno za transparentnost in upravljanje. Dogodki, ki
+nastanejo med izvajanjem poslovnega procesa, bodo objavljeni na event bus-u v
+standardiziranem formatu, kot je CloudEvents, in indeksirani v specializirani shrambi,
+imenovani Data Index Service 25. Ta služba bo ponujala močan GraphQL API, ki
+omogoča hitre in specifične poizvedbe po stanju sistemskih entitet, na primer za iskanje
+vseh aktivnih rezervacij za določenega potnika 25. To zagotavlja realno, a hkrati tudi
+cenovno učinkovito rešitev za spremljanje in analizo, ki jo je mogoče uporabiti tudi za
+gradnjo uporabniških vmesnikov.
+Arhitektonska Namen in Vloga Ključni Elementi
+Komponenta
+Mikrostoritve Izolirano izvajanje poslovnih funkcij, zagotavljanje Ena odgovornost 20, meje omejene domene 33, posebna
+neodvisnosti in skalabilnosti.
+shramba 19, asinhrona komunikacija 19.
+Podatkovna Upravljanje različnih vrst podatkov z Poliglotno shranjevanje 9 , relacijske, dokumentne, grafske,
+Arhitektura najprimernejšim orodjem za vsako nalogo. vektorske in objektne baze.
+Event Bus (npr. Asinhrona komunikacija med mikrostoritvami, Objavljanje dogodkov (npr. order_placed), poročanje
+Kafka) povečanje odpornosti in odložitev. dogodkov, CloudEvents specification 25.
+API Gateway Enina točka dostopa za vse zunanje zahteve, Avtentikacija, nadzor pretoka, protokoliranje, usmerjanje,
+upravljanje križnih vprašanj. keširanje 11 20.
+Orkestrator (npr. Koordinacija kompleksnih poslovnih procesov, ki Modeliranje s BPMN 2.0 25, upravljanje tokov, koordinacija
+Kogito) vključujejo več mikrostoritv.
+med storitvami 19.
+Data Index Service Indeksiranje dogodkov in stanja za hitre, GraphQL API 25, indeksiranje dogodkov iz event bus-a,
+navidezne poizvedbe. podpora filtriranju in sortiranju.
+Ta kompleksen, a logično strukturiran arhitektonski okvir bo omogočil gradnjo sistema,
+ki je ne le funkcionalen danes, ampak tudi dovolj prilagodljiv in robusten, da bo mogel v
+prihodnosti rasti, spreminjati se in združevati nove poslovne potrebe, kot so vedno
+zahtevnejši zahtevki po personalizaciji, trajnosti in interoperabilnosti z evropskimi
+digitalnimi infrastrukturami.
+
+================================================================================
+PAGE 4 (323 words)
+================================================================================
+
+Hierarhija Map in Organizacija Kode: DDD kot Vodilo
+za Logično Strukturo
+Organizacija kode v repozitoriju je odraz arhitekture sistema. Pri projektih, ki sledijo
+principom Domain-Driven Design (DDD), se ta organizacija ne sklada z tehničnimi sloji,
+temveč z poslovnimi domenami. Ta pristop, znano kot "domensko prvo", nasprotuje
+tradicionalni, "odseknostni" strukturi, kjer se datoteke grupirajo glede na njihovo vrsto
+(npr. vse repositorije v eni mapi, vse serviserji v drugi) 32. V praksi to pomeni, da je
+vsaka poslovna domena, kot so Rezervacije, Stranke ali Inventar, predstavljena
+kot ločen paket ali direktorij, ki vsebuje vse kode, povezane z njo 32. Ta metodologija
+olajša razumevanje, ohranjanje in paralelni razvoj, ker se vse, kar je potrebno za
+posloveno enoto, nahaja na enem mestu 31 32. Metodologija Architecture Digitalization,
+ki se osredotoča na predstavitev arhitekture prek strukturiranih podatkov, podpira tudi
+takšne pristope, saj omogočajo bolj strategično vodenje tehnologije 4 .
+V kontekstu modernega razvoja, ki pogosto uporablja monorepoe za lažje upravljanje
+večlikih projektov, se ta domensko prva struktura izraža preko hierarhije direktorijev, ki
+jasno ločuje različne dele sistema 17. Monorepo omogoča enostavno upravljanje
+odvisnosti med različnimi deli aplikacije, deljenje kode prek paketov in enotno
+upravljanje CI/CD cevovodov 17. Notranjost tega monorepa pa je organizirana tako, da
+vsaka poslovna domena vsebuje vse svoje komponente. Predlagana hierarhija za
+monorepo, ki temelji na DDD, bi lahko izgledala takole:
+/monorepo-root
+├── apps/
+│ ├── shell-app/ # Glavna vmesna aplikacija, ki omogoča integracijo mikrofrontendov
+│ └── user-dashboard-mf/ # Primer mikrofrontenda za uporabniški nadzorni panel
+├── packages/
+│ ├── shared-ui/ # Deljene uporabniške komponente (npr. gumbi, vnosi)
+│ ├── shared-utils/ # Deljene funkcije in utility razrede
+│ └── shared-kernel/ # Deljene entitete, vrednostne objekte in konstante, ki jih uporabljajo več domen
+└── domains/
+├── booking/
+│ ├── domain/ # Jezik, entitete, agregati, servisi
+│ ├── application/ # Serviserji use-case-ov, preslikovalci, DTO-ji
+│ ├── infrastructure/ # Repositoriji, integracijski dogodki, vanjski serviserji
+│ └── presentation/ # REST kontrolerji, GraphQL sheme, UI komponente
+├── customer/
+│ ├── domain/
+
+================================================================================
+PAGE 5 (332 words)
+================================================================================
+
+│ ├── application/
+│ ├── infrastructure/
+│ └── presentation/
+└── inventory/
+├── domain/
+├── application/
+├── infrastructure/
+└── presentation/
+Ta struktura, ki jo predstavlja DDD, omogoča, da ekipa, ki se ukvarja z domeno
+booking, vidi vse, kar je potrebno za njeno delo, v enem direktoriju. To izboljšuje
+razumljivost, ohranjanje in paralelni razvoj 31 32. Osnovni sloji (domain, application,
+infrastructure, presentation) ostanejo, vendar so združeni notranjost vsake domene.
+Vsaka od teh map ima jasno določeno vlogo, ki sledi principom DDD.
+Mapa domain je jedro poslovne logike. Vsebuje ključne poslovne koncepte, ki jih definira
+biznis, kot so Entitete (objekti z lastnim identifikatorjem), Vrednostni objekti
+(nespremenljivi objekti, ki opisujejo lastnosti) in Agregati (grupe entitet, ki se
+upravljajo kot enota). Najpomembneje, mapa domain mora biti popolnoma neodvisna od
+katere koli tehnologije ali infrastrukture. Ne sme vsebovati nobenih odvisnosti, ki se
+nanašajo na shranjevanje podatkov, omrežje ali uporabniški vmesnik 33. Njena samo
+vrednost je poslovna logika, pravila in invarianti, ki jih mora sistem spoštovati.
+Mapa application koordinira uporabne primere. Njena naloga ni, da bi vsebovala
+poslovne pravila same po sebi, temveč da koordinira klice do sloja domain za izvedbo
+poslovnega posla. Na primer, CreateBookingUseCase bo vzel vhodne podatke,
+preveril preprosta pravila (npr. ali so vnosni podatki veljavni) in nato poklical metode v
+domain sloju (npr. ustvarjanje nove Booking entitete). Ta sloj vsebuje tudi definicije
+vmesnikov za podatkovne shrambe (repositorije), ki jih bo implementiral
+infrastructure sloj, kar je ključno za ohranjanje odloženosti med sloji 33.
+Preslikovalci in definicije objektov za prenos podatkov (DTO-ji) se tudi pogosto nahajajo
+tukaj, saj služijo kot most med presentation slojem (ki uporablja vhodne in izhodne
+podatke) in domain slojem (ki deluje z bogatimi domenskimi objekti).
+Mapa infrastructure implementira tehnične podrobnosti. Tu se nahajajo konkretna
+povezava z podatkovno bazo (implementacije repositorijev), klici do zunanji API-jev,
+logika za objavo dogodkov na event bus-u itd. Ta sloj odvisen od domain in
+application slojev, vendar oni nimajo nobenih odvisnosti od njega. To zagotavlja, da
+se poslovna logika lahko testira brez dejanskega dostopa do podatkovne baze ali omrežja,
+
+================================================================================
+PAGE 6 (340 words)
+================================================================================
+
+kar pomeni, da so testi hitrejši in robustnejši 33. Na primer, BookingRepositoryImpl
+bo implementiral vmesnik BookingRepository iz application sloja in bo
+uporabljal JDBC za branje in pisanje v relacijsko podatkovno bazo.
+Mapa presentation je vmesnik sistema. V primeru backend aplikacije to pomeni REST
+kontrolerje ali GraphQL sheme, ki izpostavljajo poslovne storitve kot vmesnike. Ti
+kontrolerji prejmejo zunanje zahtevke (npr. HTTP POST za ustvarjanje rezervacije),
+preberejo podatke, ustvarijo vhodni objekt za uporabni primer, pokliče ustrezni serviser v
+application sloju in nato preslikuje izhodni objekt nazaj v JSON odziv za odjemalca. V
+primeru frontend aplikacije bi ta mapa vsebovala uporabniške vmesne komponente (npr.
+React komponente) za posamezno domeno 30.
+Deljene kode, ki jih potrebujejo več domen, se ne nahajajo neposredno v mapah domen,
+temveč v ločenih paketih, kot sta shared-kernel ali shared-ui. Shared-kernel v
+smislu DDD pomeni del modela domene, ki je deljen med več mejami omejenih
+kontekstov in je strogo usklajen 32. To lahko vključuje osnovne entitete (npr. Address,
+Money), konstante ali izjeme. Paketi shared-ui in shared-utils pa vsebujejo bolj
+tehnične, ponovno uporabljive komponente, kot so gumbi, formularji, barvne sheme in
+uporabne funkcije, ki jih uporabljajo različni mikrofrontendi 17. Ta ločitev omogoča, da
+se ohrani stroga meja med domenami, hkrati pa se izogne ponavljanju kode in zagotovi
+enoten videz in obnašanje v celotni aplikaciji.
+Sledenje tej hierarhiji je ključno za ohranjanje čiste, razumljive in održljive kode.
+Razvijalci, ki se pridružijo projektu, lahko hitro poiščejo vse, kar je potrebno za
+razumevanje in razvoj posamezne poslovne enote, kar poveča produktivnost in zmanjša
+tveganje, da pride do neželenih odvisnosti med različnimi deli sistema.
+Vmesniki API-jev: Odstranitev Strogega Povezovanja in
+Usmeritev v Poslovne Resurse
+V arhitekturi, ki temelji na mikrostoritvah, so vmesniki API-ji ključna komunikacijska
+povezava med ločenimi deli sistema. Zaradi tega je njihov dizajn kritično pomemben za
+uspeh celotnega sistema. Profesionalna rešitev za leto 2026 bo uporabljala striktno
+definirane, predvidljive in stabilne vmesnike, ki bodo omogočali, da se posamezne
+storitve razvijajo in razlikujejo ločeno, ne da bi ogrozile delovanje drugega dela sistema.
+Temelj te filozofije je princip razloženega povezovanja, ki pomeni, da strežnični in
+
+================================================================================
+PAGE 7 (380 words)
+================================================================================
+
+odjemaljačevi sistemi ne smeta biti tesno povezana 5 . To se dosega z uporabo
+standardiziranih protokolov, jasnih pravil za strukturo URL-ov in uporabo principa
+"hipertekst kot motor aplikacijskega stanja". Ključni standard za opis teh vmesnikov bo
+OpenAPI specifikacija, ki omogoča "s pogodbo najprej" pristop, kjer se vmesnik definira
+pred implementacijo, kar izboljša interoperabilnost in omogoča avtomatsko generiranje
+klientskih knjižnic in dokumentacije 5 .
+Prvi fundamentalni princip pri dizajniranju RESTful API-jev je, da URI-ji (mednarodni
+identifikator virov) predstavljajo poslovne resurse, ne akcije 5 . To pomeni, da se imena
+poti na API-ju navezujejo na imena poslovnih entitet, ki jih predstavljajo. Na primer,
+kolekcija rezervacij bi bila dostopna prek URI-ja /v1/bookings, posamezna rezervacija
+pa prek /v1/bookings/{id} 5 . Uporaba ročnih akcij v URI-ju, kot je npr. /
+createBooking ali /orders/99/products, je nepoželjiva, ker krši uniformni
+vmesnik in naredi API-ja manj predvidljive in težje razumljive 5 . Imena poti bi morala
+biti izražena z besedami v množini, saj predstavljajo kolekcije resursov 5 .
+Uporaba standardnih HTTP metod (GET, POST, PUT, PATCH, DELETE) na teh URI-ih je
+naslednji korak za zagotavljanje platformske neodvisnosti in logičnosti 5 . Seveda je
+potrebno paziti, da se ne prevec komplicira hijerarhija resursov v globoki vmesniku.
+Namesto globoko vgnanega poti kot /customers/1/orders/99/products, je boljši
+pristop eksponirati te odnose prek ločenih končnih točk (npr. /customers/1/orders
+in /orders/99/products) ali pa prek načela HATEOAS, kjer vsak odziv vsebuje
+hipertekstne povezave do sorodnih virov 5 . To ohranja preprostost in fleksibilnost API-
+ja.
+Najpomembnejši in najbolj napredni princip, ki ga je treba upoštevati, je HATEOAS
+(Hipertekst kot motor aplikacijskega stanja). To je lastnost, ki jo definira četrta stopnja
+Richardsonove maturitetne lestvice za REST (RMM) in jo ločuje resnično RESTno
+arhitekturo od preprostega SOAP prek HTTP-ja 5 . S HATEOAS-om ne more odjemaljac
+(npr. spletna aplikacija) "zlorabiti" API-ja, ker je vsem dostopnih akcijah in sorodnih
+virom povezanih povezav v odzivu. Na primer, ko spletna aplikacija prejme podatke o
+rezervaciji, v tem odzivu naj bi bila povezava do možnosti "refundiraj rezervacijo" ali
+"poglej podrobnosti gostitelja". Odjemaljac lahko sledi tej povezavi, namesto da bi jo
+morala vedeti vnaprej ali jo izračunati. To naredi odjemaljača bistveno avtonomnejšega
+in manj odvisnega od stalnih posodobitev API-ja. Spletna aplikacija lahko avtonomno
+preusmeri uporabnika, glede na to, katera dejanja so trenutno dostopna za dani resurs,
+kar poveča robustnost sistema 5 .
+
+================================================================================
+PAGE 8 (393 words)
+================================================================================
+
+Zaradi narave poslovanja, kjer se API-ji redno spreminjajo, je verzioniranje ključno za
+ohranjanje nazajne kompatibilnosti 5 . Obstaja več pristopov k verzioniranju, od katerih
+je najbolj priporočljiv tisti, ki se ujema z načelom HATEOAS. Verzioniranje preko
+medijskih tipov (npr. Accept: application/vnd.contoso.v2+json) je najbolj
+RESTen način, ker verzijo povezuje z vsebino (medijskim tipom) in ne z lokacijo (URI-
+om) 5 . Drugi pristopi, kot je verzioniranje preko URI-ja (/v2/customers) ali
+poizvednega niza (?version=2), so preprostejši za implementacijo, vendar so manj
+elegantni in lahko vodijo k "spominskim" problemom v API-ju 5 . Medtem ko
+verzioniranje preko glave (api-version=2) ponuja večjo fleksibilnost, vendar
+komplicira keširanje 5 .
+Pri dostopanju do velikih množic podatkov je ključno optimizirati prenos podatkov. To
+dosežemo z dvema osnovnima tehnikama: paginacijo in filtriranjem. Paginacija omogoča,
+da API vrne podatke v manjših, upravljivih kosih namesto da bi v enem odzivu poslal
+celotno množico. To se običajno doseže z uporabo poizvednih parametrov, kot sta limit
+(število elementov na stran) in offset (preskok prvih elementov) 5 . Bolj napredna
+rešitev uporablja token paginacije, ki omogoča bolj učinkovito dostop do strani v velikih
+tabelah. Filtriranje pa omogoča odjemalcu, da omeji množico podatkov, ki jo prejme, z
+določenimi pogoji. To se doseže z dodajanjem pogojev v poizvedni niz, na primer ?
+status=shipped&minCost=100 5 . Obema tehnikama omogočata, da odjemaljci
+prejmejo le podatke, ki jih resnično potrebujejo, kar zmanjša obseg prenosa in poveča
+zmogljivost sistema.
+Nekatere operacije na API-ju, kot so ustvarjanje kompleksnih, dolgotrajnih poročil ali
+procesiranje velikih datotek, lahko trajajo dlje časa. Namesto, da bi odjemaljac čakal na
+konec te operacije, kar bi blokiralo njegov vmesnik, je pravilen pristop takoj vrniti odziv z
+statusom HTTP 202 (Accepted) 5 . V telesu tega odziva mora biti vključen glava
+Location, ki kaže na končno točko, kjer lahko odjemaljac po vsebini preveri
+napredovanje ali konec opravila. Ko je operacija končana, lahko ta statusna točka pošlje
+odjemalcu preusmeritev z HTTP 303 (See Other) na nov ustvarjeni resurs (npr.
+ustvarjeni PDF poročilo) 5 .
+Vmesnik API Namenska uporaba Ključni elementi
+Backend Mikrostoritve Komunikacija med notranjimi storitvami, RESTful (Resource URIs, HTTP Methods), HATEOAS (RMM Level
+asinhrona in sinkrona. 3), Versioning (Media Type), Pagination & Filtering 5 .
+API Gateway Enina točka dostopa za vse zunanje Authentication, Rate Limiting, Caching, Logging, Routing 11.
+zahteve.
+Asinhroni vmesniki Komunikacija med storitvami prek Message Queues (Kafka), CloudEvents specification, Event Sourcing
+(Event Bus) dogodkov, povečanje odpornosti. 19 25.
+
+================================================================================
+PAGE 9 (325 words)
+================================================================================
+
+Sledenje tem standardom in načelom bo zagotovilo, da bo vmesnik sistema med
+mikrostoritvami jasen, predvidljiv in robusten, kar je nujen pogoj za uspešen razvoj in
+održevanje kompleksnega turističnega sistema.
+Vmesniki Frontenda: Prilagodljivost, Neodvisnost in
+Optimizacija Zahtev
+Vmesnik uporabnika v modernem turističnem sistemu za leto 2026 ne bo monolitna
+aplikacija, temveč dinamičen portal, sestavljen iz več neodvisnih, samostojno razvijanih
+in nameščenih delov. Ta pristop, znani kot Modularna Frontenda, je direkten posledicar
+arhitekture mikrostoritev na backendu in omogoča, da različne ekipe delujejo paralelno,
+uporabljajo različne tehnologije in hitreje izvajajo izobraževanje brez ovirjenja drugega
+29 30. Zasnova tega sistema bo temeljila na vzorcu "Shell + Apps", kjer glavna "Shell"
+aplikacija določa splošno strukturo, navigacijo in menije, medtem ko individualne "Apps"
+predstavljajo ločene funkcionalne module, ki jih je mogoče dinamično nalagati v lupino
+30. Ta arhitektura omogoča, da ekipa za razvoj iskalnega sistema lahko uporablja React,
+ekipa za CRM pa Angular, hkrati pa vse deluje kot enotna aplikacija za končnega
+uporabnika 30.
+Implementacija modularnih vmesnikov zahteva orkestracijsko tehnologijo, ki bo
+upravljala vsebine, njihovo namestitev, odstranjevanje in komunikacijo. Eden najbolj
+razširjenih pristopov je uporaba Module Federation, funkcionalnosti, ki jo ponuja
+Webpack 5 29 30. S to tehnologijo lahko ena aplikacija (host) dinamično uvozi kode
+(komponente, knjižnice) iz druge aplikacije (remote), kot da bi jih imela lokalno. To
+omogoča, da se deli vmesnika ponovno uporabijo na več mestih in da se zagotovi, da
+obstaja samo en instanca osnovnih knjižnic, kot so React ali Redux, kar preprečuje
+prekomerno večanje velikosti končnega balona 30. Alternativne tehnologije, kot so
+Single-spa, so tudi popularne orkestracijske ramke, ki upravljajo ločene enopageske
+aplikacije kot modularne enote, kjer vsaka aplikacija mora izpostaviti posebne življenjske
+cikluse (bootstrap, mount, unmount) 30. Za tvorbo ponovno uporabnih, tehnologije-
+neodvisnih vmesnikov pa so ključni Web Components, ki uporabljajo standardne
+vmesnike vmesniških elementov in sencnega DOM-a za ustvarjanje izoliranih in
+vgrajljivih uporabniških komponent 30.
+V kontekstu modularnega vmesnika in arhitekture mikrostoritev postane ključnega
+pomena vzorec "Backends for Frontends" (BFF) 11. BFF predstavlja sloj posredniških
+
+================================================================================
+PAGE 10 (383 words)
+================================================================================
+
+storitev, ki jih vsaka skupina frontendov (ali celo posamezen frontend) upravlja ločeno.
+Namesto da bi frontend direktno klical API-je mikrostoritv, kliče svoj BFF, ki je specifično
+optimiziran za potrebe tega frontenda 11. BFF služi večim namenom. Prvič, zmanjšuje
+kompleksnost frontenda. Namesto da bi frontend moral spraševati več različnih
+mikrostoritv za podatke za eno stran (npr. stran rezervacije), BFF združuje te podatke v
+enega, optimiziranega odziva. Drugič, omogoča personalizirano dostavo podatkov. Na
+primer, mobilni BFF lahko vrne zelo kompakten podatkovni model, ki vsebuje le
+najpotrebnejše informacije, za hitrejši nalaganje na mobilnih napravah z omejenim
+povezovanjem, medtem ko spletni BFF lahko vrne bogatejši model z več podrobnosti.
+Tretjič, prinaša dodatno plast varnosti, saj omejuje površino napadev za vsako skupino
+frontendov in omogoča prilagojeno avtentikacijo in avtorizacijo za vsak posamezen
+frontend 11. V praktični realizaciji bi lahko v monorepu BFF storitve bile organizirane v
+mapi bffs/ ali kot ločene storitve v mapi services/, vsaka znotraj svojega bounded
+context.
+Vmesniki med mikrofrontendi in njihovimi BFF-ji bodo temeljili na REST principih,
+vendar bodo še bolj usmerjeni v potrebe uporabniškega vmesnika. Njihovi vmesniki ne
+bodo predstavljali poslovnih domen, temveč uporabniške potrebe. Na primer, namesto da
+bi mikrofrontend za iskanje klical posamične storitve za atrakcije, storitve za gostitelje in
+storitve za cene, bi klical BFF vmesnik, npr. GET /v1/search-results?
+location=Paris&dates=2026-07-15,2026-07-22. BFF bi v ozadju izvedel vse
+potrebne poizvedbe, združil rezultate in jih vrnil v obliki, ki jo je mikrofrontend
+enostavno lahko predelal in predstavil. Ta pristop zelo olajša delo na frontendu in
+omogoča, da se logika združevanja podatkov in optimizacija dostave prenese na backend.
+Komunikacija med posameznimi mikrofrontendi, ki delujejo v isti lupini, mora biti
+učinkovita in nediskretna. Ker so mikrofrontendi lahko izolirani v iframe-ih, ki ponujajo
+najboljšo varnostno mejo, je komunikacija med njimi strogo bazirana na dogajanju prek
+postMessage() API-ja 30. Za notranjo komunikacijo znotraj lupine, kjer
+mikrofrontendi delujejo v istem vmesnem jeziku, je boljši pristop uporaba globalnega
+stanja (npr. Redux store) za deljenje podatkov, ki jih potrebujejo več mikrofrontendov,
+kot so trenutno prijavljeni uporabnik ali jezikovna nastavitev 29. Za asinhrono
+komunikacijo in oddaljeno sprožanje dogodkov med mikrofrontendi se bo uporabljal
+dogodkovni posredniški center, ki je že del arhitekture backenda. To omogoča, da se
+dogodki, kot je "rezervacija uspešno kreirana", pošljejo iz backenda in jih sprejmejo
+relevantni mikrofrontendi za posodobitev uporabniškega vmesnika, na primer z
+osvežitvijo nadzorne plošče uporabnika.
+
+================================================================================
+PAGE 11 (363 words)
+================================================================================
+
+Upravljanje te kompleksne, modularne strukture zahteva strogo pravila in
+standardizacijo. Ekipa mora razviti in sprejeti univerzalen dizajnerski sistem, ki določa
+stilsko slog, uporabniške komponente in usmerjenost v uporabo 29. To zagotovi enoten
+izkušnjo za uporabnike, ne glede na to, katero metodo je upravljala ekipa, ki je razvila
+posamezen del vmesnika. Tudi vprašanja, kot je upravljanje verzij mikrofrontendov in
+njihova združljivost, morajo biti strogo uravnavana. Uporaba orodij za upravljanje
+paketov, kot je Lerna, lahko pomaga pri upravljanju večpakirskih JavaScript projektov in
+zagotavlja, da so odvisnosti pravilno upravljane 29. Končno, je ključno implementirati
+izjemno učinkovito sistem za protokoliranje in spremljanje, ki omogoča sledenje napak in
+prestižnosti v celotnem portalu, tudi kadar gre za napako v posameznem mikrofrontendu
+29. To omogoča hitro diagnosticiranje in reševanje problemov v distribuiranem sistemu.
+Podatkovna Arhitektura in Integracija Umetne
+Inteligence: Osnova za Intelligente Turistične Storitve
+Podatkovna arhitektura in integracija umetne inteligence (AI) sta v letu 2026 dvema
+ključnima stebroma, ki nosita profesionalen turistični sistem. Podatkovna arhitektura
+mora biti sposobna obravnavati raznolike vrste podatkov – od strogo strukturiranih
+transakcijskih podatkov do nestrukturiranih tekstov, slik in video posnetkov – hkrati pa
+mora zagotavljati interoperabilnost z nacionalnimi in evropskimi digitalnimi
+infrastrukturami, kot je D3Hub 23 26. Vmesniki umetne inteligence pa ne bodo več
+dodatek, temveč integralni del sistema, ki bo omogočal napredne funkcionalnosti, kot so
+personalizirana ponudba, avtomatizirana podpora in pametna analiza tržnih trendov. Te
+dve sferi sta tesno povezani, saj umetna inteligenca zahteva dostop do velikih in
+raznolikih podatkovnih zbirk za učenje in delovanje.
+Podatkovna arhitektura bo osredotočena na pristop, imenovan poliglotno shranjevanje
+9 . To pomeni, da ne bo obstajala ena same podatkovna baza za vse potrebe. Namesto
+tega bo vsaka mikrostoritev, glede na svoje specifične zahteve, uporabljala najprimernejši
+tip shrambe za svoje podatke 9 . Ta pristop, ki ga je mogoče videti v praksi, omogoča
+maksimalno optimizacijo za različne dostopne vzorce, življenjske cikle in zahtevke za
+konzistentnost. Relacijske podatkovne baze, kot je PostgreSQL, bodo ključne za strogo
+transakcijske operacije, ki zahtevajo ACID lastnosti, kot so ustvarjanje rezervacij, plačila
+in inventurne posodobitve 9 . Dokumentne baze, kot je MongoDB, bodo idealne za
+shranjevanje fleksibilnih, nestrukturiranih ali polstrukturiranih podatkov, kot so profili
+uporabnikov, podrobnosti gostiteljev ali opisi atrakcij, kjer se shema pogosto spreminja
+
+================================================================================
+PAGE 12 (417 words)
+================================================================================
+
+9 . Grafske baze, kot je Neo4j, bodo uporabljene za modeliranje in iskanje globokih
+povezav, na primer za kreiranje priporočevalnih sistemov, ki najdejo gostilne, ki ustrezajo
+specifičnim dejavnostim uporabnika, ali za analizo verige dobaviteljev v turizmu 9 . Za
+napredne AI funkcije, kot je semantično iskanje, bo ključna vektorska baza, kot je
+Pinecone ali Elasticsearch, ki omogoča hitro iskanje po podobnosti med vektorji,
+generiranimi iz besedila, slik ali drugih podatkov 9 . Nazadnje, shrambe za objekte, kot
+je AWS S3, bodo služile za shranjevanje velikih binarnih datotek, kot so fotografije,
+videoposnetki in dokumenti 9 . Ta raznolikost podatkovnih shramb bo zahtevala
+naprednejša orodja za upravljanje, kot so Microsoft Fabric, ki ponuja enotno platformo za
+analitiko in povezuje različne podatkovne vire v enotno celoto, kot je OneLake 10.
+Integracija umetne inteligence bo bila globoko vgrajena v poslovne procese, ne le na
+robu. Ena izmed ključnih arhitekturonskih vzorcev bo Retrieval-Augmented Generation
+(RAG) 10. RAG sistem omogoča, da jezikovne modele, kot so GPT, "podlaktajo" z
+lastnimi, podjetjem specifičnimi podatki, ne da bi jih je treba znova učiti. V turističnem
+kontekstu to pomeni, da bo AI agent, ki odgovarja na vprašanja uporabnikov, lahko
+dostopal do najnovejših podatkov o destinacijah, dejavnostih, cennikih gostiteljev in
+pravilih brez varčevanja s časom in stroški za fin-tuning 10. Podatki, kot so opisi
+destinacij, ure dejavnosti in pravila gostiteljev, bodo bili prevedeni v vektorje in shranjeni
+v vektorsko bazo. Ko uporabnik postavi vprašanje, bo sistem iskal najbolj relevantne
+vektorje in jih predstavil kot kontekst jezikovnemu modelu, ki bo sestavil odgovor,
+temeljite na dejanskih, aseptičnih podatkih 10. To zagotovi, da bodo odgovori AI agenta
+točni, relevantni in aktualni.
+Druga pomembna arhitektura bo agentna arhitektura 10. Namesto enega samega,
+zapletenega modela, bo sistem uporabljal serijo manjših, specializiranih agentov, vsak
+izmed njih z določeno dolžnostjo. Na primer, za planiranje poti bi lahko sodelovalo več
+agentov: agent za cene, ki išče najboljšo ponudbo; agent za trajnostnost, ki ocenjuje
+ogljični odtis poti; agent za trajanje, ki zagotovi, da je pot dobra za starost in preferenca
+uporabnika; in agent za dostopnost, ki preveri, ali so dejavnosti primerni za osebe z
+omejenimi močmi. Ti agenti bi se med seboj komunicirali in koordinirali, da bi skupaj
+ustvarili optimalno pot 10. Platforme kot je Microsoft Agent Framework omogočajo
+gradnjo takšnih koordiniranih sistemov 10.
+Personalizacija bo bila še ena ključna AI funkcionalnost. Z zbiranjem podatkov o
+uporabnikovih navadah, preteklih rezervacijah, ocenah in eksplicitnih preferencah, bodo
+algoritmi lahko ustvarjali individualizirane ponudbe in priporočila 7 . To bo vključevalo
+ne le priporočanje atrakcij, temveč tudi dinamično prilagajanje vmesnika, targetirano
+
+================================================================================
+PAGE 13 (325 words)
+================================================================================
+
+marketingo pošiljanje in celo avtomatizirano ustvarjanje custom turističnih paketov. Vse
+to bo delovalo na ozadju robustne podatkovne arhitekture, ki bo zagotavljala dostopnost,
+kakovost in varnost podatkov.
+Komponenta Opis Tehnologije / Arhitekturni Vzorci
+Poliglotno Shranjevanje Uporaba različnih tipov podatkovnih shramb za Relacijske (PostgreSQL), dokumentne (MongoDB),
+optimalno obravnavo različnih vrst podatkov. grafske (Neo4j), vektorske (Pinecone), objektne
+(AWS S3) 9 .
+Retrieval-Augmented Omogoča AI sistemom dostop do podjetja-specifičnih Vektorska baza, jezikovni model (LLM), semantično
+Generation (RAG) podatkov za ustvarjanje točnih in aktualnih iskanje 10.
+odgovorov.
+Agentna Arhitektura Uporaba serije specializiranih, koordiniranih AI Microsoft Agent Framework, Foundry workflows 10.
+agentov za reševanje kompleksnih problemov.
+AI Analytics Platform Centralizirana platforma za zbiranje, procesiranje in Microsoft Fabric, Azure Databricks, OneLake 10.
+analizo podatkov za AI modelov.
+Personalizacija Uporaba AI za ustvarjanje individualiziranih ponudb, Machine Learning algoritmi, analiza uporabniškega
+priporočil in dinamičnih vmesnikov. vedenja 7 .
+Ta globoko integrirana podatkovna in AI arhitektura bo omogočila gradnjo turističnega
+sistema, ki je ne le hitrejši in učinkovitejši, temveč tudi pametnejši in bolj odziven na
+potrebe posameznih uporabnikov in destvacij.
+Ključni Vidiki: Varnost, Interoperabilnost in
+Arhitekturni Nadzor
+Oblikovanje profesionalnega turističnega sistema za leto 2026 zahteva pozornost tudi na
+ključnih vidikih, ki presegajo samo funkcionalnost in arhitekturo. Varnost,
+interoperabilnost in strogi arhitekturni nadzor so trije piloni, ki zagotavljajo, da bo sistem
+ne le napreden, temveč tudi zanesljiv, legalen in održljiv v dolgotrajnem času. Ti vidiki so
+posledica ne le tehničnih zahtev, temveč tudi svežnjev političnih regulativ, kot sta EU
+Akta o umetni inteligenci in splošna pravila o varstvu podatkov, ter naravnanja trga, ki
+zahteva vedečnost in povezovanje sistemov.
+Varnost bo v letu 2026 preobremenjena iz pasivne zaščite v aktiven, kontinuirni proces.
+Temeljni načrt bo bil princip "nikoli ne zaupaj, vedno preveri", ki ga je mogoče videti v
+praksi v modelu varnosti brez zaupanja 34. To pomeni, da se ne more zaupati nobeni
+komponenti sistema, bodisi znotraj lastnih meja, bodisi zunaj njih. Vsaka zahteva, tudi
+tista, ki prihaja iz notranjega omrežja, mora biti strogo avtentikirana in avtorizirana.
+
+================================================================================
+PAGE 14 (446 words)
+================================================================================
+
+Identitetska varnost bo postala primarna linija obrambnega pasu, namesto
+tradicionalnega omrežnega perimeterja 34. To bo zahtevalo uporabo fizično zaščitenih
+metod za dvofaktorsko avtentikacijo, kontinuirno preverjanje identitete uporabnikov in
+sistemov ter upravljanje pooblastil na osnovi najmanjših pravic 34. Vendar se bo varnost
+soočila tudi z novimi, tehnološko podnutimi tveganji. S pojavom umetne inteligence bo
+AI uporabljena tako na napadni, kot na obrambni strani, kar bo vodilo k "AI-
+pogonovanih" konfliktom, kjer bo človek lahko le strateg ali ovira 34. Poleg tega bo
+prihodnje kvantno računalništvo predstavljalo resno grožnjo obstoječim kriptografskim
+standardom, kot sta RSA in ECC. Zato bodo organizacije že v letu 2026 pričele prehod k
+kvantno-varni kriptografiji, da bi zaščitile občasne podatke za dolgi rok 34. Tudi varnost
+verige dobaviteljev bo postala ključna, saj bodo napadi pogosto prihajali prek tretjih
+storitvev. To bo zahtevalo stroge zahteve za vodenje seznama uporabljenega
+programskega opreme in neprestano spremljanje tveganj posameznih dobaviteljev 34.
+Interoperabilnost bo ključna za uspeh sistema na evropskem trgu. Evropska komisija je
+jasno zastavila cilj uvedbe evropskega turističnega podatkovnega prostora, ki naj bi
+omogočil boljši dostop do podatkov za male in srednje velike podjetje ter podprl razvoj
+novega digitalnega javnega sektorja 23 28. Profesionalna rešitev za leto 2026 bo moral
+biti ne le sposoben komunicirati z drugimi sistemskimi vmesniki, temveč tudi usklajen z
+standardi, ki jih bodo določali takšni iniciativi kot je Interoperabilni Evropa 24. To bo
+pomenilo, da bo sistem moral uporabljati standardizirane, odprtje vmesnike za dostop do
+podatkov, kar bo omogočilo, da bodo destvacije in podjetja lahko enostavno povezala
+svoje sisteme in izmenjevala podatke v skladu z jasno določenimi pravili. To bo
+omogočilo, da se sistem ne bo izoliral v "podatkovni hiši", temveč bo deloval kot aktivni
+in povezan udeleženec v večjem digitalnem ekosistemu.
+Arhitekturni nadzor bo postal ključen za ohranjanje kakovosti in doslednosti v takšno
+kompleksnem, modularnem sistemu. Tradicionalni pristopi, ki temeljijo na ročnih
+pregledih in diagramih na tabli, ne bodo več učinkoviti. Namesto tega bo prevladaval
+pristop, imenovan "standards as code", ki ga je razvil Thoughtworks 4 . S to
+metodologijo bodo arhitektonske standarde in pravila (npr. "vsaka nova mikrostoritev
+mora imeti svojo ločeno podatkovno bazo", "vsi novi REST vmesniki morajo uporabljati
+HATEOAS", "vse storitve morajo biti stateles") definirane kot strojno berljiva koda, na
+primer v obliki pravil v YAML ali JSON formatu 4 . Te standarde bodo avtomatizirano
+preverjali orodja med postopkom CI/CD. Če razvijalec posreduje spremembo, ki krši
+arhitektonski standard, bo postopek gradnje takoj prekinjen. To je analogno temu, ko
+ladijski poveljnik preverja, ali so vse ladje v vrsti pravilno zavarjane. Ta pristop, imenovan
+arhitekturna digitalizacija, omogoča, da se arhitektura ne zgubi v dokumentaciji, temveč
+da je "živa" in avtomatsko izvršljiva 4 . Primeri takih orodij so NIST OSCAL za varnostne
+
+================================================================================
+PAGE 15 (269 words)
+================================================================================
+
+standarde, AWS Config Rules za cloud arhitekturo in Open Policy Agent (OPA) za
+avtomatizirano izvajanje politik v okoljih kot je Kubernetes 4 . Sledenje tem pravilom bo
+omogočilo, da se bo sistem ohranjal čist, skalabilen in v skladu z originalno vizijo, tudi ko
+bo rastel in se spreminjal v času.
+Na koncu pa ne moremo prezreti pravnih in regulativnih okolij. S sprejetjem EU Akta o
+umetni inteligenci bo obstojanje visokorizičnih AI sistemov (HR-AIS) postalo strogo
+regulirano. Za take sisteme, ki bi lahko vključevali napredne priporočevalne sisteme ali
+avtomatizirane rezervacijske sisteme, bodo veljala stroge zahteve za preverjanje,
+dokumentacijo in varnost 21. Spremembe v Splošnih pravilih o varstvu podatkov bodo
+dodatno vplivale na to, kako se zbirajo, shranjujejo in obdelujejo osebni podatki
+uporabnikov. Novi pravni utemeljitev za obdelavo podatkov z AI in "neomejena pravica
+uporabnika za ugovor" bodo zahtevali, da bodo sistemi projektirani s privzeto
+skrivnostnostjo in da bodo uporabniki imeli popoln nadzor nad svojimi podatki 21. Zato
+bo arhitektura morala vključevati mehanizme za upravljanje soglasij, zagotavljanje
+pravice do izbrisovanja podatkov in zagotavljanje preglednosti delovanja AI sistemov.
+Skupaj ti trije ključni vidiki – varnost, interoperabilnost in arhitekturni nadzor –
+oblikujejo okvir, v katerem lahko tehnološka napredovanja v podatkovni arhitekturi in
+umetni inteligenci ustvarijo resnično vrednotno in trajno rešitev. Sistem, ki je varnejši,
+povezan in strogo upravljan, bo lahko v letu 2026 uresničil celotno potencial umetne
+inteligence za transformacijo turističnega sektorja.
+en
+1. Help Shape the EU's 2026 Sustainable Tourism Strategy https://transition-
+pathways.europa.eu/tourism/news/help-shape-eus-2026-sustainable-tourism-strategy
+2. Tourism in 2025: Key Trends, Developments and EU Policy Highlights https://
+transition-pathways.europa.eu/tourism/articles/tourism-2025-key-trends-
+developments-and-eu-policy-highlights
+3. [PDF] CE/123/3(b)(i) rev.2 Madrid, 23 May 2025 Original - AWS https://pre-
+webunwto.s3.eu-west-1.amazonaws.com/s3fs-public/2025-05/
+CE123_3_b_Implementation_PoW_En_rev2.pdf?
+VersionId=AlCoA0N0Rxr.qAoXGgPTB7vkoZXkDnwM
+
+================================================================================
+PAGE 16 (180 words)
+================================================================================
+
+4. Putting architecture digitalization into practice - Thoughtworks https://
+www.thoughtworks.com/insights/articles/putting-architecture-digitalization-into-
+practice-and-realizing-the-benefits
+5. Web API Design Best Practices - Azure Architecture Center - Microsoft https://
+learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
+6. AI Prompts Collection - Alex Glushenkov - Dreams Unleashed https://glushea.com/
+prompts
+7. Website Development Trends 2025: Everything You Need to Know https://
+www.grazitti.com/blog/website-development-trends-2025/
+8. Why Domain-Centric Architecture is the Key to Building Scalable ... https://
+www.linkedin.com/pulse/from-domains-composability-why-domain-centric-key-
+building-cerroni-8ukuf
+9. Understand Data Models - Azure Architecture Center | Microsoft Learn https://
+learn.microsoft.com/en-us/azure/architecture/data-guide/technology-choices/
+understand-data-store-models
+10. AI Architecture Design - Azure Architecture Center | Microsoft Learn https://
+learn.microsoft.com/en-us/azure/architecture/ai-ml/
+11. Backends for Frontends Pattern - Azure Architecture Center - Microsoft https://
+learn.microsoft.com/en-us/azure/architecture/patterns/backends-for-frontends
+12. Tenancy Models for a Multitenant Solution - Azure Architecture Center https://
+learn.microsoft.com/en-us/azure/architecture/guide/multitenant/considerations/
+tenancy-models
+13. [XML] https://www.digitalocean.com/sitemaps/community-tutorials-0.xml.gz
+https://www.digitalocean.com/sitemaps/community-tutorials-0.xml.gz
+14. [PDF] ITU Contribution to the Implementation of the WSIS Outcomes: 2023 ...
+https://www.itu.int/en/itu-wsis/Documents/ITUContribution/
+2023_ITU_Contribution_to_WSIS-Implementation-DRAFT-20231020.pdf
+15. Telefonica Tech · Blog · Nacho Palou https://telefonicatech.com/en/blog/author/
+nachopalou
+16. Advances in Information Communication Technology and Computing https://
+link.springer.com/content/pdf/10.1007/978-981-97-6106-7.pdf
+17. Why Micro Architecture with Mono-Repo is the Sweet Spot for ... https://
+www.linkedin.com/pulse/why-micro-architecture-mono-repo-sweet-spot-modern-
+long-nguyen-ijisc
+18. ISO/IEC TS 20125-1:2026 - Information technology https://www.iso.org/standard/
+86105.html
+
+================================================================================
+PAGE 17 (175 words)
+================================================================================
+
+19. Microservice Best Practices: A Guide to Scalable Architecture https://
+www.linkedin.com/posts/sina-riyahi_microservice-best-practices-1-micro-frontend-
+activity-7352319130856820737-Rz7G
+20. Microservices Best Practices: SRP, Statelessness, Micro Frontends ... https://
+www.linkedin.com/posts/sina-riyahi_microservice-best-practices-microservices-
+activity-7392846574357352448-THde
+21. EU's Digital Omnibus offers AI regulatory relief, but questions remain https://
+www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/tech-
+regulatory-policy-developments/eu-digital-omnibus.html
+22. ISO/IEC TS 20125-1:2026(en), Information technology https://www.iso.org/obp/
+ui#!iso:std:iso-iec:ts:20125:-1:ed-1:v1:en
+23. [PDF] Call Document PPPA-2026-Tourism-Capacity https://ec.europa.eu/info/
+funding-tenders/opportunities/docs/2021-2027/pppa/wp-call/2026/call-
+fiche_pppa-2026-tourism-capacity-building_en.pdf
+24. Interoperable Europe Portal - European Union https://interoperable-
+europe.ec.europa.eu/interoperable-europe
+25. Kogito Documentation - Apache KIE (incubating) https://kie.apache.org/docs/10.0.x/
+kogito/
+26. [PDF] Towards sustainable and resilient tourism in the European Union ... https://eur-
+lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:C_202600761
+27. [PDF] Call: PPPA-2024-Skill-for-Tourism - Upskilling and reskilling the ... https://
+ec.europa.eu/info/funding-tenders/opportunities/docs/2021-2027/pppa/wp-call/
+2024/call-fiche_pppa-2024-skill-for-tourism_en.pdf
+28. [PDF] 15788/24 ADD 5 - EUR-Lex https://eur-lex.europa.eu/legal-content/EN/TXT/
+PDF/?uri=CONSIL:ST_15788_2024_ADD_5
+29. Mastering Micro Frontends: Best Practices, Pitfalls to Avoid, Tools ... https://dev.to/
+dr_anks/micro-frontends-dos-donts-tools-and-scaling-strategies-3n4o
+30. The Micro-Frontend Architecture Handbook - freeCodeCamp.org https://
+www.freecodecamp.org/news/complete-micro-frontends-guide/
+31. DDD is not about folder structure, it's about language and context. https://
+www.linkedin.com/posts/bashraf_domaindrivendesign-ddd-softwarearchitecture-
+activity-7387166224675135489-G1hI
+32. What is the better approach for creating folder structure on a DDD ... https://
+stackoverflow.com/questions/75805314/what-is-the-better-approach-for-creating-
+folder-structure-on-a-ddd-project
+33. Designing a DDD-oriented microservice - .NET | Microsoft Learn https://
+learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-
+patterns/ddd-oriented-microservice
+
+================================================================================
+PAGE 18 (28 words)
+================================================================================
+
+34. 2026 Cybersecurity Trends: AI, Identity, Zero Trust, and Quantum https://
+www.linkedin.com/posts/inga-stirbytecybersecurityleader_what-will-cybersecurity-
+actually-look-like-activity-7424799784705822720-BuAn
+35. (PDF) The Disruptive Use of Artificial Intelligence (AI) Will ... https://
+www.researchgate.net/publication/
+387369441_The_Disruptive_Use_of_Artificial_Intelligence_AI_Will_Considerably_Enh
+ance_the_Tourism_and_Air_Transport_Industries

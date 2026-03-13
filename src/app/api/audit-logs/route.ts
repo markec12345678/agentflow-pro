@@ -1,1 +1,1 @@
-\"// Audit Log API - Coming Soon\"  
+// Audit Log API - Coming Soon

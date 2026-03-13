@@ -173,4 +173,4 @@ export const POST = withSentryLogging(async function POST(request: NextRequest) 
   });
 
   return NextResponse.json({ success: true });
-}
+});

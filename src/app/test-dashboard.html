@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentFlow Pro - Dashboard Test</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin: 10px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .kpi { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; }
+        .kpi h3 { margin: 0 0 10px 0; font-size: 14px; opacity: 0.9; }
+        .kpi .value { font-size: 32px; font-weight: bold; }
+        button { background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #5568d3; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🎯 Dashboard Test Page</h1>
+    
+    <div class="card">
+        <h2>Server Status</h2>
+        <div id="status">Checking...</div>
+    </div>
+    
+    <div class="card">
+        <h2>KPI Cards (Mock Data)</h2>
+        <div class="kpi-grid">
+            <div class="kpi">
+                <h3>Occupancy Rate</h3>
+                <div class="value">78%</div>
+            </div>
+            <div class="kpi">
+                <h3>RevPAR</h3>
+                <div class="value">€142</div>
+            </div>
+            <div class="kpi">
+                <h3>ADR</h3>
+                <div class="value">€182</div>
+            </div>
+            <div class="kpi">
+                <h3>Direct Bookings</h3>
+                <div class="value">35%</div>
+            </div>
+            <div class="kpi">
+                <h3>Tasks Pending</h3>
+                <div class="value">12</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>API Tests</h2>
+        <button onclick="testAPI('/dashboard')">Test /dashboard</button>
+        <button onclick="testAPI('/api/dashboard/boot')">Test /api/dashboard/boot</button>
+        <button onclick="testAPI('/login')">Test /login</button>
+        <button onclick="location.href='/dashboard'">Go to Dashboard →</button>
+        <div id="api-results"></div>
+    </div>
+    
+    <script>
+        // Check server status
+        fetch('/dashboard', { method: 'HEAD' })
+            .then(r => {
+                document.getElementById('status').innerHTML = 
+                    `<div class="status success">✅ Server is running! Status: ${r.status}</div>`;
+            })
+            .catch(e => {
+                document.getElementById('status').innerHTML = 
+                    `<div class="status error">❌ Server error: ${e.message}</div>`;
+            });
+        
+        // Test API endpoint
+        async function testAPI(path) {
+            const results = document.getElementById('api-results');
+            results.innerHTML += `<div>Testing ${path}...</div>`;
+            
+            try {
+                const start = Date.now();
+                const response = await fetch(path);
+                const duration = Date.now() - start;
+                const data = await response.json().catch(() => null);
+                
+                results.innerHTML += `
+                    <div class="status success">
+                        ✅ ${path}<br>
+                        Status: ${response.status}<br>
+                        Duration: ${duration}ms<br>
+                        Data: ${JSON.stringify(data).slice(0, 100)}...
+                    </div>
+                `;
+            } catch (e) {
+                results.innerHTML += `
+                    <div class="status error">
+                        ❌ ${path}<br>
+                        Error: ${e.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
