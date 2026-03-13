@@ -5,6 +5,10 @@
  * Upošteva preference, availability in room type.
  */
 
+import { RoomRepositoryImpl } from '@/infrastructure/database/repositories/room-repository'
+import { ReservationRepositoryImpl } from '@/infrastructure/database/repositories/reservation-repository'
+import { AvailabilityRepositoryImpl } from '@/infrastructure/database/repositories/availability-repository'
+
 import { Reservation } from '../domain/tourism/entities/reservation'
 import { Room } from '../domain/tourism/entities/room'
 
@@ -51,9 +55,9 @@ export interface RoomAllocationResult {
 
 export class AllocateRoom {
   constructor(
-    private roomRepository: RoomRepository,
-    private reservationRepository: ReservationRepository,
-    private availabilityRepository: AvailabilityRepository
+    private roomRepository: RoomRepository = new RoomRepositoryImpl(),
+    private reservationRepository: ReservationRepository = new ReservationRepositoryImpl(),
+    private availabilityRepository: AvailabilityRepository = new AvailabilityRepositoryImpl()
   ) {}
 
   /**

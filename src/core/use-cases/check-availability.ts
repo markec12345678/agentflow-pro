@@ -5,6 +5,10 @@
  * Upošteva vse rezervacije, block-ove in maintenance.
  */
 
+import { RoomRepositoryImpl } from '@/infrastructure/database/repositories/room-repository'
+import { ReservationRepositoryImpl } from '@/infrastructure/database/repositories/reservation-repository'
+import { BlockRepositoryImpl } from '@/infrastructure/database/repositories/block-repository'
+
 import { Room } from '../domain/tourism/entities/room'
 
 // ============================================================================
@@ -57,9 +61,9 @@ export interface AlternativeAvailability {
 
 export class CheckAvailability {
   constructor(
-    private roomRepository: RoomRepository,
-    private reservationRepository: ReservationRepository,
-    private blockRepository: BlockRepository
+    private roomRepository: RoomRepository = new RoomRepositoryImpl(),
+    private reservationRepository: ReservationRepository = new ReservationRepositoryImpl(),
+    private blockRepository: BlockRepository = new BlockRepositoryImpl()
   ) {}
 
   /**
