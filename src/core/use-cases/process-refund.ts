@@ -32,7 +32,7 @@ export interface ProcessRefundOutput {
 export class ProcessRefund {
   constructor(
     private refundRepository: RefundRepository,
-    private paymentRepository: PaymentRepository,
+    private paymentRepository: PaymentRepository = new PaymentRepositoryImpl(),
     private paymentGateway: PaymentGateway
   ) {}
 

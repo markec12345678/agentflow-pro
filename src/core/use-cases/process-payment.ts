@@ -34,8 +34,8 @@ export interface ProcessPaymentOutput {
 
 export class ProcessPayment {
   constructor(
-    private paymentRepository: PaymentRepository,
-    private invoiceRepository: InvoiceRepository,
+    private paymentRepository: PaymentRepository = new PaymentRepositoryImpl(),
+    private invoiceRepository: InvoiceRepository = new InvoiceRepositoryImpl(),
     private paymentGateway: PaymentGateway
   ) {}
 
