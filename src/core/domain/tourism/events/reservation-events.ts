@@ -1,229 +1,110 @@
 /**
- * Domain Events: Reservation Events
+ * Reservation Domain Events
  * 
- * Dogodki ki se zgodijo v rezervacijah.
- * Uporabljajo se za event sourcing, notifications, analytics.
+ * Vsi eventi povezani z rezervacijami.
  */
 
-import { Money } from '../shared/value-objects/money'
-import { DateRange } from '../shared/value-objects/date-range'
+import { BaseDomainEvent } from './domain-event'
+import { Money } from '../value-objects/money'
 
 // ============================================================================
-// Base Event Interface
+// Reservation Created
 // ============================================================================
 
-export interface DomainEvent {
-  eventId: string
-  aggregateId: string
-  aggregateType: string
-  timestamp: Date
-  metadata: Record<string, any>
-}
-
-// ============================================================================
-// Reservation Events
-// ============================================================================
-
-export class ReservationCreated implements DomainEvent {
-  public readonly eventId: string
-  public readonly aggregateId: string
-  public readonly aggregateType: string = 'Reservation'
-  public readonly timestamp: Date
-
+export class ReservationCreated extends BaseDomainEvent {
   constructor(
     public readonly reservationId: string,
     public readonly propertyId: string,
     public readonly guestId: string,
-    public readonly dateRange: DateRange,
+    public readonly checkIn: Date,
+    public readonly checkOut: Date,
     public readonly guests: number,
     public readonly totalPrice: Money,
-    public readonly confirmationCode: string,
-    timestamp?: Date
+    metadata?: Record<string, any>
   ) {
-    this.eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    this.aggregateId = reservationId
-    this.timestamp = timestamp || new Date()
-  }
-
-  toJSON(): any {
-    return {
-      eventId: this.eventId,
-      aggregateId: this.aggregateId,
-      aggregateType: this.aggregateType,
-      timestamp: this.timestamp.toISOString(),
-      reservationId: this.reservationId,
-      propertyId: this.propertyId,
-      guestId: this.guestId,
-      dateRange: this.dateRange.toJSON(),
-      guests: this.guests,
-      totalPrice: this.totalPrice.toJSON(),
-      confirmationCode: this.confirmationCode
-    }
+    super(reservationId, 'Reservation', metadata)
   }
 }
 
 // ============================================================================
+// Reservation Confirmed
+// ============================================================================
 
-export class ReservationConfirmed implements DomainEvent {
-  public readonly eventId: string
-  public readonly aggregateId: string
-  public readonly aggregateType: string = 'Reservation'
-  public readonly timestamp: Date
-
+export class ReservationConfirmed extends BaseDomainEvent {
   constructor(
     public readonly reservationId: string,
     public readonly confirmedAt: Date,
-    timestamp?: Date
+    public readonly confirmationCode: string,
+    metadata?: Record<string, any>
   ) {
-    this.eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    this.aggregateId = reservationId
-    this.timestamp = timestamp || new Date()
-  }
-
-  toJSON(): any {
-    return {
-      eventId: this.eventId,
-      aggregateId: this.aggregateId,
-      aggregateType: this.aggregateType,
-      timestamp: this.timestamp.toISOString(),
-      reservationId: this.reservationId,
-      confirmedAt: this.confirmedAt.toISOString()
-    }
+    super(reservationId, 'Reservation', metadata)
   }
 }
 
 // ============================================================================
+// Reservation Cancelled
+// ============================================================================
 
-export class ReservationCancelled implements DomainEvent {
-  public readonly eventId: string
-  public readonly aggregateId: string
-  public readonly aggregateType: string = 'Reservation'
-  public readonly timestamp: Date
-
+export class ReservationCancelled extends BaseDomainEvent {
   constructor(
     public readonly reservationId: string,
     public readonly reason: string,
     public readonly cancelledBy: 'guest' | 'host' | 'system',
     public readonly refundAmount?: Money,
-    timestamp?: Date
+    metadata?: Record<string, any>
   ) {
-    this.eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    this.aggregateId = reservationId
-    this.timestamp = timestamp || new Date()
-  }
-
-  toJSON(): any {
-    return {
-      eventId: this.eventId,
-      aggregateId: this.aggregateId,
-      aggregateType: this.aggregateType,
-      timestamp: this.timestamp.toISOString(),
-      reservationId: this.reservationId,
-      reason: this.reason,
-      cancelledBy: this.cancelledBy,
-      refundAmount: this.refundAmount?.toJSON()
-    }
+    super(reservationId, 'Reservation', metadata)
   }
 }
 
 // ============================================================================
+// Reservation Checked In
+// ============================================================================
 
-export class ReservationCheckedIn implements DomainEvent {
-  public readonly eventId: string
-  public readonly aggregateId: string
-  public readonly aggregateType: string = 'Reservation'
-  public readonly timestamp: Date
-
+export class ReservationCheckedIn extends BaseDomainEvent {
   constructor(
     public readonly reservationId: string,
     public readonly checkedInAt: Date,
-    timestamp?: Date
+    public readonly assignedRoomId?: string,
+    metadata?: Record<string, any>
   ) {
-    this.eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    this.aggregateId = reservationId
-    this.timestamp = timestamp || new Date()
-  }
-
-  toJSON(): any {
-    return {
-      eventId: this.eventId,
-      aggregateId: this.aggregateId,
-      aggregateType: this.aggregateType,
-      timestamp: this.timestamp.toISOString(),
-      reservationId: this.reservationId,
-      checkedInAt: this.checkedInAt.toISOString()
-    }
+    super(reservationId, 'Reservation', metadata)
   }
 }
 
 // ============================================================================
+// Reservation Checked Out
+// ============================================================================
 
-export class ReservationCheckedOut implements DomainEvent {
-  public readonly eventId: string
-  public readonly aggregateId: string
-  public readonly aggregateType: string = 'Reservation'
-  public readonly timestamp: Date
-
+export class ReservationCheckedOut extends BaseDomainEvent {
   constructor(
     public readonly reservationId: string,
     public readonly checkedOutAt: Date,
-    public readonly totalSpent: Money,
-    timestamp?: Date
+    public readonly finalAmount: Money,
+    metadata?: Record<string, any>
   ) {
-    this.eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    this.aggregateId = reservationId
-    this.timestamp = timestamp || new Date()
-  }
-
-  toJSON(): any {
-    return {
-      eventId: this.eventId,
-      aggregateId: this.aggregateId,
-      aggregateType: this.aggregateType,
-      timestamp: this.timestamp.toISOString(),
-      reservationId: this.reservationId,
-      checkedOutAt: this.checkedOutAt.toISOString(),
-      totalSpent: this.totalSpent.toJSON()
-    }
+    super(reservationId, 'Reservation', metadata)
   }
 }
 
 // ============================================================================
+// Reservation Payment Received
+// ============================================================================
 
-export class ReservationPaymentReceived implements DomainEvent {
-  public readonly eventId: string
-  public readonly aggregateId: string
-  public readonly aggregateType: string = 'Reservation'
-  public readonly timestamp: Date
-
+export class ReservationPaymentReceived extends BaseDomainEvent {
   constructor(
     public readonly reservationId: string,
     public readonly amount: Money,
     public readonly paymentMethod: string,
     public readonly transactionId: string,
-    timestamp?: Date
+    metadata?: Record<string, any>
   ) {
-    this.eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    this.aggregateId = reservationId
-    this.timestamp = timestamp || new Date()
-  }
-
-  toJSON(): any {
-    return {
-      eventId: this.eventId,
-      aggregateId: this.aggregateId,
-      aggregateType: this.aggregateType,
-      timestamp: this.timestamp.toISOString(),
-      reservationId: this.reservationId,
-      amount: this.amount.toJSON(),
-      paymentMethod: this.paymentMethod,
-      transactionId: this.transactionId
-    }
+    super(reservationId, 'Reservation', metadata)
   }
 }
 
 // ============================================================================
-// Event Type Union
+// Type Union
 // ============================================================================
 
 export type ReservationEvent =
