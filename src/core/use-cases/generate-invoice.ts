@@ -1,30 +1,47 @@
 /**
  * Use Case: Generate Invoice
  * 
- * Generiraj račun za rezervacijo.
+ * Generate invoice for reservation.
  */
-
-import { Invoice } from '../domain/tourism/entities/invoice'
-import { Reservation } from '../domain/tourism/entities/reservation'
-import { Money } from '../shared/value-objects/money'
 
 // ============================================================================
 // Input/Output DTOs
 // ============================================================================
 
 export interface GenerateInvoiceInput {
-  reservation: Reservation
-  guestId: string
-  propertyId: string
-  dueDate?: Date
-  notes?: string
+  reservationId: string
+  userId: string
+  includeTaxes?: boolean
+  includeDiscounts?: boolean
 }
 
 export interface GenerateInvoiceOutput {
-  invoice: Invoice
+  invoice: InvoiceDTO
   invoiceNumber: string
-  totalAmount: Money
+  totalAmount: number
   dueDate: Date
+}
+
+export interface InvoiceDTO {
+  id: string
+  reservationId: string
+  guestId: string
+  propertyId: string
+  items: InvoiceItem[]
+  subtotal: number
+  taxes: number
+  discounts: number
+  total: number
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
+  dueDate: Date
+  createdAt: Date
+}
+
+export interface InvoiceItem {
+  description: string
+  quantity: number
+  unitPrice: number
+  total: number
 }
 
 // ============================================================================
@@ -33,50 +50,58 @@ export interface GenerateInvoiceOutput {
 
 export class GenerateInvoice {
   constructor(
-    private invoiceRepository: InvoiceRepository
+    private invoiceRepository: InvoiceRepository,
+    private reservationRepository: ReservationRepository
   ) {}
 
   /**
-   * Generiraj račun za rezervacijo
+   * Generate invoice
    */
   async execute(input: GenerateInvoiceInput): Promise<GenerateInvoiceOutput> {
-    const { reservation, guestId, propertyId, dueDate, notes } = input
+    const { reservationId, userId, includeTaxes = true, includeDiscounts = true } = input
 
-    // 1. Validacija
-    this.validateReservation(reservation)
+    // 1. Get reservation
+    const reservation = await this.reservationRepository.findById(reservationId)
+    if (!reservation) {
+      throw new Error('Reservation not found')
+    }
 
-    // 2. Izračunaj datume
-    const issueDate = new Date()
-    const invoiceDueDate = dueDate || this.calculateDueDate(issueDate)
+    // 2. Generate invoice number
+    const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`
 
-    // 3. Ustvari račun
-    const invoice = Invoice.create({
-      type: 'reservation',
-      status: 'pending',
-      reservationId: reservation.id,
-      guestId,
-      propertyId,
-      issueDate,
-      dueDate: invoiceDueDate,
-      items: [],
-      notes: notes || this.generateNotes(reservation)
-    })
+    // 3. Calculate items
+    const items = this.calculateItems(reservation)
 
-    // 4. Dodaj postavke iz rezervacije
-    this.addReservationItems(invoice, reservation)
+    // 4. Calculate totals
+    const subtotal = items.reduce((sum, item) => sum + item.total, 0)
+    const taxes = includeTaxes ? this.calculateTaxes(subtotal, reservation) : 0
+    const discounts = includeDiscounts ? this.calculateDiscounts(subtotal, reservation) : 0
+    const total = subtotal + taxes - discounts
 
-    // 5. Dodaj takse
-    this.addTaxes(invoice, reservation)
+    // 5. Create invoice
+    const invoice: InvoiceDTO = {
+      id: `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      reservationId,
+      guestId: reservation.guestId,
+      propertyId: reservation.propertyId,
+      items,
+      subtotal,
+      taxes,
+      discounts,
+      total,
+      status: 'draft',
+      dueDate: this.calculateDueDate(),
+      createdAt: new Date()
+    }
 
-    // 6. Shrani račun
+    // 6. Save invoice
     await this.invoiceRepository.save(invoice)
 
-    // 7. Vrni rezultat
     return {
       invoice,
-      invoiceNumber: invoice.invoiceNumber,
-      totalAmount: invoice.totalAmount,
-      dueDate: invoiceDueDate
+      invoiceNumber,
+      totalAmount: total,
+      dueDate: invoice.dueDate
     }
   }
 
@@ -84,85 +109,71 @@ export class GenerateInvoice {
   // Private Helper Methods
   // ============================================================================
 
-  /**
-   * Validiraj rezervacijo
-   */
-  private validateReservation(reservation: Reservation): void {
-    if (!reservation.isPaid() && reservation.paymentStatus !== 'partially_paid') {
-      throw new Error('Cannot generate invoice for unpaid reservation')
-    }
-
-    if (reservation.status === 'cancelled') {
-      throw new Error('Cannot generate invoice for cancelled reservation')
-    }
+  private calculateItems(reservation: any): InvoiceItem[] {
+    const nights = this.calculateNights(reservation.checkIn, reservation.checkOut)
+    
+    return [
+      {
+        description: `Accommodation (${nights} nights)`,
+        quantity: nights,
+        unitPrice: reservation.pricePerNight,
+        total: nights * reservation.pricePerNight
+      },
+      ...(reservation.extraServices || []).map((service: any) => ({
+        description: service.name,
+        quantity: 1,
+        unitPrice: service.price,
+        total: service.price
+      }))
+    ]
   }
 
-  /**
-   * Izračunaj zapadlost računa (privzeto 14 dni)
-   */
-  private calculateDueDate(issueDate: Date): Date {
-    const dueDate = new Date(issueDate)
-    dueDate.setDate(dueDate.getDate() + 14)
+  private calculateTaxes(subtotal: number, reservation: any): number {
+    const taxRate = reservation.taxRate || 0.22 // 22% VAT
+    return subtotal * taxRate
+  }
+
+  private calculateDiscounts(subtotal: number, reservation: any): number {
+    let discounts = 0
+
+    // Long stay discount
+    const nights = this.calculateNights(reservation.checkIn, reservation.checkOut)
+    if (nights >= 7) {
+      discounts += subtotal * 0.10 // 10% discount
+    } else if (nights >= 3) {
+      discounts += subtotal * 0.05 // 5% discount
+    }
+
+    // Early bird discount
+    if (reservation.bookedInAdvance >= 60) {
+      discounts += subtotal * 0.05 // 5% discount
+    }
+
+    return discounts
+  }
+
+  private calculateDueDate(): Date {
+    const dueDate = new Date()
+    dueDate.setDate(dueDate.getDate() + 14) // 14 days
     return dueDate
   }
 
-  /**
-   * Generiraj opombe za račun
-   */
-  private generateNotes(reservation: Reservation): string {
-    const nights = reservation.nights()
-    return `Rezervacija za ${nights} nočitev, ${reservation.guests} gost(ov)`
-  }
-
-  /**
-   * Dodaj postavke iz rezervacije
-   */
-  private addReservationItems(invoice: Invoice, reservation: Reservation): void {
-    const nights = reservation.nights()
-    const pricePerNight = reservation.pricePerNight()
-
-    // Nastanitev
-    invoice.addItem(
-      `Nastanitev (${nights} nočitev)`,
-      nights,
-      pricePerNight,
-      22 // 22% DDV
-    )
-
-    // Dodatne storitve (če obstajajo)
-    // TODO: Add extra services from reservation
-  }
-
-  /**
-   * Dodaj takse
-   */
-  private addTaxes(invoice: Invoice, reservation: Reservation): void {
-    // Turistična taksa (€2 na osebo/noč)
-    const nights = reservation.nights()
-    const guests = reservation.guests
-    const touristTaxPerNight = 2.00
-    const totalTouristTax = nights * guests * touristTaxPerNight
-
-    if (totalTouristTax > 0) {
-      invoice.addItem(
-        `Turistična taksa (${guests} oseb x ${nights} noči)`,
-        1,
-        new Money(totalTouristTax, 'EUR'),
-        0 // Tourist tax is not subject to VAT
-      )
-    }
+  private calculateNights(checkIn: Date, checkOut: Date): number {
+    const diffTime = checkOut.getTime() - checkIn.getTime()
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   }
 }
 
 // ============================================================================
-// Repository Interface
+// Repository Interfaces
 // ============================================================================
 
 export interface InvoiceRepository {
-  findById(id: string): Promise<Invoice | null>
-  findByInvoiceNumber(invoiceNumber: string): Promise<Invoice | null>
-  findByGuest(guestId: string): Promise<Invoice[]>
-  findByReservation(reservationId: string): Promise<Invoice | null>
-  save(invoice: Invoice): Promise<void>
-  delete(id: string): Promise<void>
+  save(invoice: any): Promise<void>
+  findById(id: string): Promise<any | null>
+  findByReservation(reservationId: string): Promise<any[]>
+}
+
+export interface ReservationRepository {
+  findById(id: string): Promise<any | null>
 }

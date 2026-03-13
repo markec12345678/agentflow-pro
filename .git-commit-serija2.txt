@@ -1,0 +1,8 @@
+feat: PART B - API Refactoring Serija 2 (Guest Management)
+
+✅ GetGuestById - Get guest details with statistics
+✅ CreateGuestCommunication - Send email/SMS/WhatsApp
+✅ GetGuestCommunications - Get communication history
+
+Part of Complete API Refactoring (150 routes target)
+Progress: 43/150 (28.67%)
