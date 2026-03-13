@@ -1,9 +1,9 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/infrastructure/database/prisma";
 import { subDays, format, parseISO } from "date-fns";
 import {
   computePredictive,
   type HistoricalPoint,
-} from "@/lib/tourism/predictive-analytics";
+} from "./predictive-analytics";
 
 export async function getAnalyticsData(propertyId: string, userId: string, period = "30d", startDate?: string, endDate?: string) {
   // Calculate date range
