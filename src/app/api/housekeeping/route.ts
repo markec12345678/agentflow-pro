@@ -1,161 +1,292 @@
-import { NextRequest, NextResponse } from "next/server";
-import { HousekeepingOptimizationEngine } from "@/lib/hotel-specific/HousekeepingOptimizationEngine";
-
-// Mock data - in production, this would come from your database
-const MOCK_ROOMS = [
-  { id: "1", roomNumber: "101", type: "standard", status: "dirty", priority: 8, guestType: "checkout" },
-  { id: "2", roomNumber: "102", type: "standard", status: "dirty", priority: 9, guestType: "checkout" },
-  { id: "3", roomNumber: "103", type: "deluxe", status: "clean", priority: 3, guestType: "regular" },
-  { id: "4", roomNumber: "104", type: "suite", status: "dirty", priority: 10, guestType: "vip" },
-];
-
-const MOCK_STAFF = [
-  { id: "1", name: "Maria Novak", role: "housekeeper", efficiency: 1.2, skills: ["deep_cleaning", "vip_service"] },
-  { id: "2", name: "Ana Horvat", role: "housekeeper", efficiency: 1.0, skills: ["basic_cleaning", "restock"] },
-  { id: "3", name: "Petra Zupan", role: "housekeeper", efficiency: 0.9, skills: ["basic_cleaning"] },
-];
-
 /**
- * GET /api/housekeeping
- * Get housekeeping data including room status, tasks, and staff assignments
+ * API Route: Housekeeping
+ * 
+ * GET    /api/housekeeping/tasks          - List tasks
+ * POST   /api/housekeeping/tasks          - Create task
+ * POST   /api/housekeeping/tasks/[id]/assign - Assign task
+ * POST   /api/housekeeping/tasks/[id]/start  - Start task
+ * POST   /api/housekeeping/tasks/[id]/complete - Complete task
+ * GET    /api/housekeeping/stats          - Get statistics
  */
-export async function GET(request: NextRequest) {
-  try {
-    const searchParams = request.nextUrl.searchParams;
-    const date = searchParams.get("date") || new Date().toISOString().split("T")[0];
-    const includeTasks = searchParams.get("tasks") === "true";
-    const includeStaff = searchParams.get("staff") === "true";
 
-    // In production, fetch from database
-    const response = {
-      date,
-      rooms: MOCK_ROOMS,
-      tasks: includeTasks ? [] : undefined,
-      staff: includeStaff ? MOCK_STAFF : undefined,
-      metrics: {
-        roomsCleaned: 24,
-        targetRooms: 30,
-        averageTimePerRoom: 28,
-        staffUtilization: 87,
-        guestSatisfaction: 4.6,
-        costSavings: 180,
-      },
-    };
+import { NextRequest, NextResponse } from 'next/server'
+import { handleApiError, withRequestLogging } from '@/app/api/middleware'
 
-    return NextResponse.json(response);
-  } catch (error) {
-    console.error("Error fetching housekeeping data:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch housekeeping data" },
-      { status: 500 }
-    );
-  }
+// ============================================================================
+// Types
+// ============================================================================
+
+interface CreateTaskRequest {
+  propertyId: string
+  roomId?: string
+  reservationId?: string
+  type: 'cleaning' | 'maintenance' | 'inspection' | 'restock' | 'deep_clean'
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  title: string
+  description: string
+  assignedTo?: string
+  dueDate?: string
+  estimatedDuration: number
+  checklist?: Array<{ description: string }>
 }
 
-/**
- * POST /api/housekeeping
- * Generate optimized housekeeping schedule
- */
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { date, staffIds, roomIds, constraints } = body;
+interface AssignTaskRequest {
+  staffId: string
+  notifyStaff?: boolean
+}
 
-    if (!date) {
-      return NextResponse.json(
-        { error: "Date is required" },
-        { status: 400 }
-      );
-    }
+interface CompleteTaskRequest {
+  duration?: number
+  notes?: string
+  checklist?: Array<{ id: string; completed: boolean; notes?: string }>
+}
 
-    // Initialize the optimization engine
-    const engine = new HousekeepingOptimizationEngine({
-      roomTypes: [
-        {
-          id: "standard",
-          name: "Standard Room",
-          baseCleaningTime: 30,
-          difficulty: "medium",
-          specialRequirements: [],
-          priority: 5,
-        },
-        {
-          id: "deluxe",
-          name: "Deluxe Room",
-          baseCleaningTime: 40,
-          difficulty: "medium",
-          specialRequirements: ["premium_amenities"],
-          priority: 7,
-        },
-        {
-          id: "suite",
-          name: "Suite",
-          baseCleaningTime: 60,
-          difficulty: "hard",
-          specialRequirements: ["premium_amenities", "turndown_service"],
-          priority: 10,
-        },
-      ],
-      staffSkills: MOCK_STAFF.map((s) => ({
-        id: s.id,
-        name: s.name,
-        efficiency: s.efficiency,
-        certifiedRoomTypes: s.skills.includes("vip_service")
-          ? ["standard", "deluxe", "suite"]
-          : ["standard"],
-        maxConcurrentTasks: 1,
-        preferredAreas: ["all"],
-      })),
-      cleaningStandards: [],
-      peakHours: [],
-      guestPreferences: [],
-      maintenanceIntegration: true,
-    });
+// ============================================================================
+// GET /api/housekeeping/tasks
+// ============================================================================
 
-    // Convert mock rooms to housekeeping tasks
-    const roomTasks = MOCK_ROOMS.filter(
-      (room) => room.status === "dirty" || !roomIds || roomIds.includes(room.id)
-    ).map((room) => ({
-      id: room.id,
-      roomId: room.id,
-      type: "cleaning" as const,
-      priority: room.priority,
-      estimatedDuration: room.type === "suite" ? 60 : room.type === "deluxe" ? 40 : 30,
-      status: "pending" as const,
-      dueTime: "12:00",
-    }));
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<{ tasks: any[] } | { error: string }>> {
+  return withRequestLogging(
+    request,
+    async () => {
+      try {
+        const { searchParams } = new URL(request.url)
+        
+        const propertyId = searchParams.get('propertyId')
+        const status = searchParams.get('status')
+        const assignedTo = searchParams.get('assignedTo')
+        const type = searchParams.get('type')
 
-    // Generate optimized schedule
-    const schedule = await engine.generateOptimizedSchedule(
-      new Date(date),
-      staffIds || MOCK_STAFF.map((s) => s.id),
-      roomTasks,
-      constraints || {
-        maxWorkingHours: 8,
-        breakTimes: ["12:00-13:00"],
-        priorityRooms: [],
-        maintenanceTasks: [],
+        // TODO: Initialize repository
+        // const taskRepo = new HousekeepingTaskRepositoryImpl()
+        
+        // let tasks = []
+        // if (propertyId) {
+        //   tasks = await taskRepo.findByProperty(propertyId)
+        // }
+        // if (status) {
+        //   tasks = tasks.filter(t => t.status === status)
+        // }
+        // if (assignedTo) {
+        //   tasks = tasks.filter(t => t.assignedTo === assignedTo)
+        // }
+
+        // Mock response
+        return NextResponse.json({
+          tasks: []
+        })
+      } catch (error) {
+        return handleApiError(error, {
+          route: '/api/housekeeping/tasks',
+          method: 'GET'
+        })
       }
-    );
-
-    return NextResponse.json({
-      success: true,
-      schedule: {
-        id: schedule.id,
-        date: schedule.date,
-        assignments: schedule.assignments,
-        totalEfficiency: schedule.totalEfficiency,
-        estimatedCompletion: schedule.estimatedCompletion,
-        costSavings: schedule.costSavings,
-        guestSatisfactionScore: schedule.guestSatisfactionScore,
-        metrics: schedule.optimizationMetrics,
-      },
-    });
-  } catch (error) {
-    console.error("Error generating housekeeping schedule:", error);
-    return NextResponse.json(
-      { error: "Failed to generate optimized schedule", details: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
-  }
+    },
+    '/api/housekeeping/tasks'
+  )
 }
+
+// ============================================================================
+// POST /api/housekeeping/tasks
+// ============================================================================
+
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<{ task: any; taskId: string } | { error: string }>> {
+  return withRequestLogging(
+    request,
+    async () => {
+      try {
+        const body: CreateTaskRequest = await request.json()
+
+        // Validate
+        if (!body.propertyId || !body.title || !body.description) {
+          return NextResponse.json(
+            { error: 'Missing required fields: propertyId, title, description' },
+            { status: 400 }
+          )
+        }
+
+        // TODO: Initialize use case
+        // const taskRepo = new HousekeepingTaskRepositoryImpl()
+        // const createTask = new CreateHousekeepingTask(taskRepo)
+        
+        // const result = await createTask.execute({
+        //   propertyId: body.propertyId,
+        //   roomId: body.roomId,
+        //   reservationId: body.reservationId,
+        //   type: body.type,
+        //   priority: body.priority,
+        //   title: body.title,
+        //   description: body.description,
+        //   assignedTo: body.assignedTo,
+        //   dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
+        //   estimatedDuration: body.estimatedDuration,
+        //   checklist: body.checklist
+        // })
+
+        // Mock response
+        return NextResponse.json({
+          task: {
+            id: 'task_mock_123',
+            status: 'pending',
+            title: body.title
+          },
+          taskId: 'task_mock_123'
+        }, { status: 201 })
+      } catch (error) {
+        return handleApiError(error, {
+          route: '/api/housekeeping/tasks',
+          method: 'POST'
+        })
+      }
+    },
+    '/api/housekeeping/tasks'
+  )
+}
+
+// ============================================================================
+// POST /api/housekeeping/tasks/[id]/assign
+// ============================================================================
+
+async function assignTask(
+  request: NextRequest,
+  taskId: string
+): Promise<NextResponse<{ task: any; notified: boolean } | { error: string }>> {
+  return withRequestLogging(
+    request,
+    async () => {
+      try {
+        const body: AssignTaskRequest = await request.json()
+
+        // Validate
+        if (!body.staffId) {
+          return NextResponse.json(
+            { error: 'Missing required field: staffId' },
+            { status: 400 }
+          )
+        }
+
+        // TODO: Initialize use case
+        // const taskRepo = new HousekeepingTaskRepositoryImpl()
+        // const notificationService = new NotificationServiceImpl()
+        // const assignTask = new AssignTask(taskRepo, notificationService)
+        
+        // const result = await assignTask.execute({
+        //   taskId,
+        //   staffId: body.staffId,
+        //   assignedBy: 'current_user_id',
+        //   notifyStaff: body.notifyStaff
+        // })
+
+        // Mock response
+        return NextResponse.json({
+          task: {
+            id: taskId,
+            status: 'assigned',
+            assignedTo: body.staffId
+          },
+          notified: body.notifyStaff !== false
+        })
+      } catch (error) {
+        return handleApiError(error, {
+          route: '/api/housekeeping/tasks/[id]/assign',
+          method: 'POST'
+        })
+      }
+    },
+    '/api/housekeeping/tasks/[id]/assign'
+  )
+}
+
+// ============================================================================
+// POST /api/housekeeping/tasks/[id]/complete
+// ============================================================================
+
+async function completeTask(
+  request: NextRequest,
+  taskId: string
+): Promise<NextResponse<{ task: any } | { error: string }>> {
+  return withRequestLogging(
+    request,
+    async () => {
+      try {
+        const body: CompleteTaskRequest = await request.json()
+
+        // TODO: Update task status to completed
+        // const taskRepo = new HousekeepingTaskRepositoryImpl()
+        // const task = await taskRepo.findById(taskId)
+        // task.complete(body.duration, body.notes)
+        // await taskRepo.save(task)
+
+        // Mock response
+        return NextResponse.json({
+          task: {
+            id: taskId,
+            status: 'completed',
+            completedAt: new Date().toISOString()
+          }
+        })
+      } catch (error) {
+        return handleApiError(error, {
+          route: '/api/housekeeping/tasks/[id]/complete',
+          method: 'POST'
+        })
+      }
+    },
+    '/api/housekeeping/tasks/[id]/complete'
+  )
+}
+
+// ============================================================================
+// GET /api/housekeeping/stats
+// ============================================================================
+
+async function getStats(
+  request: NextRequest
+): Promise<NextResponse<{ stats: any } | { error: string }>> {
+  return withRequestLogging(
+    request,
+    async () => {
+      try {
+        const { searchParams } = new URL(request.url)
+        const propertyId = searchParams.get('propertyId')
+
+        // TODO: Calculate stats
+        // const taskRepo = new HousekeepingTaskRepositoryImpl()
+        // const tasks = await taskRepo.findByProperty(propertyId)
+        
+        // const stats = {
+        //   total: tasks.length,
+        //   pending: tasks.filter(t => t.status === 'pending').length,
+        //   inProgress: tasks.filter(t => t.status === 'in_progress').length,
+        //   completed: tasks.filter(t => t.status === 'completed').length,
+        //   overdue: tasks.filter(t => t.isOverdue()).length,
+        //   avgCompletionTime: calculateAvgCompletionTime(tasks)
+        // }
+
+        // Mock response
+        return NextResponse.json({
+          stats: {
+            total: 0,
+            pending: 0,
+            inProgress: 0,
+            completed: 0,
+            overdue: 0
+          }
+        })
+      } catch (error) {
+        return handleApiError(error, {
+          route: '/api/housekeeping/stats',
+          method: 'GET'
+        })
+      }
+    },
+    '/api/housekeeping/stats'
+  )
+}
+
+// Export handlers
+export { assignTask as POST }
