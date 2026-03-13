@@ -4,6 +4,8 @@
  * Get communication history for guest.
  */
 
+import { CommunicationRepositoryImpl } from '@/infrastructure/database/repositories/communication-repository'
+
 // ============================================================================
 // Input/Output DTOs
 // ============================================================================
@@ -41,7 +43,7 @@ export interface CommunicationDTO {
 
 export class GetGuestCommunications {
   constructor(
-    private communicationRepository: CommunicationRepository
+    private communicationRepository: CommunicationRepository = new CommunicationRepositoryImpl()
   ) {}
 
   /**

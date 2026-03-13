@@ -4,6 +4,9 @@
  * Send communication to guest (email, SMS, WhatsApp).
  */
 
+import { CommunicationRepositoryImpl } from '@/infrastructure/database/repositories/communication-repository'
+import { GuestRepositoryImpl } from '@/infrastructure/database/repositories/guest-repository'
+
 // ============================================================================
 // Input/Output DTOs
 // ============================================================================
@@ -31,11 +34,11 @@ export interface CreateGuestCommunicationOutput {
 
 export class CreateGuestCommunication {
   constructor(
-    private guestRepository: GuestRepository,
-    private communicationRepository: CommunicationRepository,
-    private emailService: EmailService,
-    private smsService: SmsService,
-    private whatsappService: WhatsappService
+    private guestRepository: GuestRepository = new GuestRepositoryImpl(),
+    private communicationRepository: CommunicationRepository = new CommunicationRepositoryImpl(),
+    private emailService: EmailService = {} as EmailService,
+    private smsService: SmsService = {} as SmsService,
+    private whatsappService: WhatsappService = {} as WhatsappService
   ) {}
 
   /**
