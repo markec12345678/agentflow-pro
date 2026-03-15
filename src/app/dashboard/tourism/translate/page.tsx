@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { toast } from "sonner";
 import { Skeleton } from "@/web/components/Skeleton";
 
@@ -52,7 +53,7 @@ export default function TourismTranslatePage() {
       if (data.error) throw new Error(data.error);
       setResults(data.translations ?? {});
     } catch (err) {
-      console.error("Translate failed:", err);
+      logger.error("Translate failed:", err);
       toast.error(err instanceof Error ? err.message : "Napaka pri prevodu.");
     } finally {
       setLoading(false);

@@ -69,7 +69,7 @@ export class GoogleCalendarSync {
           location: event.location,
         })) || [];
     } catch (error) {
-      console.error("[Google Calendar] Error fetching events:", error);
+      logger.error("[Google Calendar] Error fetching events:", error);
       throw new Error(`Failed to fetch Google Calendar events: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
@@ -108,7 +108,7 @@ export class GoogleCalendarSync {
 
       return response.data.id || "";
     } catch (error) {
-      console.error("[Google Calendar] Error creating event:", error);
+      logger.error("[Google Calendar] Error creating event:", error);
       throw new Error(`Failed to create Google Calendar event: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
@@ -151,7 +151,7 @@ export class GoogleCalendarSync {
         },
       });
     } catch (error) {
-      console.error("[Google Calendar] Error updating event:", error);
+      logger.error("[Google Calendar] Error updating event:", error);
       throw new Error(`Failed to update Google Calendar event: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
@@ -168,7 +168,7 @@ export class GoogleCalendarSync {
         eventId,
       });
     } catch (error) {
-      console.error("[Google Calendar] Error deleting event:", error);
+      logger.error("[Google Calendar] Error deleting event:", error);
       throw new Error(`Failed to delete Google Calendar event: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
@@ -218,7 +218,7 @@ export class GoogleCalendarSync {
           result.created++;
         }
       } catch (error) {
-        console.error("[Google Calendar Sync] Error:", error);
+        logger.error("[Google Calendar Sync] Error:", error);
         result.errors.push(`Failed to sync reservation ${reservation.id}: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
     }
@@ -249,7 +249,7 @@ export class GoogleCalendarSync {
 
       return credentials.access_token || "";
     } catch (error) {
-      console.error("[Google Calendar] Error refreshing token:", error);
+      logger.error("[Google Calendar] Error refreshing token:", error);
       throw new Error(`Failed to refresh Google access token: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }

@@ -117,7 +117,7 @@ export default function SustainabilityDashboard({ propertyId }: SustainabilityDa
         },
       ]);
     } catch (error) {
-      console.error('Failed to load sustainability data:', error);
+      logger.error('Failed to load sustainability data:', error);
       toast.error('Napaka pri nalaganju podatkov');
     } finally {
       setLoading(false);

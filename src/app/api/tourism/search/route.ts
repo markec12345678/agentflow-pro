@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -190,7 +191,7 @@ export async function GET(request: NextRequest) {
       total: sortedResults.length,
     });
   } catch (error) {
-    console.error("Search error:", error);
+    logger.error("Search error:", error);
     return NextResponse.json(
       { error: "Search failed", results: [] },
       { status: 500 }

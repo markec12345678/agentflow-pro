@@ -10,6 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { headers } from "next/headers";
 import Stripe from "stripe";
 import { prisma } from "@/database/schema";
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
-    console.error(`Webhook signature verification failed: ${err.message}`);
+    logger.error(`Webhook signature verification failed: ${err.message}`);
     return NextResponse.json(
       { error: `Webhook Error: ${err.message}` },
       { status: 400 }
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        console.log(`Payment succeeded: ${payment.id}`);
+        logger.info(`Payment succeeded: ${payment.id}`);
       }
       break;
     }
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        console.log(`Payment failed: ${payment.id}`);
+        logger.info(`Payment failed: ${payment.id}`);
       }
       break;
     }
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
             },
           });
 
-          console.log(`Refund processed: ${payment.id}`);
+          logger.info(`Refund processed: ${payment.id}`);
         }
       }
       break;
@@ -131,12 +132,12 @@ export async function POST(request: NextRequest) {
       const customer = event.data.object as Stripe.Customer;
       
       // Could save customer ID to guest record if needed
-      console.log(`Customer created: ${customer.id}`);
+      logger.info(`Customer created: ${customer.id}`);
       break;
     }
 
     default:
-      console.log(`Unhandled event type: ${event.type}`);
+      logger.info(`Unhandled event type: ${event.type}`);
   }
 
   return NextResponse.json({ received: true });

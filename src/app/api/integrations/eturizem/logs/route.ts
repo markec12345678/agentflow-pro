@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -143,7 +144,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get eTurizem logs error:', error);
+    logger.error('Get eTurizem logs error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -222,7 +223,7 @@ export async function POST(request: NextRequest) {
       details: log.details
     };
 
-    console.log('New eTurizem sync log:', newLog);
+    logger.info('New eTurizem sync log:', newLog);
 
     return NextResponse.json({
       success: true,
@@ -230,7 +231,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Create eTurizem log error:', error);
+    logger.error('Create eTurizem log error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

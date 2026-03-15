@@ -3,6 +3,7 @@
  */
 
 import { prisma } from "@/database/schema";
+import { logger } from '@/infrastructure/observability/logger';
 
 export type ApiKeyProvider =
   | "firecrawl"
@@ -41,7 +42,7 @@ async function findUserApiKeys(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes("does not exist")) {
-      console.warn("[user-keys] UserApiKey table missing, run: npx prisma migrate deploy");
+      logger.warn("[user-keys] UserApiKey table missing, run: npx prisma migrate deploy");
       return [];
     }
     throw err;

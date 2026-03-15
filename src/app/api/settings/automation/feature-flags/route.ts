@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -158,7 +159,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get feature flags error:', error);
+    logger.error('Get feature flags error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -221,7 +222,7 @@ export async function POST(request: NextRequest) {
       modifiedBy: currentUser.name
     }));
 
-    console.log('Updated feature flags:', updatedFlags);
+    logger.info('Updated feature flags:', updatedFlags);
 
     // Log activity
     await logActivity(userId, "Feature Flags Updated", `Updated ${flags.length} feature flags`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -235,7 +236,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Update feature flags error:', error);
+    logger.error('Update feature flags error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -280,7 +281,7 @@ function validateFeatureFlags(flags: any[]): { valid: boolean; message?: string 
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

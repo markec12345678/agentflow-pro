@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { AnalyticsWidget, WidgetType, ReportType } from '@/types/analytics';
 import { format, subDays, subMonths } from 'date-fns';
@@ -99,7 +100,7 @@ export default function AnalyticsDashboard({
       await generateReport(selectedReportType, 'pdf');
       setShowReportModal(false);
     } catch (error) {
-      console.error('Failed to generate report:', error);
+      logger.error('Failed to generate report:', error);
     }
   };
 
@@ -107,7 +108,7 @@ export default function AnalyticsDashboard({
     try {
       await exportData(type, 'csv');
     } catch (error) {
-      console.error('Failed to export data:', error);
+      logger.error('Failed to export data:', error);
     }
   };
 

@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import { subDays, addDays, startOfDay, isSameDay } from "date-fns";
 import { format } from "date-fns";
@@ -270,7 +271,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Email scheduler error:", error);
+    logger.error("Email scheduler error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Scheduler failed" },
       { status: 500 }

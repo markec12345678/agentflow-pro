@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { startOfDay, addDays, format } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
@@ -155,7 +156,7 @@ export async function GET(request: NextRequest) {
         .filter(Boolean),
     });
   } catch (error) {
-    console.error("Today overview error:", error);
+    logger.error("Today overview error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to load overview" },
       { status: 500 }

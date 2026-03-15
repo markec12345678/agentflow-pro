@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -174,7 +175,7 @@ export async function POST(request: NextRequest) {
   testResult.responseTime = Date.now() - startTime;
 
   // Log test result (in real implementation, this would be stored in database)
-  console.log(`Integration test result for ${integrationId}:`, testResult);
+  logger.info(`Integration test result for ${integrationId}:`, testResult);
 
   return NextResponse.json({
     success: true,
@@ -186,7 +187,7 @@ export async function POST(request: NextRequest) {
   });
 
 } catch (error) {
-  console.error('Test integration error:', error);
+  logger.error('Test integration error:', error);
   return NextResponse.json(
     { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
     { status: 500 }

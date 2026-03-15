@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getAppBackend } from "@/memory/app-backend";
 import type { CreateEntityInput } from "@/memory/memory-backend";
 import { getServerSession } from "next-auth";
@@ -14,7 +15,7 @@ export async function GET() {
     const graph = backend.readGraph();
     return NextResponse.json(graph);
   } catch (err) {
-    console.error("Error in memory entities GET API:", err);
+    logger.error("Error in memory entities GET API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
     backend.createEntities(entities);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Error in memory entities POST API:", err);
+    logger.error("Error in memory entities POST API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }

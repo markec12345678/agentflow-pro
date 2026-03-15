@@ -85,7 +85,7 @@ export class QwenAI {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Qwen API Response:', {
+        logger.error('Qwen API Response:', {
           status: response.status,
           statusText: response.statusText,
           body: errorText,
@@ -105,7 +105,7 @@ export class QwenAI {
       const data = await response.json();
       return data.choices[0]?.message?.content || '';
     } catch (error) {
-      console.error('Qwen generation error:', error);
+      logger.error('Qwen generation error:', error);
       throw error;
     }
   }

@@ -166,7 +166,7 @@ export async function searchKnowledge(
       metadata: result.payload,
     }));
   } catch (error) {
-    console.error("[RAG Search] Error:", error);
+    logger.error("[RAG Search] Error:", error);
     return [];
   }
 }
@@ -277,7 +277,7 @@ export async function initializeKnowledgeBase(): Promise<void> {
       });
     }
   } catch (error) {
-    console.error("[RAG Init] Error:", error);
+    logger.error("[RAG Init] Error:", error);
   }
 }
 

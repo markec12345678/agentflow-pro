@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { useWebSocket } from '@/hooks/use-websocket';
 import { PropertySelector } from '@/web/components/PropertySelector';
 import { toast } from 'sonner';
@@ -97,7 +98,7 @@ export default function RoomStatusGrid({ propertyId: initialPropertyId, onProper
         throw new Error(data.error || 'Unknown error');
       }
     } catch (error) {
-      console.error('Error fetching rooms:', error);
+      logger.error('Error fetching rooms:', error);
       setError(error instanceof Error ? error.message : 'Failed to fetch rooms');
       toast.error('Failed to load room status');
     } finally {
@@ -134,7 +135,7 @@ export default function RoomStatusGrid({ propertyId: initialPropertyId, onProper
       
       toast.success(`Room status updated to ${newStatus}`);
     } catch (error) {
-      console.error('Error updating room status:', error);
+      logger.error('Error updating room status:', error);
       toast.error('Failed to update room status');
       // Revert the change by fetching fresh data
       fetchRooms();

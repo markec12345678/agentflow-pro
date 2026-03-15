@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       stats: approvalManager.getApprovalStats(),
     });
   } catch (error) {
-    console.error('Failed to get approvals:', error);
+    logger.error('Failed to get approvals:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to retrieve approvals' },
       { status: 500 }
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       message: 'Approval request created',
     });
   } catch (error) {
-    console.error('Failed to process approval:', error);
+    logger.error('Failed to process approval:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to process approval' },
       { status: 500 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -83,7 +84,7 @@ export async function POST(
       acknowledgedAt: new Date().toISOString()
     };
 
-    console.log('Acknowledged alert:', acknowledgedAlert);
+    logger.info('Acknowledged alert:', acknowledgedAlert);
 
     // Log activity
     await logActivity(userId, "Alert Acknowledged", `Acknowledged alert: ${mockAlert.title}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
@@ -97,7 +98,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Acknowledge alert error:', error);
+    logger.error('Acknowledge alert error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -106,7 +107,7 @@ export async function POST(
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

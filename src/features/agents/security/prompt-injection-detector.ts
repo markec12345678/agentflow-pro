@@ -543,7 +543,7 @@ export function createSecurityMiddleware(detector: PromptInjectionDetector) {
     }
 
     if (scanResult.recommendation === 'review') {
-      console.warn('[Security] Request flagged for review:', scanResult.detectedThreats);
+      logger.warn('[Security] Request flagged for review:', scanResult.detectedThreats);
       // Could trigger human review here
     }
 

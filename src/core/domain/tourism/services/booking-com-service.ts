@@ -130,7 +130,7 @@ export class BookingComService {
 
       return { success: true, updated, errors };
     } catch (error: any) {
-      console.error('[Booking.com Push Availability] Error:', error);
+      logger.error('[Booking.com Push Availability] Error:', error);
       errors.push(error.message);
       
       // Log error
@@ -193,7 +193,7 @@ export class BookingComService {
 
       return { success: true, updated, errors };
     } catch (error: any) {
-      console.error('[Booking.com Push Rates] Error:', error);
+      logger.error('[Booking.com Push Rates] Error:', error);
       errors.push(error.message);
       return { success: false, updated, errors };
     }
@@ -234,7 +234,7 @@ export class BookingComService {
 
       return { success: true, reservations, errors };
     } catch (error: any) {
-      console.error('[Booking.com Pull Reservations] Error:', error);
+      logger.error('[Booking.com Pull Reservations] Error:', error);
       errors.push(error.message);
       return { success: false, reservations: [], errors };
     }
@@ -269,7 +269,7 @@ export class BookingComService {
 
       return mapping;
     } catch (error) {
-      console.error('[Booking.com Get Room Mapping] Error:', error);
+      logger.error('[Booking.com Get Room Mapping] Error:', error);
       return {};
     }
   }

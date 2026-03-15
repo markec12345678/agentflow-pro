@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { logger } from '@/infrastructure/observability/logger';
 import { NextRequest, NextResponse } from "next/server";
 import { createCheckout } from "@/api/billing";
 import { authOptions } from "@/lib/auth-options";
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
         { status: 503 }
       );
     }
-    console.error("Error in Stripe checkout API:", err);
+    logger.error("Error in Stripe checkout API:", err);
     return NextResponse.json(
       { error: msg || "Checkout failed" },
       { status: 500 }

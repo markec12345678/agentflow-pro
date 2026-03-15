@@ -4,6 +4,7 @@
  */
 
 import Redis from 'ioredis';
+import { logger } from '@/infrastructure/observability/logger';
 import { v4 as uuidv4 } from 'uuid';
 import { WorkflowDefinition, WorkflowExecution } from '@/types/integration-automation';
 
@@ -116,7 +117,7 @@ export class WorkflowVersioningManager {
     this.versions.set(version.id, version);
     await this.saveVersion(version);
 
-    console.log(`📝 Created workflow version ${workflowId}@${options.version}`);
+    logger.info(`📝 Created workflow version ${workflowId}@${options.version}`);
     return version;
   }
 
@@ -240,7 +241,7 @@ export class WorkflowVersioningManager {
       throw new Error(`No rollback target version specified and no default rollback version available`);
     }
 
-    console.log(`🔄 Rolling back ${workflowId} from ${currentVersion.version} to ${rollbackToVersion}`);
+    logger.info(`🔄 Rolling back ${workflowId} from ${currentVersion.version} to ${rollbackToVersion}`);
     
     // Create rollback deployment plan
     const rollbackPlan: DeploymentPlan = {
@@ -335,7 +336,7 @@ export class WorkflowVersioningManager {
     plan.status = 'in-progress';
     plan.startedAt = new Date();
     
-    console.log(`🚀 Starting deployment ${plan.deploymentId}: ${plan.workflowId} ${plan.fromVersion} -> ${plan.toVersion}`);
+    logger.info(`🚀 Starting deployment ${plan.deploymentId}: ${plan.workflowId} ${plan.fromVersion} -> ${plan.toVersion}`);
 
     try {
       for (const step of plan.steps) {
@@ -348,7 +349,7 @@ export class WorkflowVersioningManager {
         step.completedAt = new Date();
         step.duration = step.completedAt.getTime() - step.startedAt.getTime();
         
-        console.log(`✅ Completed deployment step: ${step.name}`);
+        logger.info(`✅ Completed deployment step: ${step.name}`);
       }
 
       // Update active version
@@ -377,7 +378,7 @@ export class WorkflowVersioningManager {
       plan.status = 'completed';
       plan.completedAt = new Date();
       
-      console.log(`🎉 Deployment completed: ${plan.workflowId}@${plan.toVersion}`);
+      logger.info(`🎉 Deployment completed: ${plan.workflowId}@${plan.toVersion}`);
       
     } catch (error) {
       plan.status = 'failed';
@@ -385,7 +386,7 @@ export class WorkflowVersioningManager {
       
       // Attempt rollback if enabled
       if (plan.rollbackConfig.enabled && plan.fromVersion !== 'none') {
-        console.log(`🔄 Deployment failed, attempting rollback to ${plan.fromVersion}`);
+        logger.info(`🔄 Deployment failed, attempting rollback to ${plan.fromVersion}`);
         await this.performAutomaticRollback(plan);
       }
       
@@ -438,13 +439,13 @@ export class WorkflowVersioningManager {
       }
     }
 
-    console.log(`✅ Pre-deployment checks passed`);
+    logger.info(`✅ Pre-deployment checks passed`);
   }
 
   private async deployNewVersion(plan: DeploymentPlan): Promise<void> {
     // In a real implementation, this would deploy the new version
     // For now, we just mark it as prepared
-    console.log(`📦 Deploying version ${plan.toVersion}`);
+    logger.info(`📦 Deploying version ${plan.toVersion}`);
   }
 
   private async performHealthCheck(plan: DeploymentPlan): Promise<void> {
@@ -452,28 +453,28 @@ export class WorkflowVersioningManager {
     const healthCheckUrl = `http://localhost:3002${plan.healthCheckConfig.endpoint}`;
     
     // In a real implementation, make HTTP request to health check endpoint
-    console.log(`🏥 Performing health check at ${healthCheckUrl}`);
+    logger.info(`🏥 Performing health check at ${healthCheckUrl}`);
     
     // Simulate health check success
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    console.log(`✅ Health check passed`);
+    logger.info(`✅ Health check passed`);
   }
 
   private async switchTraffic(plan: DeploymentPlan): Promise<void> {
     // In a real implementation, this would switch traffic to new version
-    console.log(`🔄 Switching traffic to version ${plan.toVersion}`);
+    logger.info(`🔄 Switching traffic to version ${plan.toVersion}`);
     
     // Update routing configuration
     const versionId = await this.getVersionId(plan.workflowId, plan.toVersion);
     this.activeVersions.set(plan.workflowId, versionId);
     
-    console.log(`✅ Traffic switched to version ${plan.toVersion}`);
+    logger.info(`✅ Traffic switched to version ${plan.toVersion}`);
   }
 
   private async performPostDeploymentValidation(plan: DeploymentPlan): Promise<void> {
     // Validate deployment
-    console.log(`🔍 Performing post-deployment validation`);
+    logger.info(`🔍 Performing post-deployment validation`);
     
     // Check if new version is active
     const activeVersionId = this.activeVersions.get(plan.workflowId);
@@ -483,15 +484,15 @@ export class WorkflowVersioningManager {
       throw new Error(`Deployment validation failed: active version is ${activeVersion?.version}, expected ${plan.toVersion}`);
     }
     
-    console.log(`✅ Post-deployment validation passed`);
+    logger.info(`✅ Post-deployment validation passed`);
   }
 
   private async performAutomaticRollback(failedPlan: DeploymentPlan): Promise<void> {
     try {
       const rollbackPlan = await this.rollback(failedPlan.workflowId, failedPlan.fromVersion);
-      console.log(`🔄 Automatic rollback completed: ${rollbackPlan.toVersion}`);
+      logger.info(`🔄 Automatic rollback completed: ${rollbackPlan.toVersion}`);
     } catch (rollbackError) {
-      console.error(`❌ Automatic rollback failed:`, rollbackError);
+      logger.error(`❌ Automatic rollback failed:`, rollbackError);
     }
   }
 

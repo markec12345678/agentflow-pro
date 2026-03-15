@@ -374,7 +374,7 @@ export class ExecutionTracer {
       try {
         callback({ ...trace });
       } catch (error) {
-        console.error('Trace listener error:', error);
+        logger.error('Trace listener error:', error);
       }
     });
   }

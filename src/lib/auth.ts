@@ -4,6 +4,7 @@
  */
 
 import bcrypt from 'bcryptjs';
+import { logger } from '@/infrastructure/observability/logger';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '@/database/schema';
@@ -261,7 +262,7 @@ export class AuthService {
     await this.saveUser(user);
 
     // In production, send email with reset link
-    console.log(`Password reset link: /reset-password?token=${user.passwordResetToken}`);
+    logger.info(`Password reset link: /reset-password?token=${user.passwordResetToken}`);
   }
 
   // Reset password

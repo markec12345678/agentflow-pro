@@ -144,7 +144,7 @@ export class AnalyticsEngine implements IAnalyticsEngine {
       recipients: [],
     };
 
-    console.log(`📊 Generated ${type} report: ${reportId}`);
+    logger.info(`📊 Generated ${type} report: ${reportId}`);
     return report;
   }
 
@@ -157,7 +157,7 @@ export class AnalyticsEngine implements IAnalyticsEngine {
     const growthRate = 0.05; // 5% growth rate
     const forecastedRevenue = historicalData.totalRevenue * (1 + growthRate);
     
-    console.log(`📈 Revenue forecast: $${forecastedRevenue.toFixed(2)}`);
+    logger.info(`📈 Revenue forecast: $${forecastedRevenue.toFixed(2)}`);
     return forecastedRevenue;
   }
 
@@ -170,7 +170,7 @@ export class AnalyticsEngine implements IAnalyticsEngine {
     const seasonalAdjustment = 1.02; // 2% seasonal adjustment
     const forecastedOccupancy = historicalData.overallOccupancyRate * seasonalAdjustment;
     
-    console.log(`🏨 Occupancy forecast: ${(forecastedOccupancy * 100).toFixed(1)}%`);
+    logger.info(`🏨 Occupancy forecast: ${(forecastedOccupancy * 100).toFixed(1)}%`);
     return forecastedOccupancy;
   }
 
@@ -209,7 +209,7 @@ export class AnalyticsEngine implements IAnalyticsEngine {
     const jsonString = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
     
-    console.log(`📤 Exported ${type} data in ${format} format`);
+    logger.info(`📤 Exported ${type} data in ${format} format`);
     return blob;
   }
 

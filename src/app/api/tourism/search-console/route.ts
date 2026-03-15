@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -94,7 +95,7 @@ export async function GET(request: NextRequest) {
       }))),
     });
   } catch (error) {
-    console.error("Search Console error:", error);
+    logger.error("Search Console error:", error);
     return NextResponse.json(
       { error: "Failed to fetch Search Console data" },
       { status: 500 }
@@ -189,7 +190,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
-    console.error("Search Console POST error:", error);
+    logger.error("Search Console POST error:", error);
     return NextResponse.json(
       { error: "Failed to process request" },
       { status: 500 }
@@ -227,7 +228,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Disconnect error:", error);
+    logger.error("Disconnect error:", error);
     return NextResponse.json(
       { error: "Failed to disconnect" },
       { status: 500 }

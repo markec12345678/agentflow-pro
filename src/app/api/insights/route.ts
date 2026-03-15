@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -95,7 +96,7 @@ export async function GET(request: NextRequest) {
       estimatedTimeSavedHours: Math.round(estimatedTimeSavedHours * 10) / 10,
     });
   } catch (err) {
-    console.error("Error in insights API:", err);
+    logger.error("Error in insights API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed" },
       { status: 500 }

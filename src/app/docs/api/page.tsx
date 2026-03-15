@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
 
@@ -16,7 +17,7 @@ export default function ApiDocsPage() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error loading API docs:", err);
+        logger.error("Error loading API docs:", err);
         setLoading(false);
       });
   }, []);

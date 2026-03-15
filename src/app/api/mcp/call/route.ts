@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 
 export async function POST(req: Request) {
   try {
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('MCP Call Error:', error);
+    logger.error('MCP Call Error:', error);
     return NextResponse.json(
       { success: false, error: (error as any).message || 'Failed to call MCP function' },
       { status: 500 }

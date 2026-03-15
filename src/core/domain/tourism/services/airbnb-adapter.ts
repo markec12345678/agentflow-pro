@@ -178,7 +178,7 @@ export class AirbnbAdapter implements PmsAdapter {
 
         result.synced++;
       } catch (error) {
-        console.error("[Airbnb Sync] Error:", error);
+        logger.error("[Airbnb Sync] Error:", error);
         result.errors.push({
           externalId: r.externalId,
           error: error instanceof Error ? error.message : "Unknown error",

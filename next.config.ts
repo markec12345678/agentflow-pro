@@ -50,11 +50,11 @@ const nextConfig: NextConfig = {
   
   // Bundle Optimization
   webpack: (config, { isServer }) => {
-    // Tree shaking for Lodash
+    // Tree shaking for Lodash and other libraries
     if (!isServer) {
       config.optimization = {
         ...config.optimization,
-        usedExports: false, // Disable to fix cacheUnaffected conflict
+        usedExports: true, // ENABLE tree shaking for better bundle size
         splitChunks: {
           chunks: 'all',
           cacheGroups: {
@@ -73,12 +73,12 @@ const nextConfig: NextConfig = {
         },
       };
     }
-    
-    // Fix for Next.js 15 + Webpack 5 cache conflict
+
+    // Enable tree shaking (removed conflicting cacheUnaffected setting)
     if (config.optimization) {
-      config.optimization.usedExports = false;
+      config.optimization.usedExports = true;
     }
-    
+
     return config;
   },
   

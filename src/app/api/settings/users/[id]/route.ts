@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -94,7 +95,7 @@ export async function PUT(
     }
 
     // Update user (in real implementation)
-    console.log('Updating user:', targetUserId, updates);
+    logger.info('Updating user:', targetUserId, updates);
 
     // Log activity
     await logActivity(userId, "User Updated", `Updated user: ${targetUser.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -105,7 +106,7 @@ export async function PUT(
     });
 
   } catch (error) {
-    console.error('Update user error:', error);
+    logger.error('Update user error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -169,7 +170,7 @@ export async function DELETE(
     }
 
     // Deactivate user (in real implementation)
-    console.log('Deactivating user:', targetUserId);
+    logger.info('Deactivating user:', targetUserId);
 
     // Log activity
     await logActivity(userId, "User Deactivated", `Deactivated user: ${targetUser.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -180,7 +181,7 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('Delete user error:', error);
+    logger.error('Delete user error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -189,7 +190,7 @@ export async function DELETE(
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

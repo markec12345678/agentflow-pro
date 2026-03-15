@@ -4,6 +4,7 @@
  */
 
 import { writeFileSync } from 'fs';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface EURepresentative {
   companyName: string;
@@ -845,7 +846,7 @@ Date: ${this.agreement.agreementDate.toDateString()}
   }
 
   async generateAllEURepresentativeDocuments(): Promise<void> {
-    console.log('Generating EU representative documents...');
+    logger.info('Generating EU representative documents...');
     
     // Generate appointment letter
     const appointment = this.generateEURepresentativeAppointment();
@@ -859,23 +860,23 @@ Date: ${this.agreement.agreementDate.toDateString()}
     const implementationPlan = this.generateImplementationPlan();
     writeFileSync('eu-representative-implementation-plan.md', implementationPlan);
     
-    console.log('EU representative documents generated successfully!');
-    console.log('Files created:');
-    console.log('- eu-representative-appointment.md');
-    console.log('- eu-representative-service-agreement.md');
-    console.log('- eu-representative-implementation-plan.md');
+    logger.info('EU representative documents generated successfully!');
+    logger.info('Files created:');
+    logger.info('- eu-representative-appointment.md');
+    logger.info('- eu-representative-service-agreement.md');
+    logger.info('- eu-representative-implementation-plan.md');
     
-    console.log('\n🎯 EU Representative Status:');
-    console.log('✅ Representative appointed and documented');
-    console.log('✅ Service agreement created');
-    console.log('✅ Implementation plan developed');
-    console.log('✅ Contact information established');
+    logger.info('\n🎯 EU Representative Status:');
+    logger.info('✅ Representative appointed and documented');
+    logger.info('✅ Service agreement created');
+    logger.info('✅ Implementation plan developed');
+    logger.info('✅ Contact information established');
     
-    console.log('\n🚀 Next Steps:');
-    console.log('1. Sign service agreement with representative');
-    console.log('2. Begin implementation timeline (4 weeks)');
-    console.log('3. Register with EU supervisory authorities');
-    console.log('4. Establish ongoing communication procedures');
+    logger.info('\n🚀 Next Steps:');
+    logger.info('1. Sign service agreement with representative');
+    logger.info('2. Begin implementation timeline (4 weeks)');
+    logger.info('3. Register with EU supervisory authorities');
+    logger.info('4. Establish ongoing communication procedures');
   }
 }
 

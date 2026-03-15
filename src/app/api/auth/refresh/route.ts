@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { UserService } from '@/services/user.service';
 import { AuthService, AuthError } from '@/services/auth.service';
 
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
       data: result,
     });
   } catch (error) {
-    console.error('Token refresh error:', error);
+    logger.error('Token refresh error:', error);
 
     if (error instanceof AuthError) {
       return NextResponse.json(

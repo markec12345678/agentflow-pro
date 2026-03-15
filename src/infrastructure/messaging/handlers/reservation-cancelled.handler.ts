@@ -6,6 +6,7 @@
  */
 
 import { ReservationCancelled } from '@/core/domain/tourism/events/reservation-events'
+import { logger } from '@/infrastructure/observability/logger';
 import { eventBus } from '@/infrastructure/messaging/in-memory-event-bus'
 
 // ============================================================================
@@ -17,7 +18,7 @@ export class ReservationCancelledHandler {
    * Handle ReservationCancelled event
    */
   async handle(event: ReservationCancelled): Promise<void> {
-    console.log('Handling ReservationCancelled event:', event.eventId)
+    logger.info('Handling ReservationCancelled event:', event.eventId)
 
     try {
       // 1. Process refund (if applicable)
@@ -37,9 +38,9 @@ export class ReservationCancelledHandler {
       // 5. Track analytics
       await this.trackAnalytics(event)
 
-      console.log('ReservationCancelled event handled successfully')
+      logger.info('ReservationCancelled event handled successfully')
     } catch (error) {
-      console.error('Error handling ReservationCancelled event:', error)
+      logger.error('Error handling ReservationCancelled event:', error)
       throw error
     }
   }
@@ -63,7 +64,7 @@ export class ReservationCancelledHandler {
       cancelledBy: event.cancelledBy
     }
 
-    console.log('Processing refund:', refundData)
+    logger.info('Processing refund:', refundData)
     // await paymentGateway.refund(refundData)
   }
 
@@ -77,7 +78,7 @@ export class ReservationCancelledHandler {
     // Pridobi datum rezervacije (bi moral biti v event-u ali preko repository-ja)
     // Za zdaj samo logiramo
     
-    console.log('Updating calendar - freeing dates for reservation:', event.reservationId)
+    logger.info('Updating calendar - freeing dates for reservation:', event.reservationId)
     // await calendarService.freeDates({
     //   reservationId: event.reservationId,
     //   status: 'available'
@@ -104,7 +105,7 @@ export class ReservationCancelledHandler {
       }
     }
 
-    console.log('Notifying manager:', notification)
+    logger.info('Notifying manager:', notification)
     // await notificationService.send(notification)
   }
 
@@ -138,7 +139,7 @@ export class ReservationCancelledHandler {
       `
     }
 
-    console.log('Sending cancellation email:', emailData)
+    logger.info('Sending cancellation email:', emailData)
     // await emailService.send(emailData)
   }
 
@@ -158,7 +159,7 @@ export class ReservationCancelledHandler {
       }
     }
 
-    console.log('Tracking analytics:', analyticsData)
+    logger.info('Tracking analytics:', analyticsData)
     // await analyticsService.track(analyticsData)
   }
 }
@@ -170,4 +171,4 @@ export class ReservationCancelledHandler {
 const handler = new ReservationCancelledHandler()
 eventBus.subscribe(ReservationCancelled, handler.handle.bind(handler))
 
-console.log('ReservationCancelledHandler registered')
+logger.info('ReservationCancelledHandler registered')

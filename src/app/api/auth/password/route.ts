@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { UserService } from '@/services/user.service';
 import { AuthService, AuthError } from '@/services/auth.service';
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: { message: 'Password changed successfully' } });
   } catch (error) {
-    console.error('Change password error:', error);
+    logger.error('Change password error:', error);
     const msg = error instanceof Error ? error.message : 'Internal server error';
     const isAuthErr = msg.includes('password') || msg.includes('User not found');
     return NextResponse.json(
@@ -77,7 +78,7 @@ export async function PUT(request: NextRequest) {
       data: { message: 'Password reset email sent' },
     });
   } catch (error) {
-    console.error('Request password reset error:', error);
+    logger.error('Request password reset error:', error);
 
     return NextResponse.json(
       {
@@ -108,7 +109,7 @@ export async function PATCH(request: NextRequest) {
       data: { message: 'Password reset successfully' },
     });
   } catch (error) {
-    console.error('Confirm password reset error:', error);
+    logger.error('Confirm password reset error:', error);
 
     if (error instanceof AuthError) {
       return NextResponse.json(

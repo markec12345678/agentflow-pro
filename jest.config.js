@@ -1,88 +1,31 @@
-/**
- * Jest Configuration
- * 
- * Testing setup for AgentFlow Pro
- */
+const nextJest = require('next/jest')
 
-module.exports = {
-  // Test environment
-  testEnvironment: 'node',
-  
-  // Root directory
-  rootDir: '../..',
-  
-  // Test match patterns
-  testMatch: [
-    '**/__tests__/**/*.ts?(x)',
-    '**/?(*.)+(spec|test).ts?(x)'
-  ],
-  
-  // Transform
-  transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: {
-        ...require('./tsconfig.json'),
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true
-      }
-    }]
-  },
-  
-  // Module name mapper
-  moduleNameMapper: {
+const createJestConfig = nextJest({
+  // Directory where Jest should look for test files
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  moduleNameMapping: {
+    // Handle module aliases (this will be automatically configured for you based on your tsconfig.json paths)
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^@/core/(.*)$': '<rootDir>/src/core/$1',
-    '^@/infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
-    '^@/app/(.*)$': '<rootDir>/src/app/$1',
-    '^@/features/(.*)$': '<rootDir>/src/features/$1',
-    '^@/shared/(.*)$': '<rootDir>/src/shared/$1'
   },
-  
-  // Setup files
-  setupFilesAfterEnv: ['<rootDir>/src/tests/jest.setup.ts'],
-  
-  // Coverage
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/tests/**'
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/node_modules/',
   ],
-  
-  // Coverage thresholds
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+  ],
   coverageThreshold: {
     global: {
-      branches: 50,
-      functions: 50,
-      lines: 50,
-      statements: 50
-    }
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
   },
-  
-  // Coverage directories
-  coverageDirectory: '<rootDir>/coverage',
-  
-  // Verbose output
-  verbose: true,
-  
-  // Test timeout
-  testTimeout: 10000,
-  
-  // Max workers
-  maxWorkers: '50%',
-  
-  // Detect open handles
-  detectOpenHandles: true,
-  
-  // Force exit
-  forceExit: true,
-  
-  // Clear mocks
-  clearMocks: true,
-  
-  // Reset modules
-  resetModules: true,
-  
-  // Restore mocks
-  restoreMocks: true
-}
+  // Add custom matchers for better assertions
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+})
+
+module.exports = createJestConfig

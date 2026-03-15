@@ -5,6 +5,7 @@
  */
 
 import { randomBytes } from "crypto";
+import { logger } from '@/infrastructure/observability/logger';
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -182,7 +183,7 @@ export async function POST(request: NextRequest) {
 
         const { triggerBookingConfirmation } = await import("@/lib/tourism/email-triggers");
         triggerBookingConfirmation(reservation.id, propertyId, guest.id).catch((err) =>
-          console.error("Bulk import booking confirmation:", err)
+          logger.error("Bulk import booking confirmation:", err)
         );
 
         imported++;
@@ -201,7 +202,7 @@ export async function POST(request: NextRequest) {
       errors,
     });
   } catch (error) {
-    console.error("Bulk import error:", error);
+    logger.error("Bulk import error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Bulk import failed" },
       { status: 500 }

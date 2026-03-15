@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       interaction: result,
     });
   } catch (error) {
-    console.error('Voice interaction error:', error);
+    logger.error('Voice interaction error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Voice processing failed' },
       { status: 500 }
@@ -105,7 +105,7 @@ export async function POST_TRANSSCRIBE(request: NextRequest) {
       duration: result.duration,
     });
   } catch (error) {
-    console.error('Transcription error:', error);
+    logger.error('Transcription error:', error);
     return NextResponse.json(
       { error: 'Transcription failed' },
       { status: 500 }
@@ -138,7 +138,7 @@ export async function POST_SYNTHESIZE(request: NextRequest) {
       audioUrl: result.audioUrl,
     });
   } catch (error) {
-    console.error('TTS error:', error);
+    logger.error('TTS error:', error);
     return NextResponse.json(
       { error: 'Text-to-speech failed' },
       { status: 500 }
@@ -176,7 +176,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ interactions });
   } catch (error) {
-    console.error('Get interactions error:', error);
+    logger.error('Get interactions error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch interactions' },
       { status: 500 }

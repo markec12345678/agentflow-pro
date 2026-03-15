@@ -7,13 +7,14 @@
  */
 
 import type { NextRequest } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 
 export function verifyCronAuth(request: NextRequest): boolean {
   const authHeader = request.headers.get("authorization");
   const raw = process.env.CRON_SECRET ?? "";
   const cronSecret = raw.trim();
   if (raw !== cronSecret && raw.length > 0) {
-    console.warn(
+    logger.warn(
       "CRON_SECRET has leading/trailing whitespace – Vercel cron may fail. Remove spaces in Vercel env."
     );
   }

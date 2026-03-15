@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -201,7 +202,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get audit logs error:', error);
+    logger.error('Get audit logs error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -261,7 +262,7 @@ export async function POST(request: NextRequest) {
       userAgent: request.headers.get('user-agent') || "unknown"
     };
 
-    console.log('Audit log created:', auditLog);
+    logger.info('Audit log created:', auditLog);
 
     return NextResponse.json({
       success: true,
@@ -272,7 +273,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Create audit log error:', error);
+    logger.error('Create audit log error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

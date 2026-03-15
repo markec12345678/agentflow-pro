@@ -107,7 +107,7 @@ export class IntegrationBuilderService {
       try {
         data = await this.executeAction(action, data, integration);
       } catch (error) {
-        console.error(`Action ${action.name} failed:`, error);
+        logger.error(`Action ${action.name} failed:`, error);
 
         // Error handling
         if (config.errorHandling.onError === 'stop') {

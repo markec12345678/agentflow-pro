@@ -35,7 +35,7 @@ export class RoomAssignmentEngine {
    * Main room assignment method
    */
   async assignRoom(criteria: AssignmentCriteria): Promise<AssignmentResult> {
-    console.log('🤖 Starting room assignment for guest:', criteria.guestRequirements.name);
+    logger.info('🤖 Starting room assignment for guest:', criteria.guestRequirements.name);
 
     // Step 1: Filter available rooms based on constraints
     const eligibleRooms = this.filterEligibleRooms(criteria.availableRooms, criteria.constraints);
@@ -58,7 +58,7 @@ export class RoomAssignmentEngine {
       await this.updateLearningModel(criteria, result);
     }
 
-    console.log('🤖 Room assignment completed:', result.recommendedRoom.roomId);
+    logger.info('🤖 Room assignment completed:', result.recommendedRoom.roomId);
     return result;
   }
 
@@ -635,7 +635,7 @@ export class RoomAssignmentEngine {
 
   private initializeLearningData(): void {
     // Initialize with mock data or load from database
-    console.log('🤖 Initializing learning data...');
+    logger.info('🤖 Initializing learning data...');
   }
 
   /**
@@ -643,7 +643,7 @@ export class RoomAssignmentEngine {
    */
   async updateLearning(data: LearningData): Promise<void> {
     // Update the learning model with new data
-    console.log('🤖 Updating learning model with new data...');
+    logger.info('🤖 Updating learning model with new data...');
   }
 
   async getAssignmentHistory(guestId: string): Promise<AssignmentHistory[]> {

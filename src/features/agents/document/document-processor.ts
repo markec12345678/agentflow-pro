@@ -377,7 +377,7 @@ export class DocumentProcessor {
   private async indexChunks(documentId: string, chunks: DocumentChunk[]): Promise<void> {
     // In production, generate embeddings and store in vector database
     // This would integrate with QdrantService
-    console.log(`[DocumentProcessor] Indexed ${chunks.length} chunks for ${documentId}`);
+    logger.info(`[DocumentProcessor] Indexed ${chunks.length} chunks for ${documentId}`);
   }
 
   /**

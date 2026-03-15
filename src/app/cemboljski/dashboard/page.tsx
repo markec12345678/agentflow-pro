@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ export default function CemboljskiDashboard() {
           napake: 2
         });
       } catch (error) {
-        console.error('Napaka pri nalaganju cemboljskih podatkov:', error);
+        logger.error('Napaka pri nalaganju cemboljskih podatkov:', error);
       }
     };
 
@@ -57,7 +58,7 @@ export default function CemboljskiDashboard() {
           : alert
       ));
     } catch (error) {
-      console.error('Napaka pri auto-approve:', error);
+      logger.error('Napaka pri auto-approve:', error);
     }
   };
 
@@ -74,7 +75,7 @@ export default function CemboljskiDashboard() {
           : alert
       ));
     } catch (error) {
-      console.error('Napaka pri sinhronizaciji:', error);
+      logger.error('Napaka pri sinhronizaciji:', error);
     }
   };
 

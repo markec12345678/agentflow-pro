@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
@@ -107,7 +108,7 @@ ${content}`,
           );
           results[targetLang] = result.text.trim() || "[Translation error]";
         } catch (err) {
-          console.error(`Translation failed for ${targetLang}:`, err);
+          logger.error(`Translation failed for ${targetLang}:`, err);
           results[targetLang] = "[Translation error]";
         }
       }
@@ -127,7 +128,7 @@ ${content}`,
       translations: results,
     });
   } catch (error) {
-    console.error("Batch translate error:", error);
+    logger.error("Batch translate error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }

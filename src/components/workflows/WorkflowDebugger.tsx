@@ -85,7 +85,7 @@ export default function WorkflowDebugger({ workflowId }: WorkflowDebuggerProps) 
       const data = await res.json();
       setExecutions(data.executions || []);
     } catch (error) {
-      console.error('Failed to load executions:', error);
+      logger.error('Failed to load executions:', error);
       // Mock data for demo
       setExecutions([
         {

@@ -244,7 +244,7 @@ export class ApprovalManager {
     // - Send email to reviewers
     // - Send Slack/Teams notification
     // - Create in-app notification
-    console.log(`[Approval] Notifying reviewers about ${approval.id}`);
+    logger.info(`[Approval] Notifying reviewers about ${approval.id}`);
   }
 
   /**
@@ -255,7 +255,7 @@ export class ApprovalManager {
     response: ApprovalResponse
   ): Promise<void> {
     // TODO: Integrate with notification system
-    console.log(`[Approval] Notifying requester about ${approval.id} - ${response.approved ? 'APPROVED' : 'REJECTED'}`);
+    logger.info(`[Approval] Notifying requester about ${approval.id} - ${response.approved ? 'APPROVED' : 'REJECTED'}`);
   }
 }
 
@@ -323,7 +323,7 @@ export function createApprovalMiddleware(approvalManager: ApprovalManager) {
       riskLevel
     );
 
-    console.log(`[Approval] Requested ${approval.id} for ${action}`);
+    logger.info(`[Approval] Requested ${approval.id} for ${action}`);
 
     // Wait for approval (with timeout)
     try {

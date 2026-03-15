@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[Optimize Routes] Error:", error);
+    logger.error("[Optimize Routes] Error:", error);
     return NextResponse.json(
       { error: "Failed to optimize housekeeping routes" },
       { status: 500 }

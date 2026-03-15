@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { 
   Wifi, 
   WifiOff, 
@@ -118,7 +119,7 @@ export function OfflineMode({
         localStorage.setItem(cacheKey, JSON.stringify(validData));
       }
     } catch (error) {
-      console.error('Error loading cached data:', error);
+      logger.error('Error loading cached data:', error);
     }
   };
 
@@ -129,7 +130,7 @@ export function OfflineMode({
         setSyncOperations(JSON.parse(operations));
       }
     } catch (error) {
-      console.error('Error loading sync operations:', error);
+      logger.error('Error loading sync operations:', error);
     }
   };
 
@@ -150,7 +151,7 @@ export function OfflineMode({
       setCachedData(updatedData);
       localStorage.setItem(cacheKey, JSON.stringify(updatedData));
     } catch (error) {
-      console.error('Error caching data:', error);
+      logger.error('Error caching data:', error);
     }
   };
 
@@ -207,7 +208,7 @@ export function OfflineMode({
         setSyncOperations(prev => prev.filter(op => op.id !== operation.id));
         
       } catch (error) {
-        console.error('Error syncing operation:', error);
+        logger.error('Error syncing operation:', error);
         
         // Update operation status to failed
         updateOperationStatus(operation.id, 'failed');
@@ -509,10 +510,10 @@ export function registerServiceWorker() {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
-          console.log('SW registered: ', registration);
+          logger.info('SW registered: ', registration);
         })
         .catch((registrationError) => {
-          console.log('SW registration failed: ', registrationError);
+          logger.info('SW registration failed: ', registrationError);
         });
     });
   }
@@ -523,7 +524,7 @@ export function requestNotificationPermission() {
   if (typeof window !== 'undefined' && 'Notification' in window) {
     Notification.requestPermission().then((permission) => {
       if (permission === 'granted') {
-        console.log('Notification permission granted');
+        logger.info('Notification permission granted');
       }
     });
   }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 
 interface WebSocketMessage {
   type: string;
@@ -24,33 +25,33 @@ export function useWebSocket(url: string): UseWebSocketReturn {
       ws.onopen = () => {
         setIsConnected(true);
         setSocket(ws);
-        console.log('WebSocket connected');
+        logger.info('WebSocket connected');
       };
 
       ws.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
-          console.log('WebSocket message:', message);
+          logger.info('WebSocket message:', message);
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          logger.error('Error parsing WebSocket message:', error);
         }
       };
 
       ws.onclose = () => {
         setIsConnected(false);
         setSocket(null);
-        console.log('WebSocket disconnected');
+        logger.info('WebSocket disconnected');
       };
 
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        logger.error('WebSocket error:', error);
         setIsConnected(false);
         setSocket(null);
       };
 
       return ws;
     } catch (error) {
-      console.error('Failed to connect WebSocket:', error);
+      logger.error('Failed to connect WebSocket:', error);
     }
   }, [url]);
 
@@ -79,7 +80,7 @@ export function useWebSocket(url: string): UseWebSocketReturn {
       // Set up periodic reconnection attempts
       reconnectTimeoutRef.current = setInterval(() => {
         if (!isConnected) {
-          console.log('Attempting to reconnect...');
+          logger.info('Attempting to reconnect...');
           reconnect();
         }
       }, 5000); // Try to reconnect every 5 seconds

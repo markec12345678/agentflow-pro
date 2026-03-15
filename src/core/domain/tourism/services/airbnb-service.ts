@@ -155,7 +155,7 @@ export class AirbnbService {
 
       return { success: true, updated, errors };
     } catch (error: any) {
-      console.error('[Airbnb Push Calendar] Error:', error);
+      logger.error('[Airbnb Push Calendar] Error:', error);
       errors.push(error.message);
 
       await prisma.pmsConnection.updateMany({
@@ -231,7 +231,7 @@ export class AirbnbService {
 
       return { success: true, reservations, errors };
     } catch (error: any) {
-      console.error('[Airbnb Pull Reservations] Error:', error);
+      logger.error('[Airbnb Pull Reservations] Error:', error);
       errors.push(error.message);
       return { success: false, reservations: [], errors };
     }
@@ -280,7 +280,7 @@ export class AirbnbService {
 
       return { success: true, updated, errors };
     } catch (error: any) {
-      console.error('[Airbnb Update Pricing] Error:', error);
+      logger.error('[Airbnb Update Pricing] Error:', error);
       errors.push(error.message);
       return { success: false, updated, errors };
     }
@@ -304,7 +304,7 @@ export class AirbnbService {
       const data = await response.json();
       return data.listing;
     } catch (error) {
-      console.error('[Airbnb Get Listing] Error:', error);
+      logger.error('[Airbnb Get Listing] Error:', error);
       return null;
     }
   }

@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/infrastructure/observability/logger';
 import { CreateReservation } from '@/core/use-cases/create-reservation'
 import { PropertyRepositoryImpl } from '@/infrastructure/database/repositories/property-repository'
 import { GuestRepositoryImpl } from '@/infrastructure/database/repositories/guest-repository'
@@ -125,7 +126,7 @@ export async function POST(
     }, { status: 201 })
 
   } catch (error: any) {
-    console.error('Create reservation error:', error)
+    logger.error('Create reservation error:', error)
 
     // Handle specific errors
     if (error.message.includes('not available')) {
@@ -183,7 +184,7 @@ export async function GET(
     })
 
   } catch (error: any) {
-    console.error('Get reservations error:', error)
+    logger.error('Get reservations error:', error)
     return NextResponse.json(
       { error: 'Failed to get reservations' },
       { status: 500 }

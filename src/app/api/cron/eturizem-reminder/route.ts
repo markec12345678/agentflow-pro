@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { startOfDay, addDays } from "date-fns";
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
       pendingCount: pending.length,
     });
   } catch (error) {
-    console.error("eTurizem reminder cron error:", error);
+    logger.error("eTurizem reminder cron error:", error);
     return NextResponse.json(
       { error: "eTurizem reminder cron failed" },
       { status: 500 }

@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import {
   CalendarEvent,
   CalendarResource,
@@ -152,7 +153,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
       setResources(formattedResources);
       
     } catch (error) {
-      console.error('Error fetching calendar data:', error);
+      logger.error('Error fetching calendar data:', error);
       setError(error instanceof Error ? error.message : 'Failed to load calendar data');
       toast.error('Failed to load calendar');
     } finally {
@@ -228,7 +229,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
       return;
     }
     
-    console.log('Drag started:', item);
+    logger.info('Drag started:', item);
   }, [events, calendarConfig.allowDragAndDrop]);
 
   const handleDragEnd = useCallback(async (item: DragItem, target: DropTarget | null) => {
@@ -265,7 +266,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
       
       toast.success('Reservation moved successfully');
     } catch (error) {
-      console.error('Error moving event:', error);
+      logger.error('Error moving event:', error);
       toast.error('Failed to move reservation');
     }
   }, [events, calendarConfig.allowDragAndDrop, checkConflicts, updateEvent]);
@@ -306,7 +307,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
       
       toast.success('Reservation updated successfully');
     } catch (error) {
-      console.error('Error resizing event:', error);
+      logger.error('Error resizing event:', error);
       toast.error('Failed to update reservation');
     }
   }, [events, calendarConfig, checkConflicts, updateEvent]);
@@ -344,7 +345,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
       
       toast.success('Reservation created successfully');
     } catch (error) {
-      console.error('Error creating event:', error);
+      logger.error('Error creating event:', error);
       toast.error('Failed to create reservation');
       throw error;
     }
@@ -380,7 +381,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
       }]);
       
     } catch (error) {
-      console.error('Error updating event:', error);
+      logger.error('Error updating event:', error);
       toast.error('Failed to update reservation');
       throw error;
     }
@@ -411,7 +412,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
       
       toast.success('Reservation deleted successfully');
     } catch (error) {
-      console.error('Error deleting event:', error);
+      logger.error('Error deleting event:', error);
       toast.error('Failed to delete reservation');
       throw error;
     }

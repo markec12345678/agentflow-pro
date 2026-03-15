@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
@@ -115,7 +116,7 @@ export async function GET(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Director summary API error:", error);
+    logger.error("Director summary API error:", error);
     return NextResponse.json(
       { error: "Failed to load director summary" },
       { status: 500 }

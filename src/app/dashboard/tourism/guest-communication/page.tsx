@@ -107,7 +107,7 @@ export default function GuestCommunicationPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Link
           href="/dashboard/tourism/generate?prompt=pre-arrival-email"
           className="p-4 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 text-white hover:opacity-90 transition-opacity"
@@ -136,12 +136,12 @@ export default function GuestCommunicationPage() {
         </button>
 
         <Link
-          href="#faq-section"
-          className="p-4 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
+          href="/dashboard/workflows/templates?open=communication"
+          className="p-4 rounded-xl bg-linear-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 transition-opacity"
         >
-          <div className="text-2xl mb-2">💬</div>
-          <div className="font-semibold">FAQ Chatbot</div>
-          <div className="text-sm text-white/80">Avtomatski odgovori</div>
+          <div className="text-2xl mb-2">🤖</div>
+          <div className="font-semibold">Avtomatiziraj</div>
+          <div className="text-sm text-white/80">Workflow templatei</div>
         </Link>
       </div>
 

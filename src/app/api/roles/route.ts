@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ roles: customRoles });
   } catch (error) {
-    console.error("Get roles error:", error);
+    logger.error("Get roles error:", error);
     return NextResponse.json(
       { error: "Failed to get roles" },
       { status: 500 }
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ role: customRole });
   } catch (error) {
-    console.error("Create role error:", error);
+    logger.error("Create role error:", error);
     return NextResponse.json(
       { error: "Failed to create role" },
       { status: 500 }

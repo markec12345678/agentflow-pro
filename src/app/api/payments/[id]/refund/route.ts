@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -117,7 +118,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Process refund error:', error);
+    logger.error('Process refund error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -132,7 +133,7 @@ async function processRefund(payment: any, amount: number, reason: string, proce
   // 4. Send notification to guest
   // 5. Update accounting records
   
-  console.log('Processing refund:', {
+  logger.info('Processing refund:', {
     paymentId: payment.id,
     amount,
     reason,
@@ -160,14 +161,14 @@ async function processRefund(payment: any, amount: number, reason: string, proce
 
   // Update payment status based on refund amount
   const isFullRefund = amount === payment.amount;
-  console.log(`Payment ${payment.id} ${isFullRefund ? 'fully' : 'partially'} refunded`);
+  logger.info(`Payment ${payment.id} ${isFullRefund ? 'fully' : 'partially'} refunded`);
 
   return refundResult;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

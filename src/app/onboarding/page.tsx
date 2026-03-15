@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { logger } from '@/infrastructure/observability/logger';
 import { useSession } from "next-auth/react";
 import { AIConciergeChat } from "@/components/onboarding/AIConciergeChat";
 
@@ -9,7 +10,7 @@ export default function OnboardingPage() {
   const { data: session, status } = useSession();
 
   const handleComplete = (data: any) => {
-    console.log('Onboarding complete:', data);
+    logger.info('Onboarding complete:', data);
     // Redirect to dashboard with success message
     router.push('/dashboard?onboarding=complete');
   };

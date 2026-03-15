@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -237,7 +238,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Revenue report error:", error);
+    logger.error("Revenue report error:", error);
     return NextResponse.json(
       { error: "Failed to generate revenue report" },
       { status: 500 }

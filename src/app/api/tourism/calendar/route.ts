@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth-options"
 import { getUserId } from "@/lib/auth-users"
@@ -85,154 +86,6 @@ export async function POST(request: NextRequest) {
   // For now, keep existing implementation
   return NextResponse.json({ error: "Not implemented yet" }, { status: 501 })
 }
-    const {
-      propertyId,
-      roomId,
-      type, // 'reservation' | 'blocked'
-      checkIn,
-      checkOut,
-      guestName,
-      guestEmail,
-      guestPhone,
-      channel, // 'direct', 'booking.com', 'airbnb', 'expedia'
-      totalAmount,
-      deposit,
-      touristTax,
-      notes,
-      allowOverbooking,
-    } = body;
-
-    if (!propertyId || !checkIn || !checkOut) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    const property = await getPropertyForUser(propertyId, userId);
-    if (!property) {
-      return NextResponse.json({ error: "Property not found" }, { status: 403 });
-    }
-
-    const checkInDate = new Date(checkIn);
-    const checkOutDate = new Date(checkOut);
-
-    // Check for conflicts
-    const existingReservations = await prisma.reservation.findMany({
-      where: {
-        propertyId,
-        ...(roomId ? { roomId } : {}),
-        OR: [
-          {
-            checkIn: { lt: checkOutDate },
-            checkOut: { gt: checkInDate },
-          },
-        ],
-      },
-    });
-
-    let overbookingWarning: string | undefined;
-    if (existingReservations.length > 0) {
-      if (!allowOverbooking) {
-        return NextResponse.json(
-          { error: "Date range conflicts with existing reservation", conflicts: existingReservations },
-          { status: 409 }
-        );
-      }
-      overbookingWarning = `Overbooking – prekrivanje z rezervacijo ${existingReservations[0].id}`;
-    }
-
-    if (type === "reservation") {
-      // Create or find guest
-      let guest;
-      if (guestEmail) {
-        guest = await prisma.guest.findFirst({ where: { email: guestEmail } });
-        if (!guest) {
-          guest = await prisma.guest.create({
-            data: {
-              name: guestName || "Guest",
-              email: guestEmail,
-              phone: guestPhone,
-            },
-          });
-        }
-      } else {
-        guest = await prisma.guest.create({
-          data: {
-            name: guestName || "Guest",
-            email: `${Date.now()}@temp.com`,
-            phone: guestPhone,
-          },
-        });
-      }
-
-      const checkInToken = randomBytes(24).toString("base64url");
-      const reservation = await prisma.reservation.create({
-        data: {
-          propertyId,
-          roomId,
-          guestId: guest.id,
-          checkIn: checkInDate,
-          checkOut: checkOutDate,
-          channel: channel || "direct",
-          totalPrice: totalAmount,
-          deposit: deposit != null ? deposit : undefined,
-          touristTax: touristTax != null ? touristTax : undefined,
-          notes,
-          status: "confirmed",
-          checkInToken,
-        },
-      });
-
-      const { triggerBookingConfirmation } = await import("@/lib/tourism/email-triggers");
-      triggerBookingConfirmation(
-        reservation.id,
-        propertyId,
-        guest.id
-      ).catch((err) => console.error("Booking confirmation trigger:", err));
-
-      await prisma.notification.create({
-        data: {
-          userId,
-          propertyId,
-          type: "success",
-          title: "Nova rezervacija",
-          message: `${guestName || "Gost"} · ${format(checkInDate, "d.M.yyyy")} - ${format(checkOutDate, "d.M.yyyy")}`,
-          link: `/dashboard/tourism/calendar?reservation=${reservation.id}`,
-        },
-      });
-
-      return NextResponse.json({
-        reservation,
-        guest,
-        ...(overbookingWarning && { warning: overbookingWarning }),
-      });
-    } else {
-      // Block dates
-      const days = eachDayOfInterval({ start: checkInDate, end: checkOutDate });
-      const blockedDates = await prisma.$transaction(
-        days.map((day) =>
-          prisma.blockedDate.create({
-            data: {
-              propertyId,
-              roomId,
-              date: day,
-              reason: notes || "Blocked",
-            },
-          })
-        )
-      );
-
-      return NextResponse.json({ blockedDates });
-    }
-  } catch (error) {
-    console.error("Calendar POST error:", error);
-    return NextResponse.json(
-      { error: "Failed to create reservation" },
-      { status: 500 }
-    );
-  }
-}
 
 // PATCH /api/tourism/calendar - update reservation
 export async function PATCH(request: NextRequest) {
@@ -283,7 +136,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ reservation });
   } catch (error) {
-    console.error("Calendar PATCH error:", error);
+    logger.error("Calendar PATCH error:", error);
     return NextResponse.json(
       { error: "Failed to update reservation" },
       { status: 500 }
@@ -348,7 +201,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Calendar DELETE error:", error);
+    logger.error("Calendar DELETE error:", error);
     return NextResponse.json(
       { error: "Failed to cancel reservation" },
       { status: 500 }

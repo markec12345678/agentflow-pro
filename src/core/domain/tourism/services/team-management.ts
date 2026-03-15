@@ -276,7 +276,7 @@ async function sendInvitationEmail(data: {
   invitationId: string;
 }): Promise<void> {
   // In production, send actual email
-  console.log(`[Invitation Email] To: ${data.email}, Role: ${data.role}, Property: ${data.propertyName}`);
+  logger.info(`[Invitation Email] To: ${data.email}, Role: ${data.role}, Property: ${data.propertyName}`);
 }
 
 /**

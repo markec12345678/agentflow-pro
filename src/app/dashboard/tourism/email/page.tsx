@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { toast } from "sonner";
 import { substitutePrompt } from "@/lib/tourism/substitute-prompt";
 import { Skeleton, SkeletonText } from "@/web/components/Skeleton";
@@ -91,7 +92,7 @@ export default function TourismEmailWorkflow() {
       if (data.error) throw new Error(data.error);
       setOutput(data.content ?? "");
     } catch (err) {
-      console.error("Email generation failed:", err);
+      logger.error("Email generation failed:", err);
       toast.error(err instanceof Error ? err.message : "Napaka pri generiranju.");
     } finally {
       setLoading(false);

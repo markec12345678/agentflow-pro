@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       ytd: { ...data.ytd, label: "YTD" },
     });
   } catch (error) {
-    console.error("Occupancy error:", error);
+    logger.error("Occupancy error:", error);
     return NextResponse.json({ error: "Failed to fetch occupancy" }, { status: 500 });
   }
 }

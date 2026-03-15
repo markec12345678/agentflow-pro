@@ -355,7 +355,7 @@ export class AgentCommunicationProtocol {
       try {
         await sub.callback(message);
       } catch (error) {
-        console.error(`[AgentComm] Subscriber ${sub.agentId} failed:`, error);
+        logger.error(`[AgentComm] Subscriber ${sub.agentId} failed:`, error);
         this.stats.failedMessages++;
       }
     });

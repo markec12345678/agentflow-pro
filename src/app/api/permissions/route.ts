@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ permissions });
   } catch (error) {
-    console.error("Get permissions error:", error);
+    logger.error("Get permissions error:", error);
     return NextResponse.json(
       { error: "Failed to get permissions" },
       { status: 500 }
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ permission });
   } catch (error) {
-    console.error("Create permission error:", error);
+    logger.error("Create permission error:", error);
     return NextResponse.json(
       { error: "Failed to create permission" },
       { status: 500 }

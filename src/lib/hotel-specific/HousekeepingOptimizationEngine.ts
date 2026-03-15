@@ -4,6 +4,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from '@/infrastructure/observability/logger';
 import { StaffSchedule, HousekeepingTask, OperationalMetrics } from '@/types/operational-efficiency';
 
 export interface HousekeepingOptimizationConfig {
@@ -143,7 +144,7 @@ export class HousekeepingOptimizationEngine {
       maintenanceTasks: any[];
     }
   ): Promise<OptimizedSchedule> {
-    console.log(`🧹 Generating optimized schedule for ${date.toISOString()}`);
+    logger.info(`🧹 Generating optimized schedule for ${date.toISOString()}`);
 
     // Step 1: Analyze room requirements
     const roomRequirements = await this.analyzeRoomRequirements(roomTasks, date);
@@ -180,7 +181,7 @@ export class HousekeepingOptimizationEngine {
     this.schedules.set(schedule.id, schedule);
     await this.updateAnalytics(schedule);
 
-    console.log(`✅ Generated optimized schedule with ${schedule.totalEfficiency.toFixed(2)}% efficiency`);
+    logger.info(`✅ Generated optimized schedule with ${schedule.totalEfficiency.toFixed(2)}% efficiency`);
     return schedule;
   }
 
@@ -202,7 +203,7 @@ export class HousekeepingOptimizationEngine {
       throw new Error(`Schedule ${scheduleId} not found`);
     }
 
-    console.log(`🔄 Adjusting schedule ${scheduleId} in real-time`);
+    logger.info(`🔄 Adjusting schedule ${scheduleId} in real-time`);
 
     // Re-optimize affected assignments
     const adjustedAssignments = await this.reoptimizeAffectedAssignments(schedule, changes);
@@ -222,7 +223,7 @@ export class HousekeepingOptimizationEngine {
 
     this.schedules.set(scheduleId, updatedSchedule);
     
-    console.log(`✅ Schedule adjusted, new efficiency: ${updatedSchedule.totalEfficiency.toFixed(2)}%`);
+    logger.info(`✅ Schedule adjusted, new efficiency: ${updatedSchedule.totalEfficiency.toFixed(2)}%`);
     return updatedSchedule;
   }
 
@@ -252,7 +253,7 @@ export class HousekeepingOptimizationEngine {
       guestSatisfactionRisk: number;
     };
   }> {
-    console.log(`🔮 Predicting optimal staffing for ${dateRange.start.toISOString()} to ${dateRange.end.toISOString()}`);
+    logger.info(`🔮 Predicting optimal staffing for ${dateRange.start.toISOString()} to ${dateRange.end.toISOString()}`);
 
     const recommendations = [];
     let totalSavings = 0;
@@ -323,7 +324,7 @@ export class HousekeepingOptimizationEngine {
       throw new Error(`Schedule ${scheduleId} not found`);
     }
 
-    console.log(`👥 Optimizing schedule for guest satisfaction`);
+    logger.info(`👥 Optimizing schedule for guest satisfaction`);
 
     // Analyze guest preferences impact
     const preferenceAnalysis = await this.analyzeGuestPreferences(guestData);
@@ -384,7 +385,7 @@ export class HousekeepingOptimizationEngine {
       throw new Error(`Schedule ${scheduleId} not found`);
     }
 
-    console.log(`💰 Analyzing cost optimization for schedule ${scheduleId}`);
+    logger.info(`💰 Analyzing cost optimization for schedule ${scheduleId}`);
 
     // Calculate actual cost
     const actualCost = await this.calculateActualScheduleCost(schedule);

@@ -3,6 +3,7 @@
  */
 
 import { AutomationEngine } from './AutomationEngine';
+import { logger } from '@/infrastructure/observability/logger';
 import { idempotencyManager } from './IdempotencyManager';
 import { StatePersistenceManager } from './StatePersistenceManager';
 import { DistributedTracingManager } from './DistributedTracingManager';
@@ -78,7 +79,7 @@ export class ProductionWorkflowEngine extends AutomationEngine {
       if (existingState) {
         // Resume from checkpoint
         execution = { ...execution, ...existingState };
-        console.log(`🔄 Resuming execution ${execution.id} from checkpoint`);
+        logger.info(`🔄 Resuming execution ${execution.id} from checkpoint`);
       }
 
       // Execute steps with checkpointing
@@ -232,7 +233,7 @@ export class ProductionWorkflowEngine extends AutomationEngine {
           idempotency_key: idempotencyKey,
         };
         
-        console.log(`💳 Stripe charge created: ${charge.id} (idempotency: ${idempotencyKey})`);
+        logger.info(`💳 Stripe charge created: ${charge.id} (idempotency: ${idempotencyKey})`);
         return charge;
       }
     );
@@ -254,7 +255,7 @@ export class ProductionWorkflowEngine extends AutomationEngine {
           idempotency_key: idempotencyKey,
         };
         
-        console.log(`🏨 Booking updated: ${booking.id} (idempotency: ${idempotencyKey})`);
+        logger.info(`🏨 Booking updated: ${booking.id} (idempotency: ${idempotencyKey})`);
         return booking;
       }
     );
@@ -276,7 +277,7 @@ export class ProductionWorkflowEngine extends AutomationEngine {
           timestamp: Date.now(),
         };
         
-        console.log(`🔗 Generic integration executed: ${integration.name} (idempotency: ${idempotencyKey})`);
+        logger.info(`🔗 Generic integration executed: ${integration.name} (idempotency: ${idempotencyKey})`);
         return result;
       }
     );
@@ -300,7 +301,7 @@ export class ProductionWorkflowEngine extends AutomationEngine {
           timestamp: Date.now(),
         };
         
-        console.log(`🌐 Webhook called: ${config.url} (idempotency: ${webhookIdempotencyKey})`);
+        logger.info(`🌐 Webhook called: ${config.url} (idempotency: ${webhookIdempotencyKey})`);
         return response;
       }
     );
@@ -329,7 +330,7 @@ export class ProductionWorkflowEngine extends AutomationEngine {
           timestamp: Date.now(),
         };
         
-        console.log(`📧 Notification sent: ${config.type} (idempotency: ${notificationIdempotencyKey})`);
+        logger.info(`📧 Notification sent: ${config.type} (idempotency: ${notificationIdempotencyKey})`);
         return result;
       }
     );

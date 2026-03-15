@@ -53,7 +53,7 @@ export function createSecureAgent(
         }
 
         if (scanResult.recommendation === 'review') {
-          console.warn(`[Security] Input flagged for review:`, scanResult.detectedThreats);
+          logger.warn(`[Security] Input flagged for review:`, scanResult.detectedThreats);
         }
 
         // Use sanitized input if available
@@ -87,7 +87,7 @@ async function executeWithSecurityChecks(
       riskLevel
     );
 
-    console.log(`[Security] Approval requested: ${approval.id}`);
+    logger.info(`[Security] Approval requested: ${approval.id}`);
 
     // Wait for approval
     try {

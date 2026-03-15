@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("[Create Task] Error:", error);
+    logger.error("[Create Task] Error:", error);
     return NextResponse.json(
       { error: "Failed to create housekeeping task" },
       { status: 500 }

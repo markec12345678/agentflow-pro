@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { UserService } from '@/services/user.service';
 import { AuthError } from '@/services/auth.service';
 
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error:', error);
 
     if (error instanceof AuthError) {
       return NextResponse.json(
@@ -123,7 +124,7 @@ export async function DELETE(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Logout error:', error);
+    logger.error('Logout error:', error);
 
     return NextResponse.json(
       {

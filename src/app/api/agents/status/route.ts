@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -40,7 +41,7 @@ export async function GET(_request: NextRequest) {
 
     return NextResponse.json(AGENTS);
   } catch (error) {
-    console.error("Agents API error:", error);
+    logger.error("Agents API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

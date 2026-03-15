@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { UserService } from '@/services/user.service';
 import { AuthService, AuthError } from '@/services/auth.service';
 
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
       data: { message: 'Email verified successfully' },
     });
   } catch (error) {
-    console.error('Email verification error:', error);
+    logger.error('Email verification error:', error);
 
     if (error instanceof AuthError) {
       return NextResponse.json(
@@ -110,7 +111,7 @@ export async function PUT(request: NextRequest) {
       data: { message: 'Verification email sent' },
     });
   } catch (error) {
-    console.error('Resend verification error:', error);
+    logger.error('Resend verification error:', error);
 
     if (error instanceof AuthError) {
       return NextResponse.json(

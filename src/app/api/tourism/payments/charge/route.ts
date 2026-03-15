@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       captured: capture,
     });
   } catch (error) {
-    console.error("[Charge Guest] Error:", error);
+    logger.error("[Charge Guest] Error:", error);
     return NextResponse.json(
       { error: "Failed to process charge" },
       { status: 500 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
@@ -74,7 +75,7 @@ export default function AgentsDashboard() {
               userRole = userData.data?.role;
             }
           } catch (error) {
-            console.error("Failed to fetch user role:", error);
+            logger.error("Failed to fetch user role:", error);
           }
         }
         

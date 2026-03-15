@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ communications });
   } catch (error) {
-    console.error("Error fetching guest communications:", error);
+    logger.error("Error fetching guest communications:", error);
     return NextResponse.json(
       { error: "Failed to fetch communications" },
       { status: 500 }
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ communication, guest });
   } catch (error) {
-    console.error("Error creating guest communication:", error);
+    logger.error("Error creating guest communication:", error);
     return NextResponse.json(
       { error: "Failed to create communication" },
       { status: 500 }
@@ -208,7 +209,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ communication });
   } catch (error) {
-    console.error("Error updating communication:", error);
+    logger.error("Error updating communication:", error);
     return NextResponse.json(
       { error: "Failed to update communication" },
       { status: 500 }
@@ -254,7 +255,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting communication:", error);
+    logger.error("Error deleting communication:", error);
     return NextResponse.json(
       { error: "Failed to delete communication" },
       { status: 500 }

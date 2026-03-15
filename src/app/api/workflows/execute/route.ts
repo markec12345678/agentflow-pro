@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { WorkflowExecutor } from "@/workflows/WorkflowExecutor";
 import { authOptions } from "@/lib/auth-options";
@@ -100,7 +101,7 @@ export const POST = withSentryLogging(async function POST(request: NextRequest) 
       }),
     });
   } catch (error) {
-    console.error("Error in workflow execution API:", error);
+    logger.error("Error in workflow execution API:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Execution failed" },
       { status: 500 }

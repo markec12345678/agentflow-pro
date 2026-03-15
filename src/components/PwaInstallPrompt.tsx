@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -36,10 +37,10 @@ export default function PwaInstallPrompt() {
     const { outcome } = await deferredPrompt.userChoice;
     
     if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      logger.info('User accepted the install prompt');
       setShowPrompt(false);
     } else {
-      console.log('User dismissed the install prompt');
+      logger.info('User dismissed the install prompt');
     }
     
     setDeferredPrompt(null);

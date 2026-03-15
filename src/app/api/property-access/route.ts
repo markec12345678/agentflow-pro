@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ accessList });
     }
   } catch (error) {
-    console.error("Get property access error:", error);
+    logger.error("Get property access error:", error);
     return NextResponse.json(
       { error: "Failed to get property access" },
       { status: 500 }
@@ -136,7 +136,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ access });
   } catch (error) {
-    console.error("Update property access error:", error);
+    logger.error("Update property access error:", error);
     return NextResponse.json(
       { error: "Failed to update property access" },
       { status: 500 }

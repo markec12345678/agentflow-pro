@@ -4,6 +4,7 @@
  */
 
 import webpush from 'web-push';
+import { logger } from '@/infrastructure/observability/logger';
 import {
   NotificationMessage,
   NotificationSubscription,
@@ -59,7 +60,7 @@ export class NotificationEngineImpl implements NotificationEngine {
     // Store subscription
     this.subscriptions.set(subscription.id, subscription);
 
-    console.log(`📱 User ${subscription.userId} subscribed to notifications for property ${subscription.propertyId}`);
+    logger.info(`📱 User ${subscription.userId} subscribed to notifications for property ${subscription.propertyId}`);
     return subscription;
   }
 
@@ -70,7 +71,7 @@ export class NotificationEngineImpl implements NotificationEngine {
     const subscription = this.subscriptions.get(subscriptionId);
     if (subscription) {
       this.subscriptions.delete(subscriptionId);
-      console.log(`📱 User ${subscription.userId} unsubscribed from notifications`);
+      logger.info(`📱 User ${subscription.userId} unsubscribed from notifications`);
     }
   }
 
@@ -113,7 +114,7 @@ export class NotificationEngineImpl implements NotificationEngine {
     // Trigger queue processing
     this.processQueue();
 
-    console.log(`📤 Notification queued for ${targetSubscriptions.length} subscribers`);
+    logger.info(`📤 Notification queued for ${targetSubscriptions.length} subscribers`);
     return queueEntry;
   }
 
@@ -179,7 +180,7 @@ export class NotificationEngineImpl implements NotificationEngine {
     subscription.preferences = { ...subscription.preferences, ...preferences };
     subscription.updatedAt = new Date();
 
-    console.log(`⚙️ Updated preferences for user ${subscription.userId}`);
+    logger.info(`⚙️ Updated preferences for user ${subscription.userId}`);
   }
 
   /**
@@ -293,7 +294,7 @@ export class NotificationEngineImpl implements NotificationEngine {
   async markAsRead(messageId: string, userId: string): Promise<void> {
     // This would typically update a database record
     // For now, we'll just log it
-    console.log(`📖 Message ${messageId} marked as read by user ${userId}`);
+    logger.info(`📖 Message ${messageId} marked as read by user ${userId}`);
   }
 
   /**
@@ -332,7 +333,7 @@ export class NotificationEngineImpl implements NotificationEngine {
 
     this.queue.set(queueEntry.id, queueEntry);
 
-    console.log(`⏰ Notification scheduled for ${scheduledAt.toISOString()}`);
+    logger.info(`⏰ Notification scheduled for ${scheduledAt.toISOString()}`);
     return queueEntry;
   }
 
@@ -423,10 +424,10 @@ export class NotificationEngineImpl implements NotificationEngine {
 
       queue.updatedAt = new Date();
 
-      console.log(`📤 Processed queue ${queue.id}: ${successfulDeliveries.length}/${queue.subscriptions.length} delivered`);
+      logger.info(`📤 Processed queue ${queue.id}: ${successfulDeliveries.length}/${queue.subscriptions.length} delivered`);
 
     } catch (error) {
-      console.error(`❌ Error processing queue ${queue.id}:`, error);
+      logger.error(`❌ Error processing queue ${queue.id}:`, error);
       queue.status = 'failed';
       queue.failedAt = new Date();
       queue.error = error instanceof Error ? error.message : 'Unknown error';
@@ -534,7 +535,7 @@ export class NotificationEngineImpl implements NotificationEngine {
       if (error.statusCode === 410) {
         // Subscription expired - remove it
         this.subscriptions.delete(subscription.id);
-        console.log(`🗑️ Removed expired subscription ${subscription.id}`);
+        logger.info(`🗑️ Removed expired subscription ${subscription.id}`);
       }
 
       return {
@@ -626,6 +627,6 @@ export class NotificationEngineImpl implements NotificationEngine {
       }
     }
 
-    console.log('🧹 Cleaned up old notifications');
+    logger.info('🧹 Cleaned up old notifications');
   }
 }

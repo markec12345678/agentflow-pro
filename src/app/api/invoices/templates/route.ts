@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -135,7 +136,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get invoice templates error:', error);
+    logger.error('Get invoice templates error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -200,7 +201,7 @@ export async function POST(request: NextRequest) {
       template
     };
 
-    console.log('Created invoice template:', newTemplate);
+    logger.info('Created invoice template:', newTemplate);
 
     // Log activity
     await logActivity(userId, "Invoice Template Created", `Created template: ${name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -214,7 +215,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Create invoice template error:', error);
+    logger.error('Create invoice template error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -248,7 +249,7 @@ function validateTemplate(template: any): { valid: boolean; message?: string } {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

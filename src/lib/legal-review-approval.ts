@@ -4,6 +4,7 @@
  */
 
 import { writeFileSync } from 'fs';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface LegalReviewItem {
   documentType: string;
@@ -1178,7 +1179,7 @@ This document outlines the standardized procedures for legal review and approval
   }
 
   async generateAllLegalReviewDocuments(): Promise<void> {
-    console.log('Generating legal review and approval documents...');
+    logger.info('Generating legal review and approval documents...');
     
     // Generate review plan
     const reviewPlan = this.generateLegalReviewPlan();
@@ -1192,23 +1193,23 @@ This document outlines the standardized procedures for legal review and approval
     const approvalProcedures = this.generateApprovalProcedures();
     writeFileSync('legal-approval-procedures.md', approvalProcedures);
     
-    console.log('Legal review and approval documents generated successfully!');
-    console.log('Files created:');
-    console.log('- legal-review-plan.md');
-    console.log('- legal-review-checklist.md');
-    console.log('- legal-approval-procedures.md');
+    logger.info('Legal review and approval documents generated successfully!');
+    logger.info('Files created:');
+    logger.info('- legal-review-plan.md');
+    logger.info('- legal-review-checklist.md');
+    logger.info('- legal-approval-procedures.md');
     
-    console.log('\n🎯 Legal Review Status:');
-    console.log('✅ Review plan developed');
-    console.log('✅ Review checklist created');
-    console.log('✅ Approval procedures defined');
-    console.log('✅ Timeline established');
+    logger.info('\n🎯 Legal Review Status:');
+    logger.info('✅ Review plan developed');
+    logger.info('✅ Review checklist created');
+    logger.info('✅ Approval procedures defined');
+    logger.info('✅ Timeline established');
     
-    console.log('\n🚀 Next Steps:');
-    console.log('1. Submit documents for legal review');
-    console.log('2. Follow review timeline (2-3 weeks)');
-    console.log('3. Obtain all required approvals');
-    console.log('4. Implement approved documentation');
+    logger.info('\n🚀 Next Steps:');
+    logger.info('1. Submit documents for legal review');
+    logger.info('2. Follow review timeline (2-3 weeks)');
+    logger.info('3. Obtain all required approvals');
+    logger.info('4. Implement approved documentation');
   }
 }
 

@@ -509,7 +509,7 @@ export class GoogleCalendarIntegration {
           propertyId: event.location || '',
         });
       } catch (error) {
-        console.error('Failed to import event:', error);
+        logger.error('Failed to import event:', error);
       }
     }
 

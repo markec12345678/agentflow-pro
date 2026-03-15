@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -110,7 +111,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get report templates error:', error);
+    logger.error('Get report templates error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -188,7 +189,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date()
     };
 
-    console.log('Created new report template:', newTemplate);
+    logger.info('Created new report template:', newTemplate);
 
     return NextResponse.json({
       success: true,
@@ -196,7 +197,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Create report template error:', error);
+    logger.error('Create report template error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

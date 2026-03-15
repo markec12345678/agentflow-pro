@@ -4,6 +4,7 @@
  */
 
 import { devices } from '@playwright/test';
+import { logger } from '@/infrastructure/observability/logger';
 
 // Jest configuration for unit tests
 export const jestConfig = {
@@ -242,17 +243,17 @@ export class TestUtils {
 export class TestFixtures {
   static async setupDatabase(): Promise<void> {
     // Setup test database
-    console.log('Setting up test database...');
+    logger.info('Setting up test database...');
   }
 
   static async cleanupDatabase(): Promise<void> {
     // Cleanup test database
-    console.log('Cleaning up test database...');
+    logger.info('Cleaning up test database...');
   }
 
   static async seedTestData(): Promise<void> {
     // Seed test data
-    console.log('Seeding test data...');
+    logger.info('Seeding test data...');
   }
 
   static async createTestUser(userData: Partial<Record<string, unknown>> = {}): Promise<Record<string, unknown>> {
@@ -362,10 +363,10 @@ export class IntegrationTests {
     // Create test server for API testing
     return {
       listen: async (port: number) => {
-        console.log(`Test server listening on port ${port}`);
+        logger.info(`Test server listening on port ${port}`);
       },
       close: async () => {
-        console.log('Test server closed');
+        logger.info('Test server closed');
       }
     };
   }

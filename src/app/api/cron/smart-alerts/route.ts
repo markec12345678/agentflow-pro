@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { getOccupancyForProperty } from "@/lib/tourism/occupancy";
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
           triggered++;
         }
       } catch (e) {
-        console.error(`[SmartAlerts] Occupancy check failed for ${property.id}:`, e);
+        logger.error(`[SmartAlerts] Occupancy check failed for ${property.id}:`, e);
       }
     }
 
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
           escalated++;
         }
       } catch (e) {
-        console.error(`[SmartAlerts] Escalation failed for alert ${alert.id}:`, e);
+        logger.error(`[SmartAlerts] Escalation failed for alert ${alert.id}:`, e);
       }
     }
 
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
       escalated,
     });
   } catch (error) {
-    console.error("Smart alerts cron error:", error);
+    logger.error("Smart alerts cron error:", error);
     return NextResponse.json(
       { error: "Smart alerts cron failed" },
       { status: 500 }

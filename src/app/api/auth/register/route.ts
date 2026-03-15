@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from '@/database/schema';
 import { registerUser } from '@/lib/auth-users';
 
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
       data: { id: result.id },
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    logger.error('Registration error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Email availability check error:', error);
+    logger.error('Email availability check error:', error);
 
     return NextResponse.json(
       {

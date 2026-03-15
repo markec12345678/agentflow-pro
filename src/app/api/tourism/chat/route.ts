@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       response,
     });
   } catch (error) {
-    console.error('Chat error:', error);
+    logger.error('Chat error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Chat failed' },
       { status: 500 }
@@ -104,7 +104,7 @@ export async function POST_ACTION(request: NextRequest) {
       result,
     });
   } catch (error) {
-    console.error('Action handling error:', error);
+    logger.error('Action handling error:', error);
     return NextResponse.json(
       { error: 'Action failed' },
       { status: 500 }
@@ -161,7 +161,7 @@ export async function GET(request: NextRequest) {
       total: interactions.length,
     });
   } catch (error) {
-    console.error('Get chat history error:', error);
+    logger.error('Get chat history error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch history' },
       { status: 500 }

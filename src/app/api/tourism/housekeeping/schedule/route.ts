@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ tasks: transformedTasks });
   } catch (error) {
-    console.error("[Housekeeping Schedule] Error:", error);
+    logger.error("[Housekeeping Schedule] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch housekeeping tasks" },
       { status: 500 }

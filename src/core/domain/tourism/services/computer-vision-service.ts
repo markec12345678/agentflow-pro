@@ -69,7 +69,7 @@ export class ComputerVisionService {
         },
       };
     } catch (error) {
-      console.error('Photo analysis failed:', error);
+      logger.error('Photo analysis failed:', error);
       throw new Error(`Computer vision analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -208,7 +208,7 @@ Respond ONLY with valid JSON in this exact format:
         suggestions: parsed.suggestions ?? [],
       };
     } catch (error) {
-      console.error('Failed to parse AI response:', error);
+      logger.error('Failed to parse AI response:', error);
       // Return default structure on parse error
       return {
         qualityScore: 0,
@@ -234,7 +234,7 @@ Respond ONLY with valid JSON in this exact format:
         const { result, metadata } = await this.analyzePhoto(photo.imageUrl, analysisTypes);
         results.set(photo.id, { result, metadata });
       } catch (error) {
-        console.error(`Failed to analyze photo ${photo.id}:`, error);
+        logger.error(`Failed to analyze photo ${photo.id}:`, error);
         results.set(photo.id, { error: error instanceof Error ? error.message : 'Analysis failed' });
       }
     }

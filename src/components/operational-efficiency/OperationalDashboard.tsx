@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { useOperationalEfficiency } from '@/hooks/use-operational-efficiency';
 import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import dynamic from 'next/dynamic';
@@ -117,7 +118,7 @@ export default function OperationalDashboard({ propertyId }: OperationalDashboar
       }
       setShowOptimizationModal(false);
     } catch (error) {
-      console.error('Optimization failed:', error);
+      logger.error('Optimization failed:', error);
     }
   };
 

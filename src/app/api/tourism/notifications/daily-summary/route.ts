@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { startOfDay, addDays, format } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
@@ -95,7 +96,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ created: false, arrivals: a, departures: d });
   } catch (error) {
-    console.error("Daily summary error:", error);
+    logger.error("Daily summary error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed" },
       { status: 500 }

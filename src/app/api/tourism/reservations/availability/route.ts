@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
       autoApprove: true, // For manual entry, it's usually always auto-approved
     });
   } catch (error) {
-    console.error("Availability API error:", error);
+    logger.error("Availability API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

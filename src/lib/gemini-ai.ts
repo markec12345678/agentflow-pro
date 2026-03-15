@@ -74,7 +74,7 @@ export class GeminiAI {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Gemini API Response:', {
+        logger.error('Gemini API Response:', {
           status: response.status,
           statusText: response.statusText,
           body: errorText,
@@ -94,7 +94,7 @@ export class GeminiAI {
       const data = await response.json();
       return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     } catch (error) {
-      console.error('Gemini generation error:', error);
+      logger.error('Gemini generation error:', error);
       throw error;
     }
   }
@@ -129,7 +129,7 @@ If you cannot find a value, use null. Speak Slovenian.`;
       try {
         return JSON.parse(jsonMatch[0]);
       } catch {
-        console.error('Failed to parse JSON from Gemini response');
+        logger.error('Failed to parse JSON from Gemini response');
       }
     }
     

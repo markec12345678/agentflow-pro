@@ -1,4 +1,5 @@
 import Redis from 'ioredis';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface CachedResponse {
   data: any;
@@ -27,7 +28,7 @@ export class AgentCache {
 
     // Handle connection errors
     this.redis.on('error', (error) => {
-      console.error('Redis connection error:', error);
+      logger.error('Redis connection error:', error);
     });
   }
 
@@ -46,7 +47,7 @@ export class AgentCache {
 
       return parsed;
     } catch (error) {
-      console.error('Cache read error:', error);
+      logger.error('Cache read error:', error);
       return null;
     }
   }
@@ -71,7 +72,7 @@ export class AgentCache {
 
       await this.redis.set(key, JSON.stringify(cacheEntry), 'EX', ttl);
     } catch (error) {
-      console.error('Cache write error:', error);
+      logger.error('Cache write error:', error);
     }
   }
 
@@ -83,7 +84,7 @@ export class AgentCache {
         await this.redis.del(keys);
       }
     } catch (error) {
-      console.error('Cache invalidation error:', error);
+      logger.error('Cache invalidation error:', error);
     }
   }
 
@@ -103,7 +104,7 @@ export class AgentCache {
         keysCount
       };
     } catch (error) {
-      console.error('Cache stats error:', error);
+      logger.error('Cache stats error:', error);
       return {
         hitRate: 0,
         memoryUsage: 0,
@@ -172,7 +173,7 @@ export class AgentCache {
         const mockData = { warmed: true, input, agentId };
         await this.setCachedResponse(cacheKey, mockData, this.defaultTTL * 2);
       } catch (error) {
-        console.error(`Cache warming failed for ${agentId}:`, error);
+        logger.error(`Cache warming failed for ${agentId}:`, error);
       }
     }
   }

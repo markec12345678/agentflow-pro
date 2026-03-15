@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/infrastructure/observability/logger';
 import { ConfirmReservation } from '@/core/use-cases/confirm-reservation'
 import { ReservationRepositoryImpl } from '@/infrastructure/database/repositories/reservation-repository'
 import { PropertyRepositoryImpl } from '@/infrastructure/database/repositories/property-repository'
@@ -70,7 +71,7 @@ export async function POST(
     })
 
   } catch (error: any) {
-    console.error('Confirm reservation error:', error)
+    logger.error('Confirm reservation error:', error)
 
     if (error.message.includes('Only pending')) {
       return NextResponse.json(

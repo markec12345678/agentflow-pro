@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -118,7 +119,7 @@ export default function CreatePropertyPage() {
           try {
             await triggerSync([property.id]);
           } catch (syncError) {
-            console.error("eTurizem sync failed:", syncError);
+            logger.error("eTurizem sync failed:", syncError);
             toast.warning("Property created but eTurizem sync failed");
           }
         }

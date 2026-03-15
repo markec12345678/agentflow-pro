@@ -4,6 +4,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { randomBytes } from 'crypto';
 
 export async function GET() {
@@ -28,7 +29,7 @@ export async function GET() {
 
     return response;
   } catch (error) {
-    console.error('CSRF token generation error:', error);
+    logger.error('CSRF token generation error:', error);
     return NextResponse.json(
       { error: 'Failed to generate CSRF token' },
       { status: 500 }

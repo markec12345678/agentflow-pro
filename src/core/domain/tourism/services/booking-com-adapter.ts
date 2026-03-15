@@ -172,7 +172,7 @@ export class BookingComAdapter implements PmsAdapter {
 
         result.synced++;
       } catch (error) {
-        console.error("[Booking.com Sync] Error:", error);
+        logger.error("[Booking.com Sync] Error:", error);
         result.errors.push({
           externalId: r.externalId,
           error: error instanceof Error ? error.message : "Unknown error",

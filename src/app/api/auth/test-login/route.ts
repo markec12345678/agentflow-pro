@@ -5,6 +5,7 @@
  * Returns: { ok, message } - helps isolate if auth-users.getUser works.
  */
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getUser } from "@/lib/auth-users";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     const u = await getUser(email, password);
     return NextResponse.json({ ok: !!u, message: u ? `User ${u.id} found` : "Invalid credentials" });
   } catch (err) {
-    console.error("[test-login] error:", err);
+    logger.error("[test-login] error:", err);
     return NextResponse.json(
       { ok: false, message: err instanceof Error ? err.message : "Unknown error" },
       { status: 500 }

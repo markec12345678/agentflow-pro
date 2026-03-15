@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
       })),
     });
   } catch (error) {
-    console.error("[Check Availability] Error:", error);
+    logger.error("[Check Availability] Error:", error);
     return NextResponse.json(
       { error: "Failed to check availability" },
       { status: 500 }

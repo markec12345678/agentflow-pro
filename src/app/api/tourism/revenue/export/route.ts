@@ -246,7 +246,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: "Invalid format. Use 'pdf' or 'excel'" }, { status: 400 });
   } catch (error) {
-    console.error("[Revenue Export] Error:", error);
+    logger.error("[Revenue Export] Error:", error);
     return NextResponse.json(
       { error: "Failed to export revenue report" },
       { status: 500 }

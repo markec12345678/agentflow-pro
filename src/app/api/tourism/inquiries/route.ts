@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { prisma } from "@/database/schema";
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ inquiries, total });
   } catch (error) {
-    console.error("Error fetching inquiries:", error);
+    logger.error("Error fetching inquiries:", error);
     return NextResponse.json(
       { error: "Failed to fetch inquiries" },
       { status: 500 }
@@ -188,7 +189,7 @@ export async function POST(request: NextRequest) {
           );
         }
       } catch (e) {
-        console.warn("Failed to send inquiry notification email:", e);
+        logger.warn("Failed to send inquiry notification email:", e);
       }
     }
 
@@ -197,7 +198,7 @@ export async function POST(request: NextRequest) {
       { status: 201, headers: getCorsHeaders() }
     );
   } catch (error) {
-    console.error("Error creating inquiry:", error);
+    logger.error("Error creating inquiry:", error);
     return NextResponse.json(
       { error: "Failed to create inquiry" },
       { status: 500, headers: getCorsHeaders() }

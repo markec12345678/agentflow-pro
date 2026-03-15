@@ -1,4 +1,5 @@
 import React from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import Image from 'next/image';
 import { TourismContext, SeasonalIndicator, PropertyTypeBadge, OccupancyStatus, FeatureBadge } from './TourismContext';
 import { TourismIcons } from './TourismIcons';
@@ -353,7 +354,7 @@ export const SeasonalShowcase: React.FC<{
 
       <PropertyGrid
         properties={properties}
-        onPropertyClick={(id) => console.log(`Property clicked: ${id}`)}
+        onPropertyClick={(id) => logger.info(`Property clicked: ${id}`)}
       />
 
       <style jsx>{`

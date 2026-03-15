@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
@@ -75,7 +76,7 @@ export default function NewReservationPage() {
         const data = await res.json();
         setSearchResults(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error("Guest search error:", err);
+        logger.error("Guest search error:", err);
       }
       }, 300);
       return () => clearTimeout(timer);

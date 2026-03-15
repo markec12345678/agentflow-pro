@@ -6,6 +6,7 @@ import {
   type UIMessage,
 } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { recordAgentRun } from "@/api/usage";
@@ -205,7 +206,7 @@ export async function POST(req: Request) {
             }
           }
         } catch (e) {
-          console.error("Plan-execute error:", e);
+          logger.error("Plan-execute error:", e);
         }
       }
     }
@@ -248,9 +249,9 @@ export async function POST(req: Request) {
               threadId: threadId || null,
               lastMessagePreview: created.lastMessagePreview,
               confidence,
-            }).catch((e) => console.error("Escalation notify failed:", e));
+            }).catch((e) => logger.error("Escalation notify failed:", e));
           } catch (e) {
-            console.error("HITL escalation create failed:", e);
+            logger.error("HITL escalation create failed:", e);
           }
         }
       },

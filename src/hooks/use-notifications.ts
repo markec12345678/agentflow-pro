@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import {
   NotificationSubscription,
   NotificationPreferences,
@@ -145,7 +146,7 @@ export function useNotifications({ userId, propertyId, config = {} }: UseNotific
       const engine = new MockNotificationEngine(currentConfig);
       setNotificationEngine(engine);
     } catch (err) {
-      console.error('Failed to initialize notification engine:', err);
+      logger.error('Failed to initialize notification engine:', err);
       setError('Failed to initialize notification system');
     }
   };
@@ -165,7 +166,7 @@ export function useNotifications({ userId, propertyId, config = {} }: UseNotific
         }
       }
     } catch (err) {
-      console.error('Failed to load existing subscription:', err);
+      logger.error('Failed to load existing subscription:', err);
     }
   };
 
@@ -177,7 +178,7 @@ export function useNotifications({ userId, propertyId, config = {} }: UseNotific
         return data.subscription || null;
       }
     } catch (err) {
-      console.error('Failed to load subscription from server:', err);
+      logger.error('Failed to load subscription from server:', err);
     }
     return null;
   };
@@ -391,7 +392,7 @@ export function useNotifications({ userId, propertyId, config = {} }: UseNotific
       const stats = await notificationEngine.getStats(propertyId);
       setStats(stats);
     } catch (err) {
-      console.error('Failed to get notification stats:', err);
+      logger.error('Failed to get notification stats:', err);
     }
   }, [notificationEngine, propertyId]);
 
@@ -515,36 +516,36 @@ class MockNotificationEngine implements NotificationEngine {
       lastActiveAt: new Date(),
     };
     
-    console.log('📱 Mock subscription created:', subscription.id);
+    logger.info('📱 Mock subscription created:', subscription.id);
     return subscription;
   }
 
   async unsubscribe(subscriptionId: string): Promise<void> {
-    console.log('📱 Mock unsubscribe:', subscriptionId);
+    logger.info('📱 Mock unsubscribe:', subscriptionId);
   }
 
   async send(message: Omit<NotificationMessage, 'id' | 'timestamp'>, targetUsers?: string[], targetProperties?: string[]): Promise<any> {
-    console.log('📤 Mock notification sent:', message.title);
+    logger.info('📤 Mock notification sent:', message.title);
     return { id: 'mock_queue_id' };
   }
 
   async sendToUser(userId: string, message: Omit<NotificationMessage, 'id' | 'timestamp'>): Promise<any> {
-    console.log('📤 Mock notification sent to user:', userId, message.title);
+    logger.info('📤 Mock notification sent to user:', userId, message.title);
     return { id: 'mock_queue_id' };
   }
 
   async sendToProperty(propertyId: string, message: Omit<NotificationMessage, 'id' | 'timestamp'>): Promise<any> {
-    console.log('📤 Mock notification sent to property:', propertyId, message.title);
+    logger.info('📤 Mock notification sent to property:', propertyId, message.title);
     return { id: 'mock_queue_id' };
   }
 
   async sendToCategory(category: NotificationCategory, message: Omit<NotificationMessage, 'id' | 'timestamp'>): Promise<any> {
-    console.log('📤 Mock notification sent to category:', category, message.title);
+    logger.info('📤 Mock notification sent to category:', category, message.title);
     return { id: 'mock_queue_id' };
   }
 
   async updatePreferences(subscriptionId: string, preferences: Partial<NotificationPreferences>): Promise<void> {
-    console.log('⚙️ Mock preferences updated:', subscriptionId);
+    logger.info('⚙️ Mock preferences updated:', subscriptionId);
   }
 
   async getStats(propertyId?: string, startDate?: Date, endDate?: Date): Promise<NotificationStats> {
@@ -570,11 +571,11 @@ class MockNotificationEngine implements NotificationEngine {
   }
 
   async markAsRead(messageId: string, userId: string): Promise<void> {
-    console.log('📖 Mock message marked as read:', messageId);
+    logger.info('📖 Mock message marked as read:', messageId);
   }
 
   async scheduleNotification(message: Omit<NotificationMessage, 'id' | 'timestamp'>, scheduledAt: Date, targetUsers?: string[]): Promise<any> {
-    console.log('⏰ Mock notification scheduled:', scheduledAt);
+    logger.info('⏰ Mock notification scheduled:', scheduledAt);
     return { id: 'mock_queue_id' };
   }
 }

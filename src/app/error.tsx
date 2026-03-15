@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import Link from "next/link";
 
 export default function Error({
@@ -12,7 +13,7 @@ export default function Error({
 }) {
   useEffect(() => {
     const msg = error instanceof Error ? error.message : "Unknown error";
-    console.error("Application error:", msg);
+    logger.error("Application error:", msg);
   }, [error]);
 
   return (

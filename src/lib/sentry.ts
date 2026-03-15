@@ -4,6 +4,7 @@
  */
 
 import React from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import * as Sentry from "@sentry/nextjs";
 
 // Sentry configuration for Next.js
@@ -84,13 +85,13 @@ export class SentryService {
     Sentry.init(sentryConfig as Sentry.NodeOptions);
     this.isInitialized = true;
 
-    console.log('Sentry initialized successfully');
+    logger.info('Sentry initialized successfully');
   }
 
   // Custom error reporting
   captureException(error: Error, context?: any): void {
     if (!this.isInitialized) {
-      console.error('Sentry not initialized');
+      logger.error('Sentry not initialized');
       return;
     }
 
@@ -110,7 +111,7 @@ export class SentryService {
   // Custom message reporting
   captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info', context?: any): void {
     if (!this.isInitialized) {
-      console.log(`[${level.toUpperCase()}] ${message}`);
+      logger.info(`[${level.toUpperCase()}] ${message}`);
       return;
     }
 

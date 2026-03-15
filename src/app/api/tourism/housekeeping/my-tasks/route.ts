@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ tasks: transformedTasks });
   } catch (error) {
-    console.error("[My Tasks] Error:", error);
+    logger.error("[My Tasks] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch your tasks" },
       { status: 500 }

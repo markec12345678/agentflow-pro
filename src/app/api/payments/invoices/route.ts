@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -190,7 +191,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get invoices error:', error);
+    logger.error('Get invoices error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -285,7 +286,7 @@ export async function POST(request: NextRequest) {
       items
     };
 
-    console.log('Created invoice:', newInvoice);
+    logger.info('Created invoice:', newInvoice);
 
     // Log activity
     await logActivity(userId, "Invoice Created", `Created invoice ${invoiceNumber} for reservation: ${reservationId}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -299,7 +300,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Create invoice error:', error);
+    logger.error('Create invoice error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -308,7 +309,7 @@ export async function POST(request: NextRequest) {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

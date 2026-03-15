@@ -125,7 +125,7 @@ export default function InternalMessaging({ userId }: InternalMessagingProps) {
         },
       ]);
     } catch (error) {
-      console.error('Failed to load conversations:', error);
+      logger.error('Failed to load conversations:', error);
     } finally {
       setLoading(false);
     }
@@ -165,7 +165,7 @@ export default function InternalMessaging({ userId }: InternalMessagingProps) {
         },
       ]);
     } catch (error) {
-      console.error('Failed to load messages:', error);
+      logger.error('Failed to load messages:', error);
     }
   };
 

@@ -5,6 +5,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { useRouter } from 'next/navigation';
 import { PropertySelector } from '@/web/components/PropertySelector';
 import DragDropCalendar from '@/components/calendar/DragDropCalendar';
@@ -69,7 +70,7 @@ export default function CalendarPage() {
       // Optionally select the new event
       setSelectedEvent(newEvent.data);
     } catch (error) {
-      console.error('Error creating event:', error);
+      logger.error('Error creating event:', error);
       toast.error('Failed to create reservation');
     }
   };
@@ -95,7 +96,7 @@ export default function CalendarPage() {
         setSelectedEvent({ ...selectedEvent, ...updates });
       }
     } catch (error) {
-      console.error('Error updating event:', error);
+      logger.error('Error updating event:', error);
       toast.error('Failed to update reservation');
     }
   };

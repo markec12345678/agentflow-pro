@@ -4,6 +4,7 @@
  * Credentials: from body (ephemeral) or from PmsConnection (stored)
  */
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
       fetched: reservations.length,
     });
   } catch (error) {
-    console.error("PMS sync error:", error);
+    logger.error("PMS sync error:", error);
     return NextResponse.json(
       { error: "Failed to sync with PMS" },
       { status: 500 }

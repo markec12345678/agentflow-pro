@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import { verifyCronAuth } from "@/lib/cron-auth";
 
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("DB cleanup error:", error);
+    logger.error("DB cleanup error:", error);
     return NextResponse.json(
       { error: "DB cleanup failed" },
       { status: 500 }

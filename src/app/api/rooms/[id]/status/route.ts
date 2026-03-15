@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -124,7 +125,7 @@ export async function PUT(
     });
 
   } catch (error) {
-    console.error("Room status update error:", error);
+    logger.error("Room status update error:", error);
     return NextResponse.json(
       { error: "Failed to update room status" },
       { status: 500 }

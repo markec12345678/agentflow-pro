@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -41,7 +42,7 @@ export async function GET(
 
     return NextResponse.json(policy);
   } catch (error) {
-    console.error("Policy API error:", error);
+    logger.error("Policy API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -89,7 +90,7 @@ export async function PATCH(
 
     return NextResponse.json(policy);
   } catch (error) {
-    console.error("Update policy API error:", error);
+    logger.error("Update policy API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -129,7 +130,7 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("Delete policy API error:", error);
+    logger.error("Delete policy API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

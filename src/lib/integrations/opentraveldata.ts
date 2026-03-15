@@ -14,6 +14,7 @@
  */
 
 import { parse } from 'csv-parse/sync';
+import { logger } from '@/infrastructure/observability/logger';
 import { createWriteStream, existsSync, readFileSync, mkdirSync } from 'fs';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
@@ -76,7 +77,7 @@ export class OpenTravelDataService {
    * Call this once when your app starts
    */
   async initialize(): Promise<void> {
-    console.log('[OpenTravelData] Initializing service...');
+    logger.info('[OpenTravelData] Initializing service...');
     
     try {
       // Ensure data directory exists
@@ -86,10 +87,10 @@ export class OpenTravelDataService {
       }
 
       await this.loadData();
-      console.log(`[OpenTravelData] ✅ Loaded ${this.cache?.data.length.toLocaleString()} POIs`);
+      logger.info(`[OpenTravelData] ✅ Loaded ${this.cache?.data.length.toLocaleString()} POIs`);
     } catch (error) {
-      console.error('[OpenTravelData] ❌ Failed to initialize:', error);
-      console.log('[OpenTravelData] Will retry on first request');
+      logger.error('[OpenTravelData] ❌ Failed to initialize:', error);
+      logger.info('[OpenTravelData] Will retry on first request');
     }
   }
 
@@ -120,7 +121,7 @@ export class OpenTravelDataService {
       await this.ensureDataLoaded();
 
       if (!this.cache?.data) {
-        console.warn('[OpenTravelData] No data available, returning empty array');
+        logger.warn('[OpenTravelData] No data available, returning empty array');
         return [];
       }
 
@@ -166,10 +167,10 @@ export class OpenTravelDataService {
         .sort((a, b) => a.distance_km - b.distance_km)
         .slice(0, limit);
 
-      console.log(`[OpenTravelData] Found ${attractions.length} attractions within ${radiusKm}km`);
+      logger.info(`[OpenTravelData] Found ${attractions.length} attractions within ${radiusKm}km`);
       return attractions;
     } catch (error) {
-      console.error('[OpenTravelData] getNearbyAttractions error:', error);
+      logger.error('[OpenTravelData] getNearbyAttractions error:', error);
       return []; // Graceful degradation - don't break guest experience
     }
   }
@@ -202,7 +203,7 @@ export class OpenTravelDataService {
         country_code: poi.country_code,
       }));
 
-    console.log(`[OpenTravelData] Found ${airports.length} airports in ${countryCode}`);
+    logger.info(`[OpenTravelData] Found ${airports.length} airports in ${countryCode}`);
     return airports;
   }
 
@@ -271,7 +272,7 @@ export class OpenTravelDataService {
       (!countryCode || poi.country_code === countryCode)
     );
 
-    console.log(`[OpenTravelData] Found ${pois.length} POIs of type '${type}'`);
+    logger.info(`[OpenTravelData] Found ${pois.length} POIs of type '${type}'`);
     return pois;
   }
 
@@ -306,7 +307,7 @@ export class OpenTravelDataService {
       return; // Cache is valid
     }
 
-    console.log('[OpenTravelData] Cache expired or missing, reloading...');
+    logger.info('[OpenTravelData] Cache expired or missing, reloading...');
     await this.loadData();
   }
 
@@ -317,7 +318,7 @@ export class OpenTravelDataService {
     try {
       // Try local file first (faster)
       if (existsSync(this.LOCAL_PATH)) {
-        console.log('[OpenTravelData] Loading from local cache...');
+        logger.info('[OpenTravelData] Loading from local cache...');
         const csv = readFileSync(this.LOCAL_PATH, 'utf-8');
         this.cache = {
           data: this.parseCSV(csv),
@@ -327,7 +328,7 @@ export class OpenTravelDataService {
       }
 
       // Download from GitHub
-      console.log('[OpenTravelData] Downloading from GitHub...');
+      logger.info('[OpenTravelData] Downloading from GitHub...');
       const file = createWriteStream(this.LOCAL_PATH);
       
       await streamPipeline(
@@ -341,9 +342,9 @@ export class OpenTravelDataService {
         timestamp: Date.now(),
       };
 
-      console.log('[OpenTravelData] ✅ Download complete');
+      logger.info('[OpenTravelData] ✅ Download complete');
     } catch (error) {
-      console.error('[OpenTravelData] Load error:', error);
+      logger.error('[OpenTravelData] Load error:', error);
       throw error;
     }
   }
@@ -373,10 +374,10 @@ export class OpenTravelDataService {
         }))
         .filter((poi: OpenTravelPOI) => poi.latitude !== 0 && poi.longitude !== 0);
 
-      console.log(`[OpenTravelData] Parsed ${pois.length.toLocaleString()} valid POIs`);
+      logger.info(`[OpenTravelData] Parsed ${pois.length.toLocaleString()} valid POIs`);
       return pois;
     } catch (error) {
-      console.error('[OpenTravelData] CSV parse error:', error);
+      logger.error('[OpenTravelData] CSV parse error:', error);
       return [];
     }
   }
@@ -429,9 +430,9 @@ export const openTravelData = new OpenTravelDataService();
 //       10       // Top 10
 //     );
 //     
-//     console.log('\n🏰 Top 10 Attractions near Bled:');
+//     logger.info('\n🏰 Top 10 Attractions near Bled:');
 //     attractions.forEach((attr, i) => {
-//       console.log(`${i + 1}. ${attr.name} (${attr.type}) - ${attr.distance_km.toFixed(1)}km`);
+//       logger.info(`${i + 1}. ${attr.name} (${attr.type}) - ${attr.distance_km.toFixed(1)}km`);
 //     });
 //     
 //     // Test: Get nearest airport
@@ -441,9 +442,9 @@ export const openTravelData = new OpenTravelDataService();
 //       'SI'
 //     );
 //     
-//     console.log(`\n✈️ Nearest Airport: ${airport?.name} (${airport?.iata_code}) - ${airport?.distance_km.toFixed(0)}km`);
+//     logger.info(`\n✈️ Nearest Airport: ${airport?.name} (${airport?.iata_code}) - ${airport?.distance_km.toFixed(0)}km`);
 //     
 //     // Test: Cache info
-//     console.log('\n📊 Cache Info:', openTravelData.getCacheInfo());
+//     logger.info('\n📊 Cache Info:', openTravelData.getCacheInfo());
 //   })();
 // }

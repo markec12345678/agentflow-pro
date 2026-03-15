@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { startOfDay, addDays, format } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
@@ -65,7 +66,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ count });
   } catch (error) {
-    console.error("send-welcome-tomorrow GET error:", error);
+    logger.error("send-welcome-tomorrow GET error:", error);
     return NextResponse.json({ count: 0 });
   }
 }
@@ -178,7 +179,7 @@ ${propertyName}`;
       total: reservations.length,
     });
   } catch (error) {
-    console.error("send-welcome-tomorrow error:", error);
+    logger.error("send-welcome-tomorrow error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to send" },
       { status: 500 }

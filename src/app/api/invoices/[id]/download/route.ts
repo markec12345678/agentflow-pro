@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -109,7 +110,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Download invoice error:', error);
+    logger.error('Download invoice error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -123,7 +124,7 @@ async function downloadInvoicePDF(invoice: any, format: string) {
   // 3. Return PDF buffer or download URL
   // 4. Track download statistics
   
-  console.log('Downloading invoice:', {
+  logger.info('Downloading invoice:', {
     invoiceId: invoice.id,
     invoiceNumber: invoice.invoiceNumber,
     format
@@ -145,13 +146,13 @@ async function downloadInvoicePDF(invoice: any, format: string) {
     pdfBuffer: null // In real implementation, this would be the actual PDF buffer
   };
 
-  console.log('Invoice download ready:', downloadResult);
+  logger.info('Invoice download ready:', downloadResult);
   return downloadResult;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

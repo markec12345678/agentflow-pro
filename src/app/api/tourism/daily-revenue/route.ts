@@ -3,6 +3,7 @@
  * Returns revenue from check-outs on a given date. Query: propertyId, date (YYYY-MM-DD, default today).
  */
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
       departureCount: departures.length,
     });
   } catch (error) {
-    console.error("Daily revenue error:", error);
+    logger.error("Daily revenue error:", error);
     return NextResponse.json({ error: "Failed to fetch daily revenue" }, { status: 500 });
   }
 }

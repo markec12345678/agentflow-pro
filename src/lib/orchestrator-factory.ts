@@ -3,6 +3,7 @@
  */
 
 import { Orchestrator } from "@/orchestrator/Orchestrator";
+import { logger } from '@/infrastructure/observability/logger';
 import { createResearchAgent } from "@/agents/research/ResearchAgent";
 import { createContentAgent } from "@/agents/content/ContentAgent";
 import { createCodeAgent } from "@/agents/code/CodeAgent";
@@ -56,7 +57,7 @@ export function getOrchestrator({
       if (strict && !isMockMode()) {
         throw new Error(errorMessage);
       } else {
-        console.warn(errorMessage);
+        logger.warn(errorMessage);
       }
     }
     // Always register agent (mock mode will handle missing keys)

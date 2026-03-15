@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { 
   RefreshCw, 
   Settings, 
@@ -242,7 +243,7 @@ export default function EturizemIntegrationPage() {
     // Simulate API test
     await new Promise(resolve => setTimeout(resolve, 2000));
     setTesting(false);
-    console.log("Connection test completed");
+    logger.info("Connection test completed");
   };
 
   const handleSaveConfig = async () => {
@@ -250,7 +251,7 @@ export default function EturizemIntegrationPage() {
     // Simulate save
     await new Promise(resolve => setTimeout(resolve, 1000));
     setSaving(false);
-    console.log("Configuration saved:", config);
+    logger.info("Configuration saved:", config);
   };
 
   const handleToggleAutoSync = () => {

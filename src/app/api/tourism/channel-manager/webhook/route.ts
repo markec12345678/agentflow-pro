@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }
   } catch (error) {
-    console.error("[Channel Manager Webhook] Error:", error);
+    logger.error("[Channel Manager Webhook] Error:", error);
     return NextResponse.json(
       { error: "Webhook processing failed" },
       { status: 500 }
@@ -156,7 +156,7 @@ async function handleNewReservation(channel: string, data: any) {
       },
     });
 
-    console.log(`[Channel Manager] New ${channel} reservation: ${reservation.id}`);
+    logger.info(`[Channel Manager] New ${channel} reservation: ${reservation.id}`);
 
     return NextResponse.json({
       success: true,
@@ -164,7 +164,7 @@ async function handleNewReservation(channel: string, data: any) {
       status,
     });
   } catch (error) {
-    console.error("[New Reservation] Error:", error);
+    logger.error("[New Reservation] Error:", error);
     return NextResponse.json(
       { error: "Failed to create reservation" },
       { status: 500 }
@@ -189,14 +189,14 @@ async function handleModifyReservation(channel: string, data: any) {
       },
     });
 
-    console.log(`[Channel Manager] Modified ${channel} reservation: ${reservation.id}`);
+    logger.info(`[Channel Manager] Modified ${channel} reservation: ${reservation.id}`);
 
     return NextResponse.json({
       success: true,
       reservationId: reservation.id,
     });
   } catch (error) {
-    console.error("[Modify Reservation] Error:", error);
+    logger.error("[Modify Reservation] Error:", error);
     return NextResponse.json(
       { error: "Failed to modify reservation" },
       { status: 500 }
@@ -240,14 +240,14 @@ async function handleCancelReservation(channel: string, data: any) {
       }
     }
 
-    console.log(`[Channel Manager] Cancelled ${channel} reservation: ${reservation.id}`);
+    logger.info(`[Channel Manager] Cancelled ${channel} reservation: ${reservation.id}`);
 
     return NextResponse.json({
       success: true,
       reservationId: reservation.id,
     });
   } catch (error) {
-    console.error("[Cancel Reservation] Error:", error);
+    logger.error("[Cancel Reservation] Error:", error);
     return NextResponse.json(
       { error: "Failed to cancel reservation" },
       { status: 500 }
@@ -285,14 +285,14 @@ async function handleAvailabilityUpdate(channel: string, data: any) {
       });
     }
 
-    console.log(`[Channel Manager] Updated availability for ${propertyId}`);
+    logger.info(`[Channel Manager] Updated availability for ${propertyId}`);
 
     return NextResponse.json({
       success: true,
       updatedDates: dates.length,
     });
   } catch (error) {
-    console.error("[Availability Update] Error:", error);
+    logger.error("[Availability Update] Error:", error);
     return NextResponse.json(
       { error: "Failed to update availability" },
       { status: 500 }

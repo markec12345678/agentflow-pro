@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 
 export async function GET() {
   try {
@@ -24,7 +25,7 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
-    console.error('MCP Available Error:', error);
+    logger.error('MCP Available Error:', error);
     return NextResponse.json(
       { success: false, error: (error as any).message || 'Failed to get available MCPs' },
       { status: 500 }

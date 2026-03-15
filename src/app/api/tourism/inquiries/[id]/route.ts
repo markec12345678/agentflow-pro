@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { prisma } from "@/database/schema";
@@ -55,7 +56,7 @@ export async function PATCH(
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error("Error updating inquiry:", error);
+    logger.error("Error updating inquiry:", error);
     return NextResponse.json(
       { error: "Failed to update inquiry" },
       { status: 500 }

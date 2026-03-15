@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('MCP Functions Error:', error);
+    logger.error('MCP Functions Error:', error);
     return NextResponse.json(
       { success: false, error: (error as any).message || 'Failed to get MCP functions' },
       { status: 500 }

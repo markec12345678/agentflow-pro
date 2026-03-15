@@ -5,6 +5,7 @@
  */
 
 import { Redis } from "@upstash/redis";
+import { logger } from '@/infrastructure/observability/logger';
 
 let _client: Redis | null = null;
 
@@ -27,7 +28,7 @@ export function getRedisClient(): Redis | null {
     });
     return _client;
   } catch (error) {
-    console.error('[Redis] Failed to initialize:', error);
+    logger.error('[Redis] Failed to initialize:', error);
     return null;
   }
 }

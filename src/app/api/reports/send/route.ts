@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Log the send action
-    console.log('Report sent:', {
+    logger.info('Report sent:', {
       reportId,
       reportName: report.name,
       recipients,
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Send report error:', error);
+    logger.error('Send report error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -143,7 +144,7 @@ async function sendReportEmail(params: {
   // In a real implementation, this would use an email service like SendGrid, Resend, etc.
   // For now, we'll simulate the email sending
   
-  console.log('Sending email with params:', {
+  logger.info('Sending email with params:', {
     recipients: params.recipients,
     subject: params.subject,
     message: params.message,
@@ -257,7 +258,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get email history error:', error);
+    logger.error('Get email history error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

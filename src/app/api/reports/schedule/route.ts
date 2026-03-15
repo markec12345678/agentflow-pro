@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
       templateId
     };
 
-    console.log('Updated report schedule:', scheduleConfig);
+    logger.info('Updated report schedule:', scheduleConfig);
 
     // If enabled, set up the scheduled job
     if (schedule.enabled) {
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Schedule report error:', error);
+    logger.error('Schedule report error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -105,10 +106,10 @@ async function setupScheduledJob(templateId: string, schedule: ScheduleConfig) {
   // In a real implementation, this would set up a cron job or use a job scheduler
   // For now, we'll just log the configuration
   
-  console.log(`Setting up scheduled job for template ${templateId}:`);
-  console.log(`- Frequency: ${schedule.frequency}`);
-  console.log(`- Time: ${schedule.time}`);
-  console.log(`- Recipients: ${schedule.recipients.join(', ')}`);
+  logger.info(`Setting up scheduled job for template ${templateId}:`);
+  logger.info(`- Frequency: ${schedule.frequency}`);
+  logger.info(`- Time: ${schedule.time}`);
+  logger.info(`- Recipients: ${schedule.recipients.join(', ')}`);
   
   // Calculate next run time
   const now = new Date();
@@ -132,7 +133,7 @@ async function setupScheduledJob(templateId: string, schedule: ScheduleConfig) {
     }
   }
   
-  console.log(`Next run time: ${nextRun.toISOString()}`);
+  logger.info(`Next run time: ${nextRun.toISOString()}`);
   
   // In a real implementation, you would:
   // 1. Store the job configuration in a database
@@ -205,7 +206,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get scheduled reports error:', error);
+    logger.error('Get scheduled reports error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

@@ -5,6 +5,7 @@
  */
 
 import { HousekeepingTask } from '../domain/tourism/entities/housekeeping-task'
+import { logger } from '@/infrastructure/observability/logger';
 
 // ============================================================================
 // Input/Output DTOs
@@ -102,10 +103,10 @@ export class AssignTask {
       // Send notification (SMS, push, in-app)
       // await this.notificationService.send(message)
       
-      console.log('Notifying staff:', message)
+      logger.info('Notifying staff:', message)
       return true
     } catch (error) {
-      console.error('Failed to notify staff:', error)
+      logger.error('Failed to notify staff:', error)
       return false
     }
   }

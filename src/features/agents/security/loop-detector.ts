@@ -372,7 +372,7 @@ export function createLoopPreventionMiddleware(detector: LoopDetector) {
         }
 
         if (loopCheck.recommendation === 'warn') {
-          console.warn(`[LoopDetector] Warning: Potential loop detected at iteration ${iteration}`);
+          logger.warn(`[LoopDetector] Warning: Potential loop detected at iteration ${iteration}`);
         }
 
         // Check if execution should continue

@@ -4,6 +4,7 @@
  */
 
 import type Stripe from 'stripe';
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import { stripeService, PlanType, SUBSCRIPTION_PLANS, USAGE_PRICING } from './stripe';
 
@@ -67,7 +68,7 @@ export class UsageService {
 
     // This would typically update the database
     // For now, we'll simulate the tracking
-    console.log(`Tracking agent run for user ${userId} in period ${period}`);
+    logger.info(`Tracking agent run for user ${userId} in period ${period}`);
 
     // Check if user is within limits
     const user = await this.getUserById(userId);
@@ -86,7 +87,7 @@ export class UsageService {
           user.plan
         );
 
-        console.log(`User ${userId} over limit. Overage cost: ${overageCost} cents`);
+        logger.info(`User ${userId} over limit. Overage cost: ${overageCost} cents`);
       }
     }
   }
@@ -95,7 +96,7 @@ export class UsageService {
   async trackStorageUsage(userId: string, storageUsed: number): Promise<void> {
     const period = this.getCurrentPeriod();
 
-    console.log(`Tracking storage usage for user ${userId}: ${storageUsed}MB in period ${period}`);
+    logger.info(`Tracking storage usage for user ${userId}: ${storageUsed}MB in period ${period}`);
 
     const user = await this.getUserById(userId);
     if (user && user.plan) {
@@ -111,7 +112,7 @@ export class UsageService {
           user.plan
         );
 
-        console.log(`User ${userId} storage overage cost: ${overageCost} cents`);
+        logger.info(`User ${userId} storage overage cost: ${overageCost} cents`);
       }
     }
   }
@@ -120,7 +121,7 @@ export class UsageService {
   async trackTeamMemberUsage(userId: string, teamMembers: number): Promise<void> {
     const period = this.getCurrentPeriod();
 
-    console.log(`Tracking team member usage for user ${userId}: ${teamMembers} members in period ${period}`);
+    logger.info(`Tracking team member usage for user ${userId}: ${teamMembers} members in period ${period}`);
 
     const user = await this.getUserById(userId);
     if (user && user.plan) {
@@ -136,7 +137,7 @@ export class UsageService {
           user.plan
         );
 
-        console.log(`User ${userId} team member overage cost: ${overageCost} cents`);
+        logger.info(`User ${userId} team member overage cost: ${overageCost} cents`);
       }
     }
   }
@@ -248,7 +249,7 @@ export class UsageService {
       // Finalize and send invoice
       await stripeService.finalizeInvoice(invoice.id);
 
-      console.log(`Generated overage invoice for user ${userId}: ${overageCost} cents`);
+      logger.info(`Generated overage invoice for user ${userId}: ${overageCost} cents`);
     }
   }
 
@@ -481,32 +482,32 @@ export class BillingService {
         break;
 
       default:
-        console.log(`Unhandled webhook event: ${event.type}`);
+        logger.info(`Unhandled webhook event: ${event.type}`);
     }
   }
 
   private async handleSubscriptionCreated(subscription: Stripe.Subscription): Promise<void> {
-    console.log(`Subscription created: ${subscription.id}`);
+    logger.info(`Subscription created: ${subscription.id}`);
     // Update database with new subscription
   }
 
   private async handleSubscriptionUpdated(subscription: Stripe.Subscription): Promise<void> {
-    console.log(`Subscription updated: ${subscription.id}`);
+    logger.info(`Subscription updated: ${subscription.id}`);
     // Update database with subscription changes
   }
 
   private async handleSubscriptionDeleted(subscription: Stripe.Subscription): Promise<void> {
-    console.log(`Subscription deleted: ${subscription.id}`);
+    logger.info(`Subscription deleted: ${subscription.id}`);
     // Update database to mark subscription as canceled
   }
 
   private async handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
-    console.log(`Invoice payment succeeded: ${invoice.id}`);
+    logger.info(`Invoice payment succeeded: ${invoice.id}`);
     // Update invoice status in database
   }
 
   private async handleInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
-    console.log(`Invoice payment failed: ${invoice.id}`);
+    logger.info(`Invoice payment failed: ${invoice.id}`);
     // Handle failed payment (notify user, retry, etc.)
   }
 }

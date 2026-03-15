@@ -163,7 +163,7 @@ export async function sendGuestMessage(data: {
 
     return { success: true, messageId };
   } catch (error) {
-    console.error("[Guest Messaging] Error:", error);
+    logger.error("[Guest Messaging] Error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -233,7 +233,7 @@ export async function scheduleAutomatedMessages(reservationId: string): Promise<
  * Send email (mock - in production use SendGrid/Postmark)
  */
 async function sendEmail(data: { to: string; subject: string; body: string }): Promise<string> {
-  console.log(`[Email] To: ${data.to}, Subject: ${data.subject}`);
+  logger.info(`[Email] To: ${data.to}, Subject: ${data.subject}`);
   return `email_${Date.now()}`;
 }
 
@@ -241,7 +241,7 @@ async function sendEmail(data: { to: string; subject: string; body: string }): P
  * Send WhatsApp (mock - in production use Twilio/Meta)
  */
 async function sendWhatsApp(data: { to?: string; body: string }): Promise<string> {
-  console.log(`[WhatsApp] To: ${data.to}, Body: ${data.body}`);
+  logger.info(`[WhatsApp] To: ${data.to}, Body: ${data.body}`);
   return `whatsapp_${Date.now()}`;
 }
 
@@ -249,7 +249,7 @@ async function sendWhatsApp(data: { to?: string; body: string }): Promise<string
  * Send SMS (mock - in production use Twilio)
  */
 async function sendSMS(data: { to?: string; body: string }): Promise<string> {
-  console.log(`[SMS] To: ${data.to}, Body: ${data.body}`);
+  logger.info(`[SMS] To: ${data.to}, Body: ${data.body}`);
   return `sms_${Date.now()}`;
 }
 

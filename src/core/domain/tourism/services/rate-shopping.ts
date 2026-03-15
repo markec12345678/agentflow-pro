@@ -132,7 +132,7 @@ export class CompetitorRateShopping {
           expires: new Date(Date.now() + 60 * 60 * 1000),
         });
       } catch (error) {
-        console.error(`Failed to fetch competitor ${competitorId}:`, error);
+        logger.error(`Failed to fetch competitor ${competitorId}:`, error);
       }
     }
 

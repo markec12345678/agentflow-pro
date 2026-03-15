@@ -99,7 +99,7 @@ export default function PermissionManagement() {
         setPropertyAccessList(accessData.accessList);
       }
     } catch (error) {
-      console.error("Failed to load data:", error);
+      logger.error("Failed to load data:", error);
       toast.error("Napaka pri nalaganju podatkov");
     } finally {
       setLoading(false);
@@ -136,7 +136,7 @@ export default function PermissionManagement() {
         toast.error(data.error || "Napaka pri ustvarjanju role");
       }
     } catch (error) {
-      console.error("Create role error:", error);
+      logger.error("Create role error:", error);
       toast.error("Napaka pri ustvarjanju role");
     }
   };

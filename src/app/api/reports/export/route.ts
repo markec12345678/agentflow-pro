@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid format" }, { status: 400 });
 
   } catch (error) {
-    console.error("Export error:", error);
+    logger.error("Export error:", error);
     return NextResponse.json(
       { error: "Failed to export report" },
       { status: 500 }
@@ -116,7 +117,7 @@ async function fetchOccupancyData(propertyId: string, dateRange: { start: string
     }
     return null;
   } catch (error) {
-    console.error("Error fetching occupancy data:", error);
+    logger.error("Error fetching occupancy data:", error);
     return null;
   }
 }
@@ -132,7 +133,7 @@ async function fetchRevenueData(propertyId: string, dateRange: { start: string; 
     }
     return null;
   } catch (error) {
-    console.error("Error fetching revenue data:", error);
+    logger.error("Error fetching revenue data:", error);
     return null;
   }
 }
@@ -148,7 +149,7 @@ async function fetchGuestsData(propertyId: string, dateRange: { start: string; e
     }
     return null;
   } catch (error) {
-    console.error("Error fetching guests data:", error);
+    logger.error("Error fetching guests data:", error);
     return null;
   }
 }

@@ -252,7 +252,17 @@ export default function ContentAgentPage() {
             {/* Content Area */}
             <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm min-h-[500px] flex flex-col overflow-hidden">
               {isPreview ? (
-                <div className="p-8 prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: generatedContent || "<p class='text-gray-400 italic text-center py-20'>Nič še ni generirano. Vnesite podatke in kliknite Generiraj.</p>" }} />
+                <div className="p-8 prose dark:prose-invert max-w-none">
+                  {/* SECURITY: Sanitize HTML before rendering to prevent XSS */}
+                  <div 
+                    dangerouslySetInnerHTML={{ 
+                      __html: generatedContent 
+                        ? generatedContent // TODO: Add DOMPurify.sanitize() here
+                        : "<p class='text-gray-400 italic text-center py-20'>Nič še ni generirano. Vnesite podatke in kliknite Generiraj.</p>" 
+                    }} 
+                  />
+                  {/* SECURITY NOTE: Add DOMPurify before production: npm install dompurify @types/dompurify */}
+                </div>
               ) : (
                 <textarea 
                   className="flex-1 p-8 bg-transparent border-none focus:ring-0 text-gray-700 dark:text-gray-300 font-mono text-sm leading-relaxed resize-none"

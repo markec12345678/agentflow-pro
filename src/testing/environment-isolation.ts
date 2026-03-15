@@ -194,7 +194,7 @@ export class SandboxManager {
    */
   private async dropIsolatedDatabase(sandboxId: string): Promise<void> {
     // In production, drop actual database
-    console.log(`[Sandbox] Dropping database for ${sandboxId}`);
+    logger.info(`[Sandbox] Dropping database for ${sandboxId}`);
   }
 
   /**
@@ -212,7 +212,7 @@ export class SandboxManager {
     seedType: 'production' | 'minimal' | 'custom'
   ): Promise<void> {
     // In production, seed with actual data
-    console.log(`[Sandbox] Seeding database for ${sandboxId} with ${seedType} data`);
+    logger.info(`[Sandbox] Seeding database for ${sandboxId} with ${seedType} data`);
     
     if (seedType === 'production') {
       // Clone production data (anonymized)
@@ -228,7 +228,7 @@ export class SandboxManager {
    */
   private async cloneProductionData(sandboxId: string): Promise<void> {
     // In production, clone and anonymize production data
-    console.log(`[Sandbox] Cloning production data for ${sandboxId}`);
+    logger.info(`[Sandbox] Cloning production data for ${sandboxId}`);
   }
 
   /**
@@ -236,7 +236,7 @@ export class SandboxManager {
    */
   private async createMinimalTestData(sandboxId: string): Promise<void> {
     // Create basic test data
-    console.log(`[Sandbox] Creating minimal test data for ${sandboxId}`);
+    logger.info(`[Sandbox] Creating minimal test data for ${sandboxId}`);
   }
 
   /**

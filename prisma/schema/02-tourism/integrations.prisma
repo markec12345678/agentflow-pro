@@ -1,0 +1,51 @@
+// =============================================================================
+// Tourism Integrations
+// AJPES eTurizem, PMS connections, Channel Manager
+// =============================================================================
+
+model AjpesConnection {
+  id          String   @id @default(cuid())
+  propertyId  String   @unique
+  username    String
+  passwordEnc String
+  rnoId       Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("ajpes_connections")
+}
+
+model PmsConnection {
+  id          String   @id @default(cuid())
+  propertyId  String
+  provider    String
+  credentials Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, provider])
+  @@index([propertyId])
+  @@map("pms_connections")
+}
+
+model SearchConsoleConnection {
+  id            String    @id @default(cuid())
+  propertyId    String?
+  userId        String?
+  siteUrl       String
+  accessToken   String
+  refreshToken  String
+  expiresAt     DateTime
+  lastSyncAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  property      Property? @relation(fields: [propertyId], references: [id])
+  user          User?     @relation(fields: [userId], references: [id])
+
+  @@index([propertyId])
+  @@index([userId])
+  @@map("search_console_connections")
+}

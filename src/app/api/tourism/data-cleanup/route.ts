@@ -3,6 +3,7 @@
  * POST: run data cleanup (dry run or apply)
  */
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Data cleanup error:", error);
+    logger.error("Data cleanup error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Data cleanup failed" },
       { status: 500 }

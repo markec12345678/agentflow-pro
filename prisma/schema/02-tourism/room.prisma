@@ -1,0 +1,29 @@
+// =============================================================================
+// Room Management
+// Room types, inventory, and seasonal rates
+// =============================================================================
+
+model Room {
+  id                String             @id @default(cuid())
+  propertyId        String
+  name              String
+  type              String             // single, double, suite, apartment
+  capacity          Int
+  beds              Int?
+  description       String?
+  basePrice         Float?
+  amenities         String[]
+  photos            String[]
+  seasonRates       Json?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  // Relations
+  blockedDates      BlockedDate[]
+  reservations      Reservation[]
+  housekeepingTasks HousekeepingTask[]
+  property          Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("rooms")
+}

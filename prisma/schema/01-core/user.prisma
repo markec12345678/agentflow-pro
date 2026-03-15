@@ -1,0 +1,120 @@
+// =============================================================================
+// User Management
+// Core user profile, preferences, and relationships
+// =============================================================================
+
+model User {
+  id                       String                    @id @default(cuid())
+  email                    String                    @unique
+  name                     String?
+  passwordHash             String?
+  trialEndsAt              DateTime?
+  activeTeamId             String?
+  activePropertyId         String?
+  role                     UserRole                  @default(VIEWER)
+  aiQuota                  Int                       @default(100)
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  emailVerified            DateTime?
+  image                    String?
+  alertConfiguration       Json?
+  eturizemConfig           Json?
+  stripeConfig             Json?
+  sendGridConfig           Json?
+  sentryConfig             Json?
+  githubConfig             Json?
+  vercelConfig             Json?
+  firecrawlConfig          Json?
+  notificationPreferences  Json?
+  
+  // Relations
+  accounts                 Account[]
+  sessions                 Session[]
+  subscription             Subscription?
+  alertEvents              AlertEvent[]
+  chatEscalations          ChatEscalation[]
+  contentHistory           ContentHistory[]
+  conversationThreads      ConversationThread[]
+  itineraries              Itinerary[]
+  notifications            Notification[]
+  searchConsoleConnections SearchConsoleConnection[]
+  teamMembers              TeamMember[]
+  ownedTeams               Team[]                    @relation("TeamOwner")
+  translationJobs          TranslationJob[]
+  usageAlerts              UsageAlert[]
+  workflows                Workflow[]
+  properties               Property[]                @relation("PropertyToUser")
+  branding                 Branding?
+  customRoles              CustomRole[]
+  sentMessages             Message[]                 @relation("MessageSender")
+  receivedMessages         Message[]                 @relation("MessageRecipient")
+  messageGroups            MessageGroupMember[]
+  ownerProfile             Owner?
+  guestPreferences         GuestPreference[]         @relation("UserPreferences")
+  
+  // Content relations (moved to content domain)
+  blogPosts                BlogPost[]
+  landingPages             LandingPage[]
+  userTemplates            UserTemplate[]
+  seoMetrics               SeoMetric[]
+  pageDesigns              PageDesign[]
+  campaigns                CampaignBoard[]
+
+  @@map("users")
+}
+
+model Branding {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  primaryColor    String?
+  secondaryColor  String?
+  logoUrl         String?
+  faviconUrl      String?
+  companyName     String?
+  companyAddress  String?
+  companyPhone    String?
+  websiteUrl      String?
+  socialLinks     Json?
+  emailSignature  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("branding")
+}
+
+model GuestPreference {
+  id             String    @id @default(cuid())
+  userId         String?
+  propertyId     String?
+  guestId        String
+  preferenceType String    // dietary, accessibility, room, other
+  preferenceKey  String
+  preferenceValue String
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User?     @relation("UserPreferences", fields: [userId], references: [id])
+  property       Property? @relation(fields: [propertyId], references: [id])
+  guest          Guest?    @relation(fields: [guestId], references: [id])
+
+  @@index([guestId])
+  @@index([userId])
+  @@index([propertyId])
+  @@map("guest_preferences")
+}
+
+model ContentHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  contentType String
+  contentId   String
+  action      String  // created, updated, deleted, published
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([contentType, contentId])
+  @@map("content_history")
+}

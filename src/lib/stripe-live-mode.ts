@@ -4,6 +4,7 @@
  */
 
 import Stripe from 'stripe';
+import { logger } from '@/infrastructure/observability/logger';
 import { readFileSync, writeFileSync } from 'fs';
 
 export interface StripeConfig {
@@ -46,7 +47,7 @@ export class StripeLiveModeManager {
       const configData = readFileSync('stripe-config.json', 'utf8');
       return JSON.parse(configData);
     } catch (error) {
-      console.error('Failed to load Stripe configuration:', error);
+      logger.error('Failed to load Stripe configuration:', error);
       return this.getDefaultConfig();
     }
   }
@@ -171,7 +172,7 @@ export class StripeLiveModeManager {
   }
 
   async switchToLiveMode(): Promise<void> {
-    console.log('Switching to Stripe live mode...');
+    logger.info('Switching to Stripe live mode...');
 
     const liveConfig: StripeConfig = {
       mode: 'live',
@@ -200,12 +201,12 @@ export class StripeLiveModeManager {
     // Test live configuration
     await this.testLiveConfiguration();
 
-    console.log('Successfully switched to Stripe live mode');
-    console.log('New configuration saved to stripe-config.json');
+    logger.info('Successfully switched to Stripe live mode');
+    logger.info('New configuration saved to stripe-config.json');
   }
 
   private async testLiveConfiguration(): Promise<void> {
-    console.log('Testing live Stripe configuration...');
+    logger.info('Testing live Stripe configuration...');
 
     try {
       // Test payment intent creation
@@ -216,7 +217,7 @@ export class StripeLiveModeManager {
         confirmation_method: 'automatic'
       });
 
-      console.log('✅ Live payment intent created:', paymentIntent.id);
+      logger.info('✅ Live payment intent created:', paymentIntent.id);
 
       // Test customer creation
       const customer = await this.stripe.customers.create({
@@ -224,7 +225,7 @@ export class StripeLiveModeManager {
         name: 'Test Customer'
       });
 
-      console.log('✅ Live customer created:', customer.id);
+      logger.info('✅ Live customer created:', customer.id);
 
       // Test subscription creation
       const price = await this.stripe.prices.create({
@@ -249,16 +250,16 @@ export class StripeLiveModeManager {
         expand: ['latest_invoice.payment_intent']
       });
 
-      console.log('✅ Live subscription created:', subscription.id);
+      logger.info('✅ Live subscription created:', subscription.id);
 
       // Clean up test data
       await this.stripe.paymentIntents.cancel(paymentIntent.id);
       await this.stripe.customers.del(customer.id);
 
-      console.log('✅ Live configuration test completed successfully');
+      logger.info('✅ Live configuration test completed successfully');
 
     } catch (error) {
-      console.error('❌ Live configuration test failed:', error);
+      logger.error('❌ Live configuration test failed:', error);
       throw error;
     }
   }
@@ -267,7 +268,7 @@ export class StripeLiveModeManager {
     try {
       writeFileSync('stripe-config.json', JSON.stringify(config, null, 2));
     } catch (error) {
-      console.error('Failed to save Stripe configuration:', error);
+      logger.error('Failed to save Stripe configuration:', error);
     }
   }
 
@@ -361,20 +362,20 @@ Configuration file: stripe-config.json
   }
 
   async runLiveModeValidation(): Promise<void> {
-    console.log('Starting Stripe live mode validation...');
+    logger.info('Starting Stripe live mode validation...');
 
     const report = this.generateLiveModeReport();
-    console.log(report);
+    logger.info(report);
 
     // Save report to file
     const fs = require('fs');
     fs.writeFileSync('stripe-live-mode-validation.md', report);
 
-    console.log('Stripe live mode validation completed. Report saved to stripe-live-mode-validation.md');
+    logger.info('Stripe live mode validation completed. Report saved to stripe-live-mode-validation.md');
 
     if (!this.validateLiveModeReadiness().isLiveMode) {
-      console.log('\n⚠️ ACTION REQUIRED: Switch to live mode before production deployment');
-      console.log('Run: npm run stripe:switch-to-live');
+      logger.info('\n⚠️ ACTION REQUIRED: Switch to live mode before production deployment');
+      logger.info('Run: npm run stripe:switch-to-live');
     }
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
       data: { alerts },
     });
   } catch (error) {
-    console.error('Get usage alerts error:', error);
+    logger.error('Get usage alerts error:', error);
 
     if (error instanceof AuthError) {
       return NextResponse.json(
@@ -105,7 +106,7 @@ export async function POST(request: NextRequest) {
       data: { alert },
     });
   } catch (error) {
-    console.error('Create usage alert error:', error);
+    logger.error('Create usage alert error:', error);
 
     if (error instanceof AuthError) {
       return NextResponse.json(

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     const results = await search(query, apiKey, body.limit ?? 5);
     return NextResponse.json({ results });
   } catch (err) {
-    console.error("Error in vector search API:", err);
+    logger.error("Error in vector search API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Search failed" },
       { status: 500 }

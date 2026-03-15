@@ -214,7 +214,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[Housekeeping Analytics] Error:", error);
+    logger.error("[Housekeeping Analytics] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch housekeeping analytics" },
       { status: 500 }

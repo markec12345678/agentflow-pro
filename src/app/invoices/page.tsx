@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { 
   FileText, 
   Download, 
@@ -313,7 +314,7 @@ export default function InvoicesPage() {
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Generate PDF (in real implementation)
-    console.log('Generating PDF for invoice:', invoiceId);
+    logger.info('Generating PDF for invoice:', invoiceId);
     
     setLoading(false);
   };
@@ -337,7 +338,7 @@ export default function InvoicesPage() {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Download PDF (in real implementation)
-    console.log('Downloading invoice:', invoiceId);
+    logger.info('Downloading invoice:', invoiceId);
     
     setLoading(false);
   };

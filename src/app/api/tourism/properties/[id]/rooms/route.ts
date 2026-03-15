@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -33,7 +34,7 @@ export async function GET(
 
     return NextResponse.json(rooms);
   } catch (error) {
-    console.error("Rooms API error:", error);
+    logger.error("Rooms API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -78,7 +79,7 @@ export async function POST(
 
     return NextResponse.json(room);
   } catch (error) {
-    console.error("Create room API error:", error);
+    logger.error("Create room API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

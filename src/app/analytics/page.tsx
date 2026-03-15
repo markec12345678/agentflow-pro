@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import "../../styles/progress-bars.css";
 import { 
   TrendingUp, 
@@ -209,7 +210,7 @@ export default function AnalyticsPage() {
     // Simulate export process
     await new Promise(resolve => setTimeout(resolve, 2000));
     setExporting(false);
-    console.log(`Exporting analytics data as ${format.toUpperCase()}`);
+    logger.info(`Exporting analytics data as ${format.toUpperCase()}`);
   };
 
   const formatCurrency = (amount: number) => {

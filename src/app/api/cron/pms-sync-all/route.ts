@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import { getPmsAdapter } from "@/lib/tourism/mews-adapter";
 import { verifyCronAuth } from "@/lib/cron-auth";
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest) {
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error(`PMS sync error for ${conn.propertyId}:`, err);
+        logger.error(`PMS sync error for ${conn.propertyId}:`, err);
         results.push({
           propertyId: conn.propertyId,
           synced: 0,
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
       results,
     });
   } catch (error) {
-    console.error("PMS sync-all error:", error);
+    logger.error("PMS sync-all error:", error);
     return NextResponse.json(
       { error: "PMS sync-all failed" },
       { status: 500 }

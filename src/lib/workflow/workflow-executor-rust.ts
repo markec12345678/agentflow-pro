@@ -8,6 +8,7 @@
  */
 
 import { spawn } from 'child_process';
+import { logger } from '@/infrastructure/observability/logger';
 import { join } from 'path';
 import { platform } from 'process';
 
@@ -113,7 +114,7 @@ export class RustWorkflowExecutor {
     if (this.useBinary) {
       return this.executeBinary(input);
     } else {
-      console.warn('Rust binary not found, using fallback mode');
+      logger.warn('Rust binary not found, using fallback mode');
       return this.mockExecute(workflow);
     }
   }

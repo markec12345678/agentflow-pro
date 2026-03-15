@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       branding: branding || getDefaultBranding(user.id),
     });
   } catch (error) {
-    console.error("Get branding error:", error);
+    logger.error("Get branding error:", error);
     return NextResponse.json(
       { error: "Failed to get branding" },
       { status: 500 }
@@ -119,7 +119,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ branding });
   } catch (error) {
-    console.error("Update branding error:", error);
+    logger.error("Update branding error:", error);
     return NextResponse.json(
       { error: "Failed to update branding" },
       { status: 500 }

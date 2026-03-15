@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Bulk generate error:", error);
+    logger.error("Bulk generate error:", error);
     return NextResponse.json(
       { error: "Failed to process bulk generation" },
       { status: 500 }
@@ -189,7 +190,7 @@ export async function GET(request: NextRequest) {
       failed: 0,
     });
   } catch (error) {
-    console.error("Status check error:", error);
+    logger.error("Status check error:", error);
     return NextResponse.json(
       { error: "Failed to check status" },
       { status: 500 }

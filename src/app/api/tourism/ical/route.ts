@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { format } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
@@ -76,7 +77,7 @@ END:VCALENDAR`;
       },
     });
   } catch (error) {
-    console.error("iCal export error:", error);
+    logger.error("iCal export error:", error);
     return NextResponse.json(
       { error: "Failed to export calendar" },
       { status: 500 }
@@ -173,7 +174,7 @@ export async function POST(request: NextRequest) {
       totalEvents: events.length,
     });
   } catch (error) {
-    console.error("iCal import error:", error);
+    logger.error("iCal import error:", error);
     return NextResponse.json(
       { error: "Failed to import iCal" },
       { status: 500 }
@@ -223,7 +224,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
-    console.error("Token generation error:", error);
+    logger.error("Token generation error:", error);
     return NextResponse.json(
       { error: "Failed to generate token" },
       { status: 500 }

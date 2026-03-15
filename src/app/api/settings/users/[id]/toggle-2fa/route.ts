@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -72,13 +73,13 @@ export async function POST(
     }
 
     // Update 2FA status (in real implementation)
-    console.log(`${enabled ? 'Enabling' : 'Disabling'} 2FA for user:`, targetUserId);
+    logger.info(`${enabled ? 'Enabling' : 'Disabling'} 2FA for user:`, targetUserId);
 
     // If enabling 2FA, generate setup link (in real implementation)
     let setupLink = null;
     if (enabled) {
       setupLink = generate2FASetupLink(targetUser.email);
-      console.log('2FA setup link for', targetUser.email, ':', setupLink);
+      logger.info('2FA setup link for', targetUser.email, ':', setupLink);
     }
 
     // Log activity
@@ -93,7 +94,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Toggle 2FA error:', error);
+    logger.error('Toggle 2FA error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -107,7 +108,7 @@ function generate2FASetupLink(email: string): string {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

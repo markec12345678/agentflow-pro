@@ -84,7 +84,7 @@ export default function WorkflowVersioning({
       const data = await res.json();
       setVersions(data.versions || []);
     } catch (error) {
-      console.error('Failed to load versions:', error);
+      logger.error('Failed to load versions:', error);
       toast.error('Napaka pri nalaganju verzij');
     } finally {
       setLoading(false);

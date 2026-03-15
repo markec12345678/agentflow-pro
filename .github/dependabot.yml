@@ -1,27 +1,82 @@
+# Dependabot configuration for automated dependency updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
 version: 2
 updates:
-  - package-ecosystem: npm
+  # npm (JavaScript/TypeScript) dependencies
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
-    # Ignore major bumps already applied in main (Jest, Prisma, Tailwind, eslint-config-next, @types/node)
-    ignore:
-      - dependency-name: jest
-        update-types: [version-update:semver-major]
-      - dependency-name: prisma
-        update-types: [version-update:semver-major]
-      - dependency-name: tailwindcss
-        update-types: [version-update:semver-major]
-      - dependency-name: eslint-config-next
-        update-types: [version-update:semver-major]
-      - dependency-name: "@types/node"
-        update-types: [version-update:semver-major]
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Ljubljana"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "agentflow-team"
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
     groups:
-      minor-and-patch:
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"
+    ignore:
+      # Ignore major updates until tested
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Ljubljana"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(ci)"
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Ljubljana"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(docker)"
+
+  # Prisma dependencies (critical - needs manual testing)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Ljubljana"
+    open-pull-requests-limit: 2
+    labels:
+      - "dependencies"
+      - "prisma"
+      - "database"
+    commit-message:
+      prefix: "chore(db)"
+    groups:
+      prisma:
         patterns:
-          - "*"
-        update-types:
-          - minor
-          - patch
+          - "@prisma/*"
+          - "prisma"

@@ -6,6 +6,7 @@
  */
 
 import { DomainEvent, EventBus } from '../domain/shared/events/domain-event'
+import { logger } from '@/infrastructure/observability/logger';
 
 type EventHandler<T extends DomainEvent> = (event: T) => Promise<void>
 
@@ -118,7 +119,7 @@ export class InMemoryEventBus implements EventBus {
       try {
         await handler(event)
       } catch (error) {
-        console.error(`Error in event handler for ${eventTypeName}:`, error)
+        logger.error(`Error in event handler for ${eventTypeName}:`, error)
         // V productionu: pošlji v error tracking (Sentry)
       }
     })

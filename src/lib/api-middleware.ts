@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { AuthService } from '@/services/auth.service';
 
 export const dynamic = "force-dynamic";
@@ -72,7 +73,7 @@ export function assertOwnResource(
  * Error response helper
  */
 export function createErrorResponse(error: any, defaultMessage: string, defaultStatus: number = 500) {
-  console.error('API Error:', error);
+  logger.error('API Error:', error);
 
   const status = error.status || defaultStatus;
   const code = error.code || 'INTERNAL_ERROR';

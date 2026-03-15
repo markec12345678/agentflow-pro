@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -80,7 +81,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Run cron job error:', error);
+    logger.error('Run cron job error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -88,7 +89,7 @@ export async function POST(
   }
 
 async function executeCronJob(job: any): Promise<any> {
-  console.log(`Executing cron job: ${job.name} (${job.agent})`);
+  logger.info(`Executing cron job: ${job.name} (${job.agent})`);
   
   // Simulate job execution
   await new Promise(resolve => setTimeout(resolve, 2000));
@@ -112,13 +113,13 @@ async function executeCronJob(job: any): Promise<any> {
     }
   };
 
-  console.log('Cron job result:', jobResult);
+  logger.info('Cron job result:', jobResult);
   return jobResult;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

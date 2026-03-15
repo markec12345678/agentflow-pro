@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run linter
+npm run lint
+
+# Run tests
+npm run test
+
+# Check for TypeScript errors
+npx tsc --noEmit
+
+# Check for broken links (optional, can be slow)
+# npm run check-links
+
+# Verify environment variables (only in CI)
+if [ -n "$CI" ]; then
+  npm run verify:production-env
+fi

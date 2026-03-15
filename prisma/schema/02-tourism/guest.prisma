@@ -1,0 +1,7 @@
+// =============================================================================
+// Guest Management
+// Guest profiles, preferences, and history
+// =============================================================================
+
+// Guest model is in reservation.prisma (tightly coupled)
+// GuestPreference model is in 01-core/user.prisma

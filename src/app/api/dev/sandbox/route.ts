@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Failed to list sandboxes:', error);
+    logger.error('Failed to list sandboxes:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to list sandboxes' },
       { status: 500 }
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
       message: 'Sandbox created successfully',
     });
   } catch (error) {
-    console.error('Failed to create sandbox:', error);
+    logger.error('Failed to create sandbox:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to create sandbox' },
       { status: 500 }
@@ -127,7 +127,7 @@ export async function DELETE(request: NextRequest) {
       message: 'Sandbox deleted successfully',
     });
   } catch (error) {
-    console.error('Failed to delete sandbox:', error);
+    logger.error('Failed to delete sandbox:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to delete sandbox' },
       { status: 500 }

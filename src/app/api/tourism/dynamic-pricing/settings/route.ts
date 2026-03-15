@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[Dynamic Pricing Settings GET] Error:", error);
+    logger.error("[Dynamic Pricing Settings GET] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch dynamic pricing settings" },
       { status: 500 }
@@ -131,7 +131,7 @@ export async function PUT(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[Dynamic Pricing Settings PUT] Error:", error);
+    logger.error("[Dynamic Pricing Settings PUT] Error:", error);
     return NextResponse.json(
       { error: "Failed to update dynamic pricing settings" },
       { status: 500 }

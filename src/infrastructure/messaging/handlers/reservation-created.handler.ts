@@ -6,6 +6,7 @@
  */
 
 import { ReservationCreated } from '@/core/domain/tourism/events/reservation-events'
+import { logger } from '@/infrastructure/observability/logger';
 import { eventBus } from '@/infrastructure/messaging/in-memory-event-bus'
 
 // ============================================================================
@@ -17,7 +18,7 @@ export class ReservationCreatedHandler {
    * Handle ReservationCreated event
    */
   async handle(event: ReservationCreated): Promise<void> {
-    console.log('Handling ReservationCreated event:', event.eventId)
+    logger.info('Handling ReservationCreated event:', event.eventId)
 
     try {
       // 1. Pošlji confirmation email gostu
@@ -32,9 +33,9 @@ export class ReservationCreatedHandler {
       // 4. Shrani v analytics
       await this.trackAnalytics(event)
 
-      console.log('ReservationCreated event handled successfully')
+      logger.info('ReservationCreated event handled successfully')
     } catch (error) {
-      console.error('Error handling ReservationCreated event:', error)
+      logger.error('Error handling ReservationCreated event:', error)
       // V productionu: pošlji v error tracking (Sentry)
       throw error
     }
@@ -75,7 +76,7 @@ export class ReservationCreatedHandler {
       `
     }
 
-    console.log('Sending confirmation email:', emailData)
+    logger.info('Sending confirmation email:', emailData)
     // await emailService.send(emailData)
   }
 
@@ -96,7 +97,7 @@ export class ReservationCreatedHandler {
       reservationId: event.reservationId
     }
 
-    console.log('Updating calendar:', calendarData)
+    logger.info('Updating calendar:', calendarData)
     // await calendarService.blockDates(calendarData)
   }
 
@@ -124,7 +125,7 @@ export class ReservationCreatedHandler {
       }
     }
 
-    console.log('Notifying manager:', notification)
+    logger.info('Notifying manager:', notification)
     // await notificationService.send(notification)
   }
 
@@ -149,7 +150,7 @@ export class ReservationCreatedHandler {
       }
     }
 
-    console.log('Tracking analytics:', analyticsData)
+    logger.info('Tracking analytics:', analyticsData)
     // await analyticsService.track(analyticsData)
   }
 }
@@ -162,4 +163,4 @@ export class ReservationCreatedHandler {
 const handler = new ReservationCreatedHandler()
 eventBus.subscribe(ReservationCreated, handler.handle.bind(handler))
 
-console.log('ReservationCreatedHandler registered')
+logger.info('ReservationCreatedHandler registered')

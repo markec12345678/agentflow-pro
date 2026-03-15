@@ -1,0 +1,82 @@
+// =============================================================================
+// AgentFlow Pro - Prisma Schema (Modular)
+// Main index file - imports all modular schemas
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// CORE DOMAINS (Auth & Users)
+// =============================================================================
+import "./01-core/auth.prisma"
+import "./01-core/user.prisma"
+import "./01-core/team.prisma"
+
+// =============================================================================
+// TOURISM DOMAIN (Properties, Reservations, Guests)
+// =============================================================================
+import "./02-tourism/property.prisma"
+import "./02-tourism/room.prisma"
+import "./02-tourism/reservation.prisma"
+import "./02-tourism/guest.prisma"
+import "./02-tourism/integrations.prisma"
+
+// =============================================================================
+// AI AGENTS & WORKFLOWS (Event Sourcing, Agent Runs)
+// =============================================================================
+import "./03-agents/event-store.prisma"
+import "./03-agents/agent-run.prisma"
+import "./03-agents/workflow.prisma"
+import "./03-agents/analytics.prisma"
+
+// =============================================================================
+// CONTENT DOMAIN (Blog Posts, Landing Pages, Templates)
+// =============================================================================
+import "./04-content/blog.prisma"
+import "./04-content/landing-page.prisma"
+import "./04-content/template.prisma"
+
+// =============================================================================
+// BILLING & PAYMENTS (Subscriptions, Invoices, Payments)
+// =============================================================================
+import "./05-billing/subscription.prisma"
+import "./05-billing/payment.prisma"
+
+// =============================================================================
+// ALERTS & NOTIFICATIONS (Smart Alerts, Escalations)
+// =============================================================================
+import "./06-alerts/alert-rules.prisma"
+import "./06-alerts/smart-alerts.prisma"
+
+// =============================================================================
+// COMMUNICATION (Messages, Chat, Guest Communications)
+// =============================================================================
+import "./07-communication/message.prisma"
+import "./07-communication/chat.prisma"
+
+// =============================================================================
+// HOUSEKEEPING & STAFF (Tasks, Assignments, Schedules)
+// =============================================================================
+import "./08-operations/housekeeping.prisma"
+import "./08-operations/staff.prisma"
+
+// =============================================================================
+// ANALYTICS & SEO (Metrics, Performance Tracking)
+// =============================================================================
+import "./09-analytics/seo.prisma"
+import "./09-analytics/performance.prisma"
+
+// =============================================================================
+// SYSTEM & UTILS (Onboarding, API Keys, Contact Submissions)
+// =============================================================================
+import "./10-system/onboarding.prisma"
+import "./10-system/api-keys.prisma"
+import "./10-system/contact.prisma"

@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('X-Zapier-Signature');
     if (!signature) {
       // In development, allow without signature
-      console.warn('Missing Zapier signature (allowed in dev)');
+      logger.warn('Missing Zapier signature (allowed in dev)');
     }
 
     // Route to appropriate action
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         );
     }
   } catch (error) {
-    console.error('Zapier webhook error:', error);
+    logger.error('Zapier webhook error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Webhook processing failed' },
       { status: 500 }

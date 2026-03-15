@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { useAutomation } from '@/hooks/use-automation';
 import { format, subDays } from 'date-fns';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -74,7 +75,7 @@ export default function AutomationDashboard({
         await updateIntegration(integrationId, { status: 'active' });
       }
     } catch (error) {
-      console.error('Integration test failed:', error);
+      logger.error('Integration test failed:', error);
     }
   };
 
@@ -82,7 +83,7 @@ export default function AutomationDashboard({
     try {
       await deployWorkflow(workflowId);
     } catch (error) {
-      console.error('Workflow deployment failed:', error);
+      logger.error('Workflow deployment failed:', error);
     }
   };
 
@@ -90,7 +91,7 @@ export default function AutomationDashboard({
     try {
       await executeWorkflow(workflowId, { test: 'execution' });
     } catch (error) {
-      console.error('Workflow execution failed:', error);
+      logger.error('Workflow execution failed:', error);
     }
   };
 

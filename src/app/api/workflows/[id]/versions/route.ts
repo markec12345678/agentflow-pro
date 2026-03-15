@@ -22,7 +22,7 @@ export async function GET(
 
     return NextResponse.json({ versions });
   } catch (error) {
-    console.error('Get versions error:', error);
+    logger.error('Get versions error:', error);
     return NextResponse.json(
       { error: 'Failed to get versions' },
       { status: 500 }
@@ -82,7 +82,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, version });
   } catch (error) {
-    console.error('Create version error:', error);
+    logger.error('Create version error:', error);
     return NextResponse.json(
       { error: 'Failed to create version' },
       { status: 500 }

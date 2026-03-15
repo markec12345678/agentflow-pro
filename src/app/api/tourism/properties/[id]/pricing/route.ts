@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -30,7 +31,7 @@ export async function GET(
       pricingRules: property.pricingRules,
     });
   } catch (error) {
-    console.error("Pricing API error:", error);
+    logger.error("Pricing API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -67,7 +68,7 @@ export async function PATCH(
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error("Pricing update API error:", error);
+    logger.error("Pricing update API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

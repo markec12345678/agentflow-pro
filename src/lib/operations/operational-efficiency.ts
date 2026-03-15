@@ -13,6 +13,7 @@
  */
 
 import { prisma } from '@/database/schema';
+import { logger } from '@/infrastructure/observability/logger';
 
 // ============================================================================
 // TYPES
@@ -148,7 +149,7 @@ export async function optimizeStaffSchedule(
 
     return schedule;
   } catch (error) {
-    console.error('[Operational Efficiency] optimizeStaffSchedule error:', error);
+    logger.error('[Operational Efficiency] optimizeStaffSchedule error:', error);
     return [];
   }
 }
@@ -280,7 +281,7 @@ export async function checkInventoryLevels(): Promise<{
       totalEstimatedCost
     };
   } catch (error) {
-    console.error('[Operational Efficiency] checkInventoryLevels error:', error);
+    logger.error('[Operational Efficiency] checkInventoryLevels error:', error);
     return { itemsToReorder: [], totalEstimatedCost: 0 };
   }
 }
@@ -437,7 +438,7 @@ export async function generatePreventiveMaintenanceSchedule(): Promise<Maintenan
 
     return tasks;
   } catch (error) {
-    console.error('[Operational Efficiency] generatePreventiveMaintenanceSchedule error:', error);
+    logger.error('[Operational Efficiency] generatePreventiveMaintenanceSchedule error:', error);
     return [];
   }
 }
@@ -613,7 +614,7 @@ export async function optimizeHousekeepingRoute(
 
     return tasks;
   } catch (error) {
-    console.error('[Operational Efficiency] optimizeHousekeepingRoute error:', error);
+    logger.error('[Operational Efficiency] optimizeHousekeepingRoute error:', error);
     return [];
   }
 }
@@ -728,7 +729,7 @@ export async function trackEnergyConsumption(
       estimatedCost: latestReading.cost
     };
   } catch (error) {
-    console.error('[Operational Efficiency] trackEnergyConsumption error:', error);
+    logger.error('[Operational Efficiency] trackEnergyConsumption error:', error);
     return {
       currentReading: {} as EnergyReading,
       averageConsumption: 0,

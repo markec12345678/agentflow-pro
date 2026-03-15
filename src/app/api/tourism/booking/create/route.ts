@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
         },
       });
     } catch (error) {
-      console.error("[Invoice Generation] Error:", error);
+      logger.error("[Invoice Generation] Error:", error);
       // Continue even if invoice fails
     }
 
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       guestId: guest.id,
     });
   } catch (error) {
-    console.error("[Create Booking] Error:", error);
+    logger.error("[Create Booking] Error:", error);
     return NextResponse.json(
       { error: "Failed to create booking" },
       { status: 500 }

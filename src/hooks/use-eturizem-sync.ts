@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { toast } from 'sonner';
 
 interface SyncResult {
@@ -53,7 +54,7 @@ export function useEturizemSync() {
       
       return result;
     } catch (error) {
-      console.error('Sync error:', error);
+      logger.error('Sync error:', error);
       toast.error('Failed to trigger sync');
       throw error;
     } finally {
@@ -75,7 +76,7 @@ export function useEturizemSync() {
         return result.data;
       }
     } catch (error) {
-      console.error('Status check error:', error);
+      logger.error('Status check error:', error);
     }
   }, []);
 

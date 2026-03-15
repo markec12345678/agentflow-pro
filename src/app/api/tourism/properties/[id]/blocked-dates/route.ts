@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -44,7 +45,7 @@ export async function GET(
 
     return NextResponse.json(blockedDates);
   } catch (error) {
-    console.error("Blocked dates API error:", error);
+    logger.error("Blocked dates API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -86,7 +87,7 @@ export async function POST(
 
     return NextResponse.json(blockedDate);
   } catch (error) {
-    console.error("Create blocked date API error:", error);
+    logger.error("Create blocked date API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -134,7 +135,7 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("Delete blocked date API error:", error);
+    logger.error("Delete blocked date API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

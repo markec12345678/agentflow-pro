@@ -4,7 +4,7 @@
  * Usage: withRlsContext(prisma, userId, async (tx) => tx.campaignBoard.findMany(...))
  */
 
-import type { PrismaClient } from "../../prisma/generated/prisma/client";
+import type { PrismaClient } from "../../prisma/generated/prisma";
 
 const cleanUserId = (id: string) => id.replace(/'/g, "''");
 

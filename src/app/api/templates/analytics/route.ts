@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import {
   getAllTemplateUsage,
   getTemplatePerformance,
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
         });
     }
   } catch (error) {
-    console.error('[Templates Analytics API] Error:', error);
+    logger.error('[Templates Analytics API] Error:', error);
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch analytics'
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
       message: 'Usage tracked successfully'
     });
   } catch (error) {
-    console.error('[Templates Analytics API] POST Error:', error);
+    logger.error('[Templates Analytics API] POST Error:', error);
     return NextResponse.json({
       success: false,
       error: 'Failed to track usage'

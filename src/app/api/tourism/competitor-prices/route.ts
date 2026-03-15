@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -94,7 +95,7 @@ export async function GET(request: NextRequest) {
       lastUpdated: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Competitor prices error:", error);
+    logger.error("Competitor prices error:", error);
     return NextResponse.json(
       { error: "Failed to fetch competitor prices" },
       { status: 500 }
@@ -186,7 +187,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
-    console.error("Competitor prices POST error:", error);
+    logger.error("Competitor prices POST error:", error);
     return NextResponse.json(
       { error: "Failed to process request" },
       { status: 500 }
@@ -232,7 +233,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Delete competitor error:", error);
+    logger.error("Delete competitor error:", error);
     return NextResponse.json(
       { error: "Failed to delete competitor" },
       { status: 500 }

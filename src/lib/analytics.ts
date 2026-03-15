@@ -7,6 +7,7 @@
  */
 
 import { prisma } from "@/database/schema";
+import { logger } from '@/infrastructure/observability/logger';
 
 /**
  * Track agent run with performance and cost metrics
@@ -42,7 +43,7 @@ export async function trackAgentRun(data: {
       },
     });
   } catch (error) {
-    console.error('Error tracking agent run:', error);
+    logger.error('Error tracking agent run:', error);
   }
 }
 
@@ -62,7 +63,7 @@ export async function trackAgentRunClient(data: {
       ...data,
     }));
   } catch (error) {
-    console.error('Error tracking client event:', error);
+    logger.error('Error tracking client event:', error);
   }
 }
 
@@ -103,7 +104,7 @@ export async function trackContentGeneration(data: {
       },
     });
   } catch (error) {
-    console.error('Error tracking content generation:', error);
+    logger.error('Error tracking content generation:', error);
   }
 }
 
@@ -138,7 +139,7 @@ export async function trackUserSession(data: {
       },
     });
   } catch (error) {
-    console.error('Error tracking user session:', error);
+    logger.error('Error tracking user session:', error);
   }
 }
 
@@ -167,7 +168,7 @@ export async function trackConversion(data: {
       },
     });
   } catch (error) {
-    console.error('Error tracking conversion:', error);
+    logger.error('Error tracking conversion:', error);
   }
 }
 

@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { logger } from '@/infrastructure/observability/logger';
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth-options";
 import {
@@ -47,7 +48,7 @@ export async function GET() {
     const keys = await getUserApiKeys(userId, { masked: true });
     return NextResponse.json(keys);
   } catch (err) {
-    console.error("Error in user keys GET API:", err);
+    logger.error("Error in user keys GET API:", err);
     return NextResponse.json({ error: "Failed to fetch keys" }, { status: 500 });
   }
 }
@@ -76,7 +77,7 @@ export async function POST(request: Request) {
           validatedKeys[validated.provider] = validated.key;
         } catch (error) {
           // Skip invalid keys
-          console.warn(`Invalid API key for ${provider}:`, error);
+          logger.warn(`Invalid API key for ${provider}:`, error);
         }
       }
     }
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
     await setUserApiKeys(userId, validatedKeys);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Error in user keys POST API:", err);
+    logger.error("Error in user keys POST API:", err);
     return NextResponse.json({ error: "Failed to save keys" }, { status: 500 });
   }
 }

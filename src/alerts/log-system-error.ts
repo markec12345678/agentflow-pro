@@ -5,6 +5,7 @@
  */
 
 import { prisma } from "@/database/schema";
+import { logger } from '@/infrastructure/observability/logger';
 
 export async function logSystemError(
   error: Error,
@@ -23,6 +24,6 @@ export async function logSystemError(
       },
     });
   } catch (e) {
-    console.error("[SmartAlerts] Failed to log system error:", e);
+    logger.error("[SmartAlerts] Failed to log system error:", e);
   }
 }

@@ -20,6 +20,7 @@
  */
 
 import { HfInference } from '@huggingface/inference';
+import { logger } from '@/infrastructure/observability/logger';
 import { sentiment as simpleSentiment } from 'sentiment';
 
 // ============================================================================
@@ -137,9 +138,9 @@ const RESPONSE_TEMPLATES: Record<string, Record<string, string>> = {
  * await analyzer.initialize();
  * 
  * const result = await analyzer.analyze('Amazing stay! Loved the view!');
- * console.log(result.label); // 'positive'
- * console.log(result.confidence); // 0.95
- * console.log(result.themes); // ['room', 'location']
+ * logger.info(result.label); // 'positive'
+ * logger.info(result.confidence); // 0.95
+ * logger.info(result.themes); // ['room', 'location']
  * ```
  */
 export class SentimentAnalyzer {
@@ -162,13 +163,13 @@ export class SentimentAnalyzer {
     try {
       if (this.config.apiKey) {
         this.hf = new HfInference(this.config.apiKey);
-        console.log('[SentimentAnalyzer] ✅ Initialized with Hugging Face');
+        logger.info('[SentimentAnalyzer] ✅ Initialized with Hugging Face');
       } else {
-        console.warn('[SentimentAnalyzer] ⚠️ No API key, using fallback sentiment analysis');
+        logger.warn('[SentimentAnalyzer] ⚠️ No API key, using fallback sentiment analysis');
       }
       this.initialized = true;
     } catch (error) {
-      console.error('[SentimentAnalyzer] Initialization error:', error);
+      logger.error('[SentimentAnalyzer] Initialization error:', error);
       throw error;
     }
   }
@@ -220,7 +221,7 @@ export class SentimentAnalyzer {
             score: hfResult[0]?.score || 0.5
           };
         } catch (error) {
-          console.warn('[SentimentAnalyzer] HF API failed, using fallback:', error);
+          logger.warn('[SentimentAnalyzer] HF API failed, using fallback:', error);
           sentimentResult = this.fallbackSentiment(text);
         }
       } else {
@@ -263,7 +264,7 @@ export class SentimentAnalyzer {
         language
       };
     } catch (error) {
-      console.error('[SentimentAnalyzer] analyze error:', error);
+      logger.error('[SentimentAnalyzer] analyze error:', error);
       return this.createFallbackResult(text);
     }
   }
@@ -477,7 +478,7 @@ export class SentimentAnalyzer {
         dominant
       };
     } catch (error) {
-      console.warn('[SentimentAnalyzer] Emotion detection failed:', error);
+      logger.warn('[SentimentAnalyzer] Emotion detection failed:', error);
       return undefined;
     }
   }

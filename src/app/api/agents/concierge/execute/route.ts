@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { createConciergeAgent } from "@/agents/concierge/ConciergeAgent";
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Concierge agent error:", error);
+    logger.error("Concierge agent error:", error);
     
     return NextResponse.json(
       { 
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Concierge status error:", error);
+    logger.error("Concierge status error:", error);
     
     return NextResponse.json(
       { 

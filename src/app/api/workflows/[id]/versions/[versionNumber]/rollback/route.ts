@@ -35,7 +35,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, version });
   } catch (error) {
-    console.error('Rollback error:', error);
+    logger.error('Rollback error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Rollback failed' },
       { status: 500 }

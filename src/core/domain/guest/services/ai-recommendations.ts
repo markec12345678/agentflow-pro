@@ -12,6 +12,7 @@
  */
 
 import { prisma } from '@/database/schema';
+import { logger } from '@/infrastructure/observability/logger';
 import type { PersonalizedRecommendation, GuestProfile } from '@/types/guest-experience';
 
 // ============================================================================
@@ -111,7 +112,7 @@ export async function findSimilarGuests(
 
     return similarities;
   } catch (error) {
-    console.error('[AI Recommendations] findSimilarGuests error:', error);
+    logger.error('[AI Recommendations] findSimilarGuests error:', error);
     return [];
   }
 }
@@ -267,7 +268,7 @@ export async function aggregatePreferences(
 
     return candidates;
   } catch (error) {
-    console.error('[AI Recommendations] aggregatePreferences error:', error);
+    logger.error('[AI Recommendations] aggregatePreferences error:', error);
     return [];
   }
 }
@@ -397,7 +398,7 @@ export async function extractPatterns(guestId: string): Promise<GuestPattern[]> 
 
     return patterns;
   } catch (error) {
-    console.error('[AI Recommendations] extractPatterns error:', error);
+    logger.error('[AI Recommendations] extractPatterns error:', error);
     return [];
   }
 }
@@ -451,7 +452,7 @@ export async function matchWithAvailable(
 
     return recommendations;
   } catch (error) {
-    console.error('[AI Recommendations] matchWithAvailable error:', error);
+    logger.error('[AI Recommendations] matchWithAvailable error:', error);
     return [];
   }
 }
@@ -553,7 +554,7 @@ export async function generateHybridRecommendations(
 
     return recommendations;
   } catch (error) {
-    console.error('[AI Recommendations] generateHybridRecommendations error:', error);
+    logger.error('[AI Recommendations] generateHybridRecommendations error:', error);
     return [];
   }
 }

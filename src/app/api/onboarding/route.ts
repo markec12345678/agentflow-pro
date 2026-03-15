@@ -1,4 +1,5 @@
-import { Prisma } from "../../../../prisma/generated/prisma/client";
+import { Prisma } from "../../../../prisma/generated/prisma";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { prisma } from "@/database/schema";
@@ -125,7 +126,7 @@ export async function POST(request: Request) {
         });
         return NextResponse.json({ ok: true, propertyId: property.id });
       } catch (propErr) {
-        console.error("Onboarding: property create failed", propErr);
+        logger.error("Onboarding: property create failed", propErr);
       }
     }
 

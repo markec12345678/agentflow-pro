@@ -4,6 +4,7 @@
  */
 
 import { prisma } from "@/database/schema";
+import { logger } from '@/infrastructure/observability/logger';
 import type { Workflow } from "@/workflows/types";
 import { WorkflowExecutor } from "@/workflows/WorkflowExecutor";
 
@@ -76,7 +77,7 @@ export async function updateWorkflow(
     });
     return toWorkflow(row);
   } catch (err) {
-    console.error(`Error updating workflow ${id} for user ${userId}:`, err);
+    logger.error(`Error updating workflow ${id} for user ${userId}:`, err);
     return undefined;
   }
 }
@@ -88,7 +89,7 @@ export async function deleteWorkflow(id: string, userId: string): Promise<boolea
     });
     return result != null;
   } catch (err) {
-    console.error(`Error deleting workflow ${id} for user ${userId}:`, err);
+    logger.error(`Error deleting workflow ${id} for user ${userId}:`, err);
     return false;
   }
 }

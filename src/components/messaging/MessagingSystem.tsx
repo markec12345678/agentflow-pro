@@ -81,7 +81,7 @@ export default function MessagingSystem() {
       setMessages(messagesData.messages || []);
       setGroups(groupsData.groups || []);
     } catch (error) {
-      console.error("Failed to load data:", error);
+      logger.error("Failed to load data:", error);
     } finally {
       setLoading(false);
     }
@@ -106,7 +106,7 @@ export default function MessagingSystem() {
         loadData();
       }
     } catch (error) {
-      console.error("Send message error:", error);
+      logger.error("Send message error:", error);
     }
   };
 
@@ -117,7 +117,7 @@ export default function MessagingSystem() {
       });
       loadData();
     } catch (error) {
-      console.error("Mark as read error:", error);
+      logger.error("Mark as read error:", error);
     }
   };
 
@@ -139,7 +139,7 @@ export default function MessagingSystem() {
         loadData();
       }
     } catch (error) {
-      console.error("Create group error:", error);
+      logger.error("Create group error:", error);
     }
   };
 

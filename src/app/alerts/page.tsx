@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { 
   AlertTriangle, 
   AlertCircle, 
@@ -202,7 +203,7 @@ export default function AlertsPage() {
 
   const handleTestAlert = async (channel: "email" | "sms" | "slack") => {
     // Simulate test alert
-    console.log(`Sending test alert via ${channel}`);
+    logger.info(`Sending test alert via ${channel}`);
     setShowTestModal(false);
   };
 

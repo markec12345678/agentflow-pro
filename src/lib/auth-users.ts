@@ -3,6 +3,7 @@
  */
 
 import bcrypt from "bcryptjs";
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import type { Session } from "next-auth";
 
@@ -93,7 +94,7 @@ export async function getUser(
     });
     if (!user?.passwordHash) {
       if (process.env.NODE_ENV === "development") {
-        console.log("[auth] getUser: user not found or no passwordHash for", normEmail);
+        logger.info("[auth] getUser: user not found or no passwordHash for", normEmail);
       }
       return null;
     }
@@ -101,14 +102,14 @@ export async function getUser(
     const valid = await bcrypt.compare(password.trim(), user.passwordHash);
     if (!valid) {
       if (process.env.NODE_ENV === "development") {
-        console.log("[auth] getUser: password mismatch for", normEmail);
+        logger.info("[auth] getUser: password mismatch for", normEmail);
       }
       return null;
     }
 
     return { id: user.id };
   } catch (err) {
-    console.error("[auth] getUser error:", err);
+    logger.error("[auth] getUser error:", err);
     return null;
   }
 }

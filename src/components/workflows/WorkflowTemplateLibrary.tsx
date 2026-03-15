@@ -19,6 +19,7 @@ import {
   Copy,
   Eye,
   Play,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -30,158 +31,36 @@ import {
   DialogTitle,
 } from '@/web/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/web/components/ui/tabs';
+import { PropertySelector } from '@/web/components/PropertySelector';
 
 interface WorkflowTemplate {
   id: string;
   name: string;
   description: string;
   category: string;
-  icon: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  estimatedTime: string;
-  rating: number;
-  uses: number;
-  nodes: any[];
-  edges: any[];
-  triggers: string[];
-  actions: string[];
+  difficulty: 'easy' | 'medium' | 'hard';
+  estimatedTimeSaved: string;
+  trigger: {
+    type: 'scheduled' | 'event' | 'webhook';
+    schedule?: string;
+    event?: string;
+    condition?: string;
+  };
+  actions: Array<{
+    type: string;
+    config: Record<string, any>;
+  }>;
 }
 
 interface WorkflowTemplateLibraryProps {
-  onUseTemplate?: (template: WorkflowTemplate) => void;
+  onUseTemplate?: (workflow: any) => void;
 }
 
 const CATEGORIES = [
   { id: 'all', label: 'Vsi', icon: Zap },
   { id: 'guest-communication', label: 'Gostne Komunikacije', icon: Mail },
-  { id: 'booking', label: 'Rezervacije', icon: Calendar },
+  { id: 'operations', label: 'Operacije', icon: Settings },
   { id: 'revenue', label: 'Prihodki', icon: DollarSign },
-  { id: 'reviews', label: 'Mnenja', icon: Star },
-  { id: 'housekeeping', label: 'Hišništvo', icon: Settings },
-  { id: 'marketing', label: 'Marketing', icon: TrendingUp },
-];
-
-const TEMPLATES: WorkflowTemplate[] = [
-  {
-    id: 'auto-checkin-reminder',
-    name: 'Avtomatski Check-in Opomnik',
-    description: 'Pošlji opomnik 1 dan pred check-in z navodili za prihod',
-    category: 'guest-communication',
-    icon: '📧',
-    difficulty: 'beginner',
-    estimatedTime: '5 min',
-    rating: 4.8,
-    uses: 1247,
-    triggers: ['1 day before check-in'],
-    actions: ['Send email', 'Send SMS'],
-    nodes: [],
-    edges: [],
-  },
-  {
-    id: 'review-request',
-    name: 'Prošnja za Mnenje',
-    description: 'Avtomatska prošnja za Google/TripAdvisor mnenje po check-outu',
-    category: 'reviews',
-    icon: '⭐',
-    difficulty: 'beginner',
-    estimatedTime: '5 min',
-    rating: 4.9,
-    uses: 2156,
-    triggers: ['1 day after check-out'],
-    actions: ['Send email', 'Track response'],
-    nodes: [],
-    edges: [],
-  },
-  {
-    id: 'booking-confirmation',
-    name: 'Potrdilo Rezervacije',
-    description: 'Takojšnje potrdilo z vsemi podrobnostmi rezervacije',
-    category: 'booking',
-    icon: '✅',
-    difficulty: 'beginner',
-    estimatedTime: '10 min',
-    rating: 4.7,
-    uses: 3421,
-    triggers: ['New booking'],
-    actions: ['Send email', 'Update calendar', 'Send to PMS'],
-    nodes: [],
-    edges: [],
-  },
-  {
-    id: 'dynamic-pricing-update',
-    name: 'Dinamična Posodobitev Cen',
-    description: 'Samodejna prilagoditev cen glede na zasedenost in povpraševanje',
-    category: 'revenue',
-    icon: '💰',
-    difficulty: 'advanced',
-    estimatedTime: '20 min',
-    rating: 4.6,
-    uses: 892,
-    triggers: ['Daily at 9 AM', 'Occupancy > 80%'],
-    actions: ['Analyze occupancy', 'Update prices', 'Notify owner'],
-    nodes: [],
-    edges: [],
-  },
-  {
-    id: 'vip-guest-treatment',
-    name: 'VIP Gost Obravnava',
-    description: 'Posebna obravnava za ponavljajoče se goste',
-    category: 'guest-communication',
-    icon: '👑',
-    difficulty: 'intermediate',
-    estimatedTime: '15 min',
-    rating: 4.9,
-    uses: 567,
-    triggers: ['Repeat guest booking', 'VIP tag'],
-    actions: ['Send welcome gift', 'Upgrade room', 'Personal message'],
-    nodes: [],
-    edges: [],
-  },
-  {
-    id: 'housekeeping-assignment',
-    name: 'Dodelitev Hišništva',
-    description: 'Avtomatska dodelitev nalog hišništvu po check-outu',
-    category: 'housekeeping',
-    icon: '🧹',
-    difficulty: 'intermediate',
-    estimatedTime: '10 min',
-    rating: 4.5,
-    uses: 1834,
-    triggers: ['Check-out completed'],
-    actions: ['Create task', 'Assign to staff', 'Send notification'],
-    nodes: [],
-    edges: [],
-  },
-  {
-    id: 'abandoned-booking-recovery',
-    name: 'Obnova Opuščene Rezervacije',
-    description: 'Sledenje gostom, ki niso zaključili rezervacije',
-    category: 'marketing',
-    icon: '🎯',
-    difficulty: 'advanced',
-    estimatedTime: '20 min',
-    rating: 4.7,
-    uses: 423,
-    triggers: ['Booking started but not completed'],
-    actions: ['Wait 1 hour', 'Send reminder email', 'Offer discount'],
-    nodes: [],
-    edges: [],
-  },
-  {
-    id: 'birthday-automation',
-    name: 'Rojstnodnevna Avtomatizacija',
-    description: 'Čestitka in posebna ponudba za rojstni dan gosta',
-    category: 'guest-communication',
-    icon: '🎂',
-    difficulty: 'intermediate',
-    estimatedTime: '10 min',
-    rating: 4.8,
-    uses: 756,
-    triggers: ['Guest birthday'],
-    actions: ['Send birthday email', 'Offer discount', 'Add gift to room'],
-    nodes: [],
-    edges: [],
-  },
 ];
 
 export default function WorkflowTemplateLibrary({
@@ -191,8 +70,68 @@ export default function WorkflowTemplateLibrary({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [templates, setTemplates] = useState<WorkflowTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creatingWorkflow, setCreatingWorkflow] = useState(false);
+  const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
 
-  const filteredTemplates = TEMPLATES.filter((template) => {
+  // Fetch templates from API on mount
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const fetchTemplates = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/workflows/from-template');
+      const data = await res.json();
+      setTemplates(data.templates || []);
+    } catch (error) {
+      logger.error('Error fetching templates:', error);
+      toast.error('Napaka pri nalaganju template-ov');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUseTemplate = async (template: WorkflowTemplate) => {
+    if (!activePropertyId) {
+      toast.error('Izberite nastanitev za kreiranje workflow-a');
+      return;
+    }
+
+    setCreatingWorkflow(true);
+    try {
+      const res = await fetch('/api/workflows/from-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateId: template.id,
+          propertyId: activePropertyId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      toast.success(`Workflow "${template.name}" ustvarjen`);
+      onUseTemplate?.(data.workflow);
+      setPreviewOpen(false);
+
+      // Redirect to workflow editor
+      window.location.href = `/dashboard/workflows/${data.workflow.id}/edit`;
+    } catch (error) {
+      logger.error('Error creating workflow:', error);
+      toast.error(error instanceof Error ? error.message : 'Napaka pri ustvarjanju workflow-a');
+    } finally {
+      setCreatingWorkflow(false);
+    }
+  };
+
+  const filteredTemplates = templates.filter((template) => {
     const matchesCategory =
       selectedCategory === 'all' || template.category === selectedCategory;
     const matchesSearch =
@@ -201,34 +140,79 @@ export default function WorkflowTemplateLibrary({
     return matchesCategory && matchesSearch;
   });
 
-  const handleUseTemplate = (template: WorkflowTemplate) => {
-    onUseTemplate?.(template);
-    toast.success(`Template "${template.name}" naložen`);
-  };
-
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner':
+      case 'easy':
         return 'bg-green-500';
-      case 'intermediate':
+      case 'medium':
         return 'bg-yellow-500';
-      case 'advanced':
+      case 'hard':
         return 'bg-red-500';
       default:
         return 'bg-gray-500';
     }
   };
 
+  const getActionLabel = (actionType: string) => {
+    const labels: Record<string, string> = {
+      send_email: 'Pošlji email',
+      send_sms: 'Pošlji SMS',
+      send_whatsapp: 'Pošlji WhatsApp',
+      send_notification: 'Pošlji obvestilo',
+      create_task: 'Ustvari nalogo',
+      update_reservation: 'Posodobi rezervacijo',
+      update_room_status: 'Posodobi status sobe',
+      sync_eturizem: 'Sinhroniziraj eTurizem',
+      analyze_demand: 'Analiziraj povpraševanje',
+      check_competitor_prices: 'Preveri cene konkurence',
+      adjust_prices: 'Prilagodi cene',
+      sync_channels: 'Sinhroniziraj kanale',
+      log_activity: 'Zabeleži aktivnost',
+      update_guest_profile: 'Posodobi profil gosta',
+      create_workflow: 'Ustvari workflow',
+    };
+    return labels[actionType] || actionType;
+  };
+
+  const getActionIcon = (actionType: string) => {
+    const icons: Record<string, string> = {
+      send_email: '📧',
+      send_sms: '📱',
+      send_whatsapp: '💬',
+      send_notification: '🔔',
+      create_task: '✅',
+      update_reservation: '📅',
+      update_room_status: '🧹',
+      sync_eturizem: '🔄',
+      analyze_demand: '📊',
+      check_competitor_prices: '🔍',
+      adjust_prices: '💰',
+      sync_channels: '🌐',
+      log_activity: '📝',
+      update_guest_profile: '👤',
+      create_workflow: '🔄',
+    };
+    return icons[actionType] || '⚙️';
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Workflow Template Knjižnica
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Izberite prednastavljen template in ga prilagodite
-        </p>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Workflow Template Knjižnica
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Izberite prednastavljen template in ga prilagodite
+          </p>
+        </div>
+        <div className="w-full md:w-auto">
+          <PropertySelector
+            value={activePropertyId}
+            onChange={setActivePropertyId}
+          />
+        </div>
       </div>
 
       {/* Search & Filters */}
@@ -260,73 +244,83 @@ export default function WorkflowTemplateLibrary({
         </TabsList>
 
         {/* Templates Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
-          {filteredTemplates.map((template) => (
-            <Card
-              key={template.id}
-              className="hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => {
-                setSelectedTemplate(template);
-                setPreviewOpen(true);
-              }}
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="text-4xl mb-2">{template.icon}</div>
-                  <Badge className={getDifficultyColor(template.difficulty)}>
-                    {template.difficulty === 'beginner' && 'Začetnik'}
-                    {template.difficulty === 'intermediate' && 'Srednje'}
-                    {template.difficulty === 'advanced' && 'Napredno'}
-                  </Badge>
-                </div>
-                <CardTitle className="text-lg">{template.name}</CardTitle>
-                <CardDescription className="text-sm">
-                  {template.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {template.estimatedTime}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-current" />
-                    {template.rating}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    {template.uses}
-                  </span>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    className="flex-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleUseTemplate(template);
-                    }}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Uporabi
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedTemplate(template);
-                      setPreviewOpen(true);
-                    }}
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <span className="ml-3 text-gray-600">Nalaganje template-ov...</span>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
+            {filteredTemplates.map((template) => (
+              <Card
+                key={template.id}
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => {
+                  setSelectedTemplate(template);
+                  setPreviewOpen(true);
+                }}
+              >
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="text-4xl mb-2">
+                      {getActionIcon(template.actions[0]?.type || 'send_email')}
+                    </div>
+                    <Badge className={getDifficultyColor(template.difficulty)}>
+                      {template.difficulty === 'easy' && 'Lahek'}
+                      {template.difficulty === 'medium' && 'Srednji'}
+                      {template.difficulty === 'hard' && 'Napreden'}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-lg">{template.name}</CardTitle>
+                  <CardDescription className="text-sm">
+                    {template.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {template.estimatedTimeSaved}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Zap className="w-3 h-3" />
+                      {template.actions.length} akcij
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUseTemplate(template);
+                      }}
+                      disabled={creatingWorkflow || !activePropertyId}
+                    >
+                      {creatingWorkflow ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Copy className="w-4 h-4 mr-2" />
+                      )}
+                      Uporabi
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedTemplate(template);
+                        setPreviewOpen(true);
+                      }}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {filteredTemplates.length === 0 && (
           <div className="text-center py-12">
@@ -344,7 +338,9 @@ export default function WorkflowTemplateLibrary({
           <DialogContent className="max-w-3xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <span className="text-3xl">{selectedTemplate.icon}</span>
+                <span className="text-3xl">
+                  {getActionIcon(selectedTemplate.actions[0]?.type || 'send_email')}
+                </span>
                 {selectedTemplate.name}
               </DialogTitle>
               <DialogDescription>
@@ -356,39 +352,62 @@ export default function WorkflowTemplateLibrary({
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <Clock className="w-5 h-5 mx-auto mb-2 text-blue-600" />
-                  <p className="text-sm font-semibold">{selectedTemplate.estimatedTime}</p>
-                  <p className="text-xs text-gray-500">Čas namestitve</p>
+                  <p className="text-sm font-semibold">{selectedTemplate.estimatedTimeSaved}</p>
+                  <p className="text-xs text-gray-500">Prihranjen čas</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <Star className="w-5 h-5 mx-auto mb-2 text-yellow-600" />
-                  <p className="text-sm font-semibold">{selectedTemplate.rating}</p>
-                  <p className="text-xs text-gray-500">Ocena</p>
+                  <Zap className="w-5 h-5 mx-auto mb-2 text-green-600" />
+                  <p className="text-sm font-semibold">{selectedTemplate.actions.length}</p>
+                  <p className="text-xs text-gray-500">Akcij</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <Users className="w-5 h-5 mx-auto mb-2 text-green-600" />
-                  <p className="text-sm font-semibold">{selectedTemplate.uses}</p>
-                  <p className="text-xs text-gray-500">Uporab</p>
+                  <Settings className="w-5 h-5 mx-auto mb-2 text-purple-600" />
+                  <p className="text-sm font-semibold capitalize">{selectedTemplate.difficulty}</p>
+                  <p className="text-xs text-gray-500">Težavnost</p>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2">Triggerji:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedTemplate.triggers.map((trigger, i) => (
-                    <Badge key={i} variant="secondary">
-                      {trigger}
-                    </Badge>
-                  ))}
+                <h4 className="font-semibold mb-2">Trigger:</h4>
+                <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">
+                      {selectedTemplate.trigger.type === 'scheduled' && '⏰'}
+                      {selectedTemplate.trigger.type === 'event' && '📢'}
+                      {selectedTemplate.trigger.type === 'webhook' && '🔗'}
+                    </span>
+                    <div>
+                      <p className="font-medium">
+                        {selectedTemplate.trigger.type === 'scheduled' && `Vsak: ${selectedTemplate.trigger.schedule}`}
+                        {selectedTemplate.trigger.type === 'event' && `Dogodek: ${selectedTemplate.trigger.event}`}
+                        {selectedTemplate.trigger.type === 'webhook' && 'Webhook klic'}
+                      </p>
+                      {selectedTemplate.trigger.condition && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Pogoj: {selectedTemplate.trigger.condition}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2">Akcije:</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="font-semibold mb-2">Akcije ({selectedTemplate.actions.length}):</h4>
+                <div className="space-y-2">
                   {selectedTemplate.actions.map((action, i) => (
-                    <Badge key={i} variant="outline">
-                      {action}
-                    </Badge>
+                    <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <span className="text-xl">{getActionIcon(action.type)}</span>
+                      <div className="flex-1">
+                        <p className="font-medium">{getActionLabel(action.type)}</p>
+                        {Object.keys(action.config).length > 0 && (
+                          <p className="text-xs text-gray-500">
+                            {Object.keys(action.config).slice(0, 3).join(', ')}
+                            {Object.keys(action.config).length > 3 && '...'}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -399,13 +418,20 @@ export default function WorkflowTemplateLibrary({
                 Prekliči
               </Button>
               <Button
-                onClick={() => {
-                  handleUseTemplate(selectedTemplate);
-                  setPreviewOpen(false);
-                }}
+                onClick={() => handleUseTemplate(selectedTemplate)}
+                disabled={creatingWorkflow || !activePropertyId}
               >
-                <Play className="w-4 h-4 mr-2" />
-                Uporabi Template
+                {creatingWorkflow ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Ustvarjam...
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 mr-2" />
+                    Uporabi Template
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>

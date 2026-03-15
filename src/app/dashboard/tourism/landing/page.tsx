@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Skeleton, SkeletonText } from "@/web/components/Skeleton";
@@ -329,7 +330,7 @@ export default function TourismLandingPage() {
         loadSavedPages();
       }
     } catch (err) {
-      console.error("Landing generation failed:", err);
+      logger.error("Landing generation failed:", err);
       toast.error(err instanceof Error ? err.message : "Error generating.");
     } finally {
       setLoading(false);

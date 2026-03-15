@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { subDays } from "date-fns";
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
       alertsCreated: created,
     });
   } catch (error) {
-    console.error("Property pricing check cron error:", error);
+    logger.error("Property pricing check cron error:", error);
     return NextResponse.json(
       { error: "Property pricing check cron failed" },
       { status: 500 }

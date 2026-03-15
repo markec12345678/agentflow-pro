@@ -34,6 +34,7 @@ import {
   TagCategory,
 } from '@/types/guest-experience';
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from '@/infrastructure/observability/logger';
 import Sentiment from 'sentiment';
 
 export class GuestExperienceEngine implements IGuestExperienceEngine {
@@ -77,7 +78,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
       await this.generateRecommendations(guestId);
     }
 
-    console.log(`👤 Updated guest profile: ${guestId}`);
+    logger.info(`👤 Updated guest profile: ${guestId}`);
     return updatedProfile;
   }
 
@@ -100,7 +101,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
     };
 
     await this.updateProfile(guestId, { preferences: updatedPreferences });
-    console.log(`⚙️ Updated preferences for guest: ${guestId}`);
+    logger.info(`⚙️ Updated preferences for guest: ${guestId}`);
   }
 
   /**
@@ -129,11 +130,11 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
     const newTier = this.calculateLoyaltyTier(newPoints, profile.loyaltyInfo.membershipSince);
     if (newTier !== profile.loyaltyInfo.tier) {
       updatedLoyaltyInfo.tier = newTier;
-      console.log(`🎉 Guest ${guestId} upgraded to ${newTier} tier!`);
+      logger.info(`🎉 Guest ${guestId} upgraded to ${newTier} tier!`);
     }
 
     await this.updateProfile(guestId, { loyaltyInfo: updatedLoyaltyInfo });
-    console.log(`💰 Updated loyalty points for guest ${guestId}: ${points} (${reason})`);
+    logger.info(`💰 Updated loyalty points for guest ${guestId}: ${points} (${reason})`);
   }
 
   /**
@@ -205,7 +206,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
     });
 
     this.recommendations.set(guestId, recommendations);
-    console.log(`🎯 Generated ${recommendations.length} recommendations for guest: ${guestId}`);
+    logger.info(`🎯 Generated ${recommendations.length} recommendations for guest: ${guestId}`);
     
     return recommendations;
   }
@@ -226,7 +227,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
       processedAt: new Date(),
     };
 
-    console.log(`📊 Analyzed feedback sentiment: ${analysis.label} (${analysis.score})`);
+    logger.info(`📊 Analyzed feedback sentiment: ${analysis.label} (${analysis.score})`);
     return analysis;
   }
 
@@ -253,7 +254,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
     // Update loyalty points for feedback
     await this.updateLoyaltyPoints(guestId, 10, 'Feedback submitted');
 
-    console.log(`📝 Recorded feedback for guest: ${guestId}`);
+    logger.info(`📝 Recorded feedback for guest: ${guestId}`);
     return guestFeedback;
   }
 
@@ -285,7 +286,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
     profile.communicationHistory.push(guestCommunication);
     await this.updateProfile(guestId, profile);
 
-    console.log(`📧 Sent communication to guest: ${guestId}`);
+    logger.info(`📧 Sent communication to guest: ${guestId}`);
     return guestCommunication;
   }
 
@@ -318,7 +319,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
     profile.tags.push(guestTag);
     await this.updateProfile(guestId, profile);
 
-    console.log(`🏷️ Added tag to guest ${guestId}: ${tag.name}`);
+    logger.info(`🏷️ Added tag to guest ${guestId}: ${tag.name}`);
     return guestTag;
   }
 
@@ -330,7 +331,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
     profile.tags = profile.tags.filter(tag => tag.id !== tagId);
     await this.updateProfile(guestId, profile);
 
-    console.log(`🗑️ Removed tag from guest ${guestId}: ${tagId}`);
+    logger.info(`🗑️ Removed tag from guest ${guestId}: ${tagId}`);
   }
 
   /**
@@ -401,7 +402,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
       filtered = filtered.slice(start, end);
     }
 
-    console.log(`🔍 Found ${filtered.length} guests matching criteria`);
+    logger.info(`🔍 Found ${filtered.length} guests matching criteria`);
     return filtered;
   }
 
@@ -422,7 +423,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
       lastAnalyzed: new Date(),
     };
 
-    console.log(`🧠 Generated insights for guest: ${guestId}`);
+    logger.info(`🧠 Generated insights for guest: ${guestId}`);
     return insights;
   }
 
@@ -449,7 +450,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
       segments.push(spendingSegment);
     }
 
-    console.log(`📊 Created ${segments.length} guest segments`);
+    logger.info(`📊 Created ${segments.length} guest segments`);
     return segments;
   }
 
@@ -458,7 +459,7 @@ export class GuestExperienceEngine implements IGuestExperienceEngine {
    */
   private initializeMockData(): void {
     // Initialize with some mock data for development
-    console.log('🔧 Initializing guest experience engine with mock data');
+    logger.info('🔧 Initializing guest experience engine with mock data');
   }
 
   private calculateLoyaltyTier(points: number, membershipSince: Date): LoyaltyTier {

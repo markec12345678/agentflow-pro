@@ -342,29 +342,29 @@ ${report.lastChecked.toISOString()}
   }
 
   async runComplianceValidation(): Promise<void> {
-    console.log('Starting PCI compliance validation...');
+    logger.info('Starting PCI compliance validation...');
     
     const report = this.generateComplianceReport();
     
-    console.log(report);
+    logger.info(report);
     
     // Save report to file
     const fs = require('fs');
     fs.writeFileSync('pci-compliance-report.md', report);
     
-    console.log('PCI compliance validation completed. Report saved to pci-compliance-report.md');
+    logger.info('PCI compliance validation completed. Report saved to pci-compliance-report.md');
     
     // Return compliance status for programmatic use
     const complianceReport = this.validateCompliance();
     
     if (complianceReport.overallStatus === 'non-compliant') {
-      console.error('❌ CRITICAL: System is not PCI compliant');
+      logger.error('❌ CRITICAL: System is not PCI compliant');
       process.exit(1);
     } else if (complianceReport.overallStatus === 'partial') {
-      console.warn('⚠️ WARNING: System is partially PCI compliant');
+      logger.warn('⚠️ WARNING: System is partially PCI compliant');
       process.exit(2);
     } else {
-      console.log('✅ SUCCESS: System is PCI compliant');
+      logger.info('✅ SUCCESS: System is PCI compliant');
       process.exit(0);
     }
   }

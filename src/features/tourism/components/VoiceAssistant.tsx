@@ -87,7 +87,7 @@ export default function VoiceAssistant({ propertyId }: VoiceAssistantProps) {
       toast.info('Poslušam...');
     } catch (error) {
       toast.error('Napaka pri dostopu do mikrofona');
-      console.error('Microphone access error:', error);
+      logger.error('Microphone access error:', error);
     }
   };
 
@@ -147,7 +147,7 @@ export default function VoiceAssistant({ propertyId }: VoiceAssistantProps) {
       }
     } catch (error) {
       toast.error('Napaka pri obdelavi govora');
-      console.error('Voice processing error:', error);
+      logger.error('Voice processing error:', error);
     } finally {
       setIsProcessing(false);
     }

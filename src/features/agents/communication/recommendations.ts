@@ -6,6 +6,7 @@
  * 
  * Usage:
  *   import { generateGuestRecommendations } from '@/agents/communication/recommendations';
+import { logger } from '@/infrastructure/observability/logger';
  *   const email = await generateGuestRecommendations(property, guest);
  */
 
@@ -186,7 +187,7 @@ export async function generateRecommendationEmail(
  * 
  * @example
  * const result = await sendGuestRecommendationsEmail(property, guest);
- * if (result.success) console.log('Email sent!');
+ * if (result.success) logger.info('Email sent!');
  */
 export async function sendGuestRecommendationsEmail(
   property: Property,
@@ -202,17 +203,17 @@ export async function sendGuestRecommendationsEmail(
     // TODO: Integrate with your email service
     // await emailService.send(email);
     
-    console.log('✅ Guest recommendations email generated');
-    console.log(`   - To: ${email.to}`);
-    console.log(`   - Subject: ${email.subject}`);
-    console.log(`   - Attractions: ${email.data.attractions.length}`);
+    logger.info('✅ Guest recommendations email generated');
+    logger.info(`   - To: ${email.to}`);
+    logger.info(`   - Subject: ${email.subject}`);
+    logger.info(`   - Attractions: ${email.data.attractions.length}`);
 
     return {
       success: true,
       email
     };
   } catch (error) {
-    console.error('❌ Failed to generate guest recommendations email:', error);
+    logger.error('❌ Failed to generate guest recommendations email:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

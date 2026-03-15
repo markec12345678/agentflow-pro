@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -73,7 +74,7 @@ export async function POST(
     switch (action) {
       case 'process':
         // Start processing
-        console.log('Starting to process data request:', requestId);
+        logger.info('Starting to process data request:', requestId);
         result = {
           status: 'processing',
           message: 'Data request processing started'
@@ -122,7 +123,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Process data request error:', error);
+    logger.error('Process data request error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -171,7 +172,7 @@ async function generateDataExport(guestId: string) {
     ]
   };
 
-  console.log('Generated data export for guest:', guestId);
+  logger.info('Generated data export for guest:', guestId);
   return mockGuestData;
 }
 
@@ -182,7 +183,7 @@ async function processDataDeletion(guestId: string) {
   // 3. Create audit trail of deletion
   // 4. Confirm GDPR compliance
   
-  console.log('Processed data deletion for guest:', guestId);
+  logger.info('Processed data deletion for guest:', guestId);
   
   // Simulate deletion process
   await new Promise(resolve => setTimeout(resolve, 2000));
@@ -190,7 +191,7 @@ async function processDataDeletion(guestId: string) {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

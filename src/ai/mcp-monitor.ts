@@ -1,4 +1,5 @@
 import { getContextManager } from './context-manager';
+import { logger } from '@/infrastructure/observability/logger';
 import { getMCPOptimizer } from './mcp-optimizer';
 
 export class MCPHealthMonitor {
@@ -24,14 +25,14 @@ export class MCPHealthMonitor {
       this.checkMCPHealth(mcps);
     }, intervalMinutes * 60 * 1000);
 
-    console.log(`MCP Health Monitor started (checking ${mcps.length} MCPs every ${intervalMinutes} minutes)`);
+    logger.info(`MCP Health Monitor started (checking ${mcps.length} MCPs every ${intervalMinutes} minutes)`);
   }
 
   stopMonitoring(): void {
     if (this.monitoringInterval) {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
-      console.log('MCP Health Monitor stopped');
+      logger.info('MCP Health Monitor stopped');
     }
   }
 
@@ -89,10 +90,10 @@ export class MCPHealthMonitor {
       // Generate insights
       report.insights = this.generateInsights(report);
 
-      console.log(`MCP Health Check completed in ${Date.now() - startTime}ms`);
+      logger.info(`MCP Health Check completed in ${Date.now() - startTime}ms`);
       return report;
     } catch (error) {
-      console.error('MCP Health Check failed:', error);
+      logger.error('MCP Health Check failed:', error);
       report.overallStatus = 'error';
       report.issues.push({
         id: `monitor-error-${Date.now()}`,

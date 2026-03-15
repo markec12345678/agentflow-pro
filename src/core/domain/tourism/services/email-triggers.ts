@@ -4,6 +4,7 @@
  */
 
 import { prisma } from "@/database/schema";
+import { logger } from '@/infrastructure/observability/logger';
 import { format } from "date-fns";
 
 function getBaseUrl(): string {
@@ -76,6 +77,6 @@ ${propertyName}`;
       },
     });
   } catch (err) {
-    console.error("triggerBookingConfirmation error:", err);
+    logger.error("triggerBookingConfirmation error:", err);
   }
 }

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { logger } from '@/infrastructure/observability/logger';
 
 /**
  * Sends a message to a Slack webhook URL.
@@ -10,7 +11,7 @@ export async function sendSlackMessage(webhookUrl: string, message: string): Pro
   try {
     await axios.post(webhookUrl, { text: message });
   } catch (error) {
-    console.error('Error sending Slack message:', error);
+    logger.error('Error sending Slack message:', error);
     throw new Error('Failed to send Slack message');
   }
 }

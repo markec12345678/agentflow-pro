@@ -5,6 +5,7 @@
  */
 
 import type { DomainEvent } from '@/core/domain/workflows/events/domain-event'
+import { logger } from '@/infrastructure/observability/logger';
 import type {
   AgentRunStarted,
   AgentRunStepCompleted,
@@ -226,5 +227,5 @@ export function registerEventHandlers(eventBus: any): void {
   eventBus.subscribe('AgentRunCompleted', projections.handleRunCompleted.bind(projections))
   eventBus.subscribe('AgentRunFailed', projections.handleRunFailed.bind(projections))
 
-  console.log('Event handlers registered')
+  logger.info('Event handlers registered')
 }

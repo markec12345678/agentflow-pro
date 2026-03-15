@@ -76,7 +76,7 @@ export class VoiceAssistantService {
         duration: result.duration || 0,
       };
     } catch (error) {
-      console.error('Speech-to-text failed:', error);
+      logger.error('Speech-to-text failed:', error);
       throw new Error(`Transcription failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -140,7 +140,7 @@ Respond with JSON only:
 
       return JSON.parse(jsonMatch[0]);
     } catch (error) {
-      console.error('Intent recognition failed:', error);
+      logger.error('Intent recognition failed:', error);
       // Fallback to simple keyword matching
       return this.fallbackIntentRecognition(transcript);
     }
@@ -242,7 +242,7 @@ Response:
       const data = await response.json();
       return data.choices[0].message.content || 'Oprostite, nisem razumel. Lahko ponovite?';
     } catch (error) {
-      console.error('Response generation failed:', error);
+      logger.error('Response generation failed:', error);
       return 'Oprostite, prišlo je do napake. Poskusite ponovno.';
     }
   }
@@ -290,7 +290,7 @@ Response:
         duration: 0, // Would need to calculate from audio metadata
       };
     } catch (error) {
-      console.error('Text-to-speech failed:', error);
+      logger.error('Text-to-speech failed:', error);
       throw new Error(`TTS failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -332,7 +332,7 @@ Response:
       const ttsResult = await this.textToSpeech(response, { language });
       responseAudioUrl = ttsResult.audioUrl;
     } catch (error) {
-      console.error('TTS failed, returning text response only:', error);
+      logger.error('TTS failed, returning text response only:', error);
     }
 
     return {
@@ -369,7 +369,7 @@ Response:
         data,
       });
     } catch (error) {
-      console.error('Failed to log voice interaction:', error);
+      logger.error('Failed to log voice interaction:', error);
     }
   }
 }

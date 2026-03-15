@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { createAnswerFaqUseCase } from "@/domain/tourism/use-cases/answer-faq";
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (cachedAnswer) {
-      console.log('[FAQ] Cache hit for question:', question.slice(0, 50));
+      logger.info('[FAQ] Cache hit for question:', question.slice(0, 50));
       return NextResponse.json(cachedAnswer);
     }
 
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
         propertyId: propertyId || 'global',
         useMultiAgent: useMultiAgent || false 
       }, result, { ttl: 300 });
-      console.log('[FAQ] Cached answer with confidence:', result.confidence);
+      logger.info('[FAQ] Cached answer with confidence:', result.confidence);
     }
 
     // FAQ escalation: low confidence -> create Inquiry for director inbox
@@ -157,13 +158,13 @@ export async function POST(request: NextRequest) {
           },
         });
       } catch (e) {
-        console.warn("FAQ escalation Inquiry create failed:", e);
+        logger.warn("FAQ escalation Inquiry create failed:", e);
       }
     }
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("FAQ chatbot error:", error);
+    logger.error("FAQ chatbot error:", error);
     return NextResponse.json(
       { error: "Failed to process question" },
       { status: 500 }
@@ -197,7 +198,7 @@ export async function GET(request: NextRequest) {
       categories: [...new Set(DEFAULT_FAQS.map((f) => f.category))],
     });
   } catch (error) {
-    console.error("Error fetching FAQs:", error);
+    logger.error("Error fetching FAQs:", error);
     return NextResponse.json(
       { error: "Failed to fetch FAQs" },
       { status: 500 }

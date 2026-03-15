@@ -6,6 +6,7 @@
  */
 
 import { MemoryMCP } from '@/ai/context-manager';
+import { logger } from '@/infrastructure/observability/logger';
 import { PROPERTY_TEMPLATES, mergeWithTemplate } from '@/lib/property-templates';
 
 export interface PropertySetup {
@@ -370,7 +371,7 @@ Kaj želite narediti?`;
         notes: `Onboarding progress: ${ctx.step}`,
       });
     } catch (error) {
-      console.error('Failed to save onboarding context:', error);
+      logger.error('Failed to save onboarding context:', error);
     }
   }
 }

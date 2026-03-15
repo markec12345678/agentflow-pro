@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -158,7 +159,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get business settings error:', error);
+    logger.error('Get business settings error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -203,8 +204,8 @@ export async function POST(request: NextRequest) {
 
     // In a real implementation, this would be stored in database
     // For now, we'll just log the settings
-    console.log('Updating business settings for user:', userId);
-    console.log('Settings:', JSON.stringify(settings, null, 2));
+    logger.info('Updating business settings for user:', userId);
+    logger.info('Settings:', JSON.stringify(settings, null, 2));
 
     // Update user's business settings in database
     // await prisma.user.update({
@@ -223,7 +224,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Update business settings error:', error);
+    logger.error('Update business settings error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -162,7 +163,7 @@ export async function POST(
     }
 
     // Send notification (placeholder for actual notification system)
-    console.log(`Guest ${reservation.guest?.name || 'Unknown'} checked in to room ${reservation.room?.name || 'Unassigned'}`);
+    logger.info(`Guest ${reservation.guest?.name || 'Unknown'} checked in to room ${reservation.room?.name || 'Unassigned'}`);
 
     return NextResponse.json({
       success: true,
@@ -183,7 +184,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error("Check-in error:", error);
+    logger.error("Check-in error:", error);
     return NextResponse.json(
       { error: "Failed to process check-in" },
       { status: 500 }

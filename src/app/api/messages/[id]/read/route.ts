@@ -51,7 +51,7 @@ export async function PUT(
 
     return NextResponse.json({ message: updatedMessage });
   } catch (error) {
-    console.error("Mark message as read error:", error);
+    logger.error("Mark message as read error:", error);
     return NextResponse.json(
       { error: "Failed to mark message as read" },
       { status: 500 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
           break;
       }
     } catch (error) {
-      console.error(`Test ${channel} error:`, error);
+      logger.error(`Test ${channel} error:`, error);
       result = { 
         success: false, 
         message: `Failed to send test ${channel}: ${error instanceof Error ? error.message : 'Unknown error'}` 
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
       data: result
     });
   } catch (error) {
-    console.error('Test alert error:', error);
+    logger.error('Test alert error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

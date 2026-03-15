@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
@@ -162,7 +163,7 @@ export async function POST(request: NextRequest) {
       updated,
     });
   } catch (error) {
-    console.error("SEO metrics import error:", error);
+    logger.error("SEO metrics import error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Import failed" },
       { status: 500 }

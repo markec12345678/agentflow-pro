@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Failed to generate iCal feed:', error);
+    logger.error('Failed to generate iCal feed:', error);
     return NextResponse.json(
       { error: 'Failed to generate iCal feed' },
       { status: 500 }

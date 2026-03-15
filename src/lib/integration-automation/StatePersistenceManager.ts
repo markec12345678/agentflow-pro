@@ -4,6 +4,7 @@
  */
 
 import Redis from 'ioredis';
+import { logger } from '@/infrastructure/observability/logger';
 import { WorkflowExecution } from '@/types/integration-automation';
 
 export interface StateSnapshot {
@@ -84,7 +85,7 @@ export class StatePersistenceManager {
     // Execute transaction
     await pipeline.exec();
     
-    console.log(`💾 State saved for execution ${execution.id} at step ${snapshot.stepIndex}`);
+    logger.info(`💾 State saved for execution ${execution.id} at step ${snapshot.stepIndex}`);
   }
 
   /**
@@ -104,14 +105,14 @@ export class StatePersistenceManager {
       // Verify checksum for integrity
       const currentChecksum = this.calculateChecksum(execution);
       if (execution.metadata?.checksum && execution.metadata.checksum !== currentChecksum) {
-        console.warn(`⚠️ Checksum mismatch for execution ${executionId}`);
+        logger.warn(`⚠️ Checksum mismatch for execution ${executionId}`);
         // Attempt recovery from snapshots
         return await this.recoverFromSnapshot(executionId);
       }
       
       return execution;
     } catch (error) {
-      console.error(`❌ Failed to deserialize execution state for ${executionId}:`, error);
+      logger.error(`❌ Failed to deserialize execution state for ${executionId}:`, error);
       return null;
     }
   }
@@ -136,17 +137,17 @@ export class StatePersistenceManager {
           // Verify checksum
           const currentChecksum = this.calculateChecksum(execution);
           if (snapshot.checksum === currentChecksum) {
-            console.log(`🔄 Recovered execution ${executionId} from snapshot ${index}`);
+            logger.info(`🔄 Recovered execution ${executionId} from snapshot ${index}`);
             return execution;
           }
         } catch (error) {
-          console.error(`❌ Failed to recover from snapshot ${index}:`, error);
+          logger.error(`❌ Failed to recover from snapshot ${index}:`, error);
           continue;
         }
       }
     }
     
-    console.error(`❌ Failed to recover execution ${executionId} from any snapshot`);
+    logger.error(`❌ Failed to recover execution ${executionId} from any snapshot`);
     return null;
   }
 
@@ -164,7 +165,7 @@ export class StatePersistenceManager {
     const stateKey = `execution_state:${execution.id}`;
     await this.redis.del(stateKey);
     
-    console.log(`📦 Archived execution ${execution.id}`);
+    logger.info(`📦 Archived execution ${execution.id}`);
   }
 
   /**
@@ -183,7 +184,7 @@ export class StatePersistenceManager {
     
     if (keys.length > 0) {
       await this.redis.del(...keys);
-      console.log(`🧹 Cleaned up ${keys.length} keys for execution ${executionId}`);
+      logger.info(`🧹 Cleaned up ${keys.length} keys for execution ${executionId}`);
     }
   }
 
@@ -205,7 +206,7 @@ export class StatePersistenceManager {
           const snapshot = this.deserializeSnapshot(snapshotData);
           snapshots.push(snapshot);
         } catch (error) {
-          console.error(`❌ Failed to deserialize snapshot ${index}:`, error);
+          logger.error(`❌ Failed to deserialize snapshot ${index}:`, error);
         }
       }
     }
@@ -328,7 +329,7 @@ export class StatePersistenceManager {
       }
     }
 
-    console.log('🔧 Maintenance completed');
+    logger.info('🔧 Maintenance completed');
   }
 
   /**

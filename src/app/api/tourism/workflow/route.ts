@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getTourismWorkflows, TourismWorkflowInput } from '@/workflows/tourism-workflows';
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Tourism workflow error:', error);
+    logger.error('Tourism workflow error:', error);
     return NextResponse.json(
       {
         success: false,

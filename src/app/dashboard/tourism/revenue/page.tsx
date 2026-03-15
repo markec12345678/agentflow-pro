@@ -78,7 +78,7 @@ export default function RevenueAnalyticsPage() {
       toast.success(`Report exported as ${format.toUpperCase()}`);
     } catch (error) {
       toast.error("Export failed");
-      console.error(error);
+      logger.error(error);
     }
   };
 
@@ -102,7 +102,7 @@ export default function RevenueAnalyticsPage() {
       setAnalytics(data);
     } catch (error) {
       toast.error("Napaka pri nalaganju podatkov");
-      console.error(error);
+      logger.error(error);
     } finally {
       setLoading(false);
     }

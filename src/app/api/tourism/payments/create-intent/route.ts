@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       requiresAction: result.requiresAction,
     });
   } catch (error) {
-    console.error("[Create Payment Intent] Error:", error);
+    logger.error("[Create Payment Intent] Error:", error);
     return NextResponse.json(
       { error: "Failed to create payment intent" },
       { status: 500 }

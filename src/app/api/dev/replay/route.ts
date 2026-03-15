@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       data: replays,
     });
   } catch (error) {
-    console.error('Failed to list replays:', error);
+    logger.error('Failed to list replays:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to list replays' },
       { status: 500 }
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       message: 'Replay created successfully',
     });
   } catch (error) {
-    console.error('Failed to create replay:', error);
+    logger.error('Failed to create replay:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to create replay' },
       { status: 500 }

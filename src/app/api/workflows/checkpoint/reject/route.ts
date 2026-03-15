@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { logger } from '@/infrastructure/observability/logger';
 import { NextResponse } from "next/server";
 import { rejectCheckpoint } from "@/api/workflows";
 import { authOptions } from "@/lib/auth-options";
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
     await rejectCheckpoint(body.checkpointId, userId, body.reason);
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Error rejecting checkpoint:", err);
+    logger.error("Error rejecting checkpoint:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 400 }

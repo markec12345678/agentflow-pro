@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ staff });
   } catch (error) {
-    console.error("[Housekeeping Staff] Error:", error);
+    logger.error("[Housekeeping Staff] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch housekeeping staff" },
       { status: 500 }

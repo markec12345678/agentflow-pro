@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format, addDays, startOfDay } from "date-fns";
@@ -547,7 +548,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
                               }
                             } catch (error) {
                               toast.error("Failed to generate invoice");
-                              console.error(error);
+                              logger.error(error);
                             }
                           }}
                           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"

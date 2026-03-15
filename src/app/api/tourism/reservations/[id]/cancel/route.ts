@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/infrastructure/observability/logger';
 import { CancelReservation } from '@/core/use-cases/cancel-reservation'
 import { ReservationRepositoryImpl } from '@/infrastructure/database/repositories/reservation-repository'
 import { PropertyRepositoryImpl } from '@/infrastructure/database/repositories/property-repository'
@@ -108,7 +109,7 @@ export async function POST(
     })
 
   } catch (error: any) {
-    console.error('Cancel reservation error:', error)
+    logger.error('Cancel reservation error:', error)
 
     // Handle specific errors
     if (error.message.includes('cannot be cancelled')) {
@@ -179,7 +180,7 @@ export async function GET(
     return NextResponse.json({ policy })
 
   } catch (error: any) {
-    console.error('Get cancellation policy error:', error)
+    logger.error('Get cancellation policy error:', error)
     return NextResponse.json(
       { error: 'Failed to get cancellation policy' },
       { status: 500 }

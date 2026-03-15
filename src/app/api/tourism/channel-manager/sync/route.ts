@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[Channel Manager Sync] Error:", error);
+    logger.error("[Channel Manager Sync] Error:", error);
     return NextResponse.json(
       { error: "Failed to sync with OTAs" },
       { status: 500 }

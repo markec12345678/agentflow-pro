@@ -467,7 +467,7 @@ export async function createDashboardFromTemplate(
     },
   });
 
-  console.log(`✅ Dashboard created from template: ${templateId}`);
+  logger.info(`✅ Dashboard created from template: ${templateId}`);
   return dashboard;
 }
 

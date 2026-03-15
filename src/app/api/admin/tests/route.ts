@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -271,7 +272,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error('Get test suites error:', error);
+    logger.error('Get test suites error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -326,7 +327,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Run tests error:', error);
+    logger.error('Run tests error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -341,7 +342,7 @@ async function runTests(suiteId?: string, category?: string, force = false) {
   // 4. Generate coverage reports
   // 5. Store results in database
   
-  console.log('Running tests:', { suiteId, category, force });
+  logger.info('Running tests:', { suiteId, category, force });
   
   // Simulate test execution
   await new Promise(resolve => setTimeout(resolve, 5000 + Math.random() * 10000));
@@ -367,13 +368,13 @@ async function runTests(suiteId?: string, category?: string, force = false) {
     commit: "abc123def"
   };
   
-  console.log('Test execution completed:', testResult);
+  logger.info('Test execution completed:', testResult);
   return testResult;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

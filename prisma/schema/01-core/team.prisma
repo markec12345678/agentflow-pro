@@ -1,0 +1,92 @@
+// =============================================================================
+// Team & Workspace Management
+// Multi-tenant support with teams and workspaces
+// =============================================================================
+
+model Team {
+  id             String          @id @default(cuid())
+  name           String
+  ownerId        String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  campaignBoards CampaignBoard[]
+  invites        Invite[]
+  members        TeamMember[]
+  owner          User            @relation("TeamOwner", fields: [ownerId], references: [id])
+  workspaces     Workspace[]
+
+  @@index([ownerId])
+  @@map("teams")
+}
+
+model Workspace {
+  id             String          @id @default(cuid())
+  teamId         String
+  name           String
+  type           String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  campaignBoards CampaignBoard[]
+  team           Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@map("workspaces")
+}
+
+model TeamMember {
+  id             String    @id @default(cuid())
+  teamId         String
+  userId         String
+  role           String
+  joinedAt       DateTime  @default(now())
+  team           Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@map("team_members")
+}
+
+model Invite {
+  id             String    @id @default(cuid())
+  teamId         String
+  email          String
+  role           String
+  status         String    @default("pending")
+  invitedAt      DateTime  @default(now())
+  expiresAt      DateTime
+  team           Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([email, status])
+  @@map("invites")
+}
+
+model CampaignBoard {
+  id             String    @id @default(cuid())
+  teamId         String?
+  workspaceId    String?
+  name           String
+  description    String?
+  status         String    @default("active")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  team           Team?     @relation(fields: [teamId], references: [id])
+  workspace      Workspace? @relation(fields: [workspaceId], references: [id])
+
+  @@index([teamId])
+  @@index([workspaceId])
+  @@map("campaign_boards")
+}
+
+model MessageGroupMember {
+  id          String    @id @default(cuid())
+  groupId     String
+  userId      String
+  joinedAt    DateTime  @default(now())
+  lastReadAt  DateTime?
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@map("message_group_members")
+}

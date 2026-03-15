@@ -175,7 +175,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[Revenue Analytics] Error:", error);
+    logger.error("[Revenue Analytics] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch revenue analytics" },
       { status: 500 }

@@ -4,6 +4,7 @@
  */
 
 import { getUnifiedBookingManager } from './unified-booking';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface GuestReview {
   id: string;
@@ -244,7 +245,7 @@ export class GuestReviewManager {
     review.managementStatus = 'escalated';
     this.reviews.set(reviewId, review);
 
-    console.log(`Review ${reviewId} escalated to ${escalateTo} for reason: ${reason}`);
+    logger.info(`Review ${reviewId} escalated to ${escalateTo} for reason: ${reason}`);
   }
 
   async publishResponse(responseId: string): Promise<void> {
@@ -254,7 +255,7 @@ export class GuestReviewManager {
     response.status = 'published';
     response.date = new Date();
 
-    console.log(`Review response ${responseId} published publicly`);
+    logger.info(`Review response ${responseId} published publicly`);
   }
 
   getReviewAnalytics(propertyId?: string, dateRange?: { start: Date; end: Date }): ReviewAnalytics {

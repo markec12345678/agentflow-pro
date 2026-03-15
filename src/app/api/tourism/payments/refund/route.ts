@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       amount: result.amount,
     });
   } catch (error) {
-    console.error("[Refund Payment] Error:", error);
+    logger.error("[Refund Payment] Error:", error);
     return NextResponse.json(
       { error: "Failed to process refund" },
       { status: 500 }

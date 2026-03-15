@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { useRoomAssignment, createGuestRequirements, createGuestPreferences } from '@/hooks/use-room-assignment';
 import { GuestRequirements, Room } from '@/types/room-assignment';
 import { format, addDays } from 'date-fns';
@@ -75,7 +76,7 @@ export default function AutoAssignModal({
         onClose();
       }, 2000);
     } catch (err) {
-      console.error('Assignment failed:', err);
+      logger.error('Assignment failed:', err);
     } finally {
       setIsAssigning(false);
     }

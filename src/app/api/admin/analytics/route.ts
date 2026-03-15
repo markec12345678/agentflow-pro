@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { isAdminEmail } from "@/lib/is-admin";
@@ -79,7 +80,7 @@ export async function GET() {
       }),
     });
   } catch (err) {
-    console.error("Error in admin analytics API:", err);
+    logger.error("Error in admin analytics API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed" },
       { status: 500 }

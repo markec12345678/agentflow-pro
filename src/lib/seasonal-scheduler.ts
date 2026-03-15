@@ -307,19 +307,19 @@ export class SeasonalContentScheduler {
     content.status = 'published';
     content.publishDate = new Date();
 
-    console.log(`Published seasonal content "${content.title}" to channels: ${channels.join(', ')}`);
+    logger.info(`Published seasonal content "${content.title}" to channels: ${channels.join(', ')}`);
   }
 
   private async sendSeasonalEmail(parameters: any): Promise<void> {
-    console.log(`Sent seasonal email campaign:`, parameters);
+    logger.info(`Sent seasonal email campaign:`, parameters);
   }
 
   private async updateSeasonalPricing(parameters: any): Promise<void> {
-    console.log(`Updated seasonal pricing:`, parameters);
+    logger.info(`Updated seasonal pricing:`, parameters);
   }
 
   private async createSeasonalPromotion(parameters: any): Promise<void> {
-    console.log(`Created seasonal promotion:`, parameters);
+    logger.info(`Created seasonal promotion:`, parameters);
   }
 
   private getCurrentTemperature(): number {

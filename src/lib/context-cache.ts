@@ -52,7 +52,7 @@ export async function getCachedContext<T = any>(
   const redis = getRedisClient();
   
   if (!redis) {
-    console.log('[Cache] Redis not available, skipping cache');
+    logger.info('[Cache] Redis not available, skipping cache');
     return null;
   }
 
@@ -72,10 +72,10 @@ export async function getCachedContext<T = any>(
       return null;
     }
 
-    console.log(`[Cache] HIT: ${cacheKey}`);
+    logger.info(`[Cache] HIT: ${cacheKey}`);
     return parsed.data;
   } catch (error) {
-    console.error('[Cache] Error getting cached context:', error);
+    logger.error('[Cache] Error getting cached context:', error);
     return null;
   }
 }
@@ -92,7 +92,7 @@ export async function setCachedContext<T = any>(
   const redis = getRedisClient();
   
   if (!redis) {
-    console.log('[Cache] Redis not available, skipping cache set');
+    logger.info('[Cache] Redis not available, skipping cache set');
     return;
   }
 
@@ -117,9 +117,9 @@ export async function setCachedContext<T = any>(
       }
     }
 
-    console.log(`[Cache] SET: ${cacheKey} (TTL: ${ttl}s)`);
+    logger.info(`[Cache] SET: ${cacheKey} (TTL: ${ttl}s)`);
   } catch (error) {
-    console.error('[Cache] Error setting cached context:', error);
+    logger.error('[Cache] Error setting cached context:', error);
   }
 }
 
@@ -139,9 +139,9 @@ export async function invalidateCachedContext(
   try {
     const cacheKey = generateCacheKey(prefix, context);
     await redis.del(cacheKey);
-    console.log(`[Cache] INVALIDATED: ${cacheKey}`);
+    logger.info(`[Cache] INVALIDATED: ${cacheKey}`);
   } catch (error) {
-    console.error('[Cache] Error invalidating context:', error);
+    logger.error('[Cache] Error invalidating context:', error);
   }
 }
 
@@ -161,10 +161,10 @@ export async function invalidateCachedContextByTag(tag: string): Promise<void> {
     if (cacheKeys.length > 0) {
       await redis.del(...cacheKeys);
       await redis.del(`cache:tags:${tag}`);
-      console.log(`[Cache] INVALIDATED ${cacheKeys.length} keys with tag: ${tag}`);
+      logger.info(`[Cache] INVALIDATED ${cacheKeys.length} keys with tag: ${tag}`);
     }
   } catch (error) {
-    console.error('[Cache] Error invalidating by tag:', error);
+    logger.error('[Cache] Error invalidating by tag:', error);
   }
 }
 
@@ -191,7 +191,7 @@ export async function getCacheStats(): Promise<{
       memoryUsage: memoryInfo,
     };
   } catch (error) {
-    console.error('[Cache] Error getting stats:', error);
+    logger.error('[Cache] Error getting stats:', error);
     return { totalKeys: 0 };
   }
 }
@@ -211,10 +211,10 @@ export async function clearAllCachedContexts(): Promise<void> {
     
     if (keys.length > 0) {
       await redis.del(...keys);
-      console.log(`[Cache] CLEARED ${keys.length} context keys`);
+      logger.info(`[Cache] CLEARED ${keys.length} context keys`);
     }
   } catch (error) {
-    console.error('[Cache] Error clearing all contexts:', error);
+    logger.error('[Cache] Error clearing all contexts:', error);
   }
 }
 

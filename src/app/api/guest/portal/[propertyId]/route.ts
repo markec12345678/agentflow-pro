@@ -61,7 +61,7 @@ export async function GET(
       upcomingReservation: property.reservations[0] || null,
     });
   } catch (error) {
-    console.error("[Guest Portal] Error:", error);
+    logger.error("[Guest Portal] Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

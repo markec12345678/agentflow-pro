@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -87,7 +88,7 @@ export async function GET(_request: NextRequest) {
 
     return NextResponse.json(summary);
   } catch (error) {
-    console.error("Properties summary API error:", error);
+    logger.error("Properties summary API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

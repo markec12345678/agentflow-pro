@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -68,7 +69,7 @@ export default function CemboljskiGostje() {
 
         setGostje(mockGosti);
       } catch (error) {
-        console.error('Napaka pri nalaganju gostov:', error);
+        logger.error('Napaka pri nalaganju gostov:', error);
       } finally {
         setLoading(false);
       }
@@ -96,7 +97,7 @@ export default function CemboljskiGostje() {
           : g
       ));
     } catch (error) {
-      console.error('Napaka pri spremembi statusa:', error);
+      logger.error('Napaka pri spremembi statusa:', error);
     }
   };
 

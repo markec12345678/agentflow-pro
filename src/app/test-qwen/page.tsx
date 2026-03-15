@@ -4,13 +4,16 @@ import { useState } from 'react';
 import { createGeminiAI, validateGeminiKey, GEMINI_MODELS } from '@/lib/gemini-ai';
 
 export default function TestGeminiPage() {
-  const [apiKey, setApiKey] = useState('AIzaSyCL3jf5Qk6e_ak6XWAFMiBMjDUKdgkcg24');
+  const [apiKey, setApiKey] = useState(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
   const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
   const [testResult, setTestResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [useFallback, setUseFallback] = useState(false);
   const [fallbackKey, setFallbackKey] = useState('');
+  
+  // Warning if no API key is set
+  const showKeyWarning = !apiKey && !process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
   const handleTest = async () => {
     setLoading(true);

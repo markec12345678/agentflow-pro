@@ -139,7 +139,7 @@ export default function OwnerPortalDashboard({ ownerId }: OwnerDashboardProps) {
         },
       ]);
     } catch (error) {
-      console.error('Failed to load owner data:', error);
+      logger.error('Failed to load owner data:', error);
       toast.error('Napaka pri nalaganju podatkov');
     } finally {
       setLoading(false);

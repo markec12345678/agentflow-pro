@@ -4,6 +4,7 @@
  */
 
 import { prisma } from "@/database/schema";
+import { logger } from '@/infrastructure/observability/logger';
 import { sendWorkflowNotificationEmail } from "@/lib/publish/email";
 import { sendWhatsAppMessage } from "@/infrastructure/messaging/WhatsAppAdapter";
 
@@ -21,7 +22,7 @@ export async function sendPendingGuestEmails(): Promise<SendPendingResult> {
   const result: SendPendingResult = { sent: 0, failed: 0, skipped: 0 };
 
   if (!process.env.RESEND_API_KEY) {
-    console.log("[EmailSender] Skipped: RESEND_API_KEY not set");
+    logger.info("[EmailSender] Skipped: RESEND_API_KEY not set");
     return result;
   }
 
@@ -32,7 +33,7 @@ export async function sendPendingGuestEmails(): Promise<SendPendingResult> {
   });
 
   if (process.env.DRY_RUN === "true") {
-    console.log("[DRY RUN] Would send", pending.length, "guest emails");
+    logger.info("[DRY RUN] Would send", pending.length, "guest emails");
     return { sent: pending.length, failed: 0, skipped: 0 };
   }
 
@@ -56,7 +57,7 @@ export async function sendPendingGuestEmails(): Promise<SendPendingResult> {
       });
       result.sent++;
     } catch (error) {
-      console.error("[EmailSender] Failed for", comm.id, error);
+      logger.error("[EmailSender] Failed for", comm.id, error);
       await prisma.guestCommunication.update({
         where: { id: comm.id },
         data: { status: "failed" },
@@ -82,7 +83,7 @@ export async function sendPendingWhatsAppMessages(): Promise<SendPendingResult> 
   });
 
   if (process.env.DRY_RUN === "true") {
-    console.log("[DRY RUN] Would send", pending.length, "WhatsApp messages");
+    logger.info("[DRY RUN] Would send", pending.length, "WhatsApp messages");
     return { sent: pending.length, failed: 0, skipped: 0 };
   }
 
@@ -105,7 +106,7 @@ export async function sendPendingWhatsAppMessages(): Promise<SendPendingResult> 
       });
       result.sent++;
     } else {
-      console.error("[WhatsAppSender] Failed for", comm.id, outcome.error);
+      logger.error("[WhatsAppSender] Failed for", comm.id, outcome.error);
       await prisma.guestCommunication.update({
         where: { id: comm.id },
         data: { status: "failed" },

@@ -128,7 +128,7 @@ export async function PUT(
       },
     });
   } catch (error) {
-    console.error("[Update Task Status] Error:", error);
+    logger.error("[Update Task Status] Error:", error);
     return NextResponse.json(
       { error: "Failed to update task status" },
       { status: 500 }

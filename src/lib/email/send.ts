@@ -15,7 +15,7 @@ export async function sendEmail(
     process.env.EMAIL_FROM ?? "AgentFlow Pro <notifications@agentflow.pro>";
 
   if (!apiKey || !to?.includes("@")) {
-    console.log(
+    logger.info(
       "[Email] Skipped (no RESEND_API_KEY or invalid to):",
       to ? "***" : "missing"
     );
@@ -23,7 +23,7 @@ export async function sendEmail(
   }
 
   if (process.env.DRY_RUN === "true") {
-    console.log("[DRY RUN] Email would be sent to:", to, "subject:", subject);
+    logger.info("[DRY RUN] Email would be sent to:", to, "subject:", subject);
     return;
   }
 
@@ -47,7 +47,7 @@ export async function sendEmail(
       throw new Error(`Resend API ${res.status}: ${err}`);
     }
   } catch (error) {
-    console.error("[Email] Failed to send:", error);
+    logger.error("[Email] Failed to send:", error);
     throw error;
   }
 }

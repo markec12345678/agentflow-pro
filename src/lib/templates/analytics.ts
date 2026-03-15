@@ -13,6 +13,7 @@
  */
 
 import { prisma } from '@/database/schema';
+import { logger } from '@/infrastructure/observability/logger';
 
 // ============================================================================
 // TYPES
@@ -251,7 +252,7 @@ export async function checkHighErrorRates(threshold = 0.05) {
   });
 
   if (highErrorTemplates.length > 0) {
-    console.warn('⚠️ High error rates detected:', highErrorTemplates);
+    logger.warn('⚠️ High error rates detected:', highErrorTemplates);
     
     // Send alert
     await sendErrorAlert(highErrorTemplates);
@@ -266,7 +267,7 @@ export async function checkHighErrorRates(threshold = 0.05) {
 async function sendErrorAlert(templates: any[]) {
   // Integrate with your alerting system (Slack, email, etc.)
   // Note: Alert service not implemented yet - logging to console
-  console.error('[Template Analytics] High error rates detected:', templates);
+  logger.error('[Template Analytics] High error rates detected:', templates);
   
   // TODO: Implement alert service integration
   // const alertService = await import('@/lib/alert-service');

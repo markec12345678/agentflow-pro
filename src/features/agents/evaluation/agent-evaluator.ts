@@ -188,7 +188,7 @@ export class AgentEvaluator {
     score: number
   ): Promise<void> {
     // Implementation for A/B test tracking
-    console.log(`[ABTest] Recording sample for ${testId}, variant ${variant}`);
+    logger.info(`[ABTest] Recording sample for ${testId}, variant ${variant}`);
   }
 
   /**

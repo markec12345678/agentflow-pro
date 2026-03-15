@@ -46,7 +46,7 @@ export default function DynamicPricingPage() {
       setSettings(data.settings);
     } catch (error) {
       toast.error("Napaka pri nalaganju nastavitev");
-      console.error(error);
+      logger.error(error);
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export default function DynamicPricingPage() {
       toast.success("Nastavitve shranjene");
     } catch (error) {
       toast.error("Napaka pri shranjevanju");
-      console.error(error);
+      logger.error(error);
     } finally {
       setSaving(false);
     }

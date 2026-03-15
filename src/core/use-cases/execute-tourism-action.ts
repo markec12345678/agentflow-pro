@@ -6,6 +6,7 @@
  */
 
 import { TourismWorkflowExecutor } from '@/workflows/tourism-workflows'
+import { logger } from '@/infrastructure/observability/logger';
 import { MultiLanguageSupport } from '@/lib/multilang-support'
 import { SeasonalContentScheduler } from '@/lib/seasonal-scheduler'
 import { UnifiedBookingManager } from '@/lib/unified-booking'
@@ -135,7 +136,7 @@ export class ExecuteTourismAction {
           }
       }
     } catch (error: any) {
-      console.error(`Error executing tourism action ${action}:`, error)
+      logger.error(`Error executing tourism action ${action}:`, error)
       return {
         success: false,
         error: error.message || 'Failed to execute action',

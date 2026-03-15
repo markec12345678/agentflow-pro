@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       footprint,
     });
   } catch (error) {
-    console.error('Carbon footprint error:', error);
+    logger.error('Carbon footprint error:', error);
     return NextResponse.json(
       { error: 'Failed to calculate carbon footprint' },
       { status: 500 }
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Get carbon footprint error:', error);
+    logger.error('Get carbon footprint error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch carbon footprint' },
       { status: 500 }
@@ -199,7 +199,7 @@ export async function POST_PRACTICES(request: NextRequest) {
 
     return NextResponse.json({ success: true, practices: result });
   } catch (error) {
-    console.error('Save practices error:', error);
+    logger.error('Save practices error:', error);
     return NextResponse.json(
       { error: 'Failed to save practices' },
       { status: 500 }
@@ -247,7 +247,7 @@ export async function GET_PRACTICES(request: NextRequest) {
 
     return NextResponse.json({ practices, stats });
   } catch (error) {
-    console.error('Get practices error:', error);
+    logger.error('Get practices error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch practices' },
       { status: 500 }
@@ -269,7 +269,7 @@ export async function GET_TEMPLATES(request: NextRequest) {
     const templates = sustainabilityService.getEcoPracticeTemplates();
     return NextResponse.json({ templates });
   } catch (error) {
-    console.error('Get templates error:', error);
+    logger.error('Get templates error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch templates' },
       { status: 500 }
@@ -305,7 +305,7 @@ export async function POST_CERTIFICATIONS(request: NextRequest) {
       certifications: eligibility,
     });
   } catch (error) {
-    console.error('Certification check error:', error);
+    logger.error('Certification check error:', error);
     return NextResponse.json(
       { error: 'Failed to check certifications' },
       { status: 500 }
@@ -379,7 +379,7 @@ export async function GET_REPORT(request: NextRequest) {
       certifications,
     });
   } catch (error) {
-    console.error('Generate report error:', error);
+    logger.error('Generate report error:', error);
     return NextResponse.json(
       { error: 'Failed to generate report' },
       { status: 500 }

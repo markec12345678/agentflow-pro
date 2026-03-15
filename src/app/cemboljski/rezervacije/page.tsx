@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,7 +66,7 @@ export default function CemboljskeRezervacije() {
 
         setRezervacije(mockRezervacije);
       } catch (error) {
-        console.error('Napaka pri nalaganju rezervacij:', error);
+        logger.error('Napaka pri nalaganju rezervacij:', error);
       } finally {
         setLoading(false);
       }
@@ -92,7 +93,7 @@ export default function CemboljskeRezervacije() {
           : r
       ));
     } catch (error) {
-      console.error('Napaka pri avtomatskem odobritvi:', error);
+      logger.error('Napaka pri avtomatskem odobritvi:', error);
     }
   };
 
@@ -109,7 +110,7 @@ export default function CemboljskeRezervacije() {
           : r
       ));
     } catch (error) {
-      console.error('Napaka pri ročni odobritvi:', error);
+      logger.error('Napaka pri ročni odobritvi:', error);
     }
   };
 

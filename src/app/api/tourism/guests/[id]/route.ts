@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -39,7 +40,7 @@ export async function GET(
 
     return NextResponse.json(guest);
   } catch (error) {
-    console.error("Guest details API error:", error);
+    logger.error("Guest details API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -86,7 +87,7 @@ export async function PATCH(
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error("Guest update API error:", error);
+    logger.error("Guest update API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -50,7 +51,7 @@ export async function PUT(
     }
 
     // Update mapping (in real implementation)
-    console.log('Updating mapping:', { id, eturizemId, eturizemName });
+    logger.info('Updating mapping:', { id, eturizemId, eturizemName });
 
     return NextResponse.json({
       success: true,
@@ -58,7 +59,7 @@ export async function PUT(
     });
 
   } catch (error) {
-    console.error('Update mapping error:', error);
+    logger.error('Update mapping error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -100,7 +101,7 @@ export async function DELETE(
     }
 
     // Remove mapping (in real implementation)
-    console.log('Removing mapping:', { id });
+    logger.info('Removing mapping:', { id });
 
     return NextResponse.json({
       success: true,
@@ -108,7 +109,7 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('Remove mapping error:', error);
+    logger.error('Remove mapping error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

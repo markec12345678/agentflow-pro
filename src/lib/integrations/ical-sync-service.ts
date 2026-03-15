@@ -54,7 +54,7 @@ export class iCalSyncService {
       
       return events;
     } catch (error) {
-      console.error('iCal parse error:', error);
+      logger.error('iCal parse error:', error);
       throw new Error(`Failed to parse iCal data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -73,7 +73,7 @@ export class iCalSyncService {
       const icalData = await response.text();
       return this.parseICalData(icalData);
     } catch (error) {
-      console.error('iCal fetch error:', error);
+      logger.error('iCal fetch error:', error);
       throw new Error(`Failed to fetch iCal from URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -317,7 +317,7 @@ export class iCalSyncService {
     });
 
     // Note: In production, use a job scheduler like Bull or node-cron
-    console.log(`Scheduled iCal sync for property ${propertyId} every ${intervalMinutes} minutes`);
+    logger.info(`Scheduled iCal sync for property ${propertyId} every ${intervalMinutes} minutes`);
   }
 }
 

@@ -4,6 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
@@ -25,7 +26,7 @@ export async function GET() {
 
     return NextResponse.json({ metrics });
   } catch (error) {
-    console.error("SEO metrics error:", error);
+    logger.error("SEO metrics error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }

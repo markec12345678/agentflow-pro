@@ -4,6 +4,7 @@
  */
 
 import { writeFileSync } from 'fs';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface TimelineStatus {
   category: string;
@@ -705,7 +706,7 @@ export class ProductionTimelineReadiness {
   }
 
   async generateRealisticTimelineDocuments(): Promise<void> {
-    console.log('Generating realistic production timeline documents...');
+    logger.info('Generating realistic production timeline documents...');
     
     // Generate timeline report
     const timelineReport = this.generateRealisticTimelineReport();
@@ -719,29 +720,29 @@ export class ProductionTimelineReadiness {
     const riskMitigation = this.generateRiskMitigationPlan();
     writeFileSync('realistic-timeline-risk-mitigation.md', riskMitigation);
     
-    console.log('Realistic production timeline documents generated successfully!');
-    console.log('Files created:');
-    console.log('- realistic-production-timeline-report.md');
-    console.log('- realistic-timeline-implementation-plan.md');
-    console.log('- realistic-timeline-risk-mitigation.md');
+    logger.info('Realistic production timeline documents generated successfully!');
+    logger.info('Files created:');
+    logger.info('- realistic-production-timeline-report.md');
+    logger.info('- realistic-timeline-implementation-plan.md');
+    logger.info('- realistic-timeline-risk-mitigation.md');
     
-    console.log('\n📅 Realistic Timeline Status:');
-    console.log('✅ Legal & Compliance Audit: 100% - 2 weeks completed');
-    console.log('✅ Stripe Live Mode Verification: 100% - 2 weeks completed');
-    console.log('✅ Booking.com API Partnership: 100% - 8 weeks completed');
-    console.log('✅ Production Load Testing: 100% - 2 weeks completed');
-    console.log('✅ Beta Launch with Real Customers: 100% - 6 weeks completed');
-    console.log('⚠️ Public Launch Preparation: 60% - 4 weeks remaining');
+    logger.info('\n📅 Realistic Timeline Status:');
+    logger.info('✅ Legal & Compliance Audit: 100% - 2 weeks completed');
+    logger.info('✅ Stripe Live Mode Verification: 100% - 2 weeks completed');
+    logger.info('✅ Booking.com API Partnership: 100% - 8 weeks completed');
+    logger.info('✅ Production Load Testing: 100% - 2 weeks completed');
+    logger.info('✅ Beta Launch with Real Customers: 100% - 6 weeks completed');
+    logger.info('⚠️ Public Launch Preparation: 60% - 4 weeks remaining');
     
-    console.log('\n🚀 Realistic Timeline:');
-    console.log('MVP Launch: 12-16 weeks from now');
-    console.log('Full Production: 20-24 weeks from now');
-    console.log('Current Progress: 81% production ready');
-    console.log('Remaining Work: 4 weeks to full production');
+    logger.info('\n🚀 Realistic Timeline:');
+    logger.info('MVP Launch: 12-16 weeks from now');
+    logger.info('Full Production: 20-24 weeks from now');
+    logger.info('Current Progress: 81% production ready');
+    logger.info('Remaining Work: 4 weeks to full production');
     
-    console.log('\n🎯 Recommendation:');
-    console.log('Proceed with MVP launch while completing full production preparation in parallel.');
-    console.log('Overall confidence: HIGH');
+    logger.info('\n🎯 Recommendation:');
+    logger.info('Proceed with MVP launch while completing full production preparation in parallel.');
+    logger.info('Overall confidence: HIGH');
   }
 }
 

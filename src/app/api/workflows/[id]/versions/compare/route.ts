@@ -37,7 +37,7 @@ export async function GET(
 
     return NextResponse.json({ comparison });
   } catch (error) {
-    console.error('Compare versions error:', error);
+    logger.error('Compare versions error:', error);
     return NextResponse.json(
       { error: 'Failed to compare versions' },
       { status: 500 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useState } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { useSearchParams, useRouter } from "next/navigation";
 import Pusher from "pusher-js";
 import {
@@ -327,7 +328,7 @@ function CanvasList() {
         if (data?.id) router.push(`/canvas?id=${data.id}`);
       })
       .catch((err) => {
-        console.error("Error creating board:", err);
+        logger.error("Error creating board:", err);
         alert("Failed to create board. Please try again.");
       })
       .finally(() => setCreating(false));

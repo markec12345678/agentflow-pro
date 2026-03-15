@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -55,7 +56,7 @@ export async function GET(
 
     return NextResponse.json(reservation);
   } catch (error) {
-    console.error("Reservation details API error:", error);
+    logger.error("Reservation details API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -104,7 +105,7 @@ export async function PATCH(
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error("Reservation update API error:", error);
+    logger.error("Reservation update API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -140,7 +141,7 @@ export async function DELETE(
 
     return NextResponse.json(cancelled);
   } catch (error) {
-    console.error("Reservation delete API error:", error);
+    logger.error("Reservation delete API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

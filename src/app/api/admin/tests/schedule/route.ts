@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -260,7 +261,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error('Get test schedules error:', error);
+    logger.error('Get test schedules error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -360,7 +361,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString()
     };
 
-    console.log('Created/updated test schedule:', schedule);
+    logger.info('Created/updated test schedule:', schedule);
 
     // Log activity
     await logActivity(userId, body.id ? "Test Schedule Updated" : "Test Schedule Created", `${body.id ? 'Updated' : 'Created'} schedule: ${name}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
@@ -374,7 +375,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Create/update test schedule error:', error);
+    logger.error('Create/update test schedule error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -416,7 +417,7 @@ function calculateNextRun(frequency: string, cronExpression?: string): string {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

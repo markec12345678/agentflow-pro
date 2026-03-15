@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface Message {
   role: 'user' | 'assistant';
@@ -135,7 +136,7 @@ Primer: "Hotel Slon v Ljubljani" ali "Apartma Bled z 10 sobami"`,
       }
       
     } catch (error) {
-      console.error('Error in useConcierge:', error);
+      logger.error('Error in useConcierge:', error);
       
       setMessages(prev => [...prev, { 
         role: 'assistant', 

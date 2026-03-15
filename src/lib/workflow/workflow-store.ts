@@ -180,7 +180,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     if (!currentWorkflow) return;
     
     // In production, save to database via API
-    console.log('Saving workflow:', currentWorkflow);
+    logger.info('Saving workflow:', currentWorkflow);
     
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -188,7 +188,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   
   loadWorkflow: async (workflowId) => {
     // In production, load from database via API
-    console.log('Loading workflow:', workflowId);
+    logger.info('Loading workflow:', workflowId);
     
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));

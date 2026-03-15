@@ -62,7 +62,7 @@ export default function BrandingSettings() {
         });
       }
     } catch (error) {
-      console.error("Failed to load branding:", error);
+      logger.error("Failed to load branding:", error);
       toast.error("Napaka pri nalaganju branding nastavitev");
     } finally {
       setLoading(false);
@@ -112,7 +112,7 @@ export default function BrandingSettings() {
         toast.error(data.error || "Napaka pri nalaganju logotipa");
       }
     } catch (error) {
-      console.error("Logo upload error:", error);
+      logger.error("Logo upload error:", error);
       toast.error("Napaka pri nalaganju logotipa");
     } finally {
       setLogoUploading(false);
@@ -138,7 +138,7 @@ export default function BrandingSettings() {
         toast.error(data.error || "Napaka pri shranjevanju");
       }
     } catch (error) {
-      console.error("Save branding error:", error);
+      logger.error("Save branding error:", error);
       toast.error("Napaka pri shranjevanju branding nastavitev");
     } finally {
       setSaving(false);

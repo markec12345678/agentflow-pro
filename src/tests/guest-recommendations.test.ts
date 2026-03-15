@@ -12,6 +12,7 @@
  */
 
 import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from '@/database/schema';
 import { openTravelData } from '@/lib/integrations/opentraveldata';
 import { propertyToTourismDestination } from '@/lib/fiware/helpers';
@@ -36,25 +37,25 @@ const TEST_GUEST = {
 // ============================================================================
 
 async function testGuestRecommendations() {
-  console.log('🧪 Testing Guest Recommendations Flow\n');
-  console.log('='.repeat(60));
+  logger.info('🧪 Testing Guest Recommendations Flow\n');
+  logger.info('='.repeat(60));
 
   try {
     // ============================================================================
     // STEP 1: Initialize OpenTravelData
     // ============================================================================
-    console.log('\n📥 Step 1: Initialize OpenTravelData service...');
+    logger.info('\n📥 Step 1: Initialize OpenTravelData service...');
     await openTravelData.initialize();
     
     const cacheInfo = openTravelData.getCacheInfo();
-    console.log(`✅ Service initialized`);
-    console.log(`   - POIs loaded: ${cacheInfo.count.toLocaleString()}`);
-    console.log(`   - Cache age: ${cacheInfo.age}`);
+    logger.info(`✅ Service initialized`);
+    logger.info(`   - POIs loaded: ${cacheInfo.count.toLocaleString()}`);
+    logger.info(`   - Cache age: ${cacheInfo.age}`);
 
     // ============================================================================
     // STEP 2: Load Test Property
     // ============================================================================
-    console.log('\n🏨 Step 2: Loading test property...');
+    logger.info('\n🏨 Step 2: Loading test property...');
     
     // Try to load from database, or use mock data
     let property = await prisma.property.findUnique({
@@ -62,7 +63,7 @@ async function testGuestRecommendations() {
     });
 
     if (!property) {
-      console.log('⚠️  Test property not found, using mock data...');
+      logger.info('⚠️  Test property not found, using mock data...');
       property = {
         id: TEST_PROPERTY_ID,
         name: 'Villa Bled',
@@ -81,15 +82,15 @@ async function testGuestRecommendations() {
       };
     }
 
-    console.log(`✅ Property loaded: ${property.name}`);
-    console.log(`   - Location: ${property.city}, ${property.country}`);
-    console.log(`   - Coordinates: ${property.lat}, ${property.lng}`);
-    console.log(`   - Rating: ${property.reviewScore || 'N/A'} (${property.reviewCount} reviews)`);
+    logger.info(`✅ Property loaded: ${property.name}`);
+    logger.info(`   - Location: ${property.city}, ${property.country}`);
+    logger.info(`   - Coordinates: ${property.lat}, ${property.lng}`);
+    logger.info(`   - Rating: ${property.reviewScore || 'N/A'} (${property.reviewCount} reviews)`);
 
     // ============================================================================
     // STEP 3: Get Nearby Attractions
     // ============================================================================
-    console.log('\n🏰 Step 3: Getting nearby attractions...');
+    logger.info('\n🏰 Step 3: Getting nearby attractions...');
     
     const attractions = await openTravelData.getNearbyAttractions(
       property.lat!,
@@ -98,20 +99,20 @@ async function testGuestRecommendations() {
       10   // Top 10
     );
 
-    console.log(`✅ Found ${attractions.length} attractions within 10km`);
+    logger.info(`✅ Found ${attractions.length} attractions within 10km`);
     
     // Display top 5
-    console.log('\n   Top 5 Attractions:');
+    logger.info('\n   Top 5 Attractions:');
     attractions.slice(0, 5).forEach((attr, i) => {
-      console.log(`   ${i + 1}. ${attr.name}`);
-      console.log(`      Type: ${attr.type}`);
-      console.log(`      Distance: ${attr.distance_km.toFixed(1)}km`);
+      logger.info(`   ${i + 1}. ${attr.name}`);
+      logger.info(`      Type: ${attr.type}`);
+      logger.info(`      Distance: ${attr.distance_km.toFixed(1)}km`);
     });
 
     // ============================================================================
     // STEP 4: Get Nearest Airport
     // ============================================================================
-    console.log('\n✈️ Step 4: Getting nearest airport...');
+    logger.info('\n✈️ Step 4: Getting nearest airport...');
     
     const airport = await openTravelData.getNearestAirport(
       property.lat!,
@@ -120,30 +121,30 @@ async function testGuestRecommendations() {
     );
 
     if (airport) {
-      console.log(`✅ Nearest airport: ${airport.name}`);
-      console.log(`   - IATA code: ${airport.iata_code}`);
-      console.log(`   - Distance: ${airport.distance_km?.toFixed(0)}km`);
+      logger.info(`✅ Nearest airport: ${airport.name}`);
+      logger.info(`   - IATA code: ${airport.iata_code}`);
+      logger.info(`   - Distance: ${airport.distance_km?.toFixed(0)}km`);
     } else {
-      console.log('⚠️  No airport found');
+      logger.info('⚠️  No airport found');
     }
 
     // ============================================================================
     // STEP 5: Convert to FIWARE TourismDestination
     // ============================================================================
-    console.log('\n🏛️ Step 5: Converting to FIWARE standard...');
+    logger.info('\n🏛️ Step 5: Converting to FIWARE standard...');
     
     const fiwareDestination = propertyToTourismDestination(property);
     
-    console.log(`✅ FIWARE TourismDestination created`);
-    console.log(`   - ID: ${fiwareDestination.id}`);
-    console.log(`   - Name: ${fiwareDestination.name.value}`);
-    console.log(`   - Location: [${fiwareDestination.location.value.coordinates}]`);
-    console.log(`   - Category: ${fiwareDestination.category?.value.join(', ')}`);
+    logger.info(`✅ FIWARE TourismDestination created`);
+    logger.info(`   - ID: ${fiwareDestination.id}`);
+    logger.info(`   - Name: ${fiwareDestination.name.value}`);
+    logger.info(`   - Location: [${fiwareDestination.location.value.coordinates}]`);
+    logger.info(`   - Category: ${fiwareDestination.category?.value.join(', ')}`);
 
     // ============================================================================
     // STEP 6: Generate Personalized Email
     // ============================================================================
-    console.log('\n📧 Step 6: Generating personalized email...');
+    logger.info('\n📧 Step 6: Generating personalized email...');
     
     const emailContent = generateWelcomeEmail({
       guest: TEST_GUEST,
@@ -153,25 +154,25 @@ async function testGuestRecommendations() {
       fiwareDestination: fiwareDestination
     });
 
-    console.log('✅ Email generated');
-    console.log('\n' + '='.repeat(60));
-    console.log('📧 EMAIL PREVIEW:');
-    console.log('='.repeat(60));
-    console.log(emailContent);
-    console.log('='.repeat(60));
+    logger.info('✅ Email generated');
+    logger.info('\n' + '='.repeat(60));
+    logger.info('📧 EMAIL PREVIEW:');
+    logger.info('='.repeat(60));
+    logger.info(emailContent);
+    logger.info('='.repeat(60));
 
     // ============================================================================
     // STEP 7: Summary
     // ============================================================================
-    console.log('\n📊 TEST SUMMARY:');
-    console.log('='.repeat(60));
-    console.log(`✅ OpenTravelData: ${cacheInfo.count.toLocaleString()} POIs loaded`);
-    console.log(`✅ Attractions found: ${attractions.length}`);
-    console.log(`✅ Nearest airport: ${airport?.name || 'N/A'}`);
-    console.log(`✅ FIWARE Destination: ${fiwareDestination.id}`);
-    console.log(`✅ Email generated: ${emailContent.length} characters`);
-    console.log('='.repeat(60));
-    console.log('\n🎉 All tests completed successfully!\n');
+    logger.info('\n📊 TEST SUMMARY:');
+    logger.info('='.repeat(60));
+    logger.info(`✅ OpenTravelData: ${cacheInfo.count.toLocaleString()} POIs loaded`);
+    logger.info(`✅ Attractions found: ${attractions.length}`);
+    logger.info(`✅ Nearest airport: ${airport?.name || 'N/A'}`);
+    logger.info(`✅ FIWARE Destination: ${fiwareDestination.id}`);
+    logger.info(`✅ Email generated: ${emailContent.length} characters`);
+    logger.info('='.repeat(60));
+    logger.info('\n🎉 All tests completed successfully!\n');
 
     return {
       success: true,
@@ -183,8 +184,8 @@ async function testGuestRecommendations() {
     };
 
   } catch (error) {
-    console.error('\n❌ TEST FAILED:');
-    console.error(error);
+    logger.error('\n❌ TEST FAILED:');
+    logger.error(error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -336,15 +337,15 @@ if (require.main === module) {
   testGuestRecommendations()
     .then(result => {
       if (result.success) {
-        console.log('✅ Test completed successfully!');
+        logger.info('✅ Test completed successfully!');
         process.exit(0);
       } else {
-        console.error('❌ Test failed:', result.error);
+        logger.error('❌ Test failed:', result.error);
         process.exit(1);
       }
     })
     .catch(error => {
-      console.error('❌ Unexpected error:', error);
+      logger.error('❌ Unexpected error:', error);
       process.exit(1);
     });
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getUsage, canRunAgent } from "@/api/usage";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -21,7 +22,7 @@ export async function GET(_request: NextRequest) {
       canRunAgent: allowed,
     });
   } catch (err) {
-    console.error("Error in usage API:", err);
+    logger.error("Error in usage API:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }

@@ -97,7 +97,7 @@ export class CircuitBreaker {
 
     if (this.failureCount >= this.config.failureThreshold) {
       this.state = "OPEN";
-      console.log("[Circuit Breaker] OPENED due to failures");
+      logger.info("[Circuit Breaker] OPENED due to failures");
     }
   }
 
@@ -143,7 +143,7 @@ export async function retryWithBackoff<T>(
       const jitter = config.jitter ? Math.random() * 0.3 * delay : 0;
       const delayWithJitter = delay + jitter;
 
-      console.log(
+      logger.info(
         `[Retry] Attempt ${attempt + 1}/${config.maxRetries} failed. Retrying in ${Math.round(delayWithJitter)}ms`
       );
 

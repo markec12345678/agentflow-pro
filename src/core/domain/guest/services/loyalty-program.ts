@@ -16,6 +16,7 @@
  */
 
 import { prisma } from '@/database/schema';
+import { logger } from '@/infrastructure/observability/logger';
 import type { LoyaltyInfo } from '@/types/guest-experience';
 
 // ============================================================================
@@ -241,7 +242,7 @@ export class LoyaltyProgramEngine {
    */
   async initialize(): Promise<void> {
     this.initialized = true;
-    console.log('[LoyaltyProgram] ✅ Initialized');
+    logger.info('[LoyaltyProgram] ✅ Initialized');
   }
 
   // ============================================================================
@@ -420,7 +421,7 @@ export class LoyaltyProgramEngine {
       }
     });
 
-    console.log(
+    logger.info(
       `[LoyaltyProgram] ✅ Tier upgrade: ${upgrade.fromTier} → ${upgrade.toTier} for ${guestId}`
     );
 

@@ -856,31 +856,31 @@ ${report.legalConsultationNeeded ?
   }
 
   async runGDPRVerification(): Promise<void> {
-    console.log('Starting GDPR compliance verification...');
+    logger.info('Starting GDPR compliance verification...');
     
     const report = this.generateComplianceReport();
     
-    console.log(report);
+    logger.info(report);
     
     // Save report to file
     const fs = require('fs');
     fs.writeFileSync('gdpr-compliance-verification.md', report);
     
-    console.log('GDPR compliance verification completed. Report saved to gdpr-compliance-verification.md');
+    logger.info('GDPR compliance verification completed. Report saved to gdpr-compliance-verification.md');
     
     const verification = this.verifyGDPRCompliance();
     
     if (verification.legalConsultationNeeded) {
-      console.error('🚨 CRITICAL: Legal consultation required immediately');
-      console.error('Risk of significant GDPR fines and legal action');
+      logger.error('🚨 CRITICAL: Legal consultation required immediately');
+      logger.error('Risk of significant GDPR fines and legal action');
       process.exit(1);
     } else if (verification.riskAssessment === 'high') {
-      console.warn('⚠️ WARNING: High legal risk detected');
-      console.warn('Legal consultation strongly recommended');
+      logger.warn('⚠️ WARNING: High legal risk detected');
+      logger.warn('Legal consultation strongly recommended');
       process.exit(2);
     } else {
-      console.log('✅ GDPR compliance verification completed');
-      console.log('Legal consultation recommended for ongoing compliance');
+      logger.info('✅ GDPR compliance verification completed');
+      logger.info('Legal consultation recommended for ongoing compliance');
     }
   }
 }

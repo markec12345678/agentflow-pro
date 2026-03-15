@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/infrastructure/observability/logger';
 import { ProcessCheckIn } from '@/core/use-cases/process-check-in'
 import { ReservationRepositoryImpl } from '@/infrastructure/database/repositories/reservation-repository'
 import { PropertyRepositoryImpl } from '@/infrastructure/database/repositories/property-repository'
@@ -85,7 +86,7 @@ export async function POST(
     })
 
   } catch (error: any) {
-    console.error('Check-in error:', error)
+    logger.error('Check-in error:', error)
 
     if (error.message.includes('not ready for check-in')) {
       return NextResponse.json(

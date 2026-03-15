@@ -1,4 +1,5 @@
 import { Agent } from '../orchestrator/Orchestrator';
+import { logger } from '@/infrastructure/observability/logger';
 import { getContextManager } from '../ai/context-manager';
 import { getWorkflowAdvisor } from '../ai/workflow-advisor';
 
@@ -49,7 +50,7 @@ export class AgentRegistry {
       lastUsed: null
     });
 
-    console.log(`Agent ${agent.id} registered successfully`);
+    logger.info(`Agent ${agent.id} registered successfully`);
   }
 
   private inferCapabilities(agent: Agent): string[] {

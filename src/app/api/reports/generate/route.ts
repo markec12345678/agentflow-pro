@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       format: reportRequest.format
     };
 
-    console.log('Generated report:', report);
+    logger.info('Generated report:', report);
 
     return NextResponse.json({
       success: true,
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Generate report error:', error);
+    logger.error('Generate report error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

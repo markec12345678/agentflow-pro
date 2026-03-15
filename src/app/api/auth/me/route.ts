@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { UserService } from '@/services/user.service';
 import { AuthService, AuthError } from '@/services/auth.service';
 
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       data: { user },
     });
   } catch (error) {
-    console.error('Get user error:', error);
+    logger.error('Get user error:', error);
 
     if (error instanceof AuthError) {
       return NextResponse.json(
@@ -116,7 +117,7 @@ export async function PUT(request: NextRequest) {
       data: { user },
     });
   } catch (error) {
-    console.error('Update user error:', error);
+    logger.error('Update user error:', error);
 
     if (error instanceof AuthError) {
       return NextResponse.json(

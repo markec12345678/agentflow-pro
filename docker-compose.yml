@@ -1,72 +1,95 @@
-# AgentFlow Pro - Docker Compose (MVP)
-# App + Postgres + Redis. Agent services, nginx, monitoring deferred to post-MVP.
+# =============================================================================
+# AgentFlow Pro - Docker Compose for Local Development
+# Includes: PostgreSQL, Redis, and Application
+# =============================================================================
 
 version: '3.8'
 
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: agentflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: agentflow
+      POSTGRES_PASSWORD: agentflow_password
+      POSTGRES_DB: agentflow_pro
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agentflow-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: agentflow-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agentflow-network
+
+  # Application
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      target: runner
+    container_name: agentflow-app
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3002:3000"
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/agentflow_pro
-      - REDIS_URL=redis://redis:6379/agentflow_pro
-      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      # Database
+      DATABASE_URL: postgresql://agentflow:agentflow_password@postgres:5432/agentflow_pro?schema=public
+      # Redis
+      UPSTASH_REDIS_REST_URL: redis://redis:6379
+      # App
+      NEXTAUTH_URL: http://localhost:3002
+      NODE_ENV: development
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    restart: unless-stopped
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
     networks:
       - agentflow-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    command: npm run dev
 
-  postgres:
-    image: postgres:15-alpine
+  # Prisma Studio (Database GUI)
+  prisma-studio:
+    image: timothyjmiller/prisma-studio:latest
+    container_name: agentflow-prisma-studio
+    restart: unless-stopped
+    ports:
+      - "5555:5555"
     environment:
-      - POSTGRES_DB=agentflow_pro
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./prisma/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
+      DATABASE_URL: postgresql://agentflow:agentflow_password@postgres:5432/agentflow_pro?schema=public
+    depends_on:
+      - postgres
     networks:
       - agentflow-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
-    networks:
-      - agentflow-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
+    command: npx prisma studio --hostname 0.0.0.0 --port 5555
 
 volumes:
   postgres_data:
@@ -77,3 +100,36 @@ volumes:
 networks:
   agentflow-network:
     driver: bridge
+
+# =============================================================================
+# USAGE:
+# 
+# Start all services:
+#   docker-compose up -d
+#
+# Stop all services:
+#   docker-compose down
+#
+# View logs:
+#   docker-compose logs -f
+#
+# View specific service logs:
+#   docker-compose logs -f app
+#   docker-compose logs -f postgres
+#   docker-compose logs -f redis
+#
+# Rebuild app:
+#   docker-compose up -d --build app
+#
+# Access database:
+#   Host: localhost:5432
+#   User: agentflow
+#   Password: agentflow_password
+#   Database: agentflow_pro
+#
+# Access Prisma Studio:
+#   http://localhost:5555
+#
+# Access Application:
+#   http://localhost:3002
+# =============================================================================

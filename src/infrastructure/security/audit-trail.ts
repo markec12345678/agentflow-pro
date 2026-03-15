@@ -400,7 +400,7 @@ export class AuditTrailManager {
       try {
         callback(log);
       } catch (error) {
-        console.error('Audit listener error:', error);
+        logger.error('Audit listener error:', error);
       }
     });
   }

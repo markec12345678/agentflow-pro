@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { io, Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
@@ -71,7 +72,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
   const scheduleReconnect = useCallback(() => {
     if (reconnectAttempts.current >= maxReconnectAttempts) {
-      console.log('🔌 Max reconnect attempts reached');
+      logger.info('🔌 Max reconnect attempts reached');
       toast.error('Failed to reconnect to real-time updates');
       return;
     }
@@ -79,7 +80,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
     reconnectAttempts.current++;
     
-    console.log(`🔌 Scheduling reconnect attempt ${reconnectAttempts.current} in ${delay}ms`);
+    logger.info(`🔌 Scheduling reconnect attempt ${reconnectAttempts.current} in ${delay}ms`);
     
     reconnectTimeoutRef.current = setTimeout(() => {
       connect();
@@ -88,16 +89,16 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
   const connect = useCallback(() => {
     if (!session?.user || !propertyId) {
-      console.log('🔌 Cannot connect: missing session or propertyId');
+      logger.info('🔌 Cannot connect: missing session or propertyId');
       return;
     }
 
     if (socketRef.current?.connected) {
-      console.log('🔌 Already connected');
+      logger.info('🔌 Already connected');
       return;
     }
 
-    console.log('🔌 Connecting to WebSocket...');
+    logger.info('🔌 Connecting to WebSocket...');
     
     const newSocket = io(process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3000', {
       auth: {
@@ -114,7 +115,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // Connection events
     newSocket.on('connect', () => {
-      console.log('🔌 Connected to WebSocket');
+      logger.info('🔌 Connected to WebSocket');
       setIsConnected(true);
       setConnectionError(null);
       reconnectAttempts.current = 0;
@@ -123,7 +124,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     });
 
     newSocket.on('disconnect', (reason) => {
-      console.log('🔌 Disconnected from WebSocket:', reason);
+      logger.info('🔌 Disconnected from WebSocket:', reason);
       setIsConnected(false);
       
       if (reason === 'io server disconnect') {
@@ -136,7 +137,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     });
 
     newSocket.on('connect_error', (error) => {
-      console.error('🔌 Connection error:', error);
+      logger.error('🔌 Connection error:', error);
       setConnectionError(error.message);
       setIsConnected(false);
       
@@ -146,7 +147,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // Room status events
     newSocket.on('initial_room_status', (data) => {
-      console.log('🔌 Received initial room status:', data);
+      logger.info('🔌 Received initial room status:', data);
       const statusMap: Record<string, RoomStatusUpdate> = {};
       
       data.rooms.forEach((room: any) => {
@@ -164,7 +165,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     });
 
     newSocket.on('room_status_update', (data: RoomStatusUpdate) => {
-      console.log('🔌 Room status update:', data);
+      logger.info('🔌 Room status update:', data);
       
       setRoomStatus(prev => ({
         ...prev,
@@ -180,7 +181,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // Notification events
     newSocket.on('notification', (notification: NotificationMessage) => {
-      console.log('🔌 Received notification:', notification);
+      logger.info('🔌 Received notification:', notification);
       
       setNotifications(prev => [notification, ...prev].slice(0, 50)); // Keep last 50
       
@@ -191,7 +192,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     });
 
     newSocket.on('housekeeping_notification', (notification: NotificationMessage) => {
-      console.log('🔌 Housekeeping notification:', notification);
+      logger.info('🔌 Housekeeping notification:', notification);
       
       setNotifications(prev => [notification, ...prev].slice(0, 50));
       
@@ -201,7 +202,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     });
 
     newSocket.on('maintenance_notification', (notification: NotificationMessage) => {
-      console.log('🔌 Maintenance notification:', notification);
+      logger.info('🔌 Maintenance notification:', notification);
       
       setNotifications(prev => [notification, ...prev].slice(0, 50));
       
@@ -211,7 +212,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     });
 
     newSocket.on('staff_notification', (notification: NotificationMessage) => {
-      console.log('🔌 Staff notification:', notification);
+      logger.info('🔌 Staff notification:', notification);
       
       setNotifications(prev => [notification, ...prev].slice(0, 50));
       
@@ -222,28 +223,28 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // Confirmation events
     newSocket.on('housekeeping_request_confirmed', (data) => {
-      console.log('🔌 Housekeeping request confirmed:', data);
+      logger.info('🔌 Housekeeping request confirmed:', data);
       toast.success(`Housekeeping request created (Task #${data.taskId})`);
     });
 
     newSocket.on('maintenance_request_confirmed', (data) => {
-      console.log('🔌 Maintenance request confirmed:', data);
+      logger.info('🔌 Maintenance request confirmed:', data);
       toast.success(`Maintenance request created (Task #${data.taskId})`);
     });
 
     newSocket.on('check_in_notification_sent', (data) => {
-      console.log('🔌 Check-in notification sent:', data);
+      logger.info('🔌 Check-in notification sent:', data);
       toast.success('Check-in notification sent to staff');
     });
 
     newSocket.on('check_out_notification_sent', (data) => {
-      console.log('🔌 Check-out notification sent:', data);
+      logger.info('🔌 Check-out notification sent:', data);
       toast.success('Check-out notification sent to staff');
     });
 
     // Error events
     newSocket.on('error', (error) => {
-      console.error('🔌 Socket error:', error);
+      logger.error('🔌 Socket error:', error);
       toast.error(error.message || 'Socket error occurred');
     });
 
@@ -260,7 +261,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
       socketRef.current = null;
       setSocket(null);
       setIsConnected(false);
-      console.log('🔌 Disconnected from WebSocket');
+      logger.info('🔌 Disconnected from WebSocket');
     }
   }, []);
 
@@ -284,7 +285,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     };
 
     socketRef.current.emit('room_status_update', updateData);
-    console.log('🔌 Sent room status update:', updateData);
+    logger.info('🔌 Sent room status update:', updateData);
   }, [socket, session]);
 
   const requestHousekeeping = useCallback((
@@ -304,7 +305,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     };
 
     socketRef.current.emit('housekeeping_request', requestData);
-    console.log('🔌 Sent housekeeping request:', requestData);
+    logger.info('🔌 Sent housekeeping request:', requestData);
   }, [socket]);
 
   const requestMaintenance = useCallback((
@@ -324,7 +325,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     };
 
     socketRef.current.emit('maintenance_request', requestData);
-    console.log('🔌 Sent maintenance request:', requestData);
+    logger.info('🔌 Sent maintenance request:', requestData);
   }, [socket]);
 
   // Auto-connect on mount

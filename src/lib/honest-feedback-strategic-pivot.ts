@@ -4,6 +4,7 @@
  */
 
 import { writeFileSync } from 'fs';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface HonestFeedbackAssessment {
   category: string;
@@ -1070,7 +1071,7 @@ To: Customer success and business validation
   }
 
   async generateHonestFeedbackDocuments(): Promise<void> {
-    console.log('Generating honest feedback and strategic pivot documents...');
+    logger.info('Generating honest feedback and strategic pivot documents...');
     
     // Generate honest feedback report
     const feedbackReport = this.generateHonestFeedbackReport();
@@ -1084,34 +1085,34 @@ To: Customer success and business validation
     const validationDashboard = this.generateValidationDashboard();
     writeFileSync('production-validation-dashboard.md', validationDashboard);
     
-    console.log('Honest feedback documents generated successfully!');
-    console.log('Files created:');
-    console.log('- honest-feedback-analysis-report.md');
-    console.log('- strategic-pivot-implementation-plan.md');
-    console.log('- production-validation-dashboard.md');
+    logger.info('Honest feedback documents generated successfully!');
+    logger.info('Files created:');
+    logger.info('- honest-feedback-analysis-report.md');
+    logger.info('- strategic-pivot-implementation-plan.md');
+    logger.info('- production-validation-dashboard.md');
     
-    console.log('\n🎯 Honest Feedback Analysis:');
-    console.log('✅ Feature Set: Impressive and comprehensive');
-    console.log('✅ Tourism Vertical Pivot: Smart strategic decision');
-    console.log('🔴 Legal Compliance: GDPR is not optional for EU tourism');
-    console.log('🔴 Partner Approvals: Booking.com API takes weeks');
-    console.log('🔴 Customer Validation: Beta testing with real payments essential');
-    console.log('🔴 Production Monitoring: AI agents need oversight');
+    logger.info('\n🎯 Honest Feedback Analysis:');
+    logger.info('✅ Feature Set: Impressive and comprehensive');
+    logger.info('✅ Tourism Vertical Pivot: Smart strategic decision');
+    logger.info('🔴 Legal Compliance: GDPR is not optional for EU tourism');
+    logger.info('🔴 Partner Approvals: Booking.com API takes weeks');
+    logger.info('🔴 Customer Validation: Beta testing with real payments essential');
+    logger.info('🔴 Production Monitoring: AI agents need oversight');
     
-    console.log('\n🔄 Strategic Pivot:');
-    console.log('From: "Production Ready"');
-    console.log('To: "Feature Complete - Beta Programme Launching"');
+    logger.info('\n🔄 Strategic Pivot:');
+    logger.info('From: "Production Ready"');
+    logger.info('To: "Feature Complete - Beta Programme Launching"');
     
-    console.log('\n🚀 Production Validation Sprint: 8-12 weeks');
-    console.log('Phase 1: Legal & Compliance (Week 1-2)');
-    console.log('Phase 2: Payment & Partnerships (Week 3-4)');
-    console.log('Phase 3: Customer Onboarding (Week 5-6)');
-    console.log('Phase 4: Production Testing (Week 7-8)');
-    console.log('Phase 5: Optimization & Refinement (Week 9-10)');
-    console.log('Phase 6: Production Preparation (Week 11-12)');
+    logger.info('\n🚀 Production Validation Sprint: 8-12 weeks');
+    logger.info('Phase 1: Legal & Compliance (Week 1-2)');
+    logger.info('Phase 2: Payment & Partnerships (Week 3-4)');
+    logger.info('Phase 3: Customer Onboarding (Week 5-6)');
+    logger.info('Phase 4: Production Testing (Week 7-8)');
+    logger.info('Phase 5: Optimization & Refinement (Week 9-10)');
+    logger.info('Phase 6: Production Preparation (Week 11-12)');
     
-    console.log('\n🎯 Overall Confidence: HIGH');
-    console.log('Recommendation: Execute strategic pivot and validation sprint');
+    logger.info('\n🎯 Overall Confidence: HIGH');
+    logger.info('Recommendation: Execute strategic pivot and validation sprint');
   }
 }
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from '@/database/schema';
 
 export const dynamic = "force-dynamic";
@@ -190,7 +191,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Availability check error:', error);
+    logger.error('Availability check error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -262,7 +263,7 @@ export async function POST(request: NextRequest) {
       status: 'held'
     };
 
-    console.log('Created booking hold:', bookingHold);
+    logger.info('Created booking hold:', bookingHold);
 
     return NextResponse.json({
       success: true,
@@ -274,7 +275,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Create booking hold error:', error);
+    logger.error('Create booking hold error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

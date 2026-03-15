@@ -5,6 +5,7 @@
  */
 
 import { createQwenAI } from './qwen-ai';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface AIProvider {
   generateText(prompt: string, systemPrompt?: string): Promise<string>;
@@ -29,7 +30,7 @@ export class FallbackAI implements AIProvider {
         const qwen = createQwenAI(this.qwenApiKey);
         return await qwen.generateText(prompt, systemPrompt);
       } catch (error) {
-        console.warn('Qwen failed, falling back to OpenAI:', error);
+        logger.warn('Qwen failed, falling back to OpenAI:', error);
         this.useQwen = false;
       }
     }

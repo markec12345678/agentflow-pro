@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { NotificationSubscription, NotificationPreferences } from '@/types/notifications';
 
 // Mock database for subscriptions (in production, this would be a real database)
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
     // Store subscription
     subscriptions.set(subscription.id, subscription);
 
-    console.log(`📱 User ${userId} subscribed to notifications for property ${propertyId}`);
+    logger.info(`📱 User ${userId} subscribed to notifications for property ${propertyId}`);
 
     return NextResponse.json({
       success: true,
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Subscription error:', error);
+    logger.error('Subscription error:', error);
     
     return NextResponse.json(
       { 
@@ -157,7 +158,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get subscription error:', error);
+    logger.error('Get subscription error:', error);
     
     return NextResponse.json(
       { 
@@ -192,7 +193,7 @@ export async function DELETE(request: NextRequest) {
     subscription.isActive = false;
     subscription.updatedAt = new Date();
 
-    console.log(`📱 User ${subscription.userId} unsubscribed from notifications`);
+    logger.info(`📱 User ${subscription.userId} unsubscribed from notifications`);
 
     return NextResponse.json({
       success: true,
@@ -203,7 +204,7 @@ export async function DELETE(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Unsubscribe error:', error);
+    logger.error('Unsubscribe error:', error);
     
     return NextResponse.json(
       { 

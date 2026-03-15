@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
       const duration = Date.now() - startTime;
       
       // Store sync log (in real implementation, this would be stored in database)
-      console.log(`eTurizem sync completed:`, {
+      logger.info(`eTurizem sync completed:`, {
         type,
         duration,
         ...syncResult
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
       });
 
     } catch (error) {
-      console.error('eTurizem sync error:', error);
+      logger.error('eTurizem sync error:', error);
       
       return NextResponse.json(
         { 
@@ -143,7 +144,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Manual sync error:', error);
+    logger.error('Manual sync error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }

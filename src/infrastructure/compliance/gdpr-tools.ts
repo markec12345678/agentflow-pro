@@ -289,22 +289,22 @@ export class GDPRManager {
   // Delete methods (mock implementations)
 
   private async deleteProfile(userId: string): Promise<number> {
-    console.log(`[GDPR] Deleting profile for ${userId}`);
+    logger.info(`[GDPR] Deleting profile for ${userId}`);
     return 1;
   }
 
   private async deleteReservations(userId: string): Promise<number> {
-    console.log(`[GDPR] Deleting reservations for ${userId}`);
+    logger.info(`[GDPR] Deleting reservations for ${userId}`);
     return 0;
   }
 
   private async deleteCommunications(userId: string): Promise<number> {
-    console.log(`[GDPR] Deleting communications for ${userId}`);
+    logger.info(`[GDPR] Deleting communications for ${userId}`);
     return 0;
   }
 
   private async deleteWorkflows(userId: string): Promise<number> {
-    console.log(`[GDPR] Deleting workflows for ${userId}`);
+    logger.info(`[GDPR] Deleting workflows for ${userId}`);
     return 0;
   }
 }

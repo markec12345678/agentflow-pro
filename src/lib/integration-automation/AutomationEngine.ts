@@ -30,6 +30,7 @@ import {
   HttpMethod,
 } from '@/types/integration-automation';
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from '@/infrastructure/observability/logger';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import Bull, { Queue, Job, JobOptions } from 'bull';
 import Redis from 'ioredis';
@@ -100,7 +101,7 @@ export class AutomationEngine implements IAutomationEngine {
       await this.initializeHttpClient(integration);
     }
 
-    console.log(`🔗 Created integration: ${integration.name}`);
+    logger.info(`🔗 Created integration: ${integration.name}`);
     return integration;
   }
 
@@ -119,7 +120,7 @@ export class AutomationEngine implements IAutomationEngine {
       await this.initializeHttpClient(updatedIntegration);
     }
 
-    console.log(`🔗 Updated integration: ${updatedIntegration.name}`);
+    logger.info(`🔗 Updated integration: ${updatedIntegration.name}`);
     return updatedIntegration;
   }
 
@@ -138,14 +139,14 @@ export class AutomationEngine implements IAutomationEngine {
     }
 
     this.integrations.delete(id);
-    console.log(`🔗 Deleted integration: ${integration.name}`);
+    logger.info(`🔗 Deleted integration: ${integration.name}`);
   }
 
   async testIntegration(id: string): Promise<IntegrationTestResult> {
     const integration = await this.getIntegration(id);
     const startTime = Date.now();
 
-    console.log(`🧪 Testing integration: ${integration.name}`);
+    logger.info(`🧪 Testing integration: ${integration.name}`);
 
     const tests = await Promise.all([
       this.testConnection(integration),
@@ -178,7 +179,7 @@ export class AutomationEngine implements IAutomationEngine {
     const status = failed === 0 ? 'active' : 'error';
     await this.updateIntegration(id, { status, lastError: failed > 0 ? { code: 'TEST_FAILED', message: 'Integration test failed', details: {}, timestamp: new Date(), severity: 'high', resolved: false } : undefined });
 
-    console.log(`🧪 Integration test completed: ${result.success ? 'PASSED' : 'FAILED'}`);
+    logger.info(`🧪 Integration test completed: ${result.success ? 'PASSED' : 'FAILED'}`);
     return result;
   }
 
@@ -212,7 +213,7 @@ export class AutomationEngine implements IAutomationEngine {
       await this.initializeWorkflowQueue(workflow);
     }
 
-    console.log(`⚙️ Created workflow: ${workflow.name}`);
+    logger.info(`⚙️ Created workflow: ${workflow.name}`);
     return workflow;
   }
 
@@ -235,7 +236,7 @@ export class AutomationEngine implements IAutomationEngine {
       }
     }
 
-    console.log(`⚙️ Updated workflow: ${updatedWorkflow.name}`);
+    logger.info(`⚙️ Updated workflow: ${updatedWorkflow.name}`);
     return updatedWorkflow;
   }
 
@@ -250,7 +251,7 @@ export class AutomationEngine implements IAutomationEngine {
     executions.forEach(e => this.executions.delete(e.id));
 
     this.workflows.delete(id);
-    console.log(`⚙️ Deleted workflow: ${workflow.name}`);
+    logger.info(`⚙️ Deleted workflow: ${workflow.name}`);
   }
 
   async deployWorkflow(id: string): Promise<void> {
@@ -262,7 +263,7 @@ export class AutomationEngine implements IAutomationEngine {
     // Update status to active
     await this.updateWorkflow(id, { status: 'active' });
     
-    console.log(`🚀 Deployed workflow: ${workflow.name}`);
+    logger.info(`🚀 Deployed workflow: ${workflow.name}`);
   }
 
   async undeployWorkflow(id: string): Promise<void> {
@@ -271,7 +272,7 @@ export class AutomationEngine implements IAutomationEngine {
     // Update status to inactive
     await this.updateWorkflow(id, { status: 'inactive' });
     
-    console.log(`⏹️ Undeployed workflow: ${workflow.name}`);
+    logger.info(`⏹️ Undeployed workflow: ${workflow.name}`);
   }
 
   /**
@@ -323,7 +324,7 @@ export class AutomationEngine implements IAutomationEngine {
       await queue.add('execute', { executionId: execution.id, input, options }, jobOptions);
     }
 
-    console.log(`🚀 Started workflow execution: ${execution.id}`);
+    logger.info(`🚀 Started workflow execution: ${execution.id}`);
     return execution;
   }
 
@@ -371,7 +372,7 @@ export class AutomationEngine implements IAutomationEngine {
       execution.completedAt = new Date();
       this.executions.set(id, execution);
       
-      console.log(`⏹️ Cancelled execution: ${id}`);
+      logger.info(`⏹️ Cancelled execution: ${id}`);
     }
   }
 
@@ -393,7 +394,7 @@ export class AutomationEngine implements IAutomationEngine {
         await queue.add('retry', { executionId: id, input: execution.input });
       }
       
-      console.log(`🔄 Retrying execution: ${id}`);
+      logger.info(`🔄 Retrying execution: ${id}`);
     }
   }
 
@@ -589,7 +590,7 @@ export class AutomationEngine implements IAutomationEngine {
       ...config,
     };
 
-    console.log('⚙️ Updated system configuration');
+    logger.info('⚙️ Updated system configuration');
     return this.systemConfig;
   }
 
@@ -606,7 +607,7 @@ export class AutomationEngine implements IAutomationEngine {
         try {
           await callback(event);
         } catch (error) {
-          console.error(`Error in event subscription ${subscriptionId}:`, error);
+          logger.error(`Error in event subscription ${subscriptionId}:`, error);
         }
       }
     }
@@ -614,20 +615,20 @@ export class AutomationEngine implements IAutomationEngine {
     // Trigger workflow executions
     await this.triggerWorkflowsByEvent(event);
 
-    console.log(`📡 Emitted event: ${event.type}`);
+    logger.info(`📡 Emitted event: ${event.type}`);
   }
 
   async subscribeToEvents(filters: EventFilter[], callback: EventCallback): Promise<string> {
     const subscriptionId = uuidv4();
     this.eventSubscriptions.set(subscriptionId, { filters, callback });
     
-    console.log(`📡 Subscribed to events: ${subscriptionId}`);
+    logger.info(`📡 Subscribed to events: ${subscriptionId}`);
     return subscriptionId;
   }
 
   async unsubscribeFromEvents(subscriptionId: string): Promise<void> {
     this.eventSubscriptions.delete(subscriptionId);
-    console.log(`📡 Unsubscribed from events: ${subscriptionId}`);
+    logger.info(`📡 Unsubscribed from events: ${subscriptionId}`);
   }
 
   /**
@@ -777,7 +778,7 @@ export class AutomationEngine implements IAutomationEngine {
       execution.completedAt = new Date();
       execution.duration = execution.completedAt.getTime() - execution.startedAt.getTime();
 
-      console.log(`✅ Workflow execution completed: ${executionId}`);
+      logger.info(`✅ Workflow execution completed: ${executionId}`);
     } catch (error) {
       execution.status = 'failed';
       execution.completedAt = new Date();
@@ -790,7 +791,7 @@ export class AutomationEngine implements IAutomationEngine {
         timestamp: new Date(),
       };
 
-      console.error(`❌ Workflow execution failed: ${executionId}`, error);
+      logger.error(`❌ Workflow execution failed: ${executionId}`, error);
     } finally {
       this.executions.set(executionId, execution);
     }
@@ -937,13 +938,25 @@ export class AutomationEngine implements IAutomationEngine {
     
     // Simple script execution - in production, use proper sandbox
     if (config.language === 'javascript') {
-      // This is a simplified implementation
-      // In production, use vm2 or similar for secure sandboxing
-      const func = new Function('context', config.code);
-      const result = func(execution.variables);
-      return result;
+      // SECURITY WARNING: This executes arbitrary code
+      // In production, use a sandboxed environment like:
+      // - vm2 (Node.js sandbox)
+      // - QuickJS (isolated JavaScript engine)
+      // - Server-side execution with strict validation
+      
+      // TODO: Implement secure code execution
+      // For now, this is disabled for security
+      throw new Error(
+        'Custom code execution is disabled for security reasons. ' +
+        'Please use predefined actions instead.'
+      );
+      
+      // Old insecure implementation (commented out):
+      // const func = new Function('context', config.code);
+      // const result = func(execution.variables);
+      // return result;
     }
-    
+
     throw new Error(`Unsupported script language: ${config.language}`);
   }
 
@@ -958,13 +971,26 @@ export class AutomationEngine implements IAutomationEngine {
   }
 
   private evaluateCondition(condition: string, context: Record<string, unknown>): boolean {
-    // Simple condition evaluation - in production, use proper expression parser
-    try {
-      const func = new Function('context', `return ${condition}`);
-      return func(context);
-    } catch {
-      return false;
+    // SECURITY: Use a safe expression parser instead of eval
+    // For now, implement basic string matching
+    
+    // Simple safe conditions (no code execution):
+    if (condition.includes('===') || condition.includes('==')) {
+      const parts = condition.split(/===|==/);
+      if (parts.length === 2) {
+        const left = parts[0].trim();
+        const right = parts[1].trim();
+        
+        // Extract variable name from context
+        const leftValue = context[left] ?? left;
+        const rightValue = context[right] ?? right;
+        
+        return String(leftValue) === String(rightValue);
+      }
     }
+    
+    // Default: condition not met (safe default)
+    return false;
   }
 
   private async initializeHttpClient(integration: IntegrationConfig): Promise<void> {
@@ -1392,7 +1418,7 @@ export class AutomationEngine implements IAutomationEngine {
   }
 
   private initializeMockData(): void {
-    console.log('🔧 Initializing automation engine with mock data');
+    logger.info('🔧 Initializing automation engine with mock data');
     
     // Add some mock integrations
     this.createMockIntegrations();

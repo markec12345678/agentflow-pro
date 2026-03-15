@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { 
   Bell, 
   BellOff, 
@@ -164,11 +165,11 @@ export function PushNotifications({
       setPermission(permission);
       
       if (permission === 'granted') {
-        console.log('Notification permission granted');
+        logger.info('Notification permission granted');
         subscribeToPushNotifications();
       }
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
+      logger.error('Error requesting notification permission:', error);
     }
   };
 
@@ -182,12 +183,12 @@ export function PushNotifications({
         applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '')
       });
 
-      console.log('Push notification subscription:', subscription);
+      logger.info('Push notification subscription:', subscription);
       
       // Send subscription to server
       await sendSubscriptionToServer(subscription);
     } catch (error) {
-      console.error('Error subscribing to push notifications:', error);
+      logger.error('Error subscribing to push notifications:', error);
     }
   };
 
@@ -206,7 +207,7 @@ export function PushNotifications({
 
   const sendSubscriptionToServer = async (subscription: PushSubscription) => {
     // In real implementation, this would send to your server
-    console.log('Sending subscription to server:', subscription);
+    logger.info('Sending subscription to server:', subscription);
   };
 
   const setupServiceWorker = () => {
@@ -335,7 +336,7 @@ export function PushNotifications({
     const audio = new Audio('/sounds/notification.mp3');
     audio.volume = 0.3;
     audio.play().catch(error => {
-      console.log('Error playing notification sound:', error);
+      logger.info('Error playing notification sound:', error);
     });
   };
 
@@ -399,7 +400,7 @@ export function PushNotifications({
         setUnreadCount(notifications.filter(n => !n.read).length);
       }
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      logger.error('Error loading notifications:', error);
     }
   };
 
@@ -411,7 +412,7 @@ export function PushNotifications({
         setSettings(settings);
       }
     } catch (error) {
-      console.error('Error loading notification settings:', error);
+      logger.error('Error loading notification settings:', error);
     }
   };
 

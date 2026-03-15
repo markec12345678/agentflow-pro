@@ -67,5 +67,5 @@ export function getActionsForEscalationLevel(policy: EscalationRule, level: numb
 }
 
 export async function executeEscalationAction(alert: AlertEvent, action: EscalationAction) {
-  console.log('Executing ' + action.type + ' for alert ' + alert.id);
+  logger.info('Executing ' + action.type + ' for alert ' + alert.id);
 }

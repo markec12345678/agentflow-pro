@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { 
   Settings, 
   Bell, 
@@ -157,7 +158,7 @@ export default function AlertSettingsPage() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     setSaving(false);
-    console.log("Configuration saved:", config);
+    logger.info("Configuration saved:", config);
   };
 
   const handleAddRule = () => {

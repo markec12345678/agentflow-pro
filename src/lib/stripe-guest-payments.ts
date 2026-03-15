@@ -189,7 +189,7 @@ export class StripeGuestPaymentService {
         chargeId: paymentIntent.latest_charge as string || undefined,
       };
     } catch (error: any) {
-      console.error('[Stripe Charge Error]:', error);
+      logger.error('[Stripe Charge Error]:', error);
       return {
         success: false,
         paymentId: '',
@@ -232,7 +232,7 @@ export class StripeGuestPaymentService {
         amount: paymentIntent.amount / 100,
       };
     } catch (error: any) {
-      console.error('[Stripe Capture Error]:', error);
+      logger.error('[Stripe Capture Error]:', error);
       return {
         success: false,
         error: error.message || 'Capture failed',
@@ -289,7 +289,7 @@ export class StripeGuestPaymentService {
         amount: refundAmount,
       };
     } catch (error: any) {
-      console.error('[Stripe Refund Error]:', error);
+      logger.error('[Stripe Refund Error]:', error);
       return {
         success: false,
         error: error.message || 'Refund failed',
@@ -332,7 +332,7 @@ export class StripeGuestPaymentService {
 
       return { success: true };
     } catch (error: any) {
-      console.error('[Stripe Save Payment Method Error]:', error);
+      logger.error('[Stripe Save Payment Method Error]:', error);
       return {
         success: false,
         error: error.message || 'Failed to save payment method',
@@ -371,7 +371,7 @@ export class StripeGuestPaymentService {
         success: paymentIntent.status === 'canceled',
       };
     } catch (error: any) {
-      console.error('[Stripe Cancel Error]:', error);
+      logger.error('[Stripe Cancel Error]:', error);
       return {
         success: false,
         error: error.message || 'Cancel failed',

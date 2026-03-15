@@ -4,6 +4,7 @@
  */
 
 import { Server as HTTPServer } from 'http';
+import { logger } from '@/infrastructure/observability/logger';
 import { Server as SocketIOServer } from 'socket.io';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserId } from '@/lib/auth-users';
@@ -65,7 +66,7 @@ class SocketManager {
     this.setupMiddleware();
     this.setupEventHandlers();
     
-    console.log('🔌 WebSocket server initialized');
+    logger.info('🔌 WebSocket server initialized');
   }
 
   private setupMiddleware() {
@@ -103,7 +104,7 @@ class SocketManager {
 
         next();
       } catch (error) {
-        console.error('WebSocket authentication error:', error);
+        logger.error('WebSocket authentication error:', error);
         next(new Error('Authentication failed'));
       }
     });
@@ -113,7 +114,7 @@ class SocketManager {
     if (!this.io) return;
 
     this.io.on('connection', (socket: AuthenticatedSocket) => {
-      console.log(`🔌 Client connected: ${socket.userId} to property ${socket.propertyId}`);
+      logger.info(`🔌 Client connected: ${socket.userId} to property ${socket.propertyId}`);
 
       // Store connected client
       this.connectedClients.set(socket.id, socket);
@@ -151,13 +152,13 @@ class SocketManager {
 
       // Handle disconnection
       socket.on('disconnect', (reason) => {
-        console.log(`🔌 Client disconnected: ${socket.userId} (${reason})`);
+        logger.info(`🔌 Client disconnected: ${socket.userId} (${reason})`);
         this.connectedClients.delete(socket.id);
       });
 
       // Handle errors
       socket.on('error', (error) => {
-        console.error(`🔌 Socket error for ${socket.userId}:`, error);
+        logger.error(`🔌 Socket error for ${socket.userId}:`, error);
       });
     });
   }
@@ -173,7 +174,7 @@ class SocketManager {
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('Error sending initial room status:', error);
+      logger.error('Error sending initial room status:', error);
       socket.emit('error', { message: 'Failed to load room status' });
     }
   }
@@ -200,7 +201,7 @@ class SocketManager {
       await this.sendRoomStatusNotification(socket, data);
 
     } catch (error) {
-      console.error('Error handling room status update:', error);
+      logger.error('Error handling room status update:', error);
       socket.emit('error', { message: 'Failed to update room status' });
     }
   }
@@ -232,7 +233,7 @@ class SocketManager {
       });
 
     } catch (error) {
-      console.error('Error handling housekeeping request:', error);
+      logger.error('Error handling housekeeping request:', error);
       socket.emit('error', { message: 'Failed to create housekeeping request' });
     }
   }
@@ -264,7 +265,7 @@ class SocketManager {
       });
 
     } catch (error) {
-      console.error('Error handling maintenance request:', error);
+      logger.error('Error handling maintenance request:', error);
       socket.emit('error', { message: 'Failed to create maintenance request' });
     }
   }
@@ -291,7 +292,7 @@ class SocketManager {
       });
 
     } catch (error) {
-      console.error('Error handling check-in notification:', error);
+      logger.error('Error handling check-in notification:', error);
       socket.emit('error', { message: 'Failed to send check-in notification' });
     }
   }
@@ -318,7 +319,7 @@ class SocketManager {
       });
 
     } catch (error) {
-      console.error('Error handling check-out notification:', error);
+      logger.error('Error handling check-out notification:', error);
       socket.emit('error', { message: 'Failed to send check-out notification' });
     }
   }
@@ -375,7 +376,7 @@ class SocketManager {
   private async updateRoomStatusInDB(data: RoomStatusUpdate): Promise<void> {
     // Update room status in database
     // This is a placeholder - implement proper database update
-    console.log('Updating room status:', data);
+    logger.info('Updating room status:', data);
   }
 
   private async createHousekeepingTask(propertyId: string, data: any): Promise<any> {
@@ -482,7 +483,7 @@ export const socketManager = new SocketManager();
 // Next.js API route handler
 export default function SocketHandler(req: NextApiRequest, res: NextApiResponse) {
   if (res.socket?.server?.io) {
-    console.log('🔌 Socket.io already initialized');
+    logger.info('🔌 Socket.io already initialized');
     res.end();
     return;
   }

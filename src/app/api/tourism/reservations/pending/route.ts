@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -45,7 +46,7 @@ export async function GET(_request: NextRequest) {
 
     return NextResponse.json(enriched);
   } catch (error) {
-    console.error("Pending reservations API error:", error);
+    logger.error("Pending reservations API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -119,7 +120,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Pending reservations POST error:", error);
+    logger.error("Pending reservations POST error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

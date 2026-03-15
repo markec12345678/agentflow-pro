@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       data: report,
     });
   } catch (error) {
-    console.error('Failed to get evaluations:', error);
+    logger.error('Failed to get evaluations:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to retrieve evaluations' },
       { status: 500 }
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       message: 'Evaluation created successfully',
     });
   } catch (error) {
-    console.error('Failed to process evaluation:', error);
+    logger.error('Failed to process evaluation:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to process evaluation' },
       { status: 500 }

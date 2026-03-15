@@ -62,7 +62,7 @@ export class EnhancedChatbotService {
 
       return parsed;
     } catch (error) {
-      console.error('Chatbot response generation failed:', error);
+      logger.error('Chatbot response generation failed:', error);
       
       // Fallback to simple response
       return this.fallbackResponse(latestMessage.content);
@@ -180,7 +180,7 @@ Guidelines:
         requiresHumanIntervention: parsed.requiresHumanIntervention || false,
       };
     } catch (error) {
-      console.error('Failed to parse LLM response:', error);
+      logger.error('Failed to parse LLM response:', error);
       return this.fallbackResponse(content);
     }
   }
@@ -240,7 +240,7 @@ Guidelines:
         },
       });
     } catch (error) {
-      console.error('Failed to log conversation:', error);
+      logger.error('Failed to log conversation:', error);
     }
   }
 
@@ -310,7 +310,7 @@ Summary:
       const response = await this.callLLM(prompt, []);
       return response.trim();
     } catch (error) {
-      console.error('Failed to generate summary:', error);
+      logger.error('Failed to generate summary:', error);
       return 'Conversation summary unavailable';
     }
   }

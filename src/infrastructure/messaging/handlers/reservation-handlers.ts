@@ -12,6 +12,7 @@ import {
   ReservationCheckedOut
 } from '@/core/domain/tourism/events/reservation-events'
 import { eventBus } from '@/infrastructure/messaging/in-memory-event-bus'
+import { logger } from '@/infrastructure/observability/logger';
 
 // ============================================================================
 // Reservation Created Handler
@@ -19,7 +20,7 @@ import { eventBus } from '@/infrastructure/messaging/in-memory-event-bus'
 
 export class ReservationCreatedHandler {
   async handle(event: ReservationCreated): Promise<void> {
-    console.log('Handling ReservationCreated:', {
+    logger.info('Handling ReservationCreated:', {
       reservationId: event.reservationId,
       propertyId: event.propertyId,
       guestId: event.guestId,
@@ -42,22 +43,22 @@ export class ReservationCreatedHandler {
 
   private async sendConfirmationEmail(event: ReservationCreated): Promise<void> {
     // TODO: Implement email sending
-    console.log(`Sending confirmation email to guest ${event.guestId}`)
+    logger.info(`Sending confirmation email to guest ${event.guestId}`)
   }
 
   private async blockCalendar(event: ReservationCreated): Promise<void> {
     // TODO: Block dates in calendar
-    console.log(`Blocking calendar from ${event.checkIn} to ${event.checkOut}`)
+    logger.info(`Blocking calendar from ${event.checkIn} to ${event.checkOut}`)
   }
 
   private async notifyManager(event: ReservationCreated): Promise<void> {
     // TODO: Notify property manager
-    console.log(`Notifying manager about new reservation ${event.reservationId}`)
+    logger.info(`Notifying manager about new reservation ${event.reservationId}`)
   }
 
   private async trackAnalytics(event: ReservationCreated): Promise<void> {
     // TODO: Track in analytics
-    console.log(`Tracking reservation analytics for ${event.reservationId}`)
+    logger.info(`Tracking reservation analytics for ${event.reservationId}`)
   }
 }
 
@@ -67,7 +68,7 @@ export class ReservationCreatedHandler {
 
 export class ReservationConfirmedHandler {
   async handle(event: ReservationConfirmed): Promise<void> {
-    console.log('Handling ReservationConfirmed:', {
+    logger.info('Handling ReservationConfirmed:', {
       reservationId: event.reservationId,
       confirmedAt: event.confirmedAt,
       confirmationCode: event.confirmationCode
@@ -87,7 +88,7 @@ export class ReservationConfirmedHandler {
 
 export class ReservationCancelledHandler {
   async handle(event: ReservationCancelled): Promise<void> {
-    console.log('Handling ReservationCancelled:', {
+    logger.info('Handling ReservationCancelled:', {
       reservationId: event.reservationId,
       reason: event.reason,
       cancelledBy: event.cancelledBy,
@@ -123,5 +124,5 @@ export function registerReservationEventHandlers(): void {
   eventBus.subscribe(ReservationConfirmed, confirmedHandler.handle.bind(confirmedHandler))
   eventBus.subscribe(ReservationCancelled, cancelledHandler.handle.bind(cancelledHandler))
 
-  console.log('Reservation event handlers registered')
+  logger.info('Reservation event handlers registered')
 }

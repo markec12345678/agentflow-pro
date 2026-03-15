@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -399,7 +400,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error('Get pipeline status error:', error);
+    logger.error('Get pipeline status error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -462,7 +463,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Trigger pipeline error:', error);
+    logger.error('Trigger pipeline error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -476,7 +477,7 @@ async function triggerPipeline(branch: string, commit?: string | undefined, envi
   // 3. Start the build process
   // 4. Return pipeline run ID and status
   
-  console.log('Triggering pipeline:', { branch, commit, environment, triggeredBy });
+  logger.info('Triggering pipeline:', { branch, commit, environment, triggeredBy });
   
   // Simulate pipeline trigger
   const pipelineRun: PipelineStatus = {
@@ -513,13 +514,13 @@ async function triggerPipeline(branch: string, commit?: string | undefined, envi
     repository: "agentflow-pro"
   };
   
-  console.log('Pipeline triggered successfully:', pipelineRun);
+  logger.info('Pipeline triggered successfully:', pipelineRun);
   return pipelineRun;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

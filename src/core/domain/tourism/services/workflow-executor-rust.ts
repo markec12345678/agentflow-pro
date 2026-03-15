@@ -138,11 +138,11 @@ function isNapiAvailable(): boolean {
   try {
     if (typeof napiExecuteWorkflow === 'function') {
       napiModuleLoaded = true;
-      console.log('[WorkflowExecutor] NAPI module loaded successfully');
+      logger.info('[WorkflowExecutor] NAPI module loaded successfully');
       return true;
     }
   } catch (error) {
-    console.warn(
+    logger.warn(
       '[WorkflowExecutor] NAPI module not available:',
       error instanceof Error ? error.message : error
     );
@@ -230,7 +230,7 @@ export class WorkflowExecutor {
       napiValidateWorkflow(napiWorkflow);
       return true;
     } catch (error) {
-      console.warn('[WorkflowExecutor] Validation failed:', error);
+      logger.warn('[WorkflowExecutor] Validation failed:', error);
       return false;
     }
   }

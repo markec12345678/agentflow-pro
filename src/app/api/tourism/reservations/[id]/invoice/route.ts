@@ -3,6 +3,7 @@
  * Returns HTML invoice for print/save as PDF.
  */
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
@@ -134,7 +135,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Invoice error:", error);
+    logger.error("Invoice error:", error);
     return NextResponse.json({ error: "Failed to generate invoice" }, { status: 500 });
   }
 }

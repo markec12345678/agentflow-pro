@@ -4,6 +4,7 @@
  */
 
 import { spawn } from 'child_process';
+import { logger } from '@/infrastructure/observability/logger';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -46,7 +47,7 @@ export async function calculatePrice(
   try {
     return await callRustEngine(baseRate, checkIn, checkOut, options);
   } catch (error) {
-    console.warn('Rust pricing failed, falling back to TypeScript:', error);
+    logger.warn('Rust pricing failed, falling back to TypeScript:', error);
     return calculatePriceTS(baseRate, checkIn, checkOut, options);
   }
 }

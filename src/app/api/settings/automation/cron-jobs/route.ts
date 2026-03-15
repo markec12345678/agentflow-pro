@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -112,7 +113,7 @@ export async function GET(_request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get cron jobs error:', error);
+    logger.error('Get cron jobs error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -169,7 +170,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update cron jobs (in real implementation)
-    console.log('Updated cron jobs:', cronJobs);
+    logger.info('Updated cron jobs:', cronJobs);
 
     // Log activity
     await logActivity(userId, "Cron Jobs Updated", `Updated ${cronJobs.length} cron jobs`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -183,7 +184,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Update cron jobs error:', error);
+    logger.error('Update cron jobs error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -254,7 +255,7 @@ function isValidCronField(field: string, min: number, max: number): boolean {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

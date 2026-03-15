@@ -182,7 +182,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[Forecasting] Error:", error);
+    logger.error("[Forecasting] Error:", error);
     return NextResponse.json(
       { error: "Failed to generate forecast" },
       { status: 500 }

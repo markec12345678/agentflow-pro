@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 
@@ -53,7 +54,7 @@ export default function PublicApiPage() {
       const refreshed = await refetch.json();
       if (!refreshed.error) setKeys(refreshed.keys ?? []);
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setCreating(false);
     }

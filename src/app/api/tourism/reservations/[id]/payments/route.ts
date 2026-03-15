@@ -3,6 +3,7 @@
  * POST: add payment to a reservation
  */
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
@@ -55,7 +56,7 @@ export async function GET(
       touristTax: reservation.touristTax,
     });
   } catch (error) {
-    console.error("Payments GET error:", error);
+    logger.error("Payments GET error:", error);
     return NextResponse.json({ error: "Failed to fetch payments" }, { status: 500 });
   }
 }
@@ -114,7 +115,7 @@ export async function POST(
 
     return NextResponse.json({ payment });
   } catch (error) {
-    console.error("Payments POST error:", error);
+    logger.error("Payments POST error:", error);
     return NextResponse.json({ error: "Failed to add payment" }, { status: 500 });
   }
 }

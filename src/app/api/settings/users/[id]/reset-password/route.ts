@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -58,7 +59,7 @@ export async function POST(
     const resetLink = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
 
     // Send password reset email (in real implementation, use email service)
-    console.log('Password reset link for', targetUser.email, ':', resetLink);
+    logger.info('Password reset link for', targetUser.email, ':', resetLink);
 
     // Store reset token in database (in real implementation)
     // await prisma.passwordReset.create({
@@ -81,7 +82,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Password reset error:', error);
+    logger.error('Password reset error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -95,7 +96,7 @@ function generateResetToken(): string {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

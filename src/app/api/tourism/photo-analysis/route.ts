@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       recommendations: computerVisionService.generateQualityRecommendations(result),
     });
   } catch (error) {
-    console.error('Photo analysis error:', error);
+    logger.error('Photo analysis error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Analysis failed' },
       { status: 500 }
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
       stats,
     });
   } catch (error) {
-    console.error('Get photo analyses error:', error);
+    logger.error('Get photo analyses error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch analyses' },
       { status: 500 }

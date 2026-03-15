@@ -4,6 +4,7 @@
  */
 
 import { sendWorkflowNotificationEmail } from "@/lib/publish/email";
+import { logger } from '@/infrastructure/observability/logger';
 
 /**
  * Send Slack message via incoming webhook.
@@ -12,7 +13,7 @@ import { sendWorkflowNotificationEmail } from "@/lib/publish/email";
 export async function sendSlack(webhookUrl: string | undefined, text: string): Promise<void> {
   const url = webhookUrl?.trim();
   if (!url) {
-    console.log("[SmartAlerts] Slack skipped: no webhook URL");
+    logger.info("[SmartAlerts] Slack skipped: no webhook URL");
     return;
   }
   try {
@@ -22,7 +23,7 @@ export async function sendSlack(webhookUrl: string | undefined, text: string): P
       body: JSON.stringify({ text }),
     });
   } catch (e) {
-    console.error("[SmartAlerts] Slack failed:", e);
+    logger.error("[SmartAlerts] Slack failed:", e);
   }
 }
 
@@ -32,13 +33,13 @@ export async function sendSlack(webhookUrl: string | undefined, text: string): P
  */
 export async function sendEmail(to: string | undefined, subject: string, body: string): Promise<void> {
   if (!to?.includes("@")) {
-    console.log("[SmartAlerts] Email skipped: invalid or missing to");
+    logger.info("[SmartAlerts] Email skipped: invalid or missing to");
     return;
   }
   try {
     await sendWorkflowNotificationEmail(to, subject, body);
   } catch (e) {
-    console.error("[SmartAlerts] Email failed:", e);
+    logger.error("[SmartAlerts] Email failed:", e);
   }
 }
 
@@ -52,11 +53,11 @@ export async function sendSms(to: string | undefined, message: string): Promise<
   const from = process.env.TWILIO_FROM?.trim();
 
   if (!accountSid || !authToken || !from || !to?.replace(/\D/g, "")) {
-    console.log("[SmartAlerts] SMS skipped: TWILIO_* not configured or invalid to");
+    logger.info("[SmartAlerts] SMS skipped: TWILIO_* not configured or invalid to");
     return;
   }
   if (process.env.DRY_RUN === "true") {
-    console.log("[DRY RUN] SMS would be sent to:", to, "message:", message.substring(0, 50) + "...");
+    logger.info("[DRY RUN] SMS would be sent to:", to, "message:", message.substring(0, 50) + "...");
     return;
   }
 
@@ -82,6 +83,6 @@ export async function sendSms(to: string | undefined, message: string): Promise<
       throw new Error(`Twilio ${res.status}: ${err}`);
     }
   } catch (e) {
-    console.error("[SmartAlerts] SMS failed:", e);
+    logger.error("[SmartAlerts] SMS failed:", e);
   }
 }

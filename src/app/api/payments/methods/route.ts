@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -147,7 +148,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get payment methods error:', error);
+    logger.error('Get payment methods error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -223,7 +224,7 @@ export async function POST(request: NextRequest) {
       billingAddress
     };
 
-    console.log('Created payment method:', newPaymentMethod);
+    logger.info('Created payment method:', newPaymentMethod);
 
     // Log activity
     await logActivity(userId, "Payment Method Added", `Added ${type} payment method`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -237,7 +238,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Add payment method error:', error);
+    logger.error('Add payment method error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -304,7 +305,7 @@ function validatePaymentMethodDetails(type: string, details: any): { valid: bool
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

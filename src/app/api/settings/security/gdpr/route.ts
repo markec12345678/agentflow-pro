@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -118,7 +119,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get GDPR consents error:', error);
+    logger.error('Get GDPR consents error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update consent (in real implementation)
-    console.log('Updating GDPR consent:', consentId, consentGiven);
+    logger.info('Updating GDPR consent:', consentId, consentGiven);
 
     // Log activity
     await logActivity(userId, "GDPR Consent Updated", `Updated consent for ID: ${consentId}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -177,7 +178,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Update GDPR consent error:', error);
+    logger.error('Update GDPR consent error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -186,7 +187,7 @@ export async function POST(request: NextRequest) {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

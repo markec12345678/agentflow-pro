@@ -14,12 +14,12 @@ export async function sendWorkflowNotificationEmail(
   const from = process.env.EMAIL_FROM ?? "AgentFlow Pro <notifications@agentflow.pro>";
 
   if (!apiKey || !to?.includes("@")) {
-    console.log("[Email] Skipped (no RESEND_API_KEY or invalid to):", { to: to ? "***" : "missing" });
+    logger.info("[Email] Skipped (no RESEND_API_KEY or invalid to):", { to: to ? "***" : "missing" });
     return;
   }
 
   if (process.env.DRY_RUN === "true") {
-    console.log("[DRY RUN] Email would be sent to:", to, "subject:", subject);
+    logger.info("[DRY RUN] Email would be sent to:", to, "subject:", subject);
     return;
   }
 
@@ -43,7 +43,7 @@ export async function sendWorkflowNotificationEmail(
       throw new Error(`Resend API ${res.status}: ${err}`);
     }
   } catch (error) {
-    console.error("[Email] Failed to send workflow notification:", error);
+    logger.error("[Email] Failed to send workflow notification:", error);
     throw new Error("Failed to send workflow notification email");
   }
 }

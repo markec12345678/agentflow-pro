@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { parseISO, format } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
@@ -167,7 +168,7 @@ Napiši priporočilo v Slovenščini. Če je konkurenca višja, lahko predlagaš
       nights,
     });
   } catch (error) {
-    console.error("Price recommendation error:", error);
+    logger.error("Price recommendation error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to get price recommendation" },
       { status: 500 }

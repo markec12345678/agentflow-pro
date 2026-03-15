@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -116,7 +117,7 @@ export async function POST(
     }
 
     // Send notification (placeholder for actual notification system)
-    console.log(`Payment of €${validatedData.amount} added to reservation ${id}`);
+    logger.info(`Payment of €${validatedData.amount} added to reservation ${id}`);
 
     return NextResponse.json({
       success: true,
@@ -143,7 +144,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error("Payment creation error:", error);
+    logger.error("Payment creation error:", error);
     return NextResponse.json(
       { error: "Failed to create payment" },
       { status: 500 }

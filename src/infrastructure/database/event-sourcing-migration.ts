@@ -5,6 +5,7 @@
  */
 
 import { prisma } from '@/infrastructure/database/prisma'
+import { logger } from '@/infrastructure/observability/logger';
 import { InMemoryEventStore } from '@/infrastructure/events/in-memory-event-store'
 
 export class EventSourcingMigration {
@@ -28,7 +29,7 @@ export class EventSourcingMigration {
       const aggregateIds = await inMemoryStore.getAllAggregates()
       aggregates = aggregateIds.length
 
-      console.log(`Found ${aggregateIds.length} aggregates to migrate`)
+      logger.info(`Found ${aggregateIds.length} aggregates to migrate`)
 
       // Migrate each aggregate
       for (const aggregateId of aggregateIds) {
@@ -58,18 +59,18 @@ export class EventSourcingMigration {
             migrated += batch.length
           }
 
-          console.log(`Migrated aggregate ${aggregateId} (${events.length} events)`)
+          logger.info(`Migrated aggregate ${aggregateId} (${events.length} events)`)
         } catch (error: any) {
           errors.push(`Failed to migrate aggregate ${aggregateId}: ${error.message}`)
-          console.error(error)
+          logger.error(error)
         }
       }
 
-      console.log(`Migration complete: ${migrated} events, ${aggregates} aggregates`)
+      logger.info(`Migration complete: ${migrated} events, ${aggregates} aggregates`)
       
       return { migrated, aggregates, errors }
     } catch (error: any) {
-      console.error('Migration failed:', error)
+      logger.error('Migration failed:', error)
       throw error
     }
   }
@@ -110,12 +111,12 @@ export class EventSourcingMigration {
    * Rollback migration
    */
   static async rollback(): Promise<void> {
-    console.log('Rolling back migration...')
+    logger.info('Rolling back migration...')
     
     await prisma.workflowEvent.deleteMany()
     await prisma.workflowSnapshot.deleteMany()
     
-    console.log('Rollback complete')
+    logger.info('Rollback complete')
   }
 
   /**

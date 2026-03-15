@@ -4,6 +4,7 @@
  */
 
 import Redis from 'ioredis';
+import { logger } from '@/infrastructure/observability/logger';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface TraceSpan {
@@ -120,7 +121,7 @@ export class DistributedTracingManager {
       inputSize: JSON.stringify(input).length,
     });
 
-    console.log(`🔍 Started trace ${traceId} for workflow ${workflowId}`);
+    logger.info(`🔍 Started trace ${traceId} for workflow ${workflowId}`);
     return traceId;
   }
 
@@ -141,7 +142,7 @@ export class DistributedTracingManager {
 
     const trace = this.activeTraces.get(traceId);
     if (!trace) {
-      console.warn(`⚠️ Trace ${traceId} not found`);
+      logger.warn(`⚠️ Trace ${traceId} not found`);
       return '';
     }
 
@@ -163,14 +164,14 @@ export class DistributedTracingManager {
 
     // Check span limit
     if (trace.spans.length > this.config.maxSpansPerTrace) {
-      console.warn(`⚠️ Trace ${traceId} exceeded max spans limit`);
+      logger.warn(`⚠️ Trace ${traceId} exceeded max spans limit`);
       return spanId;
     }
 
     // Save trace state
     this.saveTraceState(trace);
     
-    console.log(`📊 Added span ${spanId} (${operationName}) to trace ${traceId}`);
+    logger.info(`📊 Added span ${spanId} (${operationName}) to trace ${traceId}`);
     return spanId;
   }
 
@@ -200,7 +201,7 @@ export class DistributedTracingManager {
     // Save trace state
     this.saveTraceState(trace);
     
-    console.log(`✅ Completed span ${spanId} in ${span.duration}ms`);
+    logger.info(`✅ Completed span ${spanId} in ${span.duration}ms`);
   }
 
   /**
@@ -264,7 +265,7 @@ export class DistributedTracingManager {
     // Remove from active traces
     this.activeTraces.delete(traceId);
     
-    console.log(`🏁 Ended trace ${traceId} in ${trace.duration}ms with status ${status}`);
+    logger.info(`🏁 Ended trace ${traceId} in ${trace.duration}ms with status ${status}`);
   }
 
   /**

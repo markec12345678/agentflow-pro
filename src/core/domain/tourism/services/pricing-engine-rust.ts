@@ -88,11 +88,11 @@ function isNapiAvailable(): boolean {
     // Try to access the NAPI function
     if (typeof napiCalculatePrice === 'function') {
       napiModuleLoaded = true;
-      console.log('[RustPricingEngine] NAPI module loaded successfully');
+      logger.info('[RustPricingEngine] NAPI module loaded successfully');
       return true;
     }
   } catch (error) {
-    console.warn(
+    logger.warn(
       '[RustPricingEngine] NAPI module not available:',
       error instanceof Error ? error.message : error
     );

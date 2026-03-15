@@ -59,7 +59,7 @@ export default function BillingPortal({ userId }: BillingPortalProps) {
       setSubscription(data.subscription);
       setInvoices(data.invoices || []);
     } catch (error) {
-      console.error('Failed to load billing data:', error);
+      logger.error('Failed to load billing data:', error);
       toast.error('Napaka pri nalaganju billing podatkov');
     } finally {
       setLoading(false);

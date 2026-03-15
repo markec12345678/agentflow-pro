@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       count: messages.length
     });
   } catch (error) {
-    console.error("Get messages error:", error);
+    logger.error("Get messages error:", error);
     return NextResponse.json(
       { error: "Failed to get messages" },
       { status: 500 }
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message }, { status: 201 });
   } catch (error) {
-    console.error("Send message error:", error);
+    logger.error("Send message error:", error);
     return NextResponse.json(
       { error: "Failed to send message" },
       { status: 500 }

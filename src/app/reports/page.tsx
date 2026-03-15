@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { 
   FileText, 
   Calendar, 
@@ -301,7 +302,7 @@ export default function ReportsPage() {
   };
 
   const handleDownloadReport = (report: GeneratedReport) => {
-    console.log(`Downloading report: ${report.name}`);
+    logger.info(`Downloading report: ${report.name}`);
     // Simulate download
     const link = document.createElement('a');
     link.href = report.fileUrl || '#';
@@ -310,7 +311,7 @@ export default function ReportsPage() {
   };
 
   const handleShareReport = (report: GeneratedReport) => {
-    console.log(`Sharing report: ${report.name}`);
+    logger.info(`Sharing report: ${report.name}`);
     // Simulate share functionality
     if (navigator.share) {
       navigator.share({

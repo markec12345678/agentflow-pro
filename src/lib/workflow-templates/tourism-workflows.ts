@@ -18,6 +18,7 @@
  */
 
 import type { Workflow, WorkflowAction, WorkflowTrigger } from '@prisma/client';
+import { logger } from '@/infrastructure/observability/logger';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -468,7 +469,7 @@ export async function createWorkflowFromTemplate(
     },
   });
 
-  console.log(`✅ Workflow created from template: ${templateId}`);
+  logger.info(`✅ Workflow created from template: ${templateId}`);
   return workflow;
 }
 

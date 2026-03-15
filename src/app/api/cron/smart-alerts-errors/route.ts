@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { triggerAlert } from "@/alerts/smartAlerts";
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
       triggered,
     });
   } catch (error) {
-    console.error("Smart alerts errors cron:", error);
+    logger.error("Smart alerts errors cron:", error);
     return NextResponse.json(
       { error: "Smart alerts errors cron failed" },
       { status: 500 }

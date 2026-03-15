@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { scenario, action, data, hookId } = body;
 
-    console.log('Make.com webhook received:', { scenario, action, hookId });
+    logger.info('Make.com webhook received:', { scenario, action, hookId });
 
     // Route to appropriate action
     switch (action) {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         );
     }
   } catch (error) {
-    console.error('Make.com webhook error:', error);
+    logger.error('Make.com webhook error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Webhook processing failed' },
       { status: 500 }

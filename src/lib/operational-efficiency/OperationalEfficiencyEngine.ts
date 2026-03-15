@@ -35,6 +35,7 @@ import {
   EnergyType,
 } from '@/types/operational-efficiency';
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from '@/infrastructure/observability/logger';
 import * as cron from 'node-cron';
 import geoip from 'geoip-lite';
 
@@ -73,7 +74,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async optimizeStaffSchedule(propertyId: string, date: Date): Promise<StaffSchedule[]> {
-    console.log(`🗓️ Optimizing staff schedule for property ${propertyId} on ${date.toDateString()}`);
+    logger.info(`🗓️ Optimizing staff schedule for property ${propertyId} on ${date.toDateString()}`);
     
     const currentSchedules = await this.getStaffSchedule(propertyId, date);
     const optimizedSchedules = await this.applySchedulingOptimization(currentSchedules, propertyId, date);
@@ -82,7 +83,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
     const cacheKey = `staff-schedule-${propertyId}-${date.toISOString().split('T')[0]}`;
     this.optimizationCache.set(cacheKey, optimizedSchedules);
     
-    console.log(`✅ Optimized ${optimizedSchedules.length} staff schedules`);
+    logger.info(`✅ Optimized ${optimizedSchedules.length} staff schedules`);
     return optimizedSchedules;
   }
 
@@ -102,7 +103,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
         // Clear relevant cache
         this.clearScheduleCache(propertyId);
         
-        console.log(`📝 Updated staff schedule: ${scheduleId}`);
+        logger.info(`📝 Updated staff schedule: ${scheduleId}`);
         return updatedSchedule;
       }
     }
@@ -150,7 +151,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async analyzeStaffEfficiency(propertyId: string, period: DateRange): Promise<StaffEfficiencyAnalysis> {
-    console.log(`📊 Analyzing staff efficiency for property ${propertyId}`);
+    logger.info(`📊 Analyzing staff efficiency for property ${propertyId}`);
     
     const analysis: StaffEfficiencyAnalysis = {
       overallEfficiency: 0.87,
@@ -257,7 +258,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async optimizeInventory(propertyId: string, category?: InventoryCategory): Promise<InventoryOptimization> {
-    console.log(`📦 Optimizing inventory for property ${propertyId}`);
+    logger.info(`📦 Optimizing inventory for property ${propertyId}`);
     
     const items = await this.getInventoryLevels(propertyId, category);
     const currentLevels = items.map(item => ({
@@ -337,7 +338,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
       },
     };
     
-    console.log(`📦 Updated inventory: ${targetItem.name} (${quantity > 0 ? '+' : ''}${quantity})`);
+    logger.info(`📦 Updated inventory: ${targetItem.name} (${quantity > 0 ? '+' : ''}${quantity})`);
     return transaction;
   }
 
@@ -397,7 +398,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
       }
     }
     
-    console.log(`🛒 Generated ${orders.length} purchase orders`);
+    logger.info(`🛒 Generated ${orders.length} purchase orders`);
     return orders;
   }
 
@@ -415,7 +416,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async optimizeMaintenanceSchedule(propertyId: string): Promise<MaintenanceSchedule> {
-    console.log(`🔧 Optimizing maintenance schedule for property ${propertyId}`);
+    logger.info(`🔧 Optimizing maintenance schedule for property ${propertyId}`);
     
     const requests = await this.getMaintenanceRequests(propertyId, 'requested');
     const scheduledRequests = requests.map(request => ({
@@ -452,7 +453,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async predictMaintenanceNeeds(propertyId: string, period: DateRange): Promise<MaintenancePrediction[]> {
-    console.log(`🔮 Predicting maintenance needs for property ${propertyId}`);
+    logger.info(`🔮 Predicting maintenance needs for property ${propertyId}`);
     
     // Mock predictions based on historical data
     const predictions: MaintenancePrediction[] = [
@@ -492,7 +493,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
         
         requests[requestIndex] = updatedRequest;
         
-        console.log(`🔧 Updated maintenance request: ${requestId}`);
+        logger.info(`🔧 Updated maintenance request: ${requestId}`);
         return updatedRequest;
       }
     }
@@ -514,12 +515,12 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async optimizeHousekeepingRoutes(propertyId: string, date: Date): Promise<HousekeepingRoute[]> {
-    console.log(`🧹 Optimizing housekeeping routes for property ${propertyId}`);
+    logger.info(`🧹 Optimizing housekeeping routes for property ${propertyId}`);
     
     const tasks = await this.getHousekeepingTasks(propertyId, date);
     const routes = await this.createOptimizedRoutes(tasks);
     
-    console.log(`🧹 Created ${routes.length} optimized housekeeping routes`);
+    logger.info(`🧹 Created ${routes.length} optimized housekeeping routes`);
     return routes;
   }
 
@@ -535,7 +536,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
         
         tasks[taskIndex] = updatedTask;
         
-        console.log(`🧹 Updated housekeeping task: ${taskId}`);
+        logger.info(`🧹 Updated housekeeping task: ${taskId}`);
         return updatedTask;
       }
     }
@@ -544,7 +545,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async analyzeHousekeepingEfficiency(propertyId: string, period: DateRange): Promise<HousekeepingEfficiency> {
-    console.log(`📊 Analyzing housekeeping efficiency for property ${propertyId}`);
+    logger.info(`📊 Analyzing housekeeping efficiency for property ${propertyId}`);
     
     const efficiency: HousekeepingEfficiency = {
       overallEfficiency: 0.88,
@@ -590,7 +591,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async optimizeEnergyUsage(propertyId: string): Promise<EnergyOptimization[]> {
-    console.log(`⚡ Optimizing energy usage for property ${propertyId}`);
+    logger.info(`⚡ Optimizing energy usage for property ${propertyId}`);
     
     const optimizations: EnergyOptimization[] = [
       {
@@ -629,7 +630,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async predictEnergyNeeds(propertyId: string, period: DateRange): Promise<EnergyPrediction> {
-    console.log(`⚡ Predicting energy needs for property ${propertyId}`);
+    logger.info(`⚡ Predicting energy needs for property ${propertyId}`);
     
     const prediction: EnergyPrediction = {
       type: 'electricity',
@@ -679,7 +680,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async trackEnergySavings(propertyId: string, optimizationId: string): Promise<EnergySavings> {
-    console.log(`⚡ Tracking energy savings for optimization ${optimizationId}`);
+    logger.info(`⚡ Tracking energy savings for optimization ${optimizationId}`);
     
     const savings: EnergySavings = {
       optimizationId,
@@ -701,7 +702,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
    * Analytics and Insights Methods
    */
   async getOperationalMetrics(propertyId: string, period: DateRange): Promise<OperationalMetrics> {
-    console.log(`📊 Getting operational metrics for property ${propertyId}`);
+    logger.info(`📊 Getting operational metrics for property ${propertyId}`);
     
     const metrics: OperationalMetrics = {
       overallEfficiency: 0.87,
@@ -764,7 +765,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async generateEfficiencyReport(propertyId: string, period: DateRange): Promise<EfficiencyReport> {
-    console.log(`📄 Generating efficiency report for property ${propertyId}`);
+    logger.info(`📄 Generating efficiency report for property ${propertyId}`);
     
     const report: EfficiencyReport = {
       id: uuidv4(),
@@ -838,7 +839,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async identifyOptimizationOpportunities(propertyId: string): Promise<OptimizationOpportunity[]> {
-    console.log(`🔍 Identifying optimization opportunities for property ${propertyId}`);
+    logger.info(`🔍 Identifying optimization opportunities for property ${propertyId}`);
     
     const opportunities: OptimizationOpportunity[] = [
       {
@@ -875,7 +876,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   async benchmarkPerformance(propertyId: string, industry: string): Promise<BenchmarkReport> {
-    console.log(`📊 Benchmarking performance for property ${propertyId} against ${industry} industry`);
+    logger.info(`📊 Benchmarking performance for property ${propertyId} against ${industry} industry`);
     
     const report: BenchmarkReport = {
       propertyId,
@@ -931,14 +932,14 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   private initializeCronJobs(): void {
     // Schedule optimization tasks
     const staffOptimizationJob = cron.schedule('0 2 * * *', async () => {
-      console.log('🗓️ Running daily staff scheduling optimization');
+      logger.info('🗓️ Running daily staff scheduling optimization');
       // Implementation would optimize schedules for all properties
     }, {
       scheduled: false,
     });
 
     const inventoryOptimizationJob = cron.schedule('0 3 * * *', async () => {
-      console.log('📦 Running daily inventory optimization');
+      logger.info('📦 Running daily inventory optimization');
       // Implementation would optimize inventory for all properties
     }, {
       scheduled: false,
@@ -949,7 +950,7 @@ export class OperationalEfficiencyEngine implements IOperationalEfficiencyEngine
   }
 
   private initializeMockData(): void {
-    console.log('🔧 Initializing operational efficiency engine with mock data');
+    logger.info('🔧 Initializing operational efficiency engine with mock data');
     
     // Initialize mock data for development
     this.staffSchedules.set('property-1', []);

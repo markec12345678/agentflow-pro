@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn, useSession } from "next-auth/react";
+import { logger } from '@/infrastructure/observability/logger';
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -133,7 +134,7 @@ function LoginForm() {
         redirect: false, // Don't auto-redirect, we'll handle it
       });
       
-      console.log('[Login] signIn result:', result);
+      logger.info('[Login] signIn result:', result);
       
       if (result?.error) {
         setError(result.error);
@@ -144,7 +145,7 @@ function LoginForm() {
         setError("Neznana napaka pri prijavi");
       }
     } catch (err) {
-      console.error('[Login] Login error:', err);
+      logger.error('[Login] Login error:', err);
       setError("Napaka pri prijavi. Poskusite ponovno.");
     } finally {
       setLoading(false);

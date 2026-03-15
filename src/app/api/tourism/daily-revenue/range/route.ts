@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ days });
   } catch (error) {
-    console.error("Daily revenue range error:", error);
+    logger.error("Daily revenue range error:", error);
     return NextResponse.json({ error: "Failed to fetch revenue range" }, { status: 500 });
   }
 }

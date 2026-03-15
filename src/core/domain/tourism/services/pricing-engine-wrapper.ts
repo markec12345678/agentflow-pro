@@ -44,14 +44,14 @@ function getRustEngine(): RustPricingEngine | null {
       rustAvailable = rustEngine.isAvailable();
 
       if (rustAvailable) {
-        console.log("[PricingEngine] Rust engine initialized successfully");
+        logger.info("[PricingEngine] Rust engine initialized successfully");
       } else {
-        console.warn(
+        logger.warn(
           "[PricingEngine] Rust binary not found, will use TypeScript fallback"
         );
       }
     } catch (error) {
-      console.warn(
+      logger.warn(
         "[PricingEngine] Rust engine initialization failed:",
         error instanceof Error ? error.message : error
       );
@@ -142,8 +142,8 @@ function fromRustResult(
  * const result = await calculatePrice(100, '2026-03-15', '2026-03-20', {
  *   seasonRates: property.seasonRates
  * });
- * console.log(result.finalPrice); // 450
- * console.log(result.adjustments); // [{ rule: 'length_of_stay', amount: -50, percent: 15 }]
+ * logger.info(result.finalPrice); // 450
+ * logger.info(result.adjustments); // [{ rule: 'length_of_stay', amount: -50, percent: 15 }]
  * ```
  */
 export async function calculatePrice(
@@ -171,7 +171,7 @@ export async function calculatePrice(
 
       return fromRustResult(rustResult, { engine: "rust" });
     } catch (error) {
-      console.warn(
+      logger.warn(
         "[PricingEngine] Rust calculation failed, falling back to TypeScript:",
         error instanceof Error ? error.message : error
       );
@@ -251,7 +251,7 @@ export async function calculatePriceBatch(
         engine: "rust" as const,
       }));
     } catch (error) {
-      console.warn(
+      logger.warn(
         "[PricingEngine] Rust batch calculation failed, falling back to TypeScript:",
         error instanceof Error ? error.message : error
       );
@@ -316,7 +316,7 @@ export interface EngineInfo {
  * @example
  * ```typescript
  * const info = getEngineInfo();
- * console.log(`Using ${info.engine} engine: ${info.available}`);
+ * logger.info(`Using ${info.engine} engine: ${info.available}`);
  * ```
  */
 export function getEngineInfo(): EngineInfo {

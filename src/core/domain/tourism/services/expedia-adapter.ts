@@ -130,7 +130,7 @@ export class ExpediaAdapter implements PmsAdapter {
 
         result.synced++;
       } catch (error) {
-        console.error("[Expedia Sync] Error:", error);
+        logger.error("[Expedia Sync] Error:", error);
         result.errors.push({
           externalId: r.externalId,
           error: error instanceof Error ? error.message : "Unknown error",

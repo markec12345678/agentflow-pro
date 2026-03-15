@@ -5,6 +5,7 @@
  */
 
 import { prisma } from "@/database/schema";
+import { logger } from '@/infrastructure/observability/logger';
 import type { PmsAdapter, PmsReservation, PmsSyncResult, PmsAdapterConfig } from "./pms-adapter";
 import {
   shouldAutoApprove,
@@ -157,7 +158,7 @@ export class MewsAdapter implements PmsAdapter {
             reservation.id,
             config.propertyId,
             guestId
-          ).catch((err) => console.error("Booking confirmation trigger:", err));
+          ).catch((err) => logger.error("Booking confirmation trigger:", err));
         }
         if (r.status === "pending") {
           const property = await prisma.property.findUnique({

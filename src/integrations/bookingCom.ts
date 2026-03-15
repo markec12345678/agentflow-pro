@@ -4,6 +4,7 @@
  */
 
 import axios from 'axios';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface BookingComProperty {
   id: string;
@@ -69,7 +70,7 @@ export class BookingComAPI {
 
       return response.data.result || [];
     } catch (error) {
-      console.error('Error fetching Booking.com properties:', error);
+      logger.error('Error fetching Booking.com properties:', error);
       return [];
     }
   }
@@ -85,7 +86,7 @@ export class BookingComAPI {
 
       return response.data.result?.[0] || null;
     } catch (error) {
-      console.error('Error fetching property details:', error);
+      logger.error('Error fetching property details:', error);
       return null;
     }
   }
@@ -110,7 +111,7 @@ export class BookingComAPI {
 
       return response.data.result || [];
     } catch (error) {
-      console.error('Error checking availability:', error);
+      logger.error('Error checking availability:', error);
       return [];
     }
   }
@@ -143,7 +144,7 @@ export class BookingComAPI {
 
       return response.data.result || null;
     } catch (error) {
-      console.error('Error creating reservation:', error);
+      logger.error('Error creating reservation:', error);
       return null;
     }
   }
@@ -158,7 +159,7 @@ export class BookingComAPI {
 
       return response.data.success || false;
     } catch (error) {
-      console.error('Error cancelling reservation:', error);
+      logger.error('Error cancelling reservation:', error);
       return false;
     }
   }
@@ -177,7 +178,7 @@ export class BookingComAPI {
       const response = await axios.get(`${this.baseURL}/reservations`, { params });
       return response.data.result || [];
     } catch (error) {
-      console.error('Error fetching reservations:', error);
+      logger.error('Error fetching reservations:', error);
       return [];
     }
   }
@@ -200,7 +201,7 @@ export class BookingComAPI {
 
       return response.data.result || null;
     } catch (error) {
-      console.error('Error updating reservation:', error);
+      logger.error('Error updating reservation:', error);
       return null;
     }
   }

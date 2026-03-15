@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import {
   getAllTemplateCounts,
   searchTemplates,
@@ -106,7 +107,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('[Templates API] Error:', error);
+    logger.error('[Templates API] Error:', error);
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch templates'

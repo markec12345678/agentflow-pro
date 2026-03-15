@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        console.warn("[Booking.com Webhook] Unknown notification type:", notification.type);
+        logger.warn("[Booking.com Webhook] Unknown notification type:", notification.type);
     }
 
     // Log webhook
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[Booking.com Webhook] Error:", error);
+    logger.error("[Booking.com Webhook] Error:", error);
 
     // Log error
     await prisma.webhookLog.create({
@@ -124,7 +124,7 @@ async function handleNewReservation(
   });
 
   if (existing) {
-    console.log("[Booking.com Webhook] Reservation already exists:", reservation.reservation_id);
+    logger.info("[Booking.com Webhook] Reservation already exists:", reservation.reservation_id);
     return;
   }
 
@@ -195,7 +195,7 @@ async function handleCancelledReservation(
   });
 
   if (!existing) {
-    console.log("[Booking.com Webhook] Cancelled reservation not found:", reservation.reservation_id);
+    logger.info("[Booking.com Webhook] Cancelled reservation not found:", reservation.reservation_id);
     return;
   }
 

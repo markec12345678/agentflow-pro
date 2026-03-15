@@ -1,0 +1,135 @@
+// =============================================================================
+// Reservation Management
+// Bookings, payments, and guest assignments
+// =============================================================================
+
+model Reservation {
+  id                  String              @id @default(cuid())
+  propertyId          String
+  roomId              String
+  guestId             String?
+  userId              String?
+  confirmationCode    String              @unique
+  status              String              @default("pending") // pending, confirmed, checked_in, checked_out, cancelled, no_show
+  checkIn             DateTime
+  checkOut            DateTime
+  guests              Int
+  basePrice           Float
+  totalPrice          Float
+  paidAmount          Float               @default(0)
+  remainingAmount     Float
+  deposit             Float               @default(0)
+  touristTax          Float               @default(0)
+  currency            String              @default("EUR")
+  notes               String?
+  source              String              @default("direct") // direct, booking.com, airbnb, expedia, other
+  metadata            Json?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  cancelledAt         DateTime?
+  cancelledBy         String?
+  cancellationReason  String?
+  
+  // Relations
+  property            Property            @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  room                Room                @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  guest               Guest?              @relation(fields: [guestId], references: [id])
+  user                User?               @relation(fields: [userId], references: [id])
+  payments            Payment[]
+  invoices            Invoice[]
+  review              Review?
+  communications      GuestCommunication[]
+  staffAssignments    StaffAssignment[]
+  taskCollaborations  TaskCollaboration[]
+
+  @@index([propertyId, status])
+  @@index([roomId, status])
+  @@index([guestId])
+  @@index([checkIn, checkOut])
+  @@index([confirmationCode])
+  @@map("reservations")
+}
+
+model Inquiry {
+  id          String    @id @default(cuid())
+  propertyId  String
+  name        String
+  email       String
+  phone       String?
+  message     String
+  checkIn     DateTime?
+  checkOut    DateTime?
+  guests      Int?
+  status      String    @default("new") // new, contacted, converted, lost
+  response    String?
+  respondedAt DateTime?
+  respondedBy String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, status])
+  @@index([email])
+  @@map("inquiries")
+}
+
+model Guest {
+  id              String                @id @default(cuid())
+  propertyId      String?
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  country         String?
+  city            String?
+  address         String?
+  postalCode      String?
+  idDocumentType  String?               // passport, id_card, drivers_license
+  idDocumentNumber String?
+  idDocumentIssuedBy String?
+  birthDate       DateTime?
+  notes           String?
+  isVip           Boolean               @default(false)
+  totalStays      Int                   @default(0)
+  totalSpent      Float                 @default(0)
+  lastStayAt      DateTime?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  
+  // Relations
+  property        Property?             @relation(fields: [propertyId], references: [id])
+  reservations    Reservation[]
+  communications  GuestCommunication[]
+  reviews         Review[]
+  preferences     GuestPreference[]
+
+  @@index([propertyId])
+  @@index([email])
+  @@index([phone])
+  @@map("guests")
+}
+
+model GuestCommunication {
+  id              String    @id @default(cuid())
+  reservationId   String?
+  propertyId      String
+  guestId         String?
+  type            String    // email, sms, whatsapp, phone, in_person
+  direction       String    // inbound, outbound
+  subject         String?
+  content         String
+  metadata        Json?
+  sentAt          DateTime?
+  receivedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  
+  // Relations
+  reservation     Reservation? @relation(fields: [reservationId], references: [id])
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guest           Guest?    @relation(fields: [guestId], references: [id])
+
+  @@index([reservationId])
+  @@index([propertyId])
+  @@index([guestId])
+  @@map("guest_communications")
+}

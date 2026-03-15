@@ -135,7 +135,7 @@ async function handleCallback(request: NextRequest): Promise<NextResponse> {
       new URL(`/dashboard/tourism/airbnb?connected=true`, request.url)
     );
   } catch (error) {
-    console.error("[Airbnb OAuth2] Error:", error);
+    logger.error("[Airbnb OAuth2] Error:", error);
     return NextResponse.redirect(
       new URL(`/dashboard/tourism/airbnb?error=${error instanceof Error ? error.message : "Unknown error"}`, request.url)
     );
@@ -217,7 +217,7 @@ async function refreshToken(request: NextRequest): Promise<NextResponse> {
       expiresAt: new Date(Date.now() + tokens.expires_in * 1000),
     });
   } catch (error) {
-    console.error("[Airbnb Token Refresh] Error:", error);
+    logger.error("[Airbnb Token Refresh] Error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Token refresh failed" },
       { status: 500 }
@@ -276,7 +276,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[Airbnb Disconnect] Error:", error);
+    logger.error("[Airbnb Disconnect] Error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Disconnect failed" },
       { status: 500 }

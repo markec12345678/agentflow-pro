@@ -1,0 +1,20 @@
+// Auth options stub
+export const authOptions = {
+  providers: [],
+  callbacks: {},
+  pages: {
+    signIn: '/auth/signin'
+  }
+}
+
+export const authService = {
+  async login(email: string, password: string) {
+    return { user: { email }, token: 'token' }
+  },
+  async logout() {
+    return true
+  },
+  async getSession(token: string) {
+    return { user: { email: 'user@example.com' } }
+  }
+}

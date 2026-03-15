@@ -4,6 +4,7 @@
  */
 
 import { prisma } from "@/database/schema";
+import { logger } from '@/infrastructure/observability/logger';
 import { sendSlack, sendEmail, sendSms } from "./channels";
 import {
   getDirectorContact,
@@ -113,7 +114,7 @@ async function logAlert(
       data: { eventType, entityId, channel },
     });
   } catch (e) {
-    console.error("[SmartAlerts] Failed to log alert:", e);
+    logger.error("[SmartAlerts] Failed to log alert:", e);
   }
 }
 

@@ -1,0 +1,167 @@
+// =============================================================================
+// Event Sourcing & Analytics
+// Workflow events, snapshots, agent runs, and statistics
+// =============================================================================
+
+// Workflow Event Store
+model WorkflowEvent {
+  id          String   @id @default(cuid())
+  eventId     String   @unique
+  aggregateId String   // ID agregata (npr. AgentRun ID)
+  aggregateType String // Tip agregata (npr. 'AgentRun', 'Workflow')
+  type        String   // Tip eventa (npr. 'AgentRunStarted')
+  payload     Json     // Payload eventa
+  version     Int      // Verzija eventa
+  metadata    Json?    // Metadata (userId, correlationId, itd.)
+  occurredAt  DateTime // Čas ko je dogodek nastal
+  createdAt   DateTime @default(now())
+
+  @@index([aggregateId])
+  @@index([aggregateType])
+  @@index([type])
+  @@index([occurredAt])
+  @@index([aggregateId, version])
+  @@map("workflow_events")
+}
+
+// Workflow Snapshots (za optimizacijo loading-a)
+model WorkflowSnapshot {
+  id          String   @id @default(cuid())
+  aggregateId String   @unique
+  version     Int      // Verzija snapshot-a
+  state       Json     // State agregata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([aggregateId])
+  @@index([version])
+  @@map("workflow_snapshots")
+}
+
+// Event Log (za auditing in debugging)
+model EventLog {
+  id          String   @id @default(cuid())
+  eventId     String   @unique
+  type        String   // Tip eventa
+  aggregateId String?  // ID agregata (optional)
+  userId      String?  // ID userja ki je sprožil event
+  payload     Json     // Payload
+  metadata    Json?    // Metadata
+  processed   Boolean  @default(false) // Ali je event procesiran
+  error       String?  // Error če je processing failal
+  createdAt   DateTime @default(now())
+  processedAt DateTime?
+
+  @@index([type])
+  @@index([aggregateId])
+  @@index([userId])
+  @@index([processed])
+  @@index([createdAt])
+  @@map("event_log")
+}
+
+// Agent Run View (Read Model za queries)
+model AgentRunView {
+  id              String   @id @default(cuid())
+  workflowId      String
+  status          String   // pending, running, completed, failed
+  inputData       Json?
+  result          Json?
+  error           String?
+  errorType       String?
+  totalSteps      Int      @default(0)
+  totalDuration   Int      @default(0) // milliseconds
+  totalTokensUsed Int      @default(0)
+  userId          String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  failedAtStep    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  steps           AgentRunStep[]
+
+  @@index([workflowId])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@map("agent_run_view")
+}
+
+// Agent Run Step (Read Model)
+model AgentRunStep {
+  id          String   @id @default(cuid())
+  runId       String
+  name        String
+  status      String   // pending, running, completed, failed
+  input       Json?
+  result      Json?
+  error       String?
+  duration    Int      @default(0) // milliseconds
+  tokensUsed  Int      @default(0)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  run         AgentRunView @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+  @@index([status])
+  @@map("agent_run_steps")
+}
+
+// Analytics Run Statistics
+model AnalyticsRunStats {
+  id            String   @id @default(cuid())
+  workflowId    String   @unique
+  totalRuns     Int      @default(0)
+  successfulRuns Int     @default(0)
+  failedRuns    Int      @default(0)
+  avgDuration   Int      @default(0) // milliseconds
+  avgTokens     Int      @default(0)
+  lastRunAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([workflowId])
+  @@map("analytics_run_stats")
+}
+
+// Analytics Daily Statistics
+model AnalyticsDailyStats {
+  id            String   @id @default(cuid())
+  date          DateTime @unique
+  totalRuns     Int      @default(0)
+  completedRuns Int      @default(0)
+  failedRuns    Int      @default(0)
+  totalDuration Int      @default(0) // milliseconds
+  totalTokens   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([date])
+  @@map("analytics_daily_stats")
+}
+
+// Agent Run (legacy - za backward compatibility)
+model AgentRun {
+  id              String   @id @default(cuid())
+  userId          String?
+  agentType       String
+  workflowId      String?
+  status          String
+  input           Json?
+  output          Json?
+  creditsConsumed Int      @default(3)
+  model           String?
+  inputTokens     Int?
+  outputTokens    Int?
+  costEst         Float?
+  latencyMs       Int?
+  createdAt       DateTime @default(now())
+
+  @@map("agent_runs")
+}

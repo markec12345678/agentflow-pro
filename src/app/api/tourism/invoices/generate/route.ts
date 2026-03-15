@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       totalAmount: result.totalAmount,
     });
   } catch (error) {
-    console.error("[Generate Invoice] Error:", error);
+    logger.error("[Generate Invoice] Error:", error);
     return NextResponse.json(
       { error: "Failed to generate invoice" },
       { status: 500 }

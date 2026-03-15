@@ -1,4 +1,5 @@
 // import { Agent } from '../agents/Agent';
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface Agent {
   id: string;
@@ -42,7 +43,7 @@ export class ContextManager {
     ]);
 
     const executionTime = Date.now() - startTime;
-    console.log(`Context enrichment completed in ${executionTime}ms`);
+    logger.info(`Context enrichment completed in ${executionTime}ms`);
 
     return {
       query,
@@ -122,7 +123,7 @@ export class ContextManager {
         success: exec.data.success
       }));
     } catch (error) {
-      console.error('Failed to get historical context:', error);
+      logger.error('Failed to get historical context:', error);
       return [];
     }
   }
@@ -141,7 +142,7 @@ export class ContextManager {
         }))
       };
     } catch (error) {
-      console.error('Failed to get knowledge graph context:', error);
+      logger.error('Failed to get knowledge graph context:', error);
       return { nodes: [] };
     }
   }
@@ -152,7 +153,7 @@ export class ContextManager {
       const prefs = await this.memoryMCP.getUserPreferences(userId);
       return prefs || {};
     } catch (error) {
-      console.error('Failed to get user preferences:', error);
+      logger.error('Failed to get user preferences:', error);
       return {};
     }
   }
@@ -326,9 +327,9 @@ export class MemoryMCP {
         }]);
       }
 
-      console.log(`[MemoryMCP] Stored preferences for guest: ${guestId}`);
+      logger.info(`[MemoryMCP] Stored preferences for guest: ${guestId}`);
     } catch (error) {
-      console.error(`[MemoryMCP] Failed to store guest preferences:`, error);
+      logger.error(`[MemoryMCP] Failed to store guest preferences:`, error);
       // Don't throw - this is non-critical
     }
   }
@@ -422,7 +423,7 @@ export class MemoryMCP {
           }]);
         }
 
-        console.log(`[MemoryMCP] Updated knowledge graph with reservation: ${data.reservationId}`);
+        logger.info(`[MemoryMCP] Updated knowledge graph with reservation: ${data.reservationId}`);
       }
 
       // Handle guest entity updates
@@ -433,7 +434,7 @@ export class MemoryMCP {
           observations: [`Guest entity updated at: ${timestampStr}`]
         }]);
 
-        console.log(`[MemoryMCP] Updated guest entity: ${data.guestId}`);
+        logger.info(`[MemoryMCP] Updated guest entity: ${data.guestId}`);
       }
 
       // Handle property entity updates
@@ -444,10 +445,10 @@ export class MemoryMCP {
           observations: [`Property entity updated at: ${timestampStr}`]
         }]);
 
-        console.log(`[MemoryMCP] Updated property entity: ${data.propertyId}`);
+        logger.info(`[MemoryMCP] Updated property entity: ${data.propertyId}`);
       }
     } catch (error) {
-      console.error(`[MemoryMCP] Failed to update knowledge graph:`, error);
+      logger.error(`[MemoryMCP] Failed to update knowledge graph:`, error);
       // Don't throw - this is non-critical
     }
   }
@@ -463,17 +464,17 @@ export class MemoryMCP {
   private createEntities(entities: Array<{ name: string; entityType: string; observations: string[] }>): void {
     // In a real implementation, this would call the Memory MCP server
     // For now, just log
-    console.log('[MemoryMCP] Creating entities:', entities);
+    logger.info('[MemoryMCP] Creating entities:', entities);
   }
 
   private addObservations(obs: Array<{ entityName: string; contents: string[] }>): void {
     // In a real implementation, this would call the Memory MCP server
-    console.log('[MemoryMCP] Adding observations:', obs);
+    logger.info('[MemoryMCP] Adding observations:', obs);
   }
 
   private createRelations(relations: Array<{ from: string; to: string; relationType: string }>): void {
     // In a real implementation, this would call the Memory MCP server
-    console.log('[MemoryMCP] Creating relations:', relations);
+    logger.info('[MemoryMCP] Creating relations:', relations);
   }
 }
 

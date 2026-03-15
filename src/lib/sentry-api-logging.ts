@@ -10,7 +10,7 @@ export function withSentryLogging<T extends (...args: any[]) => any>(fn: T): T {
 }
 
 export function logApiError(error: Error, context?: any): void {
-  console.error('API Error:', error.message, context);
+  logger.error('API Error:', error.message, context);
 }
 
 export type ApiOperations = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

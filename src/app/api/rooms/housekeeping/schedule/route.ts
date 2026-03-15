@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
@@ -145,7 +146,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Housekeeping schedule fetch error:", error);
+    logger.error("Housekeeping schedule fetch error:", error);
     return NextResponse.json(
       { error: "Failed to fetch housekeeping schedule" },
       { status: 500 }
@@ -237,7 +238,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Housekeeping task creation error:", error);
+    logger.error("Housekeeping task creation error:", error);
     return NextResponse.json(
       { error: "Failed to create housekeeping task" },
       { status: 500 }

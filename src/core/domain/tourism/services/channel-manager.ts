@@ -241,7 +241,7 @@ export class ChannelManager {
     // In production, integrate with Booking.com Connectivity API
     // Documentation: https://partner.booking.com/en-us/tech/connectivity
 
-    console.log(`[Booking.com] Pushing ${updates.length} availability updates`);
+    logger.info(`[Booking.com] Pushing ${updates.length} availability updates`);
 
     // Mock implementation
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -254,7 +254,7 @@ export class ChannelManager {
     const config = this.config.channels.bookingCom;
     if (!config) return;
 
-    console.log(`[Booking.com] Pushing ${updates.length} price updates`);
+    logger.info(`[Booking.com] Pushing ${updates.length} price updates`);
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
@@ -265,7 +265,7 @@ export class ChannelManager {
     const config = this.config.channels.bookingCom;
     if (!config) return [];
 
-    console.log(`[Booking.com] Pulling bookings since ${since?.toISOString() || 'beginning'}`);
+    logger.info(`[Booking.com] Pulling bookings since ${since?.toISOString() || 'beginning'}`);
 
     // Mock implementation
     return [];
@@ -281,7 +281,7 @@ export class ChannelManager {
     // In production, integrate with Airbnb API
     // Documentation: https://www.airbnb.com/dws/associates
 
-    console.log(`[Airbnb] Pushing ${updates.length} availability updates`);
+    logger.info(`[Airbnb] Pushing ${updates.length} availability updates`);
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
@@ -292,7 +292,7 @@ export class ChannelManager {
     const config = this.config.channels.airbnb;
     if (!config) return;
 
-    console.log(`[Airbnb] Pushing ${updates.length} price updates`);
+    logger.info(`[Airbnb] Pushing ${updates.length} price updates`);
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
@@ -303,7 +303,7 @@ export class ChannelManager {
     const config = this.config.channels.airbnb;
     if (!config) return [];
 
-    console.log(`[Airbnb] Pulling bookings since ${since?.toISOString() || 'beginning'}`);
+    logger.info(`[Airbnb] Pulling bookings since ${since?.toISOString() || 'beginning'}`);
     return [];
   }
 
@@ -314,7 +314,7 @@ export class ChannelManager {
     const config = this.config.channels.expedia;
     if (!config) return;
 
-    console.log(`[Expedia] Pushing ${updates.length} availability updates`);
+    logger.info(`[Expedia] Pushing ${updates.length} availability updates`);
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
@@ -333,7 +333,7 @@ export class ChannelManager {
    * Perform automatic sync
    */
   private async performSync(): Promise<void> {
-    console.log('[ChannelManager] Performing automatic sync');
+    logger.info('[ChannelManager] Performing automatic sync');
 
     // Process sync queue
     while (this.syncQueue.length > 0) {
@@ -347,7 +347,7 @@ export class ChannelManager {
           await this.pushPrices(item.data);
         }
       } catch (error) {
-        console.error('[ChannelManager] Sync error:', error);
+        logger.error('[ChannelManager] Sync error:', error);
         // Re-queue failed item
         this.syncQueue.unshift(item);
       }

@@ -1,10 +1,11 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "./generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================================
@@ -539,6 +540,7 @@ model Property {
   pricingRules                 Json?
   reservationAutoApprovalRules Json?
   rnoId                        Int?
+  googlePlaceId                String?
   createdAt                    DateTime             @default(now())
   updatedAt                    DateTime             @updatedAt
   eturizemId                   String?
@@ -608,6 +610,35 @@ model Review {
   @@index([propertyId, status])
   @@index([platform])
   @@map("reviews")
+}
+
+// ============================================================================
+// REVIEW REQUEST AUTOMATION
+// ============================================================================
+
+model ReviewRequest {
+  id             String   @id @default(cuid())
+  reservationId  String
+  propertyId     String
+  guestEmail     String
+  guestPhone     String?
+  guestName      String
+  reviewUrl      String
+  channel        String   @default("both") // email, sms, both
+  status         String   @default("pending") // pending, sent, completed, failed
+  scheduledFor   DateTime?
+  sentAt         DateTime?
+  completedAt    DateTime?
+  errorMessage   String?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([reservationId])
+  @@index([propertyId])
+  @@index([status])
+  @@index([scheduledFor])
+  @@map("review_requests")
 }
 
 model Room {

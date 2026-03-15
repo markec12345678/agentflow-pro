@@ -5,6 +5,7 @@
  */
 
 import { sendWorkflowNotificationEmail } from "@/lib/publish/email";
+import { logger } from '@/infrastructure/observability/logger';
 
 export interface EscalationCreatedPayload {
   escalationId: string;
@@ -44,7 +45,7 @@ export async function notifyEscalationCreated(payload: EscalationCreatedPayload)
         body: JSON.stringify({ text }),
       });
     } catch (e) {
-      console.error("[EscalationNotify] Slack failed:", e);
+      logger.error("[EscalationNotify] Slack failed:", e);
     }
   }
 
@@ -59,7 +60,7 @@ Dashboard: ${dashboardUrl}
 ${chatUrl ? `Chat: ${chatUrl}` : ""}`;
       await sendWorkflowNotificationEmail(notifyEmail, subject, body);
     } catch (e) {
-      console.error("[EscalationNotify] Email failed:", e);
+      logger.error("[EscalationNotify] Email failed:", e);
     }
   }
 }

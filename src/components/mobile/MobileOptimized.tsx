@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '@/infrastructure/observability/logger';
 import { 
   Phone, 
   Mail, 
@@ -168,7 +169,7 @@ export function MobileOptimized({
           url: url
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        logger.info('Error sharing:', error);
       }
     } else {
       // Fallback for desktop or unsupported browsers
@@ -685,7 +686,7 @@ async function handleShare(title: string, url: string) {
         url: url
       });
     } catch (error) {
-      console.log('Error sharing:', error);
+      logger.info('Error sharing:', error);
     }
   } else {
     // Fallback

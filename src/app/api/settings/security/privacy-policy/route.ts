@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -160,7 +161,7 @@ If you believe we have mishandled your data, you can:
     });
 
   } catch (error) {
-    console.error('Get privacy policy error:', error);
+    logger.error('Get privacy policy error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -217,7 +218,7 @@ export async function POST(request: NextRequest) {
       isActive: publish || false
     };
 
-    console.log('Updated privacy policy:', { version: updatedPolicy.version, published: publish });
+    logger.info('Updated privacy policy:', { version: updatedPolicy.version, published: publish });
 
     // Log activity
     await logActivity(userId, "Privacy Policy Updated", `Updated privacy policy version: ${updatedPolicy.version}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -231,7 +232,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Update privacy policy error:', error);
+    logger.error('Update privacy policy error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -240,7 +241,7 @@ export async function POST(request: NextRequest) {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

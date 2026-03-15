@@ -3,6 +3,7 @@
  */
 
 import { Orchestrator } from "@/orchestrator/Orchestrator";
+import { logger } from '@/infrastructure/observability/logger';
 import { getOrchestrator } from "@/lib/orchestrator-factory";
 import { evaluateCondition as evaluateConditionFromLib, getNextBranch } from "./conditions";
 import { retryWithBackoff } from "./error-handler";
@@ -10,7 +11,7 @@ import { verify } from "@/verifier/VerifierService";
 import type { ConditionOperator } from "./nodes";
 import { sendSlackMessage } from "@/lib/publish/slack";
 import { sendWorkflowNotificationEmail } from "@/lib/publish/email";
-import type { Workflow } from "../../prisma/generated/prisma/client";
+import type { Workflow } from "../../prisma/generated/prisma";
 import { prisma } from "@/database/schema";
 
 export interface WorkflowNode {
@@ -224,7 +225,7 @@ export class WorkflowExecutor {
           );
         }
       } catch (e) {
-        console.error("Workflow notification email failed:", e);
+        logger.error("Workflow notification email failed:", e);
       }
     }
 

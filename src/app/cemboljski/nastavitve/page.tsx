@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -73,7 +74,7 @@ export default function CemboljskeNastavitve() {
 
         setNastavitve(mockNastavitve);
       } catch (error) {
-        console.error('Napaka pri nalaganju nastavitev:', error);
+        logger.error('Napaka pri nalaganju nastavitev:', error);
       } finally {
         setLoading(false);
       }
@@ -95,7 +96,7 @@ export default function CemboljskeNastavitve() {
           : n
       ));
     } catch (error) {
-      console.error('Napaka pri posodobitvi nastavitve:', error);
+      logger.error('Napaka pri posodobitvi nastavitve:', error);
     }
   };
 
@@ -116,7 +117,7 @@ export default function CemboljskeNastavitve() {
           : n
       ));
     } catch (error) {
-      console.error('Napaka pri preklopu nastavitve:', error);
+      logger.error('Napaka pri preklopu nastavitve:', error);
     }
   };
 

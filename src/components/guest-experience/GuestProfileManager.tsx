@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/infrastructure/observability/logger';
 import { useGuestExperience } from '@/hooks/use-guest-experience';
 import {
   GuestProfile,
@@ -72,7 +73,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
       await updateProfile(updates);
       setEditingSection(null);
     } catch (error) {
-      console.error('Failed to update profile:', error);
+      logger.error('Failed to update profile:', error);
     }
   };
 
@@ -81,7 +82,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
       await updatePreferences(updates);
       setEditingSection(null);
     } catch (error) {
-      console.error('Failed to update preferences:', error);
+      logger.error('Failed to update preferences:', error);
     }
   };
 
@@ -89,7 +90,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
     try {
       await addLoyaltyPoints(points, reason);
     } catch (error) {
-      console.error('Failed to add points:', error);
+      logger.error('Failed to add points:', error);
     }
   };
 
@@ -97,7 +98,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
     try {
       await generateRecommendations();
     } catch (error) {
-      console.error('Failed to generate recommendations:', error);
+      logger.error('Failed to generate recommendations:', error);
     }
   };
 
@@ -117,7 +118,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
         confidence: 1.0,
       });
     } catch (error) {
-      console.error('Failed to add tag:', error);
+      logger.error('Failed to add tag:', error);
     }
   };
 
@@ -125,7 +126,7 @@ export default function GuestProfileManager({ guestId, onProfileUpdate }: GuestP
     try {
       await removeTag(tagId);
     } catch (error) {
-      console.error('Failed to remove tag:', error);
+      logger.error('Failed to remove tag:', error);
     }
   };
 

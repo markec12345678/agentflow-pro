@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getUserId } from '@/lib/auth-users';
@@ -273,7 +274,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get test results error:', error);
+    logger.error('Get test results error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -390,7 +391,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Export test results error:', error);
+    logger.error('Export test results error:', error);
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
       { status: 500 }
@@ -448,7 +449,7 @@ async function generatePDFExport(results: TestResult[]): Promise<Buffer> {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  logger.info('Activity log:', {
     userId,
     action,
     details,

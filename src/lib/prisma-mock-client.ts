@@ -7,11 +7,11 @@ class MockPrismaClient {
   constructor() {}
   
   async $connect() {
-    console.log('📦 Mock Prisma connected (no database)');
+    logger.info('📦 Mock Prisma connected (no database)');
   }
   
   async $disconnect() {
-    console.log('📦 Mock Prisma disconnected');
+    logger.info('📦 Mock Prisma disconnected');
   }
   
   // Mock all models with empty responses

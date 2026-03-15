@@ -4,4 +4,5 @@
 export * from './tourism'
 export * from './booking'
 export * from './guest'
+export * from './communication'
 export * from './shared'

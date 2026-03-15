@@ -3,6 +3,7 @@
  */
 
 import { prisma } from "@/database/schema";
+import { logger } from '@/infrastructure/observability/logger';
 import type { IFaqLogRepository } from "@/domain/tourism/ports/faq-log-repository";
 
 export class PrismaFaqLogRepository implements IFaqLogRepository {
@@ -23,7 +24,7 @@ export class PrismaFaqLogRepository implements IFaqLogRepository {
       });
       return created.id;
     } catch (e) {
-      console.warn("FaqResponseLog create failed:", e);
+      logger.warn("FaqResponseLog create failed:", e);
     }
   }
 }

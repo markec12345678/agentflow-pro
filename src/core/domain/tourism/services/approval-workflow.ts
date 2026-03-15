@@ -229,7 +229,7 @@ async function sendApprovalNotifications(approval: ApprovalRequest): Promise<voi
         },
       });
     } catch (error) {
-      console.error("[Approval Notification] Error:", error);
+      logger.error("[Approval Notification] Error:", error);
     }
   }
 }
@@ -256,7 +256,7 @@ async function sendApprovalResponseNotification(
       },
     });
   } catch (error) {
-    console.error("[Approval Response Notification] Error:", error);
+    logger.error("[Approval Response Notification] Error:", error);
   }
 }
 
