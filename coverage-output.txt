@@ -1,0 +1,370 @@
+
+> agentflow-pro@1.0.0 test:coverage
+> vitest run --coverage --run
+
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mF:/ffff/agentflow-pro[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [31m❯[39m tests/api/cron/pms-sync-all.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 5452[2mms[22m[39m
+[31m     [31m×[31m returns 401 when CRON_SECRET is set and auth header is missing[39m[33m 5358[2mms[22m[39m
+     [32m✓[39m succeeds when x-vercel-cron header is present[32m 25[2mms[22m[39m
+     [32m✓[39m returns empty results when no PmsConnections exist[32m 14[2mms[22m[39m
+     [32m✓[39m syncs all connections and aggregates results[32m 4[2mms[22m[39m
+     [32m✓[39m reports missing credentials for connection without tokens[32m 2[2mms[22m[39m
+     [32m✓[39m reports unknown provider[32m 1[2mms[22m[39m
+     [32m✓[39m continues on per-connection error and reports in results[32m 3[2mms[22m[39m
+     [32m✓[39m returns 500 on unexpected top-level error[32m 41[2mms[22m[39m
+ [31m❯[39m tests/api/cron/smart-alerts-errors.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 5188[2mms[22m[39m
+[31m     [31m×[31m returns 401 when CRON_SECRET is set and auth header is missing[39m[33m 5137[2mms[22m[39m
+     [32m✓[39m succeeds with x-vercel-cron when count < 3[32m 20[2mms[22m[39m
+     [32m✓[39m triggers alert when count >= 3[32m 9[2mms[22m[39m
+     [32m✓[39m returns 500 on error[32m 18[2mms[22m[39m
+ [31m❯[39m tests/api/cron/smart-alerts.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 5220[2mms[22m[39m
+     [33m[2m✓[22m[39m returns 401 when CRON_SECRET is set and auth header is missing [33m 5166[2mms[22m[39m
+[31m     [31m×[31m succeeds with x-vercel-cron header[39m[32m 20[2mms[22m[39m
+[31m     [31m×[31m calls triggerAlert when occupancy >= 95[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m calls runEscalationCheck and returns escalated count[39m[32m 3[2mms[22m[39m
+     [32m✓[39m returns 500 on error[32m 22[2mms[22m[39m
+ [31m❯[39m tests/api/tourism/generate-landing.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 828[2mms[22m[39m
+[31m     [31m×[31m returns 401 when not authenticated[39m[32m 59[2mms[22m[39m
+[31m     [31m×[31m returns 400 when template is invalid[39m[32m 39[2mms[22m[39m
+[31m     [31m×[31m returns 200 with pages for valid template[39m[32m 12[2mms[22m[39m
+[31m     [31m×[31m luxury-retreat template includes story and gallery sections[39m[33m 716[2mms[22m[39m
+[2026-03-15 21:43:17.727 +0100] [32mINFO[39m: [36m[AUTH] ✅ Google OAuth configuration looks valid[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+[2026-03-15 21:43:17.727 +0100] [32mINFO[39m: [36m[Auth] Initializing with:[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+ [31m❯[39m tests/api/user-templates.test.ts [2m([22m[2m15 tests[22m[2m | [22m[31m15 failed[39m[2m)[22m[33m 2520[2mms[22m[39m
+[31m       [31m×[31m returns 401 when not authenticated[39m[33m 1617[2mms[22m[39m
+[31m       [31m×[31m returns templates when authenticated[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m filters by category when provided[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m returns 401 when not authenticated[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m returns 400 when name, category or basePrompt missing[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m creates template and returns 200[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m returns 401 when not authenticated[39m[33m 893[2mms[22m[39m
+[31m       [31m×[31m returns 404 when template not found[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m returns template when found[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m returns 401 when not authenticated[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m returns 404 when template not found[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m updates template and returns 200[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m returns 401 when not authenticated[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m returns 404 when template not found[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m deletes template and returns 200[39m[32m 0[2mms[22m[39m
+ [31m❯[39m tests/api/permission-system.test.ts [2m([22m[2m11 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 517[2mms[22m[39m
+       [32m✓[39m should return all permissions for admin user[32m 261[2mms[22m[39m
+       [32m✓[39m should return 401 for unauthenticated user[32m 2[2mms[22m[39m
+[31m       [31m×[31m should return 403 for non-admin user[39m[32m 94[2mms[22m[39m
+       [32m✓[39m should create new permission successfully[32m 2[2mms[22m[39m
+       [32m✓[39m should reject missing required fields[32m 1[2mms[22m[39m
+       [32m✓[39m should create custom role successfully[32m 73[2mms[22m[39m
+       [32m✓[39m should reject role without name[32m 1[2mms[22m[39m
+       [32m✓[39m should create property access successfully[32m 76[2mms[22m[39m
+       [32m✓[39m should reject missing userId or propertyId[32m 2[2mms[22m[39m
+     [32m✓[39m should group permissions by category[32m 1[2mms[22m[39m
+     [32m✓[39m should handle permission checks[32m 0[2mms[22m[39m
+[2026-03-15 21:43:20.216 +0100] [32mINFO[39m: [36m[AUTH] ✅ Google OAuth configuration looks valid[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+[2026-03-15 21:43:20.217 +0100] [32mINFO[39m: [36m[Auth] Initializing with:[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+ [31m❯[39m tests/api/tourism/properties.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[33m 434[2mms[22m[39m
+[31m       [31m×[31m returns 401 when not authenticated[39m[32m 91[2mms[22m[39m
+[31m       [31m×[31m returns properties when authenticated[39m[32m 6[2mms[22m[39m
+[31m       [31m×[31m returns 401 when not authenticated[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m returns 400 when name is missing[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m creates property and returns 200[39m[32m 5[2mms[22m[39m
+       [33m[2m✓[22m[39m returns 401 when not authenticated [33m 302[2mms[22m[39m
+[31m       [31m×[31m returns 404 when property not found[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m returns property when found[39m[32m 4[2mms[22m[39m
+       [32m✓[39m returns 401 when not authenticated[32m 1[2mms[22m[39m
+[31m       [31m×[31m returns 404 when property not found[39m[32m 3[2mms[22m[39m
+       [32m✓[39m updates property and returns 200[32m 1[2mms[22m[39m
+       [32m✓[39m returns 401 when not authenticated[32m 1[2mms[22m[39m
+[31m       [31m×[31m returns 404 when property not found[39m[32m 1[2mms[22m[39m
+       [32m✓[39m deletes property and returns 200[32m 2[2mms[22m[39m
+[2026-03-15 21:43:27.106 +0100] [32mINFO[39m: [36m[AUTH] ✅ Google OAuth configuration looks valid[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+[2026-03-15 21:43:27.106 +0100] [32mINFO[39m: [36m[Auth] Initializing with:[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+ [31m❯[39m tests/api/batch-translate.test.ts [2m([22m[2m7 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[33m 1953[2mms[22m[39m
+[31m     [31m×[31m returns 401 when not authenticated[39m[33m 1945[2mms[22m[39m
+[31m     [31m×[31m returns 400 when content is missing[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m returns 400 when targetLangs is empty or invalid[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m translates single content to multiple languages (mock mode)[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m creates job with status processing, updates to completed[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m when one language fails, returns partial results with Translation error[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m records AI usage via PrismaAiUsageLogger when translations succeed[39m[32m 1[2mms[22m[39m
+ [31m❯[39m tests/workflows/executor.integration.test.ts [2m([22m[2m1 test[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 4307[2mms[22m[39m
+     [2m[90m↓[39m[22m executes Trigger -> Research Agent with real orchestrator-factory and mock mode
+ [31m❯[39m tests/lib/dashboard-template.test.ts [2m([22m[2m31 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 101[2mms[22m[39m
+[31m       [31m×[31m should create dashboard from valid template[39m[32m 64[2mms[22m[39m
+       [32m✓[39m should throw error for non-existent template[32m 5[2mms[22m[39m
+[31m       [31m×[31m should create dashboard without propertyId[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should create owner dashboard with correct widgets[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should create receptor dashboard with correct widgets[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should create housekeeping dashboard with correct widgets[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should log dashboard creation[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should return widgets for owner role[32m 2[2mms[22m[39m
+       [32m✓[39m should return widgets for director role[32m 1[2mms[22m[39m
+       [32m✓[39m should return widgets for receptor role[32m 1[2mms[22m[39m
+       [32m✓[39m should return widgets for housekeeping role[32m 0[2mms[22m[39m
+       [32m✓[39m should return widgets for manager role[32m 0[2mms[22m[39m
+       [32m✓[39m should return empty array for invalid role[32m 1[2mms[22m[39m
+       [32m✓[39m should return widgets with all required properties[32m 3[2mms[22m[39m
+       [32m✓[39m should return revenue_mtd widget[32m 1[2mms[22m[39m
+       [32m✓[39m should return today_arrivals widget[32m 0[2mms[22m[39m
+       [32m✓[39m should return room_status widget[32m 1[2mms[22m[39m
+       [32m✓[39m should return guest_satisfaction widget[32m 0[2mms[22m[39m
+       [32m✓[39m should return undefined for non-existent widget[32m 0[2mms[22m[39m
+       [32m✓[39m should return widget with valid size configuration[32m 0[2mms[22m[39m
+       [32m✓[39m should return widget with data endpoint[32m 0[2mms[22m[39m
+       [32m✓[39m should return widget with refresh interval[32m 0[2mms[22m[39m
+       [32m✓[39m should have revenue widgets[32m 0[2mms[22m[39m
+       [32m✓[39m should have operations widgets[32m 0[2mms[22m[39m
+       [32m✓[39m should have guests widgets[32m 0[2mms[22m[39m
+       [32m✓[39m should have marketing widgets[32m 0[2mms[22m[39m
+       [32m✓[39m should have consistent widget sizes[32m 1[2mms[22m[39m
+       [32m✓[39m should have widgets that fit in 12-column grid[32m 1[2mms[22m[39m
+       [32m✓[39m all dashboards should have unique IDs[32m 0[2mms[22m[39m
+       [32m✓[39m all dashboards should have valid widget references[32m 2[2mms[22m[39m
+       [32m✓[39m all dashboards should have non-overlapping widget positions[32m 5[2mms[22m[39m
+[2026-03-15 21:43:35.088 +0100] [32mINFO[39m: [36m[AUTH] ✅ Google OAuth configuration looks valid[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+[2026-03-15 21:43:35.089 +0100] [32mINFO[39m: [36m[Auth] Initializing with:[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+ [31m❯[39m tests/api/tourism/generate-content.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 260[2mms[22m[39m
+[31m     [31m×[31m returns 401 when not authenticated[39m[32m 254[2mms[22m[39m
+[31m     [31m×[31m returns 400 when topic and prompt are missing[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m returns 200 with posts in mock mode when topic provided[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m returns 200 when prompt provided instead of topic[39m[32m 1[2mms[22m[39m
+ [31m❯[39m tests/api/tourism/generate-email.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 174[2mms[22m[39m
+[31m     [31m×[31m returns 401 when not authenticated[39m[32m 167[2mms[22m[39m
+[31m     [31m×[31m returns 400 when prompt is missing[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m returns 200 with content in mock mode[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m substitutes variables server-side when variables passed[39m[32m 1[2mms[22m[39m
+[2026-03-15 21:43:36.126 +0100] [32mINFO[39m: [36m[AUTH] ✅ Google OAuth configuration looks valid[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+[2026-03-15 21:43:36.127 +0100] [32mINFO[39m: [36m[Auth] Initializing with:[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+ [31m❯[39m tests/lib/auth-options.test.ts [2m([22m[2m16 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 144[2mms[22m[39m
+[31m       [31m×[31m has session strategy jwt and maxAge[39m[32m 26[2mms[22m[39m
+       [32m✓[39m has signIn page /login[32m 2[2mms[22m[39m
+       [32m✓[39m includes CredentialsProvider[32m 2[2mms[22m[39m
+       [32m✓[39m providers array has expected length[32m 2[2mms[22m[39m
+       [32m✓[39m returns null when email missing[32m 4[2mms[22m[39m
+       [32m✓[39m returns null when password missing[32m 8[2mms[22m[39m
+       [32m✓[39m returns null when getUser returns null[32m 2[2mms[22m[39m
+       [32m✓[39m returns user when getUser succeeds[32m 2[2mms[22m[39m
+       [32m✓[39m returns null when getUser throws[32m 5[2mms[22m[39m
+       [32m✓[39m adds userId when user provided without account[32m 5[2mms[22m[39m
+       [32m✓[39m upserts user for Google provider and sets userId[32m 4[2mms[22m[39m
+       [32m✓[39m loads trialEndsAt and subscription from DB when userId present[32m 2[2mms[22m[39m
+       [32m✓[39m loads teamId and teamRole from membership[32m 25[2mms[22m[39m
+       [32m✓[39m falls back to first membership when no activeTeamId[32m 2[2mms[22m[39m
+       [32m✓[39m subscriptionActive false when canceled[32m 2[2mms[22m[39m
+       [32m✓[39m adds userId, trialEndsAt, subscriptionActive, teamId, teamRole to session.user[32m 45[2mms[22m[39m
+ [31m❯[39m tests/lib/email-template-rendering.test.ts [2m([22m[2m25 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 69[2mms[22m[39m
+         [32m✓[39m should render welcome email with all variables[32m 5[2mms[22m[39m
+         [32m✓[39m should keep placeholder if variable not provided[32m 1[2mms[22m[39m
+         [32m✓[39m should render pre-arrival email with all variables[32m 0[2mms[22m[39m
+         [32m✓[39m should render post-stay email with all variables[32m 1[2mms[22m[39m
+         [32m✓[39m should render payment confirmation with all variables[32m 0[2mms[22m[39m
+         [32m✓[39m should render cancellation email with all variables[32m 1[2mms[22m[39m
+       [32m✓[39m should throw error for non-existent template[32m 2[2mms[22m[39m
+       [32m✓[39m should handle empty variables object[32m 0[2mms[22m[39m
+       [32m✓[39m should handle undefined variables[32m 1[2mms[22m[39m
+       [32m✓[39m should have 5 email templates[32m 0[2mms[22m[39m
+       [32m✓[39m should have all required template IDs[32m 2[2mms[22m[39m
+       [32m✓[39m should have correct categories for all templates[32m 1[2mms[22m[39m
+       [32m✓[39m should have all required properties for each template[32m 2[2mms[22m[39m
+       [32m✓[39m should return templates filtered by category[32m 1[2mms[22m[39m
+       [32m✓[39m should return empty array for invalid category[32m 1[2mms[22m[39m
+       [32m✓[39m should return template by ID[32m 0[2mms[22m[39m
+       [32m✓[39m should return undefined for non-existent ID[32m 0[2mms[22m[39m
+       [32m✓[39m should handle special characters in variables[32m 0[2mms[22m[39m
+       [32m✓[39m should handle multiple occurrences of same variable[32m 0[2mms[22m[39m
+[31m       [31m×[31m should handle HTML content in variables[39m[32m 39[2mms[22m[39m
+       [32m✓[39m should have HTML structure in all templates[32m 1[2mms[22m[39m
+       [32m✓[39m should have gradient headers in all templates[32m 1[2mms[22m[39m
+       [32m✓[39m should have responsive design in all templates[32m 0[2mms[22m[39m
+       [32m✓[39m should have call-to-action buttons where appropriate[32m 1[2mms[22m[39m
+       [32m✓[39m should support Slovenian language[32m 1[2mms[22m[39m
+ [31m❯[39m tests/api/branding.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 78[2mms[22m[39m
+       [32m✓[39m should return branding for authenticated user[32m 22[2mms[22m[39m
+       [32m✓[39m should return default branding if none exists[32m 2[2mms[22m[39m
+       [32m✓[39m should return 401 for unauthenticated user[32m 1[2mms[22m[39m
+       [32m✓[39m should update branding successfully[32m 2[2mms[22m[39m
+[31m       [31m×[31m should reject invalid color format[39m[32m 45[2mms[22m[39m
+       [32m✓[39m should create branding if it doesn't exist[32m 3[2mms[22m[39m
+ [31m❯[39m tests/lib/email-sender.test.ts [2m([22m[2m13 tests[22m[2m | [22m[31m12 failed[39m[2m)[22m[32m 92[2mms[22m[39m
+       [32m✓[39m should skip when RESEND_API_KEY is not set[32m 61[2mms[22m[39m
+[31m       [31m×[31m should fetch pending email communications[39m[32m 9[2mms[22m[39m
+[31m       [31m×[31m should send email and update status to sent[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m should skip communications with invalid email[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should update status to failed when email sending fails[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should respect DRY_RUN mode[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should fetch pending WhatsApp communications[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should send WhatsApp message and update status[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should skip communications with invalid phone[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should update status to failed when WhatsApp sending fails[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should respect DRY_RUN mode for WhatsApp[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should process multiple communications in order[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should continue processing after individual failures[39m[32m 1[2mms[22m[39m
+ [31m❯[39m tests/tourism/prompts.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 26[2mms[22m[39m
+     [32m✓[39m returns expected tourism prompts[32m 5[2mms[22m[39m
+     [32m✓[39m includes Instagram Travel Caption[32m 0[2mms[22m[39m
+     [32m✓[39m each prompt has id, name, category, prompt, description[32m 3[2mms[22m[39m
+     [32m✓[39m airbnb-story has tip, osebe, ton in variables[32m 1[2mms[22m[39m
+     [32m✓[39m seasonal-campaign has ton and ponudba in variables[32m 0[2mms[22m[39m
+     [32m✓[39m instagram-travel has ton, lokacija, tip, jezik aligned with prompt[32m 1[2mms[22m[39m
+     [32m✓[39m booking-description uses {ton} not inline type[32m 0[2mms[22m[39m
+     [32m✓[39m replaces {name} with value[32m 0[2mms[22m[39m
+     [32m✓[39m replaces multiple placeholders[32m 0[2mms[22m[39m
+[31m     [31m×[31m missing key yields empty string[39m[32m 10[2mms[22m[39m
+     [32m✓[39m multiple occurrences of same placeholder replaced[32m 0[2mms[22m[39m
+     [32m✓[39m preserves unchanged text[32m 0[2mms[22m[39m
+     [32m✓[39m CATEGORY_LABELS has tourism[32m 0[2mms[22m[39m
+     [32m✓[39m VARIABLE_LABELS has common vars[32m 0[2mms[22m[39m
+ [31m❯[39m tests/lib/tourism/publish-helpers.test.ts [2m([22m[2m16 tests[22m[2m | [22m[31m11 failed[39m[2m)[22m[32m 36[2mms[22m[39m
+[31m     [31m×[31m removes HTML tags[39m[32m 15[2mms[22m[39m
+[31m     [31m×[31m removes markdown bold (**)[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m removes markdown italic (*)[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m combines HTML and markdown removal[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m output length ≤ 5000 (spec: max 5000, buffer 4900)[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m collapses 3+ consecutive line breaks to 2[39m[32m 3[2mms[22m[39m
+     [32m✓[39m preserves single line break[32m 0[2mms[22m[39m
+     [32m✓[39m preserves double line break[32m 0[2mms[22m[39m
+     [32m✓[39m preserves content under 4900 chars[32m 0[2mms[22m[39m
+[31m     [31m×[31m trims to 4900 chars[39m[32m 1[2mms[22m[39m
+     [32m✓[39m returns max 10 hashtags[32m 0[2mms[22m[39m
+[31m     [31m×[31m returns exactly 10 when inputs yield enough tags[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m includes #Slovenia, #TravelSlovenia, #VisitSlovenia[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m Bela Krajina + apartma yields expected tags[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m includes type as hashtag[39m[32m 1[2mms[22m[39m
+     [32m✓[39m handles empty location[32m 0[2mms[22m[39m
+ [31m❯[39m tests/agents/code.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 17[2mms[22m[39m
+[31m     [31m×[31m creates agent with correct type and name[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m returns structured output with files and suggestions[39m[32m 1[2mms[22m[39m
+ [31m❯[39m tests/lib/tourism/tourism-kg-sync.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[32m 20[2mms[22m[39m
+[31m       [31m×[31m creates entity and relation when property exists[39m[32m 13[2mms[22m[39m
+       [32m✓[39m does nothing when property not found[32m 1[2mms[22m[39m
+[31m       [31m×[31m creates entity and relation when guest exists[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m does nothing when guest not found[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m creates entity and relations[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m does nothing when reservation not found[39m[32m 1[2mms[22m[39m
+ [31m❯[39m tests/stripe/plans.test.ts [2m([22m[2m10 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 24[2mms[22m[39m
+     [32m✓[39m has free, starter, pro, enterprise[32m 4[2mms[22m[39m
+     [32m✓[39m free has 20 runs and 60 credits[32m 1[2mms[22m[39m
+     [32m✓[39m starter is $29 with 100 runs[32m 0[2mms[22m[39m
+[31m     [31m×[31m pro is $99 with 500 runs[39m[32m 12[2mms[22m[39m
+[31m     [31m×[31m enterprise is $499 with 5000 runs[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m returns agentRunsLimit for valid plan[39m[32m 1[2mms[22m[39m
+     [32m✓[39m returns default free limits for invalid plan[32m 0[2mms[22m[39m
+     [32m✓[39m returns undefined for free plan[32m 0[2mms[22m[39m
+     [32m✓[39m returns env value or undefined for paid plans[32m 0[2mms[22m[39m
+     [32m✓[39m getPlanLimits includes blogPostsLimit[32m 0[2mms[22m[39m
+ [31m❯[39m tests/lib/tourism/policy-agent.test.ts [2m([22m[2m7 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[32m 21[2mms[22m[39m
+[31m     [31m×[31m returns isPolicyRelevant false for unrelated questions[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m returns isPolicyRelevant true for cancellation keywords[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m returns isPolicyRelevant true for supplement keywords[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m returns free cancellation when 7+ days before checkIn[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m returns 50% penalty when 3-6 days before checkIn[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m returns no refund when less than 3 days before checkIn[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m uses custom policyRules when provided[39m[32m 1[2mms[22m[39m
+ [31m❯[39m tests/agents/content.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 17[2mms[22m[39m
+[31m     [31m×[31m creates agent with correct type and name[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m returns structured output for empty input[39m[32m 1[2mms[22m[39m
+ [31m❯[39m tests/agents/research.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 18[2mms[22m[39m
+[31m     [31m×[31m creates agent with correct type and name[39m[32m 14[2mms[22m[39m
+[31m     [31m×[31m returns structured JSON output for empty input[39m[32m 1[2mms[22m[39m
+ [31m❯[39m tests/agents/deploy.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 17[2mms[22m[39m
+[31m     [31m×[31m creates agent with correct type and name[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m returns structured output for empty input[39m[32m 1[2mms[22m[39m
+ [31m❯[39m tests/guest-experience/guest-experience.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/lib/tourism/faq-schema.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 17[2mms[22m[39m
+     [32m✓[39m generateFaqSchema returns FAQPage schema object[32m 6[2mms[22m[39m
+     [32m✓[39m generateFaqSchema maps each FAQ to Question schema[32m 1[2mms[22m[39m
+[31m     [31m×[31m generateFaqSchemaString returns JSON string[39m[32m 6[2mms[22m[39m
+     [32m✓[39m generateFaqSchema handles empty array[32m 0[2mms[22m[39m
+ [31m❯[39m tests/integration/pms-adapters.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/lib/auth-options-edge-cases.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/operational-efficiency/operational-efficiency.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/lib/vector-indexer-error-handling.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/templates/templates.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/vector/QdrantService.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/workflows/executor.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/api/cron/send-guest-emails.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/api/refunds/process.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/lib/tourism/predictive-analytics.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m tests/api/tourism/inquiries.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 450[2mms[22m[39m
+       [33m[2m✓[22m[39m returns 401 when not authenticated [33m 367[2mms[22m[39m
+[2026-03-15 21:44:42.575 +0100] [32mINFO[39m: [36m[AUTH] ✅ Google OAuth configuration looks valid[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+[2026-03-15 21:44:42.576 +0100] [32mINFO[39m: [36m[Auth] Initializing with:[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+ [32m✓[39m tests/api/tourism/landing-pages.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 379[2mms[22m[39m
+[2026-03-15 21:44:43.144 +0100] [32mINFO[39m: [36m[AUTH] ✅ Google OAuth configuration looks valid[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+[2026-03-15 21:44:43.145 +0100] [32mINFO[39m: [36m[Auth] Initializing with:[39m
+    [35mservice[39m: "agentflow-pro"
+    [35mversion[39m: "1.0.0"
+    [35menvironment[39m: "development"
+ [32m✓[39m tests/workflows/error-handler.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 1027[2mms[22m[39m
+       [33m[2m✓[22m[39m retries on retryable error then succeeds [33m 1013[2mms[22m[39m
+ [32m✓[39m tests/lib/workflow-template.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m tests/api/cron/db-cleanup.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 402[2mms[22m[39m
+ [32m✓[39m tests/alerts/smartAlerts.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 150[2mms[22m[39m
+ [32m✓[39m tests/api/content-export.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 219[2mms[22m[39m
+ [32m✓[39m tests/api/tourism/seo-metrics.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 212[2mms[22m[39m
+ [32m✓[39m tests/lib/auth-users.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m tests/memory/session.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m tests/api/health/resilience.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m tests/memory/graph.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/lib/vector-indexer.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m tests/memory/integration.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m tests/lib/mock-mode.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m tests/domain/tourism/answer-faq.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/workflows/types-validator.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/verifier/schemas.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/workflows/conditions.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m tests/lib/email-white-label.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/orchestrator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/data/workflow-apps.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/stripe/webhooks.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/stripe/checkout.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/data/case-studies.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/memory/sync.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/data/solutions.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/lib/is-admin.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m37 failed[39m[22m[2m | [22m[1m[32m28 passed[39m[22m[90m (65)[39m
+[2m      Tests [22m [1m[31m106 failed[39m[22m[2m | [22m[1m[32m351 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (458)[39m
+[2m   Start at [22m 21:42:54
+[2m   Duration [22m 179.47s[2m (transform 20.99s, setup 36.23s, import 16.51s, tests 30.91s, environment 308.36s)[22m
+
