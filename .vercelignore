@@ -1,6 +1,7 @@
 # Test results
 test-results/
 playwright-report/
+screenshots/
 
 # Node modules (will be installed on Vercel)
 node_modules/
@@ -33,6 +34,7 @@ coverage/
 
 # Rust build artifacts (we're using pre-built binary)
 rust/workflow-executor/target/
+rust/**/target/
 
 # Local env files
 .env.local
@@ -42,3 +44,12 @@ rust/workflow-executor/target/
 tmp/
 temp/
 *.tmp
+
+# Large directories not needed for deployment
+docs/
+*.pdf
+*.chat
+pgsql/
+
+# Playwright
+playwright-*.txt

@@ -103,3 +103,6 @@ rust/**/src/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+.vercel
+.env*.local

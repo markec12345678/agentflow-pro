@@ -1,0 +1,11 @@
+DATABASE_URL=postgresql://neondb_owner:npg_rOLVpPuR5kI2@ep-snowy-sun-aia7r9c2-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&connection_limit=5&connect_timeout=15
+NEXTAUTH_SECRET=5+tRVFyhOKqhy6l8M2LP1WNUAT3p6jObA+S+GjH/+5U=
+NEXTAUTH_URL=https://agentflow-pro.vercel.app
+GOOGLE_CLIENT_ID=114548306327-trc6nj5ma38gn1t8jnhnr7bih21a7v04.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+ADMIN_EMAILS=robertpezdirc@gmail.com
+GEMINI_API_KEY=AIzaSyCL3jf5Qk6e_ak6XWAFMiBMjDUKdgkcg24
+CRON_SECRET=6e57fdac8b71e1dc9ae6dd38e7e794afd2281fb300dd4abcbf1edeb85c7dd046
+MOCK_MODE=true
+DRY_RUN=true
+NODE_ENV=production

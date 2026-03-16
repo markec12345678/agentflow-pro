@@ -9,7 +9,6 @@
  * - Energy Management
  */
 
-import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { test, expect } from '@playwright/test';
 
 // ============================================================================

@@ -1,11 +1,11 @@
 {
-  "installCommand": "npm install --ignore-scripts",
-  "buildCommand": "npx prisma generate && npm run build",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
   "framework": "nextjs",
   "outputDirectory": ".next",
   "regions": ["fra1"],
   "env": {
-    "MOCK_MODE": "false",
+    "MOCK_MODE": "true",
     "NODE_ENV": "production",
     "RUST_ENABLED": "false",
     "SENTRY_DISABLE_SERVER_WEBPACK_PLUGIN": "true",
@@ -13,7 +13,7 @@
   },
   "build": {
     "env": {
-      "MOCK_MODE": "false",
+      "MOCK_MODE": "true",
       "RUST_ENABLED": "false",
       "SENTRY_DISABLE_SERVER_WEBPACK_PLUGIN": "true",
       "SENTRY_DISABLE_CLIENT_WEBPACK_PLUGIN": "true"
