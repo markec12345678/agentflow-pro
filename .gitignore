@@ -13,10 +13,13 @@ venv/
 env/
 .env
 
-# Environment
+# Local env files
 .env
 .env.local
 .env.*.local
+.env.production
+.env.production.generated
+enviromentveriables.txt
 *.pem
 *.key
 
