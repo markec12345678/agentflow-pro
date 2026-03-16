@@ -1,0 +1,26 @@
+Feature ID,Feature Name,Category,Priority,Status,Owner,Deadline,Completion %,Blockers,Notes
+001,Booking.com API Partnership,Channel Manager,P0,Not Started,team,2026-05-15,0%,Application process (4-8 weeks),Submit ASAP!
+002,Airbnb API Partnership,Channel Manager,P0,Not Started,team,2026-05-15,0%,Application process (4-8 weeks),Submit ASAP!
+003,Tourist Tax Reporting,Compliance,P0,Not Started,dev,2026-04-15,0%,None,Slovenia DDV + tourist tax
+004,Invoicing System,Billing,P0,Not Started,dev,2026-04-15,0%,None,PDF generation + email delivery
+005,Mobile App MVP,Mobile,P0,Not Started,dev,2026-05-01,0%,React Native setup,Check-in/out QR code
+006,Two-Way Channel Sync,Channel Manager,P0,Not Started,dev,2026-04-30,0%,Waiting for OTA APIs,Improved iCal for now
+101,Fix Dynamic Pricing Engine,Revenue,P1,Not Started,dev,2026-04-01,0%,Rust compilation issues,TS fallback or fix Rust
+007,Housekeeping Full System,Operations,P1,Not Started,dev,2026-04-30,0%,None,Task scheduling + staff mgmt
+008,Night Audit Procedures,Operations,P1,Not Started,dev,2026-04-30,0%,None,End-of-day automation
+009,Revenue Forecasting,Analytics,P1,Not Started,dev,2026-05-15,0%,None,ML-powered forecasting
+010,Accounting Integration,Integrations,P1,Not Started,dev,2026-05-15,0%,None,Pantheor + Mini + Xero
+011,Group Bookings System,Reservations,P1,Not Started,dev,2026-05-15,0%,None,Corporate rates + contracts
+012,Waitlist Management,Reservations,P1,Not Started,dev,2026-04-15,0%,None,Auto-notify when available
+013,Custom Report Builder,Analytics,P1,Not Started,dev,2026-05-30,0%,None,Drag-drop report builder
+201,Pitch/Plot Management,Camps,P2,Not Started,dev,2026-06-01,0%,None,"Tent + RV + cabin types"
+202,Campsite Visual Map,Camps,P2,Not Started,dev,2026-06-15,0%,None,Interactive pitch map
+203,Equipment Rental System,Camps,P2,Not Started,dev,2026-06-15,0%,None,"Bikes + kayaks + etc"
+204,Facility Booking,Camps,P2,Not Started,dev,2026-06-30,0%,None,"Pool + restaurant + activities"
+205,Utility Tracking,Camps,P2,Not Started,dev,2026-06-30,0%,None,"Electricity + water monitoring"
+206,Seasonal Pricing Rules,Pricing,P2,Not Started,dev,2026-05-30,0%,None,Min stay by season
+301,Loyalty Program Backend,Guest Experience,P3,Not Started,dev,2026-07-01,0%,None,"UI exists + need backend"
+302,Survey System,Guest Experience,P3,Not Started,dev,2026-07-01,0%,None,Guest feedback surveys
+303,Digital Key Integration,Mobile,P3,Not Started,dev,2026-08-01,0%,Hardware partners,Smart lock integration
+304,Predictive Maintenance,Operations,P3,Not Started,dev,2026-08-15,0%,None,AI-powered alerts
+305,Voice Assistant,Guest Experience,P3,Not Started,dev,2026-09-01,0%,None,Alexa/Google integration

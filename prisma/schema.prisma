@@ -1886,9 +1886,117 @@ model OwnerReport {
   updatedAt       DateTime @updatedAt
   owner           Owner    @relation(fields: [ownerId], references: [id])
 
-  @@index([ownerId])
-  @@index([propertyId])
-  @@index([reportType])
-  @@index([periodStart, periodEnd])
-  @@map("owner_reports")
+  @@index([ownerId])                                                            
+  @@index([propertyId])                                                          
+  @@index([reportType])                                                          
+  @@index([periodStart, periodEnd])                                              
+  @@map("owner_reports")                                                         
+}
+
+// ============================================================================
+// INVOICING & TAX MODELS
+// ============================================================================
+
+model TouristTaxRate {
+  id           String   @id @default(cuid())
+  municipality String   @unique
+  adults       Decimal
+  children7_18 Decimal
+  children0_7  Decimal
+  spaTax       Decimal?
+  validFrom    DateTime @default(now())
+  validTo      DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([municipality])
+  @@map("tourist_tax_rates")
+}
+
+model Invoice {
+  id              String   @id @default(cuid())
+  invoiceNumber   String   @unique
+  reservationId   String
+  guestId         String
+  
+  // Dates
+  invoiceDate     DateTime @default(now())
+  dueDate         DateTime
+  checkIn         DateTime
+  checkOut        DateTime
+  
+  // Amounts
+  accommodation   Decimal
+  touristTax      Decimal
+  vatRate         Decimal  @default(22)
+  vatAmount       Decimal
+  total           Decimal
+  
+  // Status
+  status          String   @default("draft") // draft, sent, paid, overdue, cancelled
+  sentAt          DateTime?
+  paidAt          DateTime?
+  cancelledAt     DateTime?
+  
+  // PDF
+  pdfUrl          String?
+  
+  // Metadata
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  reservation     Reservation @relation(fields: [reservationId], references: [id])
+  guest           Guest       @relation(fields: [guestId], references: [id])
+  
+  @@index([reservationId])
+  @@index([guestId])
+  @@index([status])
+  @@index([invoiceDate])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+model TaxReport {
+  id              String   @id @default(cuid())
+  propertyId      String
+  propertyName    String
+  
+  // Period
+  month           DateTime // First day of month
+  year            Int
+  monthNumber     Int      // 1-12
+  
+  // Totals
+  totalNights     Int
+  totalGuests     Int
+  totalAdults     Int
+  totalChildren   Int
+  
+  // Tax amounts
+  touristTaxAmount Decimal
+  vatAmount        Decimal
+  totalAccommodation Decimal
+  
+  // Status
+  status          String   @default("draft") // draft, submitted, paid
+  submittedAt     DateTime?
+  paidAt          DateTime?
+  
+  // eDavki export
+  edavkiExportUrl String?
+  edavkiSubmittedAt DateTime?
+  
+  // Metadata
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([propertyId, year, monthNumber])
+  @@index([status])
+  @@index([month])
+  @@map("tax_reports")
 }
