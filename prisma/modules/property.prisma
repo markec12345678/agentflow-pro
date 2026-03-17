@@ -1,0 +1,162 @@
+// Property Domain Models
+// Includes: Property, rooms, amenities, policies
+
+model Property {
+  id                           String   @id @default(cuid())
+  userId                       String?
+  ownerId                      String?
+  name                         String
+  location                     String?
+  type                         String?
+  capacity                     Int?
+  description                  String?
+  basePrice                    Float?
+  currency                     String?  @default("EUR")
+  seasonRates                  Json?
+  pricingRules                 Json?
+  reservationAutoApprovalRules Json?
+  rnoId                        Int?
+  googlePlaceId                String?
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+  eturizemId                   String?
+  eturizemSyncStatus           String?  @default("not_mapped")
+  eturizemSyncedAt             DateTime?
+  eturizemLastError            String?
+  
+  // Relations
+  ajpesConnection              AjpesConnection?
+  owner                        Owner?   @relation(fields: [ownerId], references: [id])
+  alertEvents                  AlertEvent[]
+  amenities                    Amenity[]
+  blockedDates                 BlockedDate[]
+  competitors                  Competitor[]
+  communications               GuestCommunication[]
+  guests                       Guest[]
+  housekeepingTasks            HousekeepingTask[]
+  inquiries                    Inquiry[]
+  landingPages                 LandingPage[]
+  pmsConnections               PmsConnection[]
+  policies                     PropertyPolicy[]
+  reservations                 Reservation[]
+  reviews                      Review[]
+  rooms                        Room[]
+  seoMetrics                   SeoMetric[]
+  staffAssignments             StaffAssignment[]
+  userTemplates                UserTemplate[]
+  workflows                    Workflow[]
+  pageDesigns                  PageDesign[] @relation("PageDesignProperties")
+  users                        User[]   @relation("PropertyToUser")
+  invoices                     Invoice[] @relation("PropertyInvoices")
+  revenueSplits                RevenueSplit[]
+  sustainabilityMetrics        SustainabilityMetric[]
+  ecoPractices                 EcoPractice[]
+  photoAnalyses                PhotoAnalysis[]
+  performanceMetrics           PerformanceMetric[]
+
+  @@map("properties")
+}
+
+model Room {
+  id                String   @id @default(cuid())
+  propertyId        String
+  name              String
+  type              String
+  capacity          Int
+  beds              Int?
+  description       String?
+  basePrice         Float?
+  amenities         String[]
+  photos            String[]
+  seasonRates       Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  blockedDates      BlockedDate[]
+  reservations      Reservation[]
+  housekeepingTasks HousekeepingTask[]
+  property          Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("rooms")
+}
+
+model Amenity {
+  id         String   @id @default(cuid())
+  propertyId String
+  name       String
+  type       String?
+  createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("amenities")
+}
+
+model BlockedDate {
+  id         String   @id @default(cuid())
+  propertyId String
+  roomId     String?
+  date       DateTime
+  reason     String?
+  createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  room       Room?    @relation(fields: [roomId], references: [id])
+
+  @@index([propertyId, date])
+  @@map("blocked_dates")
+}
+
+model PropertyPolicy {
+  id         String   @id @default(cuid())
+  propertyId String
+  type       String
+  content    String
+  language   String?  @default("sl")
+  createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("property_policies")
+}
+
+model PmsConnection {
+  id          String   @id @default(cuid())
+  propertyId  String
+  provider    String
+  credentials Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, provider])
+  @@index([propertyId])
+  @@map("pms_connections")
+}
+
+model AjpesConnection {
+  id          String   @id @default(cuid())
+  propertyId  String   @unique
+  username    String
+  passwordEnc String
+  rnoId       Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("ajpes_connections")
+}
+
+model Competitor {
+  id         String   @id @default(cuid())
+  propertyId String
+  name       String
+  url        String?
+  createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("competitors")
+}
