@@ -96,7 +96,7 @@ export default function CalendarPage() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
       const res = await fetch(
-        `/api/tourism/calendar?propertyId=${activePropertyId}&year=${year}&month=${month}`
+        `/api/v1/tourism/calendar?propertyId=${activePropertyId}&year=${year}&month=${month}`
       );
       const data = await res.json();
       setCalendar(data.calendar || []);
@@ -129,7 +129,7 @@ export default function CalendarPage() {
       return;
     }
     setPaymentsLoading(true);
-    fetch(`/api/tourism/reservations/${rid}/payments`)
+    fetch(`/api/v1/tourism/reservations/${rid}/payments`)
       .then((r) => r.json())
       .then((d) => {
         if (d.error) throw new Error(d.error);
@@ -156,7 +156,7 @@ export default function CalendarPage() {
     }
     setIcalLoading(true);
     setIcalSyncOpen(true);
-    fetch("/api/tourism/ical", {
+    fetch("/api/v1/tourism/ical", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ propertyId: activePropertyId, action: "generate-token" }),
@@ -189,7 +189,7 @@ export default function CalendarPage() {
     }
     setBulkLoading(true);
     setBulkResult(null);
-    fetch("/api/tourism/calendar/bulk-import", {
+    fetch("/api/v1/tourism/calendar/bulk-import", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -238,7 +238,7 @@ export default function CalendarPage() {
     setCalcLoading(true);
     setCalcResult(null);
     fetch(
-      `/api/tourism/calculate-price?propertyId=${activePropertyId}&checkIn=${encodeURIComponent(calcCheckIn)}&checkOut=${encodeURIComponent(calcCheckOut)}`
+      `/api/v1/tourism/calculate-price?propertyId=${activePropertyId}&checkIn=${encodeURIComponent(calcCheckIn)}&checkOut=${encodeURIComponent(calcCheckOut)}`
     )
       .then((r) => r.json())
       .then((d) => {
@@ -275,7 +275,7 @@ export default function CalendarPage() {
       allowOverbooking,
     };
     try {
-      const res = await fetch("/api/tourism/calendar", {
+      const res = await fetch("/api/v1/tourism/calendar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -304,7 +304,7 @@ export default function CalendarPage() {
     if (!activePropertyId || !newReservationForm.checkIn || !newReservationForm.checkOut) return;
     const t = setTimeout(() => {
       fetch(
-        `/api/tourism/calculate-price?propertyId=${activePropertyId}&checkIn=${encodeURIComponent(newReservationForm.checkIn)}&checkOut=${encodeURIComponent(newReservationForm.checkOut)}`
+        `/api/v1/tourism/calculate-price?propertyId=${activePropertyId}&checkIn=${encodeURIComponent(newReservationForm.checkIn)}&checkOut=${encodeURIComponent(newReservationForm.checkOut)}`
       )
         .then((r) => r.json())
         .then((d) => {
@@ -324,7 +324,7 @@ export default function CalendarPage() {
     }
     try {
       const res = await fetch(
-        `/api/tourism/calculate-price?propertyId=${activePropertyId}&checkIn=${encodeURIComponent(newReservationForm.checkIn)}&checkOut=${encodeURIComponent(newReservationForm.checkOut)}`
+        `/api/v1/tourism/calculate-price?propertyId=${activePropertyId}&checkIn=${encodeURIComponent(newReservationForm.checkIn)}&checkOut=${encodeURIComponent(newReservationForm.checkOut)}`
       );
       const d = await res.json();
       if (d.error) throw new Error(d.error);
@@ -543,7 +543,7 @@ export default function CalendarPage() {
             Bulk uvoz
           </button>
           <a
-            href={`/api/tourism/ical/export?propertyId=${activePropertyId}&token=demo`}
+            href={`/api/v1/tourism/ical/export?propertyId=${activePropertyId}&token=demo`}
             className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             📥 iCal Export
@@ -701,7 +701,7 @@ export default function CalendarPage() {
                         Dodaj plačilo
                       </button>
                       <a
-                        href={`/api/tourism/reservations/${selectedDate.reservation.id}/invoice`}
+                        href={`/api/v1/tourism/reservations/${selectedDate.reservation.id}/invoice`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium"
@@ -761,7 +761,7 @@ export default function CalendarPage() {
                       }
                       setEditLoading(true);
                       try {
-                        const res = await fetch("/api/tourism/calendar", {
+                        const res = await fetch("/api/v1/tourism/calendar", {
                           method: "PATCH",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
@@ -891,7 +891,7 @@ export default function CalendarPage() {
                   }
                   setAddPaymentLoading(true);
                   try {
-                    const res = await fetch(`/api/tourism/reservations/${selectedDate.reservation!.id}/payments`, {
+                    const res = await fetch(`/api/v1/tourism/reservations/${selectedDate.reservation!.id}/payments`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
@@ -905,7 +905,7 @@ export default function CalendarPage() {
                     toast.success("Plačilo dodano");
                     setPaymentModalOpen(false);
                     setNewPayment({ type: "deposit", amount: "", method: "cash" });
-                    const payRes = await fetch(`/api/tourism/reservations/${selectedDate.reservation!.id}/payments`);
+                    const payRes = await fetch(`/api/v1/tourism/reservations/${selectedDate.reservation!.id}/payments`);
                     const payData = await payRes.json();
                     if (!payData.error) {
                       setPaymentsData({

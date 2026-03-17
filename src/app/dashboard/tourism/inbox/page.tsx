@@ -52,7 +52,7 @@ export default function DirectorInboxPage() {
       const params = new URLSearchParams();
       if (activePropertyId) params.set("propertyId", activePropertyId);
       params.set("status", statusFilter);
-      const res = await fetch(`/api/tourism/inquiries?${params}`);
+      const res = await fetch(`/api/v1/tourism/inquiries?${params}`);
       const data = await res.json();
       setInquiries(data.inquiries ?? []);
       setTotal(data.total ?? 0);
@@ -65,7 +65,7 @@ export default function DirectorInboxPage() {
 
   const updateStatus = async (id: string, status: "read" | "replied" | "closed") => {
     try {
-      const res = await fetch(`/api/tourism/inquiries/${id}`, {
+      const res = await fetch(`/api/v1/tourism/inquiries/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

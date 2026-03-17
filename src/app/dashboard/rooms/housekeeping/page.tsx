@@ -57,7 +57,7 @@ export default function HousekeepingPage() {
     setLoading(true);
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const response = await fetch(`/api/tourism/housekeeping/schedule?propertyId=${selectedPropertyId}&date=${dateStr}`);
+      const response = await fetch(`/api/v1/tourism/housekeeping/schedule?propertyId=${selectedPropertyId}&date=${dateStr}`);
       if (response.ok) {
         const data = await response.json();
         setTasks(data.tasks || []);
@@ -75,7 +75,7 @@ export default function HousekeepingPage() {
     if (!selectedPropertyId) return;
     
     try {
-      const response = await fetch(`/api/tourism/housekeeping/staff?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/housekeeping/staff?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setStaff(data.staff || []);
@@ -89,7 +89,7 @@ export default function HousekeepingPage() {
 
   const handleTaskStatusChange = async (taskId: string, newStatus: string, assignedTo?: string) => {
     try {
-      const response = await fetch(`/api/tourism/housekeeping/tasks/${taskId}/status`, {
+      const response = await fetch(`/api/v1/tourism/housekeeping/tasks/${taskId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -113,7 +113,7 @@ export default function HousekeepingPage() {
 
   const handleAssignTask = async (taskId: string, staffId: string) => {
     try {
-      const response = await fetch(`/api/tourism/housekeeping/tasks/${taskId}/assign`, {
+      const response = await fetch(`/api/v1/tourism/housekeeping/tasks/${taskId}/assign`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staffId }),

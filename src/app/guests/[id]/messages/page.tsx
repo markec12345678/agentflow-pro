@@ -99,14 +99,14 @@ export default function GuestMessagesPage() {
     setLoading(true);
     try {
       // Fetch guest info
-      const guestRes = await fetch(`/api/tourism/guests/${guestId}`);
+      const guestRes = await fetch(`/api/v1/tourism/guests/${guestId}`);
       const guestData = await guestRes.json();
       if (guestRes.ok) {
         setGuest(guestData);
       }
 
       // Fetch message history
-      const commRes = await fetch(`/api/tourism/guest-communication?guestId=${guestId}`);
+      const commRes = await fetch(`/api/v1/tourism/guest-communication?guestId=${guestId}`);
       const commData = await commRes.json();
       if (commRes.ok) {
         setHistory(commData.communications || []);
@@ -138,7 +138,7 @@ export default function GuestMessagesPage() {
     
     setIsSending(true);
     try {
-      const res = await fetch("/api/tourism/guest-communication", {
+      const res = await fetch("/api/v1/tourism/guest-communication", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

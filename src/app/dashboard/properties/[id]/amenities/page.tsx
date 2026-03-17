@@ -57,7 +57,7 @@ export default function AmenitiesPage() {
 
   const fetchAmenities = useCallback(async () => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}/amenities`);
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}/amenities`);
       if (response.ok) {
         const data = await response.json();
         setAmenities(data);
@@ -77,7 +77,7 @@ export default function AmenitiesPage() {
 
   const addAmenity = async (name: string, category: string) => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}/amenities`, {
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}/amenities`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, category }),
@@ -97,7 +97,7 @@ export default function AmenitiesPage() {
 
   const removeAmenity = async (amenityId: string) => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}/amenities/${amenityId}`, {
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}/amenities/${amenityId}`, {
         method: "DELETE",
       });
 

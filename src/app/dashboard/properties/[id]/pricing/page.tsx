@@ -47,7 +47,7 @@ export default function PricingPage() {
 
   const fetchProperty = async () => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}`);
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}`);
       if (response.ok) {
         const data = await response.json();
         setProperty(data.property);
@@ -84,7 +84,7 @@ export default function PricingPage() {
         pricingRules: pricingForm.pricingRules
       };
 
-      const response = await fetch(`/api/tourism/properties/${propertyId}`, {
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

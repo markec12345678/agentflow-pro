@@ -104,7 +104,7 @@ export default function CreatePropertyPage() {
         reservationAutoApprovalRules: showAdvanced ? form.autoApproval : null,
       };
 
-      const response = await fetch("/api/tourism/properties", {
+      const response = await fetch("/api/v1/tourism/properties", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

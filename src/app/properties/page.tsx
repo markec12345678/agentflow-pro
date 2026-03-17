@@ -46,7 +46,7 @@ export default function PropertiesPage() {
   const fetchProperties = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/tourism/properties/summary");
+      const res = await fetch("/api/v1/tourism/properties/summary");
       const data = await res.json();
       if (res.ok) {
         setProperties(Array.isArray(data) ? data : []);
@@ -77,7 +77,7 @@ export default function PropertiesPage() {
     if (!quickEditId) return;
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/tourism/properties/${quickEditId}`, {
+      const res = await fetch(`/api/v1/tourism/properties/${quickEditId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ basePrice: parseFloat(editPrice) }),

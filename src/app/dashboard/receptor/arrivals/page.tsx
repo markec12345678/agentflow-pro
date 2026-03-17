@@ -41,7 +41,7 @@ export default function ArrivalsPage() {
     setLoading(true);
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const response = await fetch(`/api/tourism/today-overview?propertyId=${selectedPropertyId}&date=${dateStr}`);
+      const response = await fetch(`/api/v1/tourism/today-overview?propertyId=${selectedPropertyId}&date=${dateStr}`);
       if (response.ok) {
         const data = await response.json();
         setArrivals(data.arrivals || []);
@@ -57,7 +57,7 @@ export default function ArrivalsPage() {
 
   const handleCheckIn = async (arrivalId: string) => {
     try {
-      const response = await fetch(`/api/tourism/reservations/${arrivalId}/check-in`, {
+      const response = await fetch(`/api/v1/tourism/reservations/${arrivalId}/check-in`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });

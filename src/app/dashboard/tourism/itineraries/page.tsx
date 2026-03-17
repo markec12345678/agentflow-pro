@@ -40,7 +40,7 @@ export default function TourismItinerariesPage() {
   const [dayCount, setDayCount] = useState(3);
 
   useEffect(() => {
-    fetch("/api/tourism/itineraries")
+    fetch("/api/v1/tourism/itineraries")
       .then((r) => r.json())
       .then((data: { itineraries?: ItineraryItem[] }) => {
         setList(data.itineraries ?? []);
@@ -52,7 +52,7 @@ export default function TourismItinerariesPage() {
   const loadForEdit = (id: string) => {
     setEditingId(id);
     setCreating(false);
-    fetch(`/api/tourism/itineraries/${id}`)
+    fetch(`/api/v1/tourism/itineraries/${id}`)
       .then((r) => r.json())
       .then((data: { itinerary?: ItineraryItem }) => {
         const it = data.itinerary;
@@ -146,7 +146,7 @@ export default function TourismItinerariesPage() {
       }));
 
       if (editingId) {
-        const res = await fetch(`/api/tourism/itineraries/${editingId}`, {
+        const res = await fetch(`/api/v1/tourism/itineraries/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: formTitle.trim(), days: daysData }),
@@ -156,7 +156,7 @@ export default function TourismItinerariesPage() {
         setList((prev) => prev.map((it) => (it.id === editingId ? { ...it, ...data.itinerary } : it)));
         toast.success("Itinerarij posodobljen");
       } else if (creating) {
-        const res = await fetch("/api/tourism/itineraries", {
+        const res = await fetch("/api/v1/tourism/itineraries", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: formTitle.trim(), days: daysData }),
@@ -177,7 +177,7 @@ export default function TourismItinerariesPage() {
   const deleteItinerary = async (id: string) => {
     if (!confirm("Izbrišem ta itinerarij?")) return;
     try {
-      const res = await fetch(`/api/tourism/itineraries/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/v1/tourism/itineraries/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error((await res.json()).error);
       setList((prev) => prev.filter((it) => it.id !== id));
       if (editingId === id) cancelEdit();

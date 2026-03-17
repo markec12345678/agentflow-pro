@@ -52,7 +52,7 @@ export default function RoomsPage() {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/rooms/status?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/rooms/status?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setRooms(data.rooms || []);
@@ -68,7 +68,7 @@ export default function RoomsPage() {
 
   const handleStatusChange = async (roomId: string, newStatus: string) => {
     try {
-      const response = await fetch(`/api/tourism/rooms/${roomId}/status`, {
+      const response = await fetch(`/api/v1/tourism/rooms/${roomId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

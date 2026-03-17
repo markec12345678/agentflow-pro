@@ -66,7 +66,7 @@ export default function RoomsPage() {
 
   const fetchRooms = async () => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}/rooms`);
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}/rooms`);
       if (response.ok) {
         const data = await response.json();
         setRooms(data);
@@ -97,13 +97,13 @@ export default function RoomsPage() {
 
       let response;
       if (editingRoom) {
-        response = await fetch(`/api/tourism/properties/${propertyId}/rooms/${editingRoom}`, {
+        response = await fetch(`/api/v1/tourism/properties/${propertyId}/rooms/${editingRoom}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
-        response = await fetch(`/api/tourism/properties/${propertyId}/rooms`, {
+        response = await fetch(`/api/v1/tourism/properties/${propertyId}/rooms`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -139,7 +139,7 @@ export default function RoomsPage() {
     }
 
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}/rooms/${roomId}`, {
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}/rooms/${roomId}`, {
         method: "DELETE",
       });
 

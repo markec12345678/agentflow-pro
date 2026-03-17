@@ -34,7 +34,7 @@ export default function PropertiesPage() {
 
   const fetchProperties = async () => {
     try {
-      const response = await fetch("/api/tourism/properties");
+      const response = await fetch("/api/v1/tourism/properties");
       const data = await response.json();
       if (data.properties) {
         setProperties(data.properties);

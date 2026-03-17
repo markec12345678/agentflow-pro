@@ -117,7 +117,7 @@ export default function RoomStatusGrid({ propertyId: initialPropertyId, onProper
       updateRoomStatus(roomId, newStatus);
       
       // Also update via API for persistence
-      const response = await fetch('/api/rooms/update-status', {
+      const response = await fetch('/api/v1/tourism/rooms/update-status', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

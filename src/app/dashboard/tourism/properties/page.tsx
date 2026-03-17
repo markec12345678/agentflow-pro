@@ -73,7 +73,7 @@ export default function TourismPropertiesPage() {
 
   const fetchProperties = (showLoading = true) => {
     if (showLoading) setLoading(true);
-    fetch("/api/tourism/properties")
+    fetch("/api/v1/tourism/properties")
       .then((r) => r.json())
       .then((data) => setProperties(data.properties ?? []))
       .catch(() => {
@@ -96,8 +96,8 @@ export default function TourismPropertiesPage() {
     const load = async () => {
       try {
         const [aRes, pRes] = await Promise.all([
-          fetch(`/api/tourism/properties/${editing}/amenities`),
-          fetch(`/api/tourism/properties/${editing}/policies`),
+          fetch(`/api/v1/tourism/properties/${editing}/amenities`),
+          fetch(`/api/v1/tourism/properties/${editing}/policies`),
         ]);
         const aData = await aRes.json();
         const pData = await pRes.json();
@@ -116,7 +116,7 @@ export default function TourismPropertiesPage() {
     if (!form.name.trim()) return;
     setCreating(true);
     try {
-      const res = await fetch("/api/tourism/properties", {
+      const res = await fetch("/api/v1/tourism/properties", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -143,7 +143,7 @@ export default function TourismPropertiesPage() {
   const handleUpdate = async (id: string) => {
     setSaving(true);
     try {
-      const res = await fetch(`/api/tourism/properties/${id}`, {
+      const res = await fetch(`/api/v1/tourism/properties/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -181,7 +181,7 @@ export default function TourismPropertiesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Izbrišem to nastanitev?")) return;
     try {
-      const res = await fetch(`/api/tourism/properties/${id}`, {
+      const res = await fetch(`/api/v1/tourism/properties/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -228,7 +228,7 @@ export default function TourismPropertiesPage() {
     const name = newAmenity.trim() || undefined;
     if (!editing || !name) return;
     try {
-      const res = await fetch(`/api/tourism/properties/${editing}/amenities`, {
+      const res = await fetch(`/api/v1/tourism/properties/${editing}/amenities`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
@@ -247,7 +247,7 @@ export default function TourismPropertiesPage() {
     if (!editing) return;
     try {
       const res = await fetch(
-        `/api/tourism/properties/${editing}/amenities?amenityId=${amenityId}`,
+        `/api/v1/tourism/properties/${editing}/amenities?amenityId=${amenityId}`,
         { method: "DELETE" }
       );
       if (!res.ok) {
@@ -265,7 +265,7 @@ export default function TourismPropertiesPage() {
     const { type, content } = newPolicy;
     if (!editing || !type.trim() || !content.trim()) return;
     try {
-      const res = await fetch(`/api/tourism/properties/${editing}/policies`, {
+      const res = await fetch(`/api/v1/tourism/properties/${editing}/policies`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ policyType: type, content }),
@@ -284,7 +284,7 @@ export default function TourismPropertiesPage() {
     if (!editing) return;
     try {
       const res = await fetch(
-        `/api/tourism/properties/${editing}/policies?policyId=${policyId}`,
+        `/api/v1/tourism/properties/${editing}/policies?policyId=${policyId}`,
         { method: "DELETE" }
       );
       if (!res.ok) {
@@ -484,7 +484,7 @@ export default function TourismPropertiesPage() {
                             onClick={async () => {
                               if (!editing) return;
                               try {
-                                const res = await fetch(`/api/tourism/properties/${editing}/amenities`, {
+                                const res = await fetch(`/api/v1/tourism/properties/${editing}/amenities`, {
                                   method: "POST",
                                   headers: { "Content-Type": "application/json" },
                                   body: JSON.stringify({ name: a }),

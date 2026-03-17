@@ -56,7 +56,7 @@ export default function RevenueAnalyticsPage() {
   const handleExport = async (format: "pdf" | "excel") => {
     if (!activePropertyId || !analytics) return;
     try {
-      const res = await fetch("/api/tourism/revenue/export", {
+      const res = await fetch("/api/v1/tourism/revenue/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,7 +86,7 @@ export default function RevenueAnalyticsPage() {
     if (!activePropertyId) return;
     setLoading(true);
     try {
-      let url = `/api/tourism/revenue/analytics?propertyId=${activePropertyId}`;
+      let url = `/api/v1/tourism/revenue/analytics?propertyId=${activePropertyId}`;
       if (period === "custom") {
         url += `&startDate=${startDate}&endDate=${endDate}`;
       } else {

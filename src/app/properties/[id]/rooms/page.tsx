@@ -64,7 +64,7 @@ export default function PropertyRoomsPage() {
   const fetchRooms = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/tourism/properties/${propertyId}/rooms`);
+      const res = await fetch(`/api/v1/tourism/properties/${propertyId}/rooms`);
       const data = await res.json();
       if (res.ok) {
         setRooms(data);
@@ -88,7 +88,7 @@ export default function PropertyRoomsPage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/tourism/properties/${propertyId}/rooms`, {
+      const res = await fetch(`/api/v1/tourism/properties/${propertyId}/rooms`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newRoom),

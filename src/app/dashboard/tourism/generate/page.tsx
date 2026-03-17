@@ -92,7 +92,7 @@ export default function TourismGeneratePage() {
 
   useEffect(() => {
     if (tabMode === "workflow" && workflowUseCases.length === 0) {
-      fetch("/api/tourism/workflow")
+      fetch("/api/v1/tourism/workflow")
         .then((r) => r.json())
         .then((data) => setWorkflowUseCases(data.useCases ?? []))
         .catch(() => setWorkflowUseCases([]));
@@ -157,7 +157,7 @@ export default function TourismGeneratePage() {
     setResult(null);
     setTemplateVars(customVars);
 
-    fetch("/api/tourism/generate-content", {
+    fetch("/api/v1/tourism/generate-content", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ topic: filledPrompt }),
@@ -237,7 +237,7 @@ export default function TourismGeneratePage() {
     setCoreGenerating(true);
     setCoreResult(null);
     setSavedPageId(null);
-    fetch("/api/tourism/generate", {
+    fetch("/api/v1/tourism/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -266,7 +266,7 @@ export default function TourismGeneratePage() {
     if (!coreResult?.landing || !coreResult?.seo) return;
     setCoreSaving(true);
     setSavedPageId(null);
-    fetch("/api/tourism/generate/save", {
+    fetch("/api/v1/tourism/generate/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -321,7 +321,7 @@ export default function TourismGeneratePage() {
     }
     setWorkflowRunning(true);
     setWorkflowResult(null);
-    fetch("/api/tourism/workflow", {
+    fetch("/api/v1/tourism/workflow", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

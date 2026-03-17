@@ -42,7 +42,7 @@ export default function DeparturesPage() {
     setLoading(true);
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const response = await fetch(`/api/tourism/today-overview?propertyId=${selectedPropertyId}&date=${dateStr}`);
+      const response = await fetch(`/api/v1/tourism/today-overview?propertyId=${selectedPropertyId}&date=${dateStr}`);
       if (response.ok) {
         const data = await response.json();
         setDepartures(data.departures || []);
@@ -58,7 +58,7 @@ export default function DeparturesPage() {
 
   const handleCheckOut = async (departureId: string) => {
     try {
-      const response = await fetch(`/api/tourism/reservations/${departureId}/check-out`, {
+      const response = await fetch(`/api/v1/tourism/reservations/${departureId}/check-out`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -77,7 +77,7 @@ export default function DeparturesPage() {
 
   const handleMarkClean = async (departureId: string) => {
     try {
-      const response = await fetch(`/api/tourism/rooms/clean`, {
+      const response = await fetch(`/api/v1/tourism/rooms/clean`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reservationId: departureId }),

@@ -54,7 +54,7 @@ export default function CompetitorsPage() {
       checkIn: recCheckIn,
       checkOut: recCheckOut,
     });
-    fetch(`/api/tourism/price-recommendation?${params}`)
+    fetch(`/api/v1/tourism/price-recommendation?${params}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.error) throw new Error(d.error);
@@ -68,7 +68,7 @@ export default function CompetitorsPage() {
     if (!activePropertyId || !location.trim()) return;
     setLoading(true);
     fetch(
-      `/api/tourism/competitor-prices?propertyId=${activePropertyId}&location=${encodeURIComponent(location.trim())}`
+      `/api/v1/tourism/competitor-prices?propertyId=${activePropertyId}&location=${encodeURIComponent(location.trim())}`
     )
       .then((r) => r.json())
       .then((d) => {
@@ -92,7 +92,7 @@ export default function CompetitorsPage() {
       setMarketAnalysis(null);
       return;
     }
-    fetch("/api/tourism/properties")
+    fetch("/api/v1/tourism/properties")
       .then((r) => r.json())
       .then((d) => {
         const props = d?.properties ?? [];
@@ -102,7 +102,7 @@ export default function CompetitorsPage() {
         // Naloži konkurente s pravilno lokacijo
         setLoading(true);
         fetch(
-          `/api/tourism/competitor-prices?propertyId=${activePropertyId}&location=${encodeURIComponent(loc)}`
+          `/api/v1/tourism/competitor-prices?propertyId=${activePropertyId}&location=${encodeURIComponent(loc)}`
         )
           .then((r) => r.json())
           .then((data) => {
@@ -145,7 +145,7 @@ export default function CompetitorsPage() {
       return;
     }
     setAddLoading(true);
-    fetch("/api/tourism/competitor-prices", {
+    fetch("/api/v1/tourism/competitor-prices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -171,7 +171,7 @@ export default function CompetitorsPage() {
   const handleRefresh = () => {
     if (!activePropertyId) return;
     setRefreshLoading(true);
-    fetch("/api/tourism/competitor-prices", {
+    fetch("/api/v1/tourism/competitor-prices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "refresh-all", propertyId: activePropertyId }),
@@ -188,7 +188,7 @@ export default function CompetitorsPage() {
 
   const handleDelete = (id: string) => {
     if (!confirm("Odstraniti tega konkurenta?")) return;
-    fetch(`/api/tourism/competitor-prices?id=${id}`, { method: "DELETE" })
+    fetch(`/api/v1/tourism/competitor-prices?id=${id}`, { method: "DELETE" })
       .then((r) => r.json())
       .then((d) => {
         if (d.error) throw new Error(d.error);

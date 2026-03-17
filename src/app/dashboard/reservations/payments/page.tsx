@@ -79,7 +79,7 @@ export default function PaymentsPage() {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/payments?propertyId=${selectedPropertyId}&start=${dateRange.start}&end=${dateRange.end}`);
+      const response = await fetch(`/api/v1/tourism/payments?propertyId=${selectedPropertyId}&start=${dateRange.start}&end=${dateRange.end}`);
       if (response.ok) {
         const data = await response.json();
         setPayments(data.payments || []);
@@ -97,7 +97,7 @@ export default function PaymentsPage() {
     if (!selectedPropertyId) return;
     
     try {
-      const response = await fetch(`/api/tourism/reservations?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/reservations?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setReservations(data.reservations || []);
@@ -116,7 +116,7 @@ export default function PaymentsPage() {
     }
 
     try {
-      const response = await fetch(`/api/reservations/${selectedReservation}/payment`, {
+      const response = await fetch(`/api/v1/tourism/reservations/${selectedReservation}/payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -32,7 +32,7 @@ export default function MobileHousekeepingPage() {
 
   const fetchTasks = async () => {
     try {
-      const res = await fetch("/api/tourism/housekeeping/my-tasks");
+      const res = await fetch("/api/v1/tourism/housekeeping/my-tasks");
       if (!res.ok) throw new Error("Failed to fetch tasks");
       const data = await res.json();
       setTasks(data.tasks || []);
@@ -45,7 +45,7 @@ export default function MobileHousekeepingPage() {
 
   const handleStartTask = async (taskId: string) => {
     try {
-      const res = await fetch(`/api/tourism/housekeeping/tasks/${taskId}/status`, {
+      const res = await fetch(`/api/v1/tourism/housekeeping/tasks/${taskId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "in_progress" }),
@@ -60,7 +60,7 @@ export default function MobileHousekeepingPage() {
 
   const handleCompleteTask = async (taskId: string, actualTime?: number) => {
     try {
-      const res = await fetch(`/api/tourism/housekeeping/tasks/${taskId}/status`, {
+      const res = await fetch(`/api/v1/tourism/housekeeping/tasks/${taskId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 

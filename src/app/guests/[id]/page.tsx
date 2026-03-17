@@ -75,7 +75,7 @@ export default function GuestProfilePage() {
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/tourism/guests/${guestId}`);
+      const res = await fetch(`/api/v1/tourism/guests/${guestId}`);
       const data = await res.json();
       if (res.ok) {
         setGuest(data);
@@ -105,7 +105,7 @@ export default function GuestProfilePage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/tourism/guests/${guestId}`, {
+      const res = await fetch(`/api/v1/tourism/guests/${guestId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editData),

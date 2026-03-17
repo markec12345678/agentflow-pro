@@ -83,7 +83,7 @@ export default function TourismEmailWorkflow() {
 
     try {
       const prompt = substitutePrompt(template.prompt, formData);
-      const response = await fetch("/api/tourism/generate-email", {
+      const response = await fetch("/api/v1/tourism/generate-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, variables: formData }),

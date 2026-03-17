@@ -57,8 +57,8 @@ export default function BlockedDatesPage() {
   const fetchData = async () => {
     try {
       const [blockedRes, roomsRes] = await Promise.all([
-        fetch(`/api/tourism/properties/${propertyId}/blocked-dates`),
-        fetch(`/api/tourism/properties/${propertyId}/rooms`)
+        fetch(`/api/v1/tourism/properties/${propertyId}/blocked-dates`),
+        fetch(`/api/v1/tourism/properties/${propertyId}/rooms`)
       ]);
 
       if (blockedRes.ok && roomsRes.ok) {
@@ -76,7 +76,7 @@ export default function BlockedDatesPage() {
 
   const addBlockedDates = async () => {
     try {
-      const response = await fetch(`/api/tourism/calendar`, {
+      const response = await fetch(`/api/v1/tourism/calendar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -105,7 +105,7 @@ export default function BlockedDatesPage() {
 
   const removeBlockedDate = async (blockedDateId: string) => {
     try {
-      const response = await fetch(`/api/tourism/calendar?id=${blockedDateId}&type=blocked`, {
+      const response = await fetch(`/api/v1/tourism/calendar?id=${blockedDateId}&type=blocked`, {
         method: "DELETE",
       });
 

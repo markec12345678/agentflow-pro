@@ -80,10 +80,10 @@ export default function OwnerPortalDashboard({ ownerId }: OwnerDashboardProps) {
       setLoading(true);
       // TODO: Implement actual API calls
       // const [statsRes, revenueRes, docsRes, reportsRes] = await Promise.all([
-      //   fetch(`/api/tourism/owner/${ownerId}/stats`),
-      //   fetch(`/api/tourism/owner/${ownerId}/revenue-shares`),
-      //   fetch(`/api/tourism/owner/${ownerId}/documents`),
-      //   fetch(`/api/tourism/owner/${ownerId}/reports`),
+      //   fetch(`/api/v1/tourism/owner/${ownerId}/stats`),
+      //   fetch(`/api/v1/tourism/owner/${ownerId}/revenue-shares`),
+      //   fetch(`/api/v1/tourism/owner/${ownerId}/documents`),
+      //   fetch(`/api/v1/tourism/owner/${ownerId}/reports`),
       // ]);
 
       // Mock data for now

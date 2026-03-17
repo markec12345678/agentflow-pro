@@ -58,7 +58,7 @@ export default function GuestSearchPage() {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/guests/search?propertyId=${selectedPropertyId}&type=${searchType}&query=${encodeURIComponent(searchTerm)}`);
+      const response = await fetch(`/api/v1/tourism/guests/search?propertyId=${selectedPropertyId}&type=${searchType}&query=${encodeURIComponent(searchTerm)}`);
       if (response.ok) {
         const data = await response.json();
         setGuests(data.guests || []);

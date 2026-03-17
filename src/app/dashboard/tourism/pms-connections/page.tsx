@@ -33,7 +33,7 @@ export default function PmsConnectionsPage() {
       return;
     }
     setLoading(true);
-    fetch(`/api/tourism/pms-connections?propertyId=${activePropertyId}`)
+    fetch(`/api/v1/tourism/pms-connections?propertyId=${activePropertyId}`)
       .then((r) => r.json())
       .then((data) => setConnections(data.connections ?? []))
       .catch(() => setConnections([]))
@@ -47,7 +47,7 @@ export default function PmsConnectionsPage() {
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/tourism/pms-connections", {
+      const res = await fetch("/api/v1/tourism/pms-connections", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -89,7 +89,7 @@ export default function PmsConnectionsPage() {
         body.accessToken = form.accessToken.trim();
         body.clientToken = form.clientToken.trim();
       }
-      const res = await fetch("/api/tourism/pms-sync", {
+      const res = await fetch("/api/v1/tourism/pms-sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -108,7 +108,7 @@ export default function PmsConnectionsPage() {
     if (!activePropertyId || !confirm("Odstranim shranjene poverilnice Mews?")) return;
     try {
       const res = await fetch(
-        `/api/tourism/pms-connections?propertyId=${activePropertyId}&provider=mews`,
+        `/api/v1/tourism/pms-connections?propertyId=${activePropertyId}&provider=mews`,
         { method: "DELETE" }
       );
       if (!res.ok) throw new Error("Napaka");

@@ -72,7 +72,7 @@ export default function NewReservationPage() {
     if (guestSearch.length >= 2) {
       const timer = setTimeout(async () => {
         try {
-          const res = await fetch(`/api/tourism/guests?q=${guestSearch}`);
+          const res = await fetch(`/api/v1/tourism/guests?q=${guestSearch}`);
         const data = await res.json();
         setSearchResults(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -91,7 +91,7 @@ export default function NewReservationPage() {
     
     setCheckingAvailability(true);
     try {
-      const res = await fetch(`/api/tourism/reservations/availability?propertyId=${activePropertyId}&checkIn=${checkIn}&checkOut=${checkOut}`);
+      const res = await fetch(`/api/v1/tourism/reservations/availability?propertyId=${activePropertyId}&checkIn=${checkIn}&checkOut=${checkOut}`);
       const data = await res.json();
       if (res.ok) {
         setAvailability(data);
@@ -131,7 +131,7 @@ export default function NewReservationPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/tourism/reservations", {
+      const res = await fetch("/api/v1/tourism/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -62,7 +62,7 @@ export default function OccupancyReportPage() {
 
   const fetchProperties = async () => {
     try {
-      const response = await fetch("/api/tourism/properties");
+      const response = await fetch("/api/v1/tourism/properties");
       if (response.ok) {
         const data = await response.json();
         setProperties(data.properties || []);
@@ -95,7 +95,7 @@ export default function OccupancyReportPage() {
     if (!selectedPropertyId) return;
     
     try {
-      const response = await fetch(`/api/tourism/rooms/status?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/rooms/status?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setRooms(data.rooms || []);

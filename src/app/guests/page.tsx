@@ -38,7 +38,7 @@ export default function GuestsPage() {
   const fetchGuests = useCallback(async (query = "") => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/tourism/guests${query ? `?q=${query}` : ""}`);
+      const res = await fetch(`/api/v1/tourism/guests${query ? `?q=${query}` : ""}`);
       const data = await res.json();
       if (res.ok) {
         setGuests(Array.isArray(data) ? data : []);

@@ -105,7 +105,7 @@ export default function CheckOutPage() {
     setLoading(true);
     try {
       const today = format(new Date(), "yyyy-MM-dd");
-      const response = await fetch(`/api/tourism/reservations/check-outs?propertyId=${selectedPropertyId}&date=${today}`);
+      const response = await fetch(`/api/v1/tourism/reservations/check-outs?propertyId=${selectedPropertyId}&date=${today}`);
       if (response.ok) {
         const data = await response.json();
         setReservations(data.reservations || []);
@@ -125,7 +125,7 @@ export default function CheckOutPage() {
     try {
       // Fetch guest details
       if (reservation.guestId) {
-        const guestResponse = await fetch(`/api/tourism/guests/${reservation.guestId}`);
+        const guestResponse = await fetch(`/api/v1/tourism/guests/${reservation.guestId}`);
         if (guestResponse.ok) {
           const guestData = await guestResponse.json();
           setGuest(guestData.guest);
@@ -134,7 +134,7 @@ export default function CheckOutPage() {
 
       // Fetch room details
       if (reservation.roomId) {
-        const roomResponse = await fetch(`/api/tourism/rooms/${reservation.roomId}`);
+        const roomResponse = await fetch(`/api/v1/tourism/rooms/${reservation.roomId}`);
         if (roomResponse.ok) {
           const roomData = await roomResponse.json();
           setRoom(roomData.room);
@@ -142,7 +142,7 @@ export default function CheckOutPage() {
       }
 
       // Fetch payment history
-      const paymentResponse = await fetch(`/api/tourism/reservations/${reservation.id}/payments`);
+      const paymentResponse = await fetch(`/api/v1/tourism/reservations/${reservation.id}/payments`);
       if (paymentResponse.ok) {
         const paymentData = await paymentResponse.json();
         setPayments(paymentData.payments || []);
@@ -156,7 +156,7 @@ export default function CheckOutPage() {
     if (!selectedReservation) return;
     
     try {
-      const response = await fetch(`/api/reservations/${selectedReservation.id}/check-out`, {
+      const response = await fetch(`/api/v1/tourism/reservations/${selectedReservation.id}/check-out`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

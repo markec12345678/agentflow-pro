@@ -73,7 +73,7 @@ function AnalyticsPage() {
       setLoading(true);
       try {
         const res = await fetch(
-          `/api/tourism/analytics?propertyId=${activePropertyId}&period=${period}`
+          `/api/v1/tourism/analytics?propertyId=${activePropertyId}&period=${period}`
         );
         const analyticsData = await res.json();
         setData(analyticsData);
@@ -95,7 +95,7 @@ function AnalyticsPage() {
       return;
     }
     setCompetitorLoading(true);
-    fetch(`/api/tourism/competitor-prices?propertyId=${activePropertyId}&location=${encodeURIComponent(competitorLocation.trim())}`)
+    fetch(`/api/v1/tourism/competitor-prices?propertyId=${activePropertyId}&location=${encodeURIComponent(competitorLocation.trim())}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.error) throw new Error(d.error);

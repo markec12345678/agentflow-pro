@@ -77,7 +77,7 @@ export default function MaintenancePage() {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/maintenance/tasks?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/maintenance/tasks?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setTasks(data.tasks || []);
@@ -95,7 +95,7 @@ export default function MaintenancePage() {
     if (!selectedPropertyId) return;
     
     try {
-      const response = await fetch(`/api/tourism/maintenance/staff?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/maintenance/staff?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setStaff(data.staff || []);
@@ -111,7 +111,7 @@ export default function MaintenancePage() {
     if (!selectedPropertyId) return;
     
     try {
-      const response = await fetch(`/api/tourism/rooms/status?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/rooms/status?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setRooms(data.rooms || []);
@@ -125,7 +125,7 @@ export default function MaintenancePage() {
 
   const handleTaskStatusChange = async (taskId: string, newStatus: string) => {
     try {
-      const response = await fetch(`/api/tourism/maintenance/tasks/${taskId}/status`, {
+      const response = await fetch(`/api/v1/tourism/maintenance/tasks/${taskId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -146,7 +146,7 @@ export default function MaintenancePage() {
 
   const handleAssignTask = async (taskId: string, staffId: string) => {
     try {
-      const response = await fetch(`/api/tourism/maintenance/tasks/${taskId}/assign`, {
+      const response = await fetch(`/api/v1/tourism/maintenance/tasks/${taskId}/assign`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staffId }),

@@ -59,7 +59,7 @@ export default function TourismSeoPage() {
   const [gscLoading, setGscLoading] = useState(false);
 
   const refetchKeywords = () => {
-    fetch("/api/tourism/seo-metrics")
+    fetch("/api/v1/tourism/seo-metrics")
       .then((r) => r.json())
       .then((data: { metrics?: KeywordRow[] }) => {
         const list = data.metrics ?? [];
@@ -82,7 +82,7 @@ export default function TourismSeoPage() {
       return;
     }
     setGscLoading(true);
-    fetch(`/api/tourism/search-console?propertyId=${activePropertyId}&days=30`)
+    fetch(`/api/v1/tourism/search-console?propertyId=${activePropertyId}&days=30`)
       .then((r) => r.json())
       .then((data) => {
         if (data.setupRequired) {
@@ -105,12 +105,12 @@ export default function TourismSeoPage() {
       if (importFile) {
         const fd = new FormData();
         fd.append("file", importFile);
-        res = await fetch("/api/tourism/seo-metrics/import", {
+        res = await fetch("/api/v1/tourism/seo-metrics/import", {
           method: "POST",
           body: fd,
         });
       } else if (importCsv.trim()) {
-        res = await fetch("/api/tourism/seo-metrics/import", {
+        res = await fetch("/api/v1/tourism/seo-metrics/import", {
           method: "POST",
           headers: { "Content-Type": "text/plain" },
           body: importCsv.trim(),
@@ -136,7 +136,7 @@ export default function TourismSeoPage() {
 
   useEffect(() => {
     const ctrl = new AbortController();
-    fetch("/api/tourism/seo-metrics", { signal: ctrl.signal })
+    fetch("/api/v1/tourism/seo-metrics", { signal: ctrl.signal })
       .then((r) => r.json())
       .then((data: { metrics?: KeywordRow[] }) => {
         const list = data.metrics ?? [];

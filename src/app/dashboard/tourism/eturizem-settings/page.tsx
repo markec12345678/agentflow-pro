@@ -49,8 +49,8 @@ export default function EturizemSettingsPage() {
     }
     setLoading(true);
     Promise.all([
-      fetch(`/api/tourism/eturizem/connection?propertyId=${activePropertyId}`).then((r) => r.json()),
-      fetch(`/api/tourism/eturizem/stats?propertyId=${activePropertyId}`).then((r) => r.json()).catch(() => null),
+      fetch(`/api/v1/tourism/eturizem/connection?propertyId=${activePropertyId}`).then((r) => r.json()),
+      fetch(`/api/v1/tourism/eturizem/stats?propertyId=${activePropertyId}`).then((r) => r.json()).catch(() => null),
     ])
       .then(([connData, statsData]) => {
         setConnection(connData);
@@ -84,7 +84,7 @@ export default function EturizemSettingsPage() {
       const rno = parseInt(form.rnoId, 10);
       if (!isNaN(rno)) body.rnoId = rno;
 
-      const res = await fetch("/api/tourism/eturizem/connection", {
+      const res = await fetch("/api/v1/tourism/eturizem/connection", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -105,7 +105,7 @@ export default function EturizemSettingsPage() {
     if (!activePropertyId || !confirm("Odstranim AJPES povezavo za to nastanitev?")) return;
     try {
       const res = await fetch(
-        `/api/tourism/eturizem/connection?propertyId=${activePropertyId}`,
+        `/api/v1/tourism/eturizem/connection?propertyId=${activePropertyId}`,
         { method: "DELETE" }
       );
       if (!res.ok) throw new Error("Napaka");

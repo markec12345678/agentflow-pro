@@ -74,9 +74,9 @@ export default function SustainabilityDashboard({ propertyId }: SustainabilityDa
       setLoading(true);
       // TODO: Implement actual API calls
       // const [carbonRes, practicesRes, certsRes] = await Promise.all([
-      //   fetch(`/api/tourism/sustainability/carbon-footprint?propertyId=${propertyId}`),
-      //   fetch(`/api/tourism/sustainability/practices?propertyId=${propertyId}`),
-      //   fetch(`/api/tourism/sustainability/certifications?propertyId=${propertyId}`),
+      //   fetch(`/api/v1/tourism/sustainability/carbon-footprint?propertyId=${propertyId}`),
+      //   fetch(`/api/v1/tourism/sustainability/practices?propertyId=${propertyId}`),
+      //   fetch(`/api/v1/tourism/sustainability/certifications?propertyId=${propertyId}`),
       // ]);
 
       // Mock data

@@ -115,7 +115,7 @@ function GenerateWizard() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
 
   useEffect(() => {
-    fetch("/api/tourism/properties")
+    fetch("/api/v1/tourism/properties")
       .then((r) => r.json())
       .then((data) => setProperties(data.properties ?? []))
       .catch(() => setProperties([]));
@@ -263,7 +263,7 @@ function GenerateWizard() {
     // Save content and redirect to landing page preview
     try {
       // Create a new landing page with generated content
-      const response = await fetch("/api/tourism/landing-pages", {
+      const response = await fetch("/api/v1/tourism/landing-pages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

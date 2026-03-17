@@ -23,7 +23,7 @@ export default function NotificationsPage() {
 
   const fetchNotifications = () => {
     setLoading(true);
-    const url = `/api/tourism/notifications?limit=50${propertyId ? `&propertyId=${propertyId}` : ""}`;
+    const url = `/api/v1/tourism/notifications?limit=50${propertyId ? `&propertyId=${propertyId}` : ""}`;
     fetch(url)
       .then((r) => r.json())
       .then((data) => {
@@ -43,7 +43,7 @@ export default function NotificationsPage() {
 
   const markAsRead = async (id: string) => {
     try {
-      await fetch("/api/tourism/notifications", {
+      await fetch("/api/v1/tourism/notifications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
@@ -59,7 +59,7 @@ export default function NotificationsPage() {
 
   const markAllAsRead = async () => {
     try {
-      await fetch("/api/tourism/notifications", {
+      await fetch("/api/v1/tourism/notifications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: "all" }),
@@ -74,7 +74,7 @@ export default function NotificationsPage() {
 
   const deleteNotification = async (id: string) => {
     try {
-      await fetch(`/api/tourism/notifications?id=${id}`, { method: "DELETE" });
+      await fetch(`/api/v1/tourism/notifications?id=${id}`, { method: "DELETE" });
       const wasUnread = notifications.find((n) => n.id === id)?.read === false;
       setNotifications((prev) => prev.filter((n) => n.id !== id));
       if (wasUnread) setUnreadCount((prev) => Math.max(0, prev - 1));

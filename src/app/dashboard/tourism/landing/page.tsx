@@ -186,7 +186,7 @@ export default function TourismLandingPage() {
   } | null>(null);
 
   const loadSavedPages = () => {
-    fetch("/api/tourism/landing-pages")
+    fetch("/api/v1/tourism/landing-pages")
       .then((r) => r.json())
       .then((data) => setSavedPages((data.pages ?? []).map((p: { id: string; title: string }) => ({ id: p.id, title: p.title }))))
       .catch(() => setSavedPages([]));
@@ -194,7 +194,7 @@ export default function TourismLandingPage() {
 
   const handleLoad = async (id: string) => {
     try {
-      const res = await fetch(`/api/tourism/landing-pages/${id}`);
+      const res = await fetch(`/api/v1/tourism/landing-pages/${id}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       const page = data.page;
@@ -240,7 +240,7 @@ export default function TourismLandingPage() {
     setCoreLoading(true);
     setCoreResult(null);
     try {
-      const res = await fetch("/api/tourism/generate", {
+      const res = await fetch("/api/v1/tourism/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -268,7 +268,7 @@ export default function TourismLandingPage() {
   const handleCoreSave = async () => {
     if (!coreResult?.landing || !coreResult?.seo) return;
     try {
-      const res = await fetch("/api/tourism/generate/save", {
+      const res = await fetch("/api/v1/tourism/generate/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -310,7 +310,7 @@ export default function TourismLandingPage() {
     setLoading(true);
     setPages(null);
     try {
-      const res = await fetch("/api/tourism/generate-landing", {
+      const res = await fetch("/api/v1/tourism/generate-landing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -380,7 +380,7 @@ export default function TourismLandingPage() {
     if (!first) return;
 
     try {
-      const res = await fetch("/api/tourism/landing-pages", {
+      const res = await fetch("/api/v1/tourism/landing-pages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

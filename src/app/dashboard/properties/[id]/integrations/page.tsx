@@ -65,7 +65,7 @@ export default function IntegrationsPage() {
 
   const fetchProperty = async () => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}`);
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}`);
       if (response.ok) {
         const data = await response.json();
         setProperty(data.property);

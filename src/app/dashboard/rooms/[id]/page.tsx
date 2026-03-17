@@ -77,7 +77,7 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/properties/${selectedPropertyId}/rooms/${resolvedParams?.id}`);
+      const response = await fetch(`/api/v1/tourism/properties/${selectedPropertyId}/rooms/${resolvedParams?.id}`);
       if (response.ok) {
         const data = await response.json();
         setRoom(data.room);
@@ -95,7 +95,7 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
     if (!selectedPropertyId || !resolvedParams?.id) return;
     
     try {
-      const response = await fetch(`/api/tourism/reservations?propertyId=${selectedPropertyId}&roomId=${resolvedParams?.id}`);
+      const response = await fetch(`/api/v1/tourism/reservations?propertyId=${selectedPropertyId}&roomId=${resolvedParams?.id}`);
       if (response.ok) {
         const data = await response.json();
         setReservations(data.reservations || []);
@@ -111,7 +111,7 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
     if (!selectedPropertyId || !resolvedParams?.id) return;
     
     try {
-      const response = await fetch(`/api/tourism/maintenance/tasks?propertyId=${selectedPropertyId}&roomId=${resolvedParams?.id}`);
+      const response = await fetch(`/api/v1/tourism/maintenance/tasks?propertyId=${selectedPropertyId}&roomId=${resolvedParams?.id}`);
       if (response.ok) {
         const data = await response.json();
         setMaintenanceTasks(data.tasks || []);
@@ -127,7 +127,7 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
     if (!resolvedParams?.id) return;
     
     try {
-      const response = await fetch(`/api/rooms/${resolvedParams?.id}/status`, {
+      const response = await fetch(`/api/v1/tourism/rooms/${resolvedParams?.id}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

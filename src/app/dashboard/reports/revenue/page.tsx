@@ -67,7 +67,7 @@ export default function RevenueReportPage() {
 
   const fetchProperties = async () => {
     try {
-      const response = await fetch("/api/tourism/properties");
+      const response = await fetch("/api/v1/tourism/properties");
       if (response.ok) {
         const data = await response.json();
         setProperties(data.properties || []);

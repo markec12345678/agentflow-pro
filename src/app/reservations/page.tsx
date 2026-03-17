@@ -60,7 +60,7 @@ export default function ReservationsPage() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      fetch("/api/tourism/reservations/pending")
+      fetch("/api/v1/tourism/reservations/pending")
         .then(r => r.json())
         .then(data => setPendingCount(Array.isArray(data) ? data.length : 0))
         .catch(console.error);
@@ -83,7 +83,7 @@ export default function ReservationsPage() {
       if (dateRange.start) params.set("startDate", dateRange.start);
       if (dateRange.end) params.set("endDate", dateRange.end);
       
-      const res = await fetch(`/api/tourism/reservations?${params.toString()}`);
+      const res = await fetch(`/api/v1/tourism/reservations?${params.toString()}`);
       const data = await res.json();
       setReservations(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -103,7 +103,7 @@ export default function ReservationsPage() {
     if (selectedIds.length === 0) return;
     
     try {
-      const res = await fetch("/api/tourism/reservations", {
+      const res = await fetch("/api/v1/tourism/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, reservationIds: selectedIds }),
@@ -149,7 +149,7 @@ export default function ReservationsPage() {
       toast.error("Izberite nastanitev za iCal izvoz");
       return;
     }
-    window.open(`/api/tourism/ical?propertyId=${activePropertyId}`, "_blank");
+    window.open(`/api/v1/tourism/ical?propertyId=${activePropertyId}`, "_blank");
   };
 
   // Calendar logic

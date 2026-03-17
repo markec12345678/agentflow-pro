@@ -72,12 +72,12 @@ export async function GET(
         })
       } catch (error) {
         return handleApiError(error, {
-          route: '/api/pricing/dynamic',
+          route: '/api/v1/tourism/pricing/dynamic',
           method: 'GET'
         })
       }
     },
-    '/api/pricing/dynamic'
+    '/api/v1/tourism/pricing/dynamic'
   )
 }
 
@@ -127,12 +127,12 @@ export async function PUT(
         })
       } catch (error) {
         return handleApiError(error, {
-          route: '/api/pricing/seasonal',
+          route: '/api/v1/tourism/pricing/seasonal',
           method: 'PUT'
         })
       }
     },
-    '/api/pricing/seasonal'
+    '/api/v1/tourism/pricing/seasonal'
   )
 }
 
@@ -183,11 +183,11 @@ export async function GET(
         })
       } catch (error) {
         return handleApiError(error, {
-          route: '/api/pricing/recommendations',
+          route: '/api/v1/tourism/pricing/recommendations',
           method: 'GET'
         })
       }
     },
-    '/api/pricing/recommendations'
+    '/api/v1/tourism/pricing/recommendations'
   )
 }

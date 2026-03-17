@@ -74,7 +74,7 @@ export default function ReservationDetailsPage() {
   const fetchDetails = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/tourism/reservations/${id}`);
+      const res = await fetch(`/api/v1/tourism/reservations/${id}`);
       const data = await res.json();
       if (res.ok) {
         setReservation(data);
@@ -106,7 +106,7 @@ export default function ReservationDetailsPage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/tourism/reservations/${id}`, {
+      const res = await fetch(`/api/v1/tourism/reservations/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editData),
@@ -136,7 +136,7 @@ export default function ReservationDetailsPage() {
     
     setIsCancelling(true);
     try {
-      const res = await fetch(`/api/tourism/reservations/${id}`, {
+      const res = await fetch(`/api/v1/tourism/reservations/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -156,7 +156,7 @@ export default function ReservationDetailsPage() {
     if (!newMessage.trim() || !reservation.guestId) return;
     
     try {
-      const res = await fetch("/api/tourism/guest-communication", {
+      const res = await fetch("/api/v1/tourism/guest-communication", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -183,7 +183,7 @@ export default function ReservationDetailsPage() {
 
   const handleUpdateNotes = async () => {
     try {
-      const res = await fetch(`/api/tourism/reservations/${id}`, {
+      const res = await fetch(`/api/v1/tourism/reservations/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notes: internalNote }),

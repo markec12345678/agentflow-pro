@@ -117,7 +117,7 @@ export default function PoliciesPage() {
 
   const fetchPolicies = async () => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}/policies`);
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}/policies`);
       if (response.ok) {
         const data = await response.json();
         setPolicies(data);
@@ -131,7 +131,7 @@ export default function PoliciesPage() {
 
   const addPolicy = async (policyType: string, content: string) => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}/policies`, {
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}/policies`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ policyType, content }),
@@ -151,7 +151,7 @@ export default function PoliciesPage() {
 
   const updatePolicy = async (policyId: string, content: string) => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}/policies/${policyId}`, {
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}/policies/${policyId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content }),
@@ -171,7 +171,7 @@ export default function PoliciesPage() {
 
   const removePolicy = async (policyId: string) => {
     try {
-      const response = await fetch(`/api/tourism/properties/${propertyId}/policies/${policyId}`, {
+      const response = await fetch(`/api/v1/tourism/properties/${propertyId}/policies/${policyId}`, {
         method: "DELETE",
       });
 

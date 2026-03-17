@@ -84,7 +84,7 @@ export default function CheckInPage() {
     setLoading(true);
     try {
       const today = format(new Date(), "yyyy-MM-dd");
-      const response = await fetch(`/api/tourism/reservations/check-ins?propertyId=${selectedPropertyId}&date=${today}`);
+      const response = await fetch(`/api/v1/tourism/reservations/check-ins?propertyId=${selectedPropertyId}&date=${today}`);
       if (response.ok) {
         const data = await response.json();
         setReservations(data.reservations || []);
@@ -104,7 +104,7 @@ export default function CheckInPage() {
     try {
       // Fetch guest details
       if (reservation.guestId) {
-        const guestResponse = await fetch(`/api/tourism/guests/${reservation.guestId}`);
+        const guestResponse = await fetch(`/api/v1/tourism/guests/${reservation.guestId}`);
         if (guestResponse.ok) {
           const guestData = await guestResponse.json();
           setGuest(guestData.guest);
@@ -113,7 +113,7 @@ export default function CheckInPage() {
 
       // Fetch room details
       if (reservation.roomId) {
-        const roomResponse = await fetch(`/api/tourism/rooms/${reservation.roomId}`);
+        const roomResponse = await fetch(`/api/v1/tourism/rooms/${reservation.roomId}`);
         if (roomResponse.ok) {
           const roomData = await roomResponse.json();
           setRoom(roomData.room);
@@ -128,7 +128,7 @@ export default function CheckInPage() {
     if (!selectedReservation) return;
     
     try {
-      const response = await fetch(`/api/reservations/${selectedReservation.id}/check-in`, {
+      const response = await fetch(`/api/v1/tourism/reservations/${selectedReservation.id}/check-in`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

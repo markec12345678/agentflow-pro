@@ -112,9 +112,9 @@ export const TOURISM_VERTICAL_STATUS = {
   api_endpoints: {
     implemented: true,
     endpoints: [
-      "/api/tourism/workflow",
-      "/api/tourism/use-cases", 
-      "/api/tourism/complete"
+      "/api/v1/tourism/workflow",
+      "/api/v1/tourism/use-cases", 
+      "/api/v1/tourism/complete"
     ],
     files: [
       "src/app/api/tourism/workflow/route.ts",

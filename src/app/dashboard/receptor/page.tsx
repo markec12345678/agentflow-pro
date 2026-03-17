@@ -47,7 +47,7 @@ export default function ReceptorDashboard() {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/today-overview?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/today-overview?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setStats(data);
@@ -63,7 +63,7 @@ export default function ReceptorDashboard() {
 
   const handleQuickReservation = async (reservation: QuickReservation) => {
     try {
-      const response = await fetch("/api/tourism/reservations", {
+      const response = await fetch("/api/v1/tourism/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

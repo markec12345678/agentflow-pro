@@ -39,7 +39,7 @@ export default function CheckInPage() {
       setErrorMsg("Manjkajoč token");
       return;
     }
-    fetch(`/api/tourism/eturizem/check-in?token=${encodeURIComponent(token)}`)
+    fetch(`/api/v1/tourism/eturizem/check-in?token=${encodeURIComponent(token)}`)
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) {
@@ -61,7 +61,7 @@ export default function CheckInPage() {
     const lines = mrzPaste.split(/[\r\n]+/).map((l: string) => l.trim()).filter(Boolean);
     if (lines.length < 2) return;
     try {
-      const res = await fetch("/api/tourism/eturizem/parse-mrz", {
+      const res = await fetch("/api/v1/tourism/eturizem/parse-mrz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mrzLines: lines }),
@@ -91,7 +91,7 @@ export default function CheckInPage() {
     setSubmitting(true);
     setErrorMsg("");
     try {
-      const res = await fetch("/api/tourism/eturizem/check-in-submit", {
+      const res = await fetch("/api/v1/tourism/eturizem/check-in-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

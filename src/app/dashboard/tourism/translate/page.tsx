@@ -40,7 +40,7 @@ export default function TourismTranslatePage() {
     setLoading(true);
     setResults(null);
     try {
-      const res = await fetch("/api/tourism/batch-translate", {
+      const res = await fetch("/api/v1/tourism/batch-translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

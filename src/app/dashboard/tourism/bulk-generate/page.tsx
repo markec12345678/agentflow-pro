@@ -31,7 +31,7 @@ export default function BulkGeneratePage() {
   const [result, setResult] = useState<{ success: number; failed: number; results?: unknown[]; errors?: unknown[] } | null>(null);
 
   useEffect(() => {
-    fetch("/api/tourism/properties")
+    fetch("/api/v1/tourism/properties")
       .then((r) => r.json())
       .then((data) => setProperties(data.properties ?? []))
       .catch(() => setProperties([]))
@@ -74,7 +74,7 @@ export default function BulkGeneratePage() {
     setGenerating(true);
     setResult(null);
     try {
-      const res = await fetch("/api/tourism/bulk-generate", {
+      const res = await fetch("/api/v1/tourism/bulk-generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

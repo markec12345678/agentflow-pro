@@ -111,7 +111,7 @@ export default function VoiceAssistant({ propertyId }: VoiceAssistantProps) {
       // formData.append('propertyId', propertyId || '');
       // formData.append('sessionId', sessionId);
       //
-      // const response = await fetch('/api/tourism/voice/interact', {
+      // const response = await fetch('/api/v1/tourism/voice/interact', {
       //   method: 'POST',
       //   body: formData,
       // });
@@ -170,7 +170,7 @@ export default function VoiceAssistant({ propertyId }: VoiceAssistantProps) {
       setTextInput('');
 
       // TODO: Call actual API
-      // const response = await fetch('/api/tourism/voice/text-interact', {
+      // const response = await fetch('/api/v1/tourism/voice/text-interact', {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({

@@ -61,7 +61,7 @@ function DataCleanupPage() {
     setter(true);
     setResult(null);
     try {
-      const res = await fetch("/api/tourism/data-cleanup", {
+      const res = await fetch("/api/v1/tourism/data-cleanup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

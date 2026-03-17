@@ -45,7 +45,7 @@ export default function GuestCommunicationPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/tourism/guest-communication?propertyId=${activePropertyId}&type=${activeTab}`
+        `/api/v1/tourism/guest-communication?propertyId=${activePropertyId}&type=${activeTab}`
       );
       const data = await res.json();
       setCommunications(data.communications || []);
@@ -71,7 +71,7 @@ export default function GuestCommunicationPage() {
     }
     setBulkApproving(true);
     try {
-      const res = await fetch("/api/tourism/guest-communication", {
+      const res = await fetch("/api/v1/tourism/guest-communication", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -332,7 +332,7 @@ function CreateMessageModal({
 
     setLoading(true);
     try {
-      const res = await fetch("/api/tourism/guest-communication", {
+      const res = await fetch("/api/v1/tourism/guest-communication", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -493,7 +493,7 @@ function FaqChatbotDemo() {
     setAnswer(null);
     setConfidence(null);
     try {
-      const res = await fetch("/api/tourism/faq", {
+      const res = await fetch("/api/v1/tourism/faq", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
@@ -573,7 +573,7 @@ function FaqChatbotDemo() {
         {["prihod", "čas", "storitve", "pravila", "aktivnosti", "oprema", "rezervacije"].map((cat) => (
           <Link
             key={cat}
-            href={`/api/tourism/faq?category=${cat}`}
+            href={`/api/v1/tourism/faq?category=${cat}`}
             className="text-sm text-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors capitalize"
           >
             {cat}

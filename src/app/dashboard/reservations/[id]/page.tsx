@@ -95,7 +95,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/reservations/${resolvedParams.id}?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/reservations/${resolvedParams.id}?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setReservation(data.reservation);
@@ -116,7 +116,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
     if (!resolvedParams?.id) return;
 
     try {
-      const response = await fetch(`/api/reservations/${resolvedParams.id}/check-in`, {
+      const response = await fetch(`/api/v1/tourism/reservations/${resolvedParams.id}/check-in`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -137,7 +137,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
     if (!resolvedParams?.id) return;
 
     try {
-      const response = await fetch(`/api/reservations/${resolvedParams.id}/check-out`, {
+      const response = await fetch(`/api/v1/tourism/reservations/${resolvedParams.id}/check-out`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -160,7 +160,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
     if (!confirm("Are you sure you want to cancel this reservation?")) return;
 
     try {
-      const response = await fetch(`/api/reservations/${resolvedParams.id}/cancel`, {
+      const response = await fetch(`/api/v1/tourism/reservations/${resolvedParams.id}/cancel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -181,7 +181,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
     if (!resolvedParams?.id) return;
 
     try {
-      const response = await fetch(`/api/reservations/${resolvedParams.id}/payment`, {
+      const response = await fetch(`/api/v1/tourism/reservations/${resolvedParams.id}/payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentData),
@@ -525,7 +525,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
                         <button
                           onClick={async () => {
                             try {
-                              const res = await fetch("/api/tourism/invoices/generate", {
+                              const res = await fetch("/api/v1/tourism/invoices/generate", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({
@@ -537,7 +537,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
                               if (data.invoiceNumber) {
                                 toast.success(`Invoice generated: ${data.invoiceNumber}`);
                                 // Download HTML invoice
-                                const invoiceRes = await fetch(`/api/tourism/invoices/${data.invoiceId}/html`);
+                                const invoiceRes = await fetch(`/api/v1/tourism/invoices/${data.invoiceId}/html`);
                                 const html = await invoiceRes.text();
                                 const blob = new Blob([html], { type: "text/html" });
                                 const url = URL.createObjectURL(blob);

@@ -40,7 +40,7 @@ export default function DynamicPricingPage() {
     if (!activePropertyId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/tourism/dynamic-pricing/settings?propertyId=${activePropertyId}`);
+      const res = await fetch(`/api/v1/tourism/dynamic-pricing/settings?propertyId=${activePropertyId}`);
       if (!res.ok) throw new Error("Failed to fetch settings");
       const data = await res.json();
       setSettings(data.settings);
@@ -56,7 +56,7 @@ export default function DynamicPricingPage() {
     if (!activePropertyId || !settings) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/tourism/dynamic-pricing/settings?propertyId=${activePropertyId}`, {
+      const res = await fetch(`/api/v1/tourism/dynamic-pricing/settings?propertyId=${activePropertyId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings),

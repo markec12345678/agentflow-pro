@@ -74,7 +74,7 @@ export default function QuickReservationPage() {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/tourism/rooms/status?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/tourism/rooms/status?propertyId=${selectedPropertyId}`);
       if (response.ok) {
         const data = await response.json();
         setRooms(data.rooms || []);
@@ -93,7 +93,7 @@ export default function QuickReservationPage() {
     if (!selectedPropertyId || !form.roomId || !form.checkIn || !form.checkOut) return;
     
     try {
-      const response = await fetch(`/api/tourism/calculate-price`, {
+      const response = await fetch(`/api/v1/tourism/calculate-price`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -127,7 +127,7 @@ export default function QuickReservationPage() {
     setSubmitting(true);
     
     try {
-      const response = await fetch("/api/tourism/reservations", {
+      const response = await fetch("/api/v1/tourism/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -33,7 +33,7 @@ export default function TourismUseCasesPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/tourism/use-cases")
+    fetch("/api/v1/tourism/use-cases")
       .then((r) => {
         if (!r.ok) throw new Error("Failed to load");
         return r.json();

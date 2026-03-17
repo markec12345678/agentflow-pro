@@ -307,7 +307,7 @@ Response:
     // Example: Upload to S3
     // const s3Url = await s3.upload({ Bucket: 'agentflow-voice', Key: fileName, Body: audioBlob }).promise();
     
-    return `/api/tourism/voice/audio/${fileName}`;
+    return `/api/v1/tourism/voice/audio/${fileName}`;
   }
 
   /**

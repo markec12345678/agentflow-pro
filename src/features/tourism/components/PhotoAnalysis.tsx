@@ -74,7 +74,7 @@ export default function PhotoAnalysis({ propertyId }: PhotoAnalysisProps) {
     setAnalyzing(true);
     try {
       // TODO: Call actual API
-      // const response = await fetch('/api/tourism/photo-analysis', {
+      // const response = await fetch('/api/v1/tourism/photo-analysis', {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({

@@ -56,7 +56,7 @@ export default function PropertyPricingPage() {
   const fetchPricing = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/tourism/properties/${propertyId}/pricing`);
+      const res = await fetch(`/api/v1/tourism/properties/${propertyId}/pricing`);
       const data = await res.json();
       if (res.ok) {
         setBasePrice(data.basePrice || 0);
@@ -82,7 +82,7 @@ export default function PropertyPricingPage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/tourism/properties/${propertyId}/pricing`, {
+      const res = await fetch(`/api/v1/tourism/properties/${propertyId}/pricing`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

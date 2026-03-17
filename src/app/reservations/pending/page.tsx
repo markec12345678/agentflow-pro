@@ -48,7 +48,7 @@ export default function PendingApprovalsPage() {
   const fetchPending = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/tourism/reservations/pending");
+      const res = await fetch("/api/v1/tourism/reservations/pending");
       const data = await res.json();
       if (res.ok) {
         setReservations(Array.isArray(data) ? data : []);
@@ -73,7 +73,7 @@ export default function PendingApprovalsPage() {
     
     setActionLoading(action);
     try {
-      const res = await fetch("/api/tourism/reservations/pending", {
+      const res = await fetch("/api/v1/tourism/reservations/pending", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
