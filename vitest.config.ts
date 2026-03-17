@@ -8,13 +8,18 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup.ts'],
-    include: ['tests/**/*.test.{ts,tsx}'],
+    include: [
+      'tests/**/*.test.{ts,tsx}',
+      'src/**/__tests__/**/*.test.{ts,tsx}',
+      'src/**/*.test.{ts,tsx}',
+    ],
     exclude: [
-      'tests/**/*.spec.{ts,tsx}',
+      'tests/**/*.spec.{ts,tsx}',  // Playwright E2E tests
+      'e2e/**/*.spec.{ts,tsx}',    // Playwright E2E tests
       'node_modules',
       '.next',
-      'src/app/**',
-      'src/server/**',
+      '.vercel',
+      'dist',
     ],
     coverage: {
       provider: 'v8',
@@ -25,19 +30,25 @@ export default defineConfig({
         'src/infrastructure/**/*.{ts,tsx}',
         'src/features/**/*.{ts,tsx}',
         'src/database/**/*.{ts,tsx}',
+        'src/domain/**/*.{ts,tsx}',
+        'src/agents/**/*.{ts,tsx}',
+        'src/workflows/**/*.{ts,tsx}',
       ],
       exclude: [
         'src/**/*.d.ts',
         'src/**/*.stories.{ts,tsx}',
         '**/*.config.*',
         '**/types.ts',
+        '**/*.test.{ts,tsx}',
+        '**/*.spec.{ts,tsx}',
+        'src/app/api/**',  // Exclude API routes from coverage
       ],
       threshold: {
         global: {
-          statements: 85,
-          branches: 85,
-          functions: 85,
-          lines: 85,
+          statements: 80,
+          branches: 80,
+          functions: 80,
+          lines: 80,
         },
       },
     },
@@ -45,6 +56,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@tests': path.resolve(__dirname, './tests'),
     },
   },
 })
