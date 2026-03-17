@@ -4,6 +4,16 @@
       "type": "http",
       "url": "https://mcp.neon.tech/mcp"
     },
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres"
+      ],
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}"
+      }
+    },
     "memory": {
       "command": "npx",
       "args": [
@@ -17,6 +27,12 @@
         "-y",
         "@modelcontextprotocol/server-git"
       ]
+    },
+    "github": {
+      "url": "https://mcp.github.com",
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
     },
     "playwright": {
       "command": "npx",
@@ -51,7 +67,9 @@
         "-y",
         "@vercel/mcp"
       ],
-      "url": "https://mcp.vercel.com"
+      "env": {
+        "VERCEL_TOKEN": "${VERCEL_TOKEN}"
+      }
     },
     "docker": {
       "command": "npx",
@@ -60,6 +78,16 @@
         "@docker/mcp-server"
       ]
     },
+    "sentry": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sentry/mcp"
+      ],
+      "env": {
+        "SENTRY_DSN": "${SENTRY_DSN}"
+      }
+    },
     "sequential-thinking": {
       "command": "npx",
       "args": [
@@ -67,135 +95,184 @@
         "@modelcontextprotocol/server-sequential-thinking"
       ]
     },
-    "github": {
-      "url": "https://mcp.github.com"
-    },
-    "mcp-server": {
+    "stripe": {
       "command": "npx",
       "args": [
         "-y",
-        "@prismicio/mcp-server"
+        "@stripe/mcp"
+      ],
+      "env": {
+        "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}"
+      }
+    },
+    "redis": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-redis"
+      ],
+      "env": {
+        "REDIS_URL": "${UPSTASH_REDIS_REST_URL}"
+      }
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      }
+    },
+    "fetch": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "fetch-mcp-server"
       ]
     },
-    "G": {
-      "type": "stdio",
+    "time": {
       "command": "npx",
       "args": [
         "-y",
-        "mcp-remote",
-        "https://backend.composio.dev/v3/mcp/531301e8-911c-4db7-b865-72f474390e14/mcp?user_id=833e18c8-219c-4327-a965-18c3ae88bce9&connected_account_id=ca_Pi2rGqfPkzq2"
+        "@modelcontextprotocol/server-time"
+      ]
+    },
+    "everart": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-everart"
+      ],
+      "env": {
+        "EVERART_API_KEY": "${EVERART_API_KEY}"
+      }
+    },
+    "cloudflare": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "cloudflare-mcp"
+      ],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}",
+        "CLOUDFLARE_ACCOUNT_ID": "${CLOUDFLARE_ACCOUNT_ID}"
+      }
+    },
+    "openai": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-openai"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+      }
+    },
+    "google-ai": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-google-ai"
+      ],
+      "env": {
+        "GEMINI_API_KEY": "${GEMINI_API_KEY}"
+      }
+    },
+    "resend": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-resend"
+      ],
+      "env": {
+        "RESEND_API_KEY": "${RESEND_API_KEY}"
+      }
+    },
+    "pusher": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-pusher"
+      ],
+      "env": {
+        "PUSHER_APP_ID": "${PUSHER_APP_ID}",
+        "PUSHER_KEY": "${PUSHER_KEY}",
+        "PUSHER_SECRET": "${PUSHER_SECRET}",
+        "PUSHER_CLUSTER": "${PUSHER_CLUSTER}"
+      }
+    },
+    "qdrant": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-qdrant"
+      ],
+      "env": {
+        "QDRANT_URL": "${QDRANT_URL}",
+        "QDRANT_API_KEY": "${QDRANT_API_KEY}"
+      }
+    },
+    "twilio": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-twilio"
+      ],
+      "env": {
+        "TWILIO_ACCOUNT_SID": "${TWILIO_ACCOUNT_SID}",
+        "TWILIO_AUTH_TOKEN": "${TWILIO_AUTH_TOKEN}",
+        "TWILIO_FROM": "${TWILIO_FROM}"
+      }
+    },
+    "slack": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-slack"
+      ],
+      "env": {
+        "SLACK_TOKEN": "${SLACK_ESCALATION_WEBHOOK_URL}"
+      }
+    },
+    "salesforce": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-salesforce"
+      ],
+      "env": {
+        "SALESFORCE_CLIENT_ID": "${SALESFORCE_CLIENT_ID}",
+        "SALESFORCE_CLIENT_SECRET": "${SALESFORCE_CLIENT_SECRET}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${workspaceFolder}"
       ],
       "env": {}
     },
-    "gmail": {
-      "type": "stdio",
+    "everything": {
       "command": "npx",
       "args": [
         "-y",
-        "mcp-remote",
-        "Gmail"
-      ],
-      "env": {}
+        "@modelcontextprotocol/server-everything"
+      ]
     },
-    "googlecalendar": {
-      "type": "stdio",
-      "command": "npx",
+    "agentflow-pro": {
+      "command": "npm",
       "args": [
-        "-y",
-        "mcp-remote",
-        "Google Calendar"
+        "run",
+        "mcp"
       ],
-      "env": {}
-    },
-    "notion": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "Notion"
-      ],
-      "env": {}
-    },
-    "g": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "Google Sheets"
-      ],
-      "env": {}
-    },
-    "sub": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "Supabase"
-      ],
-      "env": {}
-    },
-    "airtable": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "Airtable"
-      ],
-      "env": {}
-    },
-    "youtube": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "YouTube"
-      ],
-      "env": {}
-    },
-    "K": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "Slackbot"
-      ],
-      "env": {}
-    },
-    "facebook": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "Facebook"
-      ],
-      "env": {}
-    },
-    "googledrive": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "Google Drive"
-      ],
-      "env": {}
-    },
-    "googledocs": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "Google Docs"
-      ],
-      "env": {}
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}",
+        "UPSTASH_REDIS_REST_URL": "${UPSTASH_REDIS_REST_URL}"
+      }
     }
   }
 }
