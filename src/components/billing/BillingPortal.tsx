@@ -53,9 +53,9 @@ export default function BillingPortal({ userId }: BillingPortalProps) {
 
   const loadBillingData = async () => {
     try {
-      const res = await fetch('/api/billing/portal');
+      const res = await fetch('/api/v1/billing/portal');
       const data = await res.json();
-      
+
       setSubscription(data.subscription);
       setInvoices(data.invoices || []);
     } catch (error) {
@@ -69,12 +69,12 @@ export default function BillingPortal({ userId }: BillingPortalProps) {
   const handleOpenPortal = async () => {
     setPortalLoading(true);
     try {
-      const res = await fetch('/api/billing/portal', {
+      const res = await fetch('/api/v1/billing/portal', {
         method: 'POST',
       });
-      
+
       const data = await res.json();
-      
+
       if (data.url) {
         window.open(data.url, '_blank');
       }
@@ -97,10 +97,10 @@ export default function BillingPortal({ userId }: BillingPortalProps) {
     if (!confirm('Ali ste prepričani, da želite preklicati naročnino?')) return;
 
     try {
-      const res = await fetch('/api/billing/cancel', {
+      const res = await fetch('/api/v1/billing/cancel', {
         method: 'POST',
       });
-      
+
       if (res.ok) {
         toast.success('Naročnina bo preklicana na koncu obračunskega obdobja');
         loadBillingData();

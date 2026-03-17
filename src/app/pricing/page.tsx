@@ -15,7 +15,7 @@ export default function PricingPage() {
     setCheckoutLoading(planId);
     setCheckoutError(null);
     try {
-      const res = await fetch("/api/stripe/checkout", {
+      const res = await fetch("/api/v1/billing/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId }),

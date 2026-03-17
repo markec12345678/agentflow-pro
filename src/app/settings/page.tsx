@@ -107,7 +107,7 @@ export default function SettingsPage() {
       fetch("/api/auth/connections").then((r) => r.json()),
       fetch("/api/onboarding").then((r) => r.json()),
       fetch("/api/usage/alerts").then((r) => r.json()),
-      fetch("/api/billing").then((r) => r.json()),
+      fetch("/api/v1/billing").then((r) => r.json()),
     ])
       .then(([keysData, connData, onboardingData, alertsData, billingData]) => {
         if (!keysData.error) {
@@ -276,7 +276,7 @@ export default function SettingsPage() {
                     setBillingAction("checkout");
                     setMessage(null);
                     try {
-                      const res = await fetch("/api/billing", {
+                      const res = await fetch("/api/v1/billing", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ action: "checkout", planId: "pro" }),
@@ -305,7 +305,7 @@ export default function SettingsPage() {
                     setBillingAction("cancel");
                     setMessage(null);
                     try {
-                      const res = await fetch("/api/billing", {
+                      const res = await fetch("/api/v1/billing", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ action: "cancel", immediately: false }),
@@ -313,7 +313,7 @@ export default function SettingsPage() {
                       const data = await res.json();
                       if (res.ok && data?.canceled) {
                         setMessage("Naročnina bo prekinjena ob koncu obdobja.");
-                        const refetch = await fetch("/api/billing").then((r) => r.json());
+                        const refetch = await fetch("/api/v1/billing").then((r) => r.json());
                         if (!refetch?.error) {
                           const sub = refetch.subscription ?? (refetch.planId != null ? refetch : null);
                           setBilling({ subscription: sub });
@@ -343,7 +343,7 @@ export default function SettingsPage() {
                   setBillingAction("checkout");
                   setMessage(null);
                   try {
-                    const res = await fetch("/api/billing", {
+                    const res = await fetch("/api/v1/billing", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ action: "checkout", planId: "pro" }),
