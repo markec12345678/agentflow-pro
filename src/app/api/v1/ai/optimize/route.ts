@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { recordAgentRun } from "@/api/usage";
+import { recordAgentRun } from '@/app/api/v1/reports/usage';
 import { runOptimization } from "@/agents/optimization/OptimizationAgent";
 import { getSerpApiKey } from "@/config/env";
 import { getUserApiKeysForExecution } from "@/lib/user-keys";

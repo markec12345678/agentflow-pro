@@ -83,7 +83,7 @@ export default function WorkflowTemplateLibrary({
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/workflows/from-template');
+      const res = await fetch('/api/v1/workflows/from-template');
       const data = await res.json();
       setTemplates(data.templates || []);
     } catch (error) {
@@ -102,7 +102,7 @@ export default function WorkflowTemplateLibrary({
 
     setCreatingWorkflow(true);
     try {
-      const res = await fetch('/api/workflows/from-template', {
+      const res = await fetch('/api/v1/workflows/from-template', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

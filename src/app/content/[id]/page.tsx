@@ -123,7 +123,7 @@ export default function ContentDetailPage() {
         }
       }
 
-      const res = await fetch("/api/content/publish", {
+      const res = await fetch("/api/v1/content/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -152,7 +152,7 @@ export default function ContentDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/content/${id}`)
+    fetch(`/api/v1/content/${id}`)
       .then((r) => r.json())
       .then((data) => {
         setPost(data);
@@ -177,7 +177,7 @@ export default function ContentDetailPage() {
 
   useEffect(() => {
     if (publishModal) {
-      fetch("/api/auth/connections")
+      fetch("/api/v1/auth/connections")
         .then((r) => r.json())
         .then((data) => {
           if (!data.error) setPublishConnections({ linkedin: data.linkedin, twitter: data.twitter });
@@ -238,7 +238,7 @@ export default function ContentDetailPage() {
   const handleApplyOptimize = async () => {
     if (!post || !optimizeResult) return;
     try {
-      const res = await fetch(`/api/content/${post.id}`, {
+      const res = await fetch(`/api/v1/content/${post.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -276,7 +276,7 @@ export default function ContentDetailPage() {
     setInlineEditLoading(true);
     setInlineEditError(null);
     try {
-      const res = await fetch("/api/content/edit-inline", {
+      const res = await fetch("/api/v1/content/edit-inline", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: textToEdit, action }),
@@ -295,7 +295,7 @@ export default function ContentDetailPage() {
       }
       setEditContent(updatedContent);
       setEditSelection(null);
-      const patchRes = await fetch(`/api/content/${post.id}`, {
+      const patchRes = await fetch(`/api/v1/content/${post.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullContent: updatedContent }),
@@ -314,7 +314,7 @@ export default function ContentDetailPage() {
     if (!post) return;
     setSaveContentLoading(true);
     try {
-      const patchRes = await fetch(`/api/content/${post.id}`, {
+      const patchRes = await fetch(`/api/v1/content/${post.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullContent: editContent }),
@@ -393,7 +393,7 @@ export default function ContentDetailPage() {
                 <button
                   type="button"
                   onClick={async () => {
-                    const res = await fetch(`/api/content/${post.id}`, {
+                    const res = await fetch(`/api/v1/content/${post.id}`, {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ pipelineStage: "review" }),
@@ -429,7 +429,7 @@ export default function ContentDetailPage() {
                     onClick={async () => {
                       setApproveLoading(true);
                       try {
-                        const res = await fetch(`/api/content/${post.id}/approve`, {
+                        const res = await fetch(`/api/v1/content/${post.id}/approve`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({ action: "approve" }),
@@ -456,7 +456,7 @@ export default function ContentDetailPage() {
                     onClick={async () => {
                       setApproveLoading(true);
                       try {
-                        const res = await fetch(`/api/content/${post.id}/approve`, {
+                        const res = await fetch(`/api/v1/content/${post.id}/approve`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({ action: "reject" }),
@@ -601,7 +601,7 @@ export default function ContentDetailPage() {
                   ) : (
                     <>
                       <Link
-                        href="/api/auth/linkedin/connect"
+                        href="/api/v1/auth/linkedin/connect"
                         className="inline-block rounded-lg bg-[#0a66c2] px-4 py-2 text-sm font-medium text-white hover:bg-[#004182] mb-2"
                       >
                         Connect LinkedIn
@@ -625,7 +625,7 @@ export default function ContentDetailPage() {
                   ) : (
                     <div className="space-y-2">
                       <Link
-                        href="/api/auth/twitter/connect"
+                        href="/api/v1/auth/twitter/connect"
                         className="inline-block rounded-lg bg-black dark:bg-white dark:text-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
                       >
                         Connect Twitter

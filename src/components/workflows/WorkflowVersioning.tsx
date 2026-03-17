@@ -80,7 +80,7 @@ export default function WorkflowVersioning({
 
   const loadVersions = async () => {
     try {
-      const res = await fetch(`/api/workflows/${workflowId}/versions`);
+      const res = await fetch(`/api/v1/workflows/${workflowId}/versions`);
       const data = await res.json();
       setVersions(data.versions || []);
     } catch (error) {
@@ -93,7 +93,7 @@ export default function WorkflowVersioning({
 
   const handleCreateVersion = async () => {
     try {
-      const res = await fetch(`/api/workflows/${workflowId}/versions`, {
+      const res = await fetch(`/api/v1/workflows/${workflowId}/versions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newVersionData),
@@ -118,7 +118,7 @@ export default function WorkflowVersioning({
   const handleRollback = async (versionNumber: number) => {
     try {
       const res = await fetch(
-        `/api/workflows/${workflowId}/versions/${versionNumber}/rollback`,
+        `/api/v1/workflows/${workflowId}/versions/${versionNumber}/rollback`,
         { method: 'POST' }
       );
 

@@ -22,7 +22,7 @@ export default function MCPBuilderPage() {
     const loadMCPs = async () => {
       try {
         // Try to load from cursor MCP config
-        const response = await fetch('/api/mcp/available');
+        const response = await fetch('/api/v1/integration/available');
         if (response.ok) {
           const data = await response.json();
           setAvailableMCPs(data.mcps);

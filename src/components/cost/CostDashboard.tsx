@@ -45,7 +45,7 @@ interface CostDashboardProps {
 
 export const CostDashboard: React.FC<CostDashboardProps> = ({
   userId,
-  apiEndpoint = '/api/costs/dashboard',
+  apiEndpoint = '/api/v1/business/dashboard',
 }) => {
   const [loading, setLoading] = useState(true);
   const [budget, setBudget] = useState<BudgetStatus | null>(null);

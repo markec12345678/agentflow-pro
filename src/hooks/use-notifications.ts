@@ -172,7 +172,7 @@ export function useNotifications({ userId, propertyId, config = {} }: UseNotific
 
   const loadSubscriptionFromServer = async (): Promise<NotificationSubscription | null> => {
     try {
-      const response = await fetch(`/api/notifications/subscriptions?userId=${userId}&propertyId=${propertyId}`);
+      const response = await fetch(`/api/v1/notifications/subscriptions?userId=${userId}&propertyId=${propertyId}`);
       if (response.ok) {
         const data = await response.json();
         return data.subscription || null;

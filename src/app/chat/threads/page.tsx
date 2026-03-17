@@ -15,7 +15,7 @@ export default function ThreadsPage() {
   const [threads, setThreads] = useState<Thread[]>([]);
 
   useEffect(() => {
-    fetch("/api/chat/threads")
+    fetch("/api/v1/chat/threads")
       .then((r) => r.json())
       .then((list: Thread[]) => setThreads(Array.isArray(list) ? list : []))
       .catch(() => setThreads([]));

@@ -10,8 +10,8 @@ import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth,
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
-import { getPropertyIdsForUser } from "@/lib/tourism/property-access";
-import { listPendingCheckpoints } from "@/api/workflows";
+import { getPropertyIdsForUser } from '@/lib/tourism/property-access';
+import { listPendingCheckpoints } from '@/app/api/v1/workflows/workflows';
 
 export async function GET(_request: NextRequest) {
   try {

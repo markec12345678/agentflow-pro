@@ -2,7 +2,7 @@
  * Infrastructure: Adapter for IGuestCopyAgent using lib/tourism/guest-copy-agent
  */
 
-import { runGuestCopyAgent } from "@/lib/tourism/guest-copy-agent";
+import { runGuestCopyAgent } from '@/lib/tourism/guest-copy-agent';
 import type {
   IGuestCopyAgent,
   CopyAgentInput,

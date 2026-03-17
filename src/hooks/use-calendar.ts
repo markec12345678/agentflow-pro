@@ -118,7 +118,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
       
       // Fetch events
       const eventsResponse = await fetch(
-        `/api/calendar/events?propertyId=${propertyId}&start=${currentView.startDate.toISOString()}&end=${currentView.endDate.toISOString()}`
+        `/api/v1/infrastructure/events?propertyId=${propertyId}&start=${currentView.startDate.toISOString()}&end=${currentView.endDate.toISOString()}`
       );
       
       if (!eventsResponse.ok) {
@@ -136,7 +136,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
 
       // Fetch resources
       const sessionToken = getSessionToken();
-      const resourcesResponse = await fetch(`/api/calendar/resources?propertyId=${propertyId}`, {
+      const resourcesResponse = await fetch(`/api/v1/infrastructure/resources?propertyId=${propertyId}`, {
         headers: {
           ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),
         },
@@ -316,7 +316,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
   const createEvent = useCallback(async (eventData: Omit<CalendarEvent, 'id'>) => {
     try {
       const sessionToken = getSessionToken();
-      const response = await fetch('/api/calendar/events', {
+      const response = await fetch('/api/v1/infrastructure/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -354,7 +354,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
   const updateEvent = useCallback(async (eventId: string, updates: Partial<CalendarEvent>) => {
     try {
       const sessionToken = getSessionToken();
-      const response = await fetch(`/api/calendar/events/${eventId}`, {
+      const response = await fetch(`/api/v1/infrastructure/events/${eventId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -390,7 +390,7 @@ export function useCalendar({ propertyId, initialView = 'week', config = {} }: U
   const deleteEvent = useCallback(async (eventId: string) => {
     try {
       const sessionToken = getSessionToken();
-      const response = await fetch(`/api/calendar/events/${eventId}`, {
+      const response = await fetch(`/api/v1/infrastructure/events/${eventId}`, {
         method: 'DELETE',
         headers: {
           ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),

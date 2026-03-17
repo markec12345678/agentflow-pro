@@ -58,7 +58,7 @@ export async function trackAgentRunClient(data: {
 }) {
   try {
     // Fire-and-forget - don't await to avoid blocking UI
-    navigator.sendBeacon?.('/api/analytics/track', JSON.stringify({
+    navigator.sendBeacon?.('/api/v1/analytics/track', JSON.stringify({
       type: 'agent_run',
       ...data,
     }));

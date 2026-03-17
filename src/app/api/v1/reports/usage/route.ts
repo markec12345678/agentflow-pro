@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from '@/infrastructure/observability/logger';
-import { getUsage, canRunAgent } from "@/api/usage";
+import { getUsage, canRunAgent } from '@/app/api/v1/reports/usage';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";

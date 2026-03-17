@@ -20,7 +20,7 @@ export default function InviteAcceptPage() {
     }
     if (status !== "authenticated" || !token) return;
 
-    fetch(`/api/invites/${token}/accept`, {
+    fetch(`/api/v1/teams/${token}/accept`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     })

@@ -45,7 +45,7 @@ const CUSTOM_CORS_RULES: Record<
     methods: ["GET", "POST", "PUT", "DELETE"],
     headers: ["Content-Type", "Authorization", "X-API-Key"],
   },
-  "/api/analytics/export": {
+  "/api/v1/analytics/export": {
     origins: ["*"],
     methods: ["POST"],
     headers: ["Content-Type", "Authorization"],

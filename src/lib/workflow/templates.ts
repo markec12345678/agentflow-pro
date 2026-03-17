@@ -82,7 +82,7 @@ export const workflowTemplates: WorkflowTemplate[] = [
         { id: 'condition-1', type: 'condition', position: { x: 400, y: 200 }, data: { label: 'Rating >= 4?', icon: '❓', type: 'condition', config: { expression: 'rating >= 4', operator: 'greater_than' } } },
         { id: 'agent-1', type: 'agent', position: { x: 200, y: 350 }, data: { label: 'Positive Response', icon: '😊', type: 'agent', config: { agentId: 'communication-agent', input: 'Generate thank you for positive review', timeout: 30 } } },
         { id: 'agent-2', type: 'agent', position: { x: 600, y: 350 }, data: { label: 'Recovery Response', icon: '😔', type: 'agent', config: { agentId: 'communication-agent', input: 'Generate recovery response for negative review', timeout: 30 } } },
-        { id: 'action-1', type: 'action', position: { x: 400, y: 500 }, data: { label: 'Post Response', icon: '🌐', type: 'action', config: { actionType: 'api', endpoint: '/api/reviews/respond', method: 'POST' } } },
+        { id: 'action-1', type: 'action', position: { x: 400, y: 500 }, data: { label: 'Post Response', icon: '🌐', type: 'action', config: { actionType: 'api', endpoint: '/api/v1/reports/respond', method: 'POST' } } },
         { id: 'end-1', type: 'end', position: { x: 400, y: 650 }, data: { label: 'Complete', icon: '✅', type: 'end', config: { output: 'Response posted' } } },
       ],
       connections: [

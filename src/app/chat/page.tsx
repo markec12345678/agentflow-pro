@@ -37,7 +37,7 @@ export default function ChatPage() {
       setThreadLoaded(true);
       return;
     }
-    fetch(`/api/chat/threads/${threadId}`)
+    fetch(`/api/v1/chat/threads/${threadId}`)
       .then((r) => r.json())
       .then((data: { messages?: Array<{ id: string; role: string; content: string }> }) => {
         const msgs = Array.isArray(data.messages) ? data.messages : [];
@@ -76,7 +76,7 @@ export default function ChatPage() {
       const slice = messages.slice(0, upToMessageIndex + 1);
       const stored = slice.map(toStoredMessage);
       const parent = threadId || null;
-      fetch("/api/chat/threads/branch", {
+      fetch("/api/v1/chat/threads/branch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: stored, parentThreadId: parent }),
@@ -111,8 +111,8 @@ export default function ChatPage() {
 
   const refetchEscalations = useCallback(() => {
     const url = threadId
-      ? `/api/chat/escalations?threadId=${encodeURIComponent(threadId)}`
-      : "/api/chat/escalations";
+      ? `/api/v1/chat/escalations?threadId=${encodeURIComponent(threadId)}`
+      : "/api/v1/chat/escalations";
     fetch(url)
       .then((r) => r.json())
       .then((data: { escalations?: Array<{ createdAt: string }> }) => {
@@ -160,7 +160,7 @@ export default function ChatPage() {
     setSavingMessageId(messageId);
     setSaveErrorForMessage((prev) => ({ ...prev, [messageId]: "" }));
     try {
-      const res = await fetch("/api/content/save-from-chat", {
+      const res = await fetch("/api/v1/content/save-from-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content }),

@@ -58,7 +58,7 @@ export default function ContentPage() {
     params.set("order", sortOrder);
     if (filterType !== "vse") params.set("type", filterType);
     if (filterSource !== "vse") params.set("source", filterSource);
-    return fetch(`/api/content/history?${params.toString()}`)
+    return fetch(`/api/v1/content/history?${params.toString()}`)
       .then(r => r.json())
       .then(data => {
         if (data.posts) setPosts(data.posts);
@@ -95,7 +95,7 @@ export default function ContentPage() {
     if (selectedIds.size === 0) return;
     setBulkDeleting(true);
     try {
-      const res = await fetch("/api/content/bulk-delete", {
+      const res = await fetch("/api/v1/content/bulk-delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: Array.from(selectedIds) }),
@@ -149,21 +149,21 @@ export default function ContentPage() {
             {posts.length > 0 && (
               <div className="flex gap-2">
                 <a
-                  href="/api/content/export?format=json"
+                  href="/api/v1/content/export?format=json"
                   download
                   className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   ⬇️ JSON
                 </a>
                 <a
-                  href="/api/content/export?format=csv"
+                  href="/api/v1/content/export?format=csv"
                   download
                   className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   ⬇️ CSV
                 </a>
                 <a
-                  href="/api/content/export?format=markdown"
+                  href="/api/v1/content/export?format=markdown"
                   download
                   className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >

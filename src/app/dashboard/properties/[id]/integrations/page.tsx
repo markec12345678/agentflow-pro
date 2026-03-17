@@ -114,7 +114,7 @@ export default function IntegrationsPage() {
     if (integrationName === "eTurizem") {
       setSyncing("eturizem");
       try {
-        const response = await fetch(`/api/integrations/eturizem/sync`, {
+        const response = await fetch(`/api/v1/integration/eturizem/sync`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ propertyId }),

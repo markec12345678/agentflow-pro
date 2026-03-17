@@ -84,7 +84,7 @@ export default function TourismGeneratePage() {
   }, [saveModalOpen]);
 
   useEffect(() => {
-    fetch("/api/user/active-property")
+    fetch("/api/v1/user/active-property")
       .then((r) => r.json())
       .then((data) => setActivePropertyId(data.activePropertyId ?? null))
       .catch(() => setActivePropertyId(null));
@@ -103,7 +103,7 @@ export default function TourismGeneratePage() {
     if (!templateId) return;
     setTemplateError(null);
     setTemplateLoading(true);
-    fetch(`/api/user/templates/${templateId}`)
+    fetch(`/api/v1/user/templates/${templateId}`)
       .then((r) => r.json())
       .then((data) => {
         const t = data?.template;
@@ -123,7 +123,7 @@ export default function TourismGeneratePage() {
     if (templateId) {
       setTemplateLoading(true);
       setTemplateError(null);
-      fetch(`/api/user/templates/${templateId}`)
+      fetch(`/api/v1/user/templates/${templateId}`)
         .then((r) => r.json())
         .then((data) => {
           const t = data?.template;
@@ -208,7 +208,7 @@ export default function TourismGeneratePage() {
   const handleSaveTemplate = () => {
     if (!selectedPrompt || !saveName.trim()) return;
 
-    fetch("/api/user/templates", {
+    fetch("/api/v1/user/templates", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -80,7 +80,7 @@ export default function TestPage() {
             Test /dashboard
           </button>
           <button
-            onClick={() => testAPI("/api/dashboard/boot")}
+            onClick={() => testAPI("/api/v1/dashboard/boot")}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             Test /api/dashboard/boot

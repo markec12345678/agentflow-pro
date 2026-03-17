@@ -31,7 +31,7 @@ export function useEturizemSync() {
 
     try {
       const sessionToken = getSessionToken();
-      const response = await fetch('/api/integrations/eturizem/sync', {
+      const response = await fetch('/api/v1/integration/eturizem/sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ export function useEturizemSync() {
   const checkSyncStatus = useCallback(async () => {
     try {
       const sessionToken = getSessionToken();
-      const response = await fetch('/api/integrations/eturizem/status', {
+      const response = await fetch('/api/v1/integration/eturizem/status', {
         headers: {
           ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {}),
         },

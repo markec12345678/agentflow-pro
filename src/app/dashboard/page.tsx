@@ -40,10 +40,10 @@ const DashboardContent = () => {
         setError(null);
 
         const [statsRes, guestsRes, roomsRes, tasksRes] = await Promise.all([
-          fetch('/api/dashboard/stats'),
-          fetch('/api/dashboard/guests'),
-          fetch('/api/dashboard/rooms'),
-          fetch('/api/dashboard/tasks'),
+          fetch('/api/v1/dashboard/stats'),
+          fetch('/api/v1/dashboard/guests'),
+          fetch('/api/v1/dashboard/rooms'),
+          fetch('/api/v1/dashboard/tasks'),
         ]);
 
         if (!statsRes.ok) throw new Error('Failed to fetch stats');

@@ -20,7 +20,7 @@ export default function RealTimeRoomsPage() {
     // Check if user is authenticated
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/check');
+        const response = await fetch('/api/v1/auth/check');
         if (!response.ok) {
           router.push('/login');
           return;

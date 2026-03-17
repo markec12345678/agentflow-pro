@@ -21,7 +21,7 @@ export default function PmsConnectionsPage() {
   const [form, setForm] = useState({ accessToken: "", clientToken: "" });
 
   useEffect(() => {
-    fetch("/api/user/active-property")
+    fetch("/api/v1/user/active-property")
       .then((r) => r.json())
       .then((data) => setActivePropertyId(data.activePropertyId ?? null))
       .catch(() => setActivePropertyId(null));
@@ -139,7 +139,7 @@ export default function PmsConnectionsPage() {
       <PropertySelector
         value={activePropertyId}
         onChange={async (id) => {
-          const res = await fetch("/api/user/active-property", {
+          const res = await fetch("/api/v1/user/active-property", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ propertyId: id }),

@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth-options";
 import { getUserApiKeysForExecution } from "@/lib/user-keys";
 import { getAppBackend } from "@/memory/app-backend";
 import { getUserId } from "@/lib/auth-users";
-import { canRunAgent, recordAgentRun } from "@/api/usage";
+import { canRunAgent, recordAgentRun } from '@/app/api/v1/reports/usage';
 import { withSentryLogging, ApiOperations } from "@/lib/sentry-api-logging";
 
 export const POST = withSentryLogging(async function POST(request: NextRequest) {

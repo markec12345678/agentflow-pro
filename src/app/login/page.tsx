@@ -24,7 +24,7 @@ function TestLoginButton({
     setLoading(true);
     onResult("");
     try {
-      const r = await fetch("/api/auth/test-login", {
+      const r = await fetch("/api/v1/auth/test-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
@@ -89,14 +89,14 @@ function LoginForm() {
   const [csrfToken, setCsrfToken] = useState("");
 
   useEffect(() => {
-    fetch("/api/auth/providers")
+    fetch("/api/v1/auth/providers")
       .then((r) => r.json())
       .then((data: { google?: boolean }) => setGoogleEnabled(!!data?.google))
       .catch(() => setGoogleEnabled(false));
   }, []);
 
   useEffect(() => {
-    fetch("/api/auth/csrf")
+    fetch("/api/v1/auth/csrf")
       .then((r) => r.json())
       .then((d) => setCsrfToken(d.csrfToken || ""))
       .catch(() => { });
@@ -220,7 +220,7 @@ function LoginForm() {
         
         <form
           method="post"
-          action="/api/auth/callback/credentials"
+          action="/api/v1/auth/callback/credentials"
           onSubmit={handleCredentialsSubmit}
           className="space-y-4"
         >

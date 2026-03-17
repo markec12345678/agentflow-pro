@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { createPersonalizationAgent } from "@/agents/personalization/PersonalizationAgent";
-import { recordAgentRun } from "@/api/usage";
+import { recordAgentRun } from '@/app/api/v1/reports/usage';
 import { authOptions } from "@/lib/auth-options";
 
 export async function POST(request: NextRequest) {

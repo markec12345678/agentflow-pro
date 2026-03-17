@@ -42,7 +42,7 @@ export default function TeamsSettingsPage() {
         if (!data.error) setTeams(data.teams ?? []);
       })
       .catch(() => setTeams([]));
-    fetch("/api/user/active-team")
+    fetch("/api/v1/user/active-team")
       .then((r) => r.json())
       .then((data) => setActiveTeamId(data.activeTeamId ?? null))
       .catch(() => setActiveTeamId(null));
@@ -109,7 +109,7 @@ export default function TeamsSettingsPage() {
     if (!email) return;
     setInviting(teamId);
     try {
-      const res = await fetch(`/api/teams/${teamId}/invite`, {
+      const res = await fetch(`/api/v1/teams/${teamId}/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -148,7 +148,7 @@ export default function TeamsSettingsPage() {
   const handleSetActiveTeam = async (teamId: string) => {
     setSwitchingTeam(true);
     try {
-      const res = await fetch("/api/user/active-team", {
+      const res = await fetch("/api/v1/user/active-team", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ teamId }),
@@ -323,7 +323,7 @@ export default function TeamsSettingsPage() {
                       if (!confirm("Izbriši ekipo? To dejanje ni mogoče razveljaviti.")) return;
                       setDeletingTeamId(team.id);
                       try {
-                        const res = await fetch(`/api/teams/${team.id}`, { method: "DELETE" });
+                        const res = await fetch(`/api/v1/teams/${team.id}`, { method: "DELETE" });
                         const data = await res.json();
                         if (!res.ok) throw new Error(data.error ?? "Failed");
                         refetch();

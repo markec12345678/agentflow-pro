@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
-import { getPmsAdapter } from "@/lib/tourism/mews-adapter";
+import { getPmsAdapter } from '@/lib/tourism/mews-adapter';
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { subDays, addDays } from "date-fns";
 

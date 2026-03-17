@@ -10,7 +10,7 @@ import { startOfDay, endOfDay, format } from "date-fns";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
-import { getPropertyForUser, getPropertyIdsForUser } from "@/lib/tourism/property-access";
+import { getPropertyForUser, getPropertyIdsForUser } from '@/lib/tourism/property-access';
 
 export async function GET(request: NextRequest) {
   try {

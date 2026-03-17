@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { logger } from '@/infrastructure/observability/logger';
 import { NextResponse } from "next/server";
-import { rejectCheckpoint } from "@/api/workflows";
+import { rejectCheckpoint } from '@/app/api/v1/workflows/workflows';
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 

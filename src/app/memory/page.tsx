@@ -20,7 +20,7 @@ export default function MemoryPage() {
 
   async function fetchGraph() {
     try {
-      const res = await fetch("/api/memory/graph");
+      const res = await fetch("/api/v1/memory/graph");
       const data = await res.json();
       setEntities(data.entities ?? []);
     } catch {
@@ -38,7 +38,7 @@ export default function MemoryPage() {
     setLoading(true);
     try {
       const obs = observations.trim() ? observations.split("\n").map((s) => s.trim()).filter(Boolean) : [];
-      const res = await fetch("/api/memory/entities", {
+      const res = await fetch("/api/v1/memory/entities", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

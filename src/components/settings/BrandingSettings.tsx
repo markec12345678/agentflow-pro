@@ -94,7 +94,7 @@ export default function BrandingSettings() {
       formData.append("logo", file);
       formData.append("type", type);
 
-      const res = await fetch("/api/branding/logo", {
+      const res = await fetch("/api/v1/infrastructure/logo", {
         method: "POST",
         body: formData,
       });

@@ -103,10 +103,10 @@ export default function SettingsPage() {
     if (status !== "authenticated") return;
 
     Promise.all([
-      fetch("/api/user/keys").then((r) => r.json()),
-      fetch("/api/auth/connections").then((r) => r.json()),
+      fetch("/api/v1/user/keys").then((r) => r.json()),
+      fetch("/api/v1/auth/connections").then((r) => r.json()),
       fetch("/api/onboarding").then((r) => r.json()),
-      fetch("/api/usage/alerts").then((r) => r.json()),
+      fetch("/api/v1/reports/alerts").then((r) => r.json()),
       fetch("/api/v1/billing").then((r) => r.json()),
     ])
       .then(([keysData, connData, onboardingData, alertsData, billingData]) => {
@@ -144,7 +144,7 @@ export default function SettingsPage() {
   }, [status]);
 
   const handleDisconnect = async (provider: "linkedin" | "twitter" | "hubspot" | "salesforce") => {
-    const res = await fetch(`/api/auth/connections?provider=${provider}`, { method: "DELETE" });
+    const res = await fetch(`/api/v1/auth/connections?provider=${provider}`, { method: "DELETE" });
     if (res.ok) setConnections((c) => ({ ...c, [provider]: false }));
   };
 
@@ -158,7 +158,7 @@ export default function SettingsPage() {
         const v = formData[p.key]?.trim();
         if (v && !v.includes("*")) body[p.key] = v;
       }
-      const res = await fetch("/api/user/keys", {
+      const res = await fetch("/api/v1/user/keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -170,7 +170,7 @@ export default function SettingsPage() {
         return;
       }
       setMessage("API keys saved. Your workflows will use these keys.");
-      const refetch = await fetch("/api/user/keys");
+      const refetch = await fetch("/api/v1/user/keys");
       const refreshed = await refetch.json();
       if (!refreshed.error) setKeys(refreshed);
     } catch {
@@ -429,7 +429,7 @@ export default function SettingsPage() {
               setMessage(null);
               setPasswordSaving(true);
               try {
-                const res = await fetch("/api/auth/password", {
+                const res = await fetch("/api/v1/auth/password", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
@@ -476,7 +476,7 @@ export default function SettingsPage() {
               </div>
             ) : (
               <Link
-                href="/api/auth/linkedin/connect"
+                href="/api/v1/auth/linkedin/connect"
                 className="rounded-lg bg-[#0a66c2] px-4 py-2 text-sm font-medium text-white hover:bg-[#004182]"
               >
                 Connect LinkedIn
@@ -498,7 +498,7 @@ export default function SettingsPage() {
               </div>
             ) : (
               <Link
-                href="/api/auth/twitter/connect"
+                href="/api/v1/auth/twitter/connect"
                 className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
               >
                 Connect Twitter
@@ -520,7 +520,7 @@ export default function SettingsPage() {
               </div>
             ) : (
               <Link
-                href="/api/auth/hubspot/connect"
+                href="/api/v1/auth/hubspot/connect"
                 className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
               >
                 Connect HubSpot
@@ -542,7 +542,7 @@ export default function SettingsPage() {
               </div>
             ) : (
               <Link
-                href="/api/auth/salesforce/connect"
+                href="/api/v1/auth/salesforce/connect"
                 className="rounded-lg bg-[#00a1e0] px-4 py-2 text-sm font-medium text-white hover:bg-[#008ab8]"
               >
                 Connect Salesforce
@@ -593,7 +593,7 @@ export default function SettingsPage() {
                 setUsageAlertsLoading(true);
                 setMessage(null);
                 try {
-                  const res = await fetch("/api/usage/alerts", {
+                  const res = await fetch("/api/v1/reports/alerts", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -636,7 +636,7 @@ export default function SettingsPage() {
                 onClick={async () => {
                   setMessage(null);
                   try {
-                    const res = await fetch("/api/mailchimp/lists");
+                    const res = await fetch("/api/v1/communication/lists");
                     const data = await res.json();
                     if (data.error) {
                       setMessage(data.error);
@@ -664,7 +664,7 @@ export default function SettingsPage() {
                     setMessage(null);
                     setMailchimpCampaignsLoading(true);
                     try {
-                      const res = await fetch("/api/mailchimp/campaigns");
+                      const res = await fetch("/api/v1/communication/campaigns");
                       const data = await res.json();
                       if (data.error) {
                         setMessage(typeof data.error === "string" ? data.error : data.error?.message ?? "Napaka");
@@ -718,7 +718,7 @@ export default function SettingsPage() {
                 onClick={async () => {
                   setMessage(null);
                   try {
-                    const res = await fetch("/api/hubspot/contacts");
+                    const res = await fetch("/api/v1/integration/contacts");
                     const data = await res.json();
                     if (data.error) {
                       const err = data.error;
@@ -747,7 +747,7 @@ export default function SettingsPage() {
                     setMessage(null);
                     setHubspotCompaniesLoading(true);
                     try {
-                      const res = await fetch("/api/hubspot/companies");
+                      const res = await fetch("/api/v1/integration/companies");
                       const data = await res.json();
                       if (data.error) {
                         setMessage(typeof data.error === "string" ? data.error : data.error?.message ?? "Napaka");

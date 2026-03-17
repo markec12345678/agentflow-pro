@@ -1,1 +1,0 @@
-// Tenants API - Coming Soon

@@ -112,7 +112,7 @@ export default function MessagingSystem() {
 
   const markAsRead = async (messageId: string) => {
     try {
-      await fetch(`/api/messages/${messageId}/read`, {
+      await fetch(`/api/v1/communication/${messageId}/read`, {
         method: "PUT"
       });
       loadData();

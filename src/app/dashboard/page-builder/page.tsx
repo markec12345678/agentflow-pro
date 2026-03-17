@@ -61,7 +61,7 @@ function PageBuilderInner({ pageId }: { pageId: string }) {
 
   useEffect(() => {
     if (!pageId) return;
-    fetch(`/api/page-builder/sync/${pageId}`)
+    fetch(`/api/v1/business/sync/${pageId}`)
       .then((r) => (r.status === 404 ? { components: [] } : r.json()))
       .then((data) => {
         const comps = Array.isArray(data.components) ? data.components : [];
@@ -81,7 +81,7 @@ function PageBuilderInner({ pageId }: { pageId: string }) {
   const handleSync = useCallback(async () => {
     if (!pageId) return;
     try {
-      await fetch(`/api/page-builder/sync/${pageId}`, {
+      await fetch(`/api/v1/business/sync/${pageId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ components }),
@@ -101,7 +101,7 @@ function PageBuilderInner({ pageId }: { pageId: string }) {
         throw new Error("Prosim vnesite iskalni niz");
       }
 
-      const response = await fetch(`/api/page-builder/ai-generate`, {
+      const response = await fetch(`/api/v1/business/ai-generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: customPrompt }),

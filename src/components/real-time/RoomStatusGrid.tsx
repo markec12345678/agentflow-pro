@@ -86,7 +86,7 @@ export default function RoomStatusGrid({ propertyId: initialPropertyId, onProper
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/receptor/rooms/status?propertyId=${selectedPropertyId}`);
+      const response = await fetch(`/api/v1/guest/rooms/status?propertyId=${selectedPropertyId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch room status');
       }

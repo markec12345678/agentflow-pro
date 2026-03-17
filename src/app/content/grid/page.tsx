@@ -22,7 +22,7 @@ export default function ContentGridPage() {
   const [editValue, setEditValue] = useState("");
 
   const refetch = () => {
-    fetch("/api/content/history")
+    fetch("/api/v1/content/history")
       .then((r) => r.json())
       .then((data) => {
         if (data.posts) setPosts(data.posts);
@@ -68,7 +68,7 @@ export default function ContentGridPage() {
 
   const moveStage = async (postId: string, stage: string) => {
     try {
-      const res = await fetch(`/api/content/${postId}`, {
+      const res = await fetch(`/api/v1/content/${postId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pipelineStage: stage }),
@@ -89,7 +89,7 @@ export default function ContentGridPage() {
         ? { title: editValue }
         : { topic: editValue };
     try {
-      const res = await fetch(`/api/content/${editingId}`, {
+      const res = await fetch(`/api/v1/content/${editingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

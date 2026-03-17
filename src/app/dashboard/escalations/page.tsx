@@ -25,7 +25,7 @@ export default function EscalationsPage() {
     const params = new URLSearchParams();
     if (statusFilter !== "pending") params.set("status", statusFilter);
     if (showAll) params.set("all", "true");
-    fetch(`/api/chat/escalations?${params}`)
+    fetch(`/api/v1/chat/escalations?${params}`)
       .then((r) => r.json())
       .then((data: { escalations?: Escalation[] }) => {
         setEscalations(Array.isArray(data.escalations) ? data.escalations : []);
@@ -41,7 +41,7 @@ export default function EscalationsPage() {
 
   const updateStatus = (id: string, status: string) => {
     setUpdating(id);
-    fetch(`/api/chat/escalations/${id}`, {
+    fetch(`/api/v1/chat/escalations/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),

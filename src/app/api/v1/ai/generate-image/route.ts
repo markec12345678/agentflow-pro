@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { recordAgentRun } from "@/api/usage";
+import { recordAgentRun } from '@/app/api/v1/reports/usage';
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
 import { getOpenAiApiKey } from "@/config/env";

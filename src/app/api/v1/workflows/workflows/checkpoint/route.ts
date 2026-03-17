@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { listPendingCheckpoints } from "@/api/workflows";
+import { listPendingCheckpoints } from '@/app/api/v1/workflows/workflows';
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 

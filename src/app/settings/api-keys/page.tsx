@@ -27,7 +27,7 @@ export default function ApiKeysPage() {
     if (status !== "authenticated") return;
 
     Promise.all([
-      fetch("/api/user/keys").then((r) => r.json()),
+      fetch("/api/v1/user/keys").then((r) => r.json()),
       fetch("/api/onboarding").then((r) => r.json()),
     ])
       .then(([keysData, onboardingData]) => {
@@ -66,7 +66,7 @@ export default function ApiKeysPage() {
       if (keys.serpapi.trim() && !keys.serpapi.includes("*"))
         body.serpapi = keys.serpapi.trim();
 
-      const res = await fetch("/api/user/keys", {
+      const res = await fetch("/api/v1/user/keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

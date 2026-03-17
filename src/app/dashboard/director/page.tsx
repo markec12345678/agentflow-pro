@@ -68,7 +68,7 @@ export default function DirectorPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    fetch("/api/director/summary")
+    fetch("/api/v1/business/summary")
       .then((r) => {
         if (!r.ok) throw new Error("Napaka pri nalaganju");
         return r.json();

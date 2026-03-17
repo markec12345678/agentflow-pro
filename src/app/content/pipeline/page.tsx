@@ -20,7 +20,7 @@ export default function ContentPipelinePage() {
   const [bulkMoving, setBulkMoving] = useState<string | null>(null);
 
   const refetch = () => {
-    return fetch("/api/content/history")
+    return fetch("/api/v1/content/history")
       .then((r) => r.json())
       .then((data) => {
         if (data.posts) setPosts(data.posts);
@@ -44,7 +44,7 @@ export default function ContentPipelinePage() {
 
   const movePost = async (postId: string, stage: string) => {
     try {
-      const res = await fetch(`/api/content/${postId}`, {
+      const res = await fetch(`/api/v1/content/${postId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pipelineStage: stage }),
@@ -65,7 +65,7 @@ export default function ContentPipelinePage() {
     try {
       await Promise.all(
         toMove.map((p) =>
-          fetch(`/api/content/${p.id}`, {
+          fetch(`/api/v1/content/${p.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ pipelineStage: toStage }),

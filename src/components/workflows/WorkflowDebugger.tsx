@@ -81,7 +81,7 @@ export default function WorkflowDebugger({ workflowId }: WorkflowDebuggerProps) 
 
   const loadExecutions = async () => {
     try {
-      const res = await fetch(`/api/workflows/${workflowId}/executions`);
+      const res = await fetch(`/api/v1/workflows/${workflowId}/executions`);
       const data = await res.json();
       setExecutions(data.executions || []);
     } catch (error) {
@@ -165,7 +165,7 @@ export default function WorkflowDebugger({ workflowId }: WorkflowDebuggerProps) 
   const handleRunTest = async () => {
     setRunning(true);
     try {
-      const res = await fetch(`/api/workflows/${workflowId}/execute`, {
+      const res = await fetch(`/api/v1/workflows/${workflowId}/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -190,7 +190,7 @@ export default function WorkflowDebugger({ workflowId }: WorkflowDebuggerProps) 
 
   const handleRetryExecution = async (executionId: string) => {
     try {
-      const res = await fetch(`/api/workflows/executions/${executionId}/retry`, {
+      const res = await fetch(`/api/v1/workflows/executions/${executionId}/retry`, {
         method: 'POST',
       });
 

@@ -73,7 +73,7 @@ export class SandboxManager {
       resources: {
         databaseUrl,
         apiKey,
-        webhookUrl: `/api/webhooks/sandbox/${sandboxId}`,
+        webhookUrl: `/api/v1/integration/sandbox/${sandboxId}`,
       },
       metadata: {
         createdBy,

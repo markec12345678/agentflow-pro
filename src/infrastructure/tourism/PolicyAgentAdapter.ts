@@ -2,7 +2,7 @@
  * Infrastructure: Adapter for IPolicyAgent using lib/tourism/policy-agent
  */
 
-import { runPolicyAgent } from "@/lib/tourism/policy-agent";
+import { runPolicyAgent } from '@/lib/tourism/policy-agent';
 import type {
   IPolicyAgent,
   PolicyCheckInput,

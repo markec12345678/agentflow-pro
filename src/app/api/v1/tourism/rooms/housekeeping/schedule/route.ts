@@ -10,7 +10,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
-import { getPropertyForUser } from "@/lib/tourism/property-access";
+import { getPropertyForUser } from '@/lib/tourism/property-access';
 import { z } from "zod";
 import { startOfDay, endOfDay, format } from "date-fns";
 

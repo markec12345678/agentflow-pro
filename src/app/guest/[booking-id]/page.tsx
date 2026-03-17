@@ -46,7 +46,7 @@ export default function GuestPortalPage() {
   useEffect(() => {
     if (!bookingId || !token) return;
 
-    fetch(`/api/guest/portal/${bookingId}?token=${token}`)
+    fetch(`/api/v1/guest/portal/${bookingId}?token=${token}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {

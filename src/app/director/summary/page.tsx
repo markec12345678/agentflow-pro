@@ -48,7 +48,7 @@ export default function DirectorSummaryPage() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      fetch("/api/director/summary")
+      fetch("/api/v1/business/summary")
         .then(r => r.json())
         .then(setData)
         .catch(console.error)

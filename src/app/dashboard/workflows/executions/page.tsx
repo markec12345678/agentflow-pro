@@ -73,7 +73,7 @@ export default function WorkflowExecutionsPage() {
 
   const fetchExecutions = async () => {
     try {
-      const res = await fetch("/api/workflows/executions");
+      const res = await fetch("/api/v1/workflows/executions");
       if (res.ok) {
         const data = await res.json();
         setExecutions(data);
@@ -161,7 +161,7 @@ export default function WorkflowExecutionsPage() {
 
   const handleRetry = async (executionId: string) => {
     try {
-      const res = await fetch(`/api/workflows/executions/${executionId}/retry`, {
+      const res = await fetch(`/api/v1/workflows/executions/${executionId}/retry`, {
         method: "POST"
       });
       if (res.ok) {
@@ -179,7 +179,7 @@ export default function WorkflowExecutionsPage() {
     if (!confirm("Ali ste prepričani, da želite izbrisati to izvajanje?")) return;
 
     try {
-      const res = await fetch(`/api/workflows/executions/${executionId}`, {
+      const res = await fetch(`/api/v1/workflows/executions/${executionId}`, {
         method: "DELETE"
       });
       if (res.ok) {

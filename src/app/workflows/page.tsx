@@ -85,7 +85,7 @@ export default function WorkflowsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Ali ste prepričani, da želite izbrisati ta delovni tok?")) return;
     try {
-      const res = await fetch(`/api/workflows/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/v1/workflows/${id}`, { method: "DELETE" });
       if (res.ok) {
         toast.success("Izbrisano");
         fetchWorkflows();

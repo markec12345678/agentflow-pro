@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { logger } from '@/infrastructure/observability/logger';
 import { prisma } from "@/database/schema";
 import { verifyCronAuth } from "@/lib/cron-auth";
-import { getOccupancyForProperty } from "@/lib/tourism/occupancy";
+import { getOccupancyForProperty } from '@/lib/tourism/occupancy';
 import { triggerAlert, runEscalationCheck } from "@/alerts/smartAlerts";
 import { startOfDay } from "date-fns";
 import { getEscalationPolicy, calculateEscalationLevel, getActionsForEscalationLevel, executeEscalationAction } from "@/alerts/escalation-policy";

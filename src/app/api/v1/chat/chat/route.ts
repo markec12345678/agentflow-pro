@@ -9,7 +9,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { recordAgentRun } from "@/api/usage";
+import { recordAgentRun } from '@/app/api/v1/reports/usage';
 import { prisma } from "@/database/schema";
 import { authOptions } from "@/lib/auth-options";
 import { requiresEscalationForType, estimateConfidence } from "@/lib/hitl";

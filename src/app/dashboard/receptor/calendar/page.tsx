@@ -22,7 +22,7 @@ export default function CalendarPage() {
     // Check if user is authenticated
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/check');
+        const response = await fetch('/api/v1/auth/check');
         if (!response.ok) {
           router.push('/login');
           return;
@@ -49,7 +49,7 @@ export default function CalendarPage() {
 
   const handleEventCreate = async (eventData: Omit<CalendarEvent, 'id'>) => {
     try {
-      const response = await fetch('/api/calendar/events', {
+      const response = await fetch('/api/v1/infrastructure/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export default function CalendarPage() {
 
   const handleEventUpdate = async (eventId: string, updates: Partial<CalendarEvent>) => {
     try {
-      const response = await fetch(`/api/calendar/events/${eventId}`, {
+      const response = await fetch(`/api/v1/infrastructure/events/${eventId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

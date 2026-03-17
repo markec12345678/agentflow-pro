@@ -57,7 +57,7 @@ export function usePageBuilderSync(pageId: string) {
     setSyncStatus('syncing');
 
     try {
-      const response = await fetch(`/api/page-builder/sync/${pageId}`, {
+      const response = await fetch(`/api/v1/business/sync/${pageId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

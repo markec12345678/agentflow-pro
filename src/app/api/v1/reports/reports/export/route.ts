@@ -8,7 +8,7 @@ import { logger } from '@/infrastructure/observability/logger';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
-import { getPropertyForUser } from "@/lib/tourism/property-access";
+import { getPropertyForUser } from '@/lib/tourism/property-access';
 import { format } from "date-fns";
 import { z } from "zod";
 

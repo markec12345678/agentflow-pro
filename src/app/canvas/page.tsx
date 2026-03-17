@@ -98,7 +98,7 @@ function CanvasInner() {
 
   useEffect(() => {
     if (!boardId) return;
-    fetch(`/api/canvas/${boardId}`)
+    fetch(`/api/v1/infrastructure/${boardId}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((board) => {
         if (board) {
@@ -145,7 +145,7 @@ function CanvasInner() {
         })),
       };
       if (boardIdState) {
-        const res = await fetch(`/api/canvas/${boardIdState}`, {
+        const res = await fetch(`/api/v1/infrastructure/${boardIdState}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),

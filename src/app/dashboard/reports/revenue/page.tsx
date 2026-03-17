@@ -128,7 +128,7 @@ export default function RevenueReportPage() {
     if (!selectedPropertyId) return;
     
     try {
-      const response = await fetch("/api/reports/export", {
+      const response = await fetch("/api/v1/reports/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

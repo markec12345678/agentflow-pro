@@ -31,7 +31,7 @@ export default function FirebaseLoginButton({
       logger.info("[Firebase] ID Token:", idToken.substring(0, 20) + "...");
 
       // TODO: Send token to NextAuth backend
-      // const response = await fetch('/api/auth/firebase', {
+      // const response = await fetch('/api/v1/auth/firebase', {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({ idToken })

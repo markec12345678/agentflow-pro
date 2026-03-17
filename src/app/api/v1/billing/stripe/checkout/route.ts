@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { logger } from '@/infrastructure/observability/logger';
 import { NextRequest, NextResponse } from "next/server";
-import { createCheckout } from "@/api/billing";
+import { createCheckout } from '@/app/api/v1/billing';
 import { authOptions } from "@/lib/auth-options";
 import type { PlanId } from "@/stripe/plans";
 import { getUserId } from "@/lib/auth-users";

@@ -34,7 +34,7 @@ export default function TourismTemplatesPage() {
   const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/user/active-property")
+    fetch("/api/v1/user/active-property")
       .then((r) => r.json())
       .then((data) => setActivePropertyId(data.activePropertyId ?? null))
       .catch(() => setActivePropertyId(null));
@@ -44,8 +44,8 @@ export default function TourismTemplatesPage() {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 8000);
     const url = activePropertyId
-      ? `/api/user/templates?category=tourism&propertyId=${encodeURIComponent(activePropertyId)}`
-      : "/api/user/templates?category=tourism";
+      ? `/api/v1/user/templates?category=tourism&propertyId=${encodeURIComponent(activePropertyId)}`
+      : "/api/v1/user/templates?category=tourism";
     fetch(url, { signal: ctrl.signal })
       .then((r) => r.json())
       .then((data) => {
@@ -63,7 +63,7 @@ export default function TourismTemplatesPage() {
 
   const handleDelete = (id: string) => {
     if (!confirm("Izbriši ta template?")) return;
-    fetch(`/api/user/templates/${id}`, { method: "DELETE" })
+    fetch(`/api/v1/user/templates/${id}`, { method: "DELETE" })
       .then((r) => r.json())
       .then((data) => {
         if (data.error) throw new Error(data.error);
@@ -94,7 +94,7 @@ export default function TourismTemplatesPage() {
           <PropertySelector
             value={activePropertyId}
             onChange={async (id) => {
-              const res = await fetch("/api/user/active-property", {
+              const res = await fetch("/api/v1/user/active-property", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ propertyId: id }),

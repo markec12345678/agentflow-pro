@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { createContentAgent } from "@/agents/content/ContentAgent";
 import { validateAgainstBrandVoice } from "@/agents/content/brand-guardrails";
-import { recordAgentRun } from "@/api/usage";
+import { recordAgentRun } from '@/app/api/v1/reports/usage';
 import { prisma } from "@/database/schema";
 import { canGenerateBlogPosts } from "@/lib/blog-limits";
 import { indexBlogPost } from "@/lib/vector-indexer";

@@ -119,7 +119,7 @@ export default function WorkflowBuilderPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/workflows/${workflowId}`);
+      const res = await fetch(`/api/v1/workflows/${workflowId}`);
       const data = await res.json();
       if (res.ok) {
         setWorkflow(data);
@@ -127,7 +127,7 @@ export default function WorkflowBuilderPage() {
         setEdges(data.edges || []);
       }
       
-      const execRes = await fetch(`/api/workflows/${workflowId}/executions`);
+      const execRes = await fetch(`/api/v1/workflows/${workflowId}/executions`);
       const execData = await execRes.json();
       if (execRes.ok) setExecutions(execData);
     } catch (error) {
@@ -157,7 +157,7 @@ export default function WorkflowBuilderPage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/workflows/${workflowId}`, {
+      const res = await fetch(`/api/v1/workflows/${workflowId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nodes, edges }),
@@ -174,7 +174,7 @@ export default function WorkflowBuilderPage() {
     setIsExecuting(true);
     setShowLogs(true);
     try {
-      const res = await fetch(`/api/workflows/${workflowId}/execute`, { method: "POST" });
+      const res = await fetch(`/api/v1/workflows/${workflowId}/execute`, { method: "POST" });
       if (res.ok) {
         toast.success("Izvajanje zagnano");
         setTimeout(fetchData, 3000);

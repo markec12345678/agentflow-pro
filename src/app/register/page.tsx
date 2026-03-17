@@ -15,7 +15,7 @@ export default function RegisterPage() {
   const [googleEnabled, setGoogleEnabled] = useState(false);
 
   useEffect(() => {
-    fetch("/api/auth/providers")
+    fetch("/api/v1/auth/providers")
       .then((r) => r.json())
       .then((data: { google?: boolean }) => setGoogleEnabled(!!data?.google))
       .catch(() => setGoogleEnabled(false));
@@ -45,7 +45,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const normEmail = email.trim().toLowerCase();
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("/api/v1/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: normEmail, password, name: name.trim() || undefined }),
