@@ -53,7 +53,7 @@ export default function ReviewAgentPage() {
   const fetchReviews = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/agents/reviews/analyze");
+      const res = await fetch("/api/v1/agents/reviews/analyze");
       const data = await res.json();
       if (res.ok) {
         setReviews(data);
@@ -74,7 +74,7 @@ export default function ReviewAgentPage() {
   const handleAnalyze = async (review: Review) => {
     setActionId(review.id);
     try {
-      const res = await fetch("/api/agents/reviews/analyze", {
+      const res = await fetch("/api/v1/agents/reviews/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "analyze", content: review.content }),
@@ -95,7 +95,7 @@ export default function ReviewAgentPage() {
   const handleSendResponse = async (reviewId: string) => {
     setActionId(reviewId);
     try {
-      const res = await fetch("/api/agents/reviews/analyze", {
+      const res = await fetch("/api/v1/agents/reviews/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "respond", reviewId, responseContent }),

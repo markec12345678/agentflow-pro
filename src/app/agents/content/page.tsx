@@ -60,11 +60,11 @@ export default function ContentAgentPage() {
       toast.error("Prosimo, vnesite ime in lokacijo.");
       return;
     }
-    
+
     setIsGenerating(true);
     setGeneratedContent("");
     try {
-      const res = await fetch("/api/agents/content/generate", {
+      const res = await fetch("/api/v1/agents/content/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: selectedType, language, inputs }),

@@ -59,7 +59,7 @@ Primer: "Hotel Slon v Ljubljani" ali "Apartma Bled z 10 sobami"`,
         ?.split('=')[1];
 
       // Call Concierge Agent API
-      const response = await fetch('/api/agents/concierge/execute', {
+      const response = await fetch('/api/v1/agents/concierge/execute', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

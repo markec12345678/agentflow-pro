@@ -58,11 +58,11 @@ export default function ResearchAgentPage() {
       toast.error("Prosimo, vnesite vprašanje ali temo raziskave.");
       return;
     }
-    
+
     setIsExecuting(true);
     setResults(null);
     try {
-      const res = await fetch("/api/agents/research/execute", {
+      const res = await fetch("/api/v1/agents/research/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: selectedType, query }),

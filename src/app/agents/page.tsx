@@ -44,7 +44,7 @@ export default function AgentsDashboard() {
   const fetchAgents = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/agents/status");
+      const res = await fetch("/api/v1/agents/status");
       const data = await res.json();
       if (res.ok) {
         setAgents(data);
@@ -94,7 +94,7 @@ export default function AgentsDashboard() {
   const handleAgentAction = async (agentId: string, action: "trigger" | "pause" | "resume") => {
     setActionLoading(`${agentId}-${action}`);
     try {
-      const res = await fetch("/api/agents/status", {
+      const res = await fetch("/api/v1/agents/status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agentId, action }),
