@@ -59,7 +59,7 @@ export default function AdminPage() {
     if (activeTab !== "analytics") return;
     setAnalyticsError(null);
     setAnalyticsLoading(true);
-    fetch("/api/admin/analytics")
+    fetch("/api/v1/admin/analytics")
       .then((r) => {
         if (!r.ok) throw new Error(r.status === 403 ? "Access denied" : "Failed to load analytics");
         return r.json();
@@ -81,9 +81,9 @@ export default function AdminPage() {
     if (status !== "authenticated") return;
 
     Promise.all([
-      fetch("/api/admin/users").then((r) => r.json()),
-      fetch("/api/admin/contact-submissions").then((r) => r.json()),
-      fetch("/api/admin/usage").then((r) => r.json()),
+      fetch("/api/v1/admin/users").then((r) => r.json()),
+      fetch("/api/v1/admin/contact-submissions").then((r) => r.json()),
+      fetch("/api/v1/admin/usage").then((r) => r.json()),
     ])
       .then(([usersData, subsData, usageData]) => {
         if (usersData.error && usersData.error.includes("Admin")) {
