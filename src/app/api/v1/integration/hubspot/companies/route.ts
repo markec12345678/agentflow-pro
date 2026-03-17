@@ -1,0 +1,47 @@
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+import { authOptions } from "@/lib/auth-options";
+import { getUserId } from "@/lib/auth-users";
+import { getValidHubSpotToken } from "@/lib/hubspot-token";
+
+export async function GET() {
+  const session = await getServerSession(authOptions);
+  const userId = getUserId(session);
+  if (!userId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  const accessToken = await getValidHubSpotToken(userId);
+  if (!accessToken) {
+    return NextResponse.json(
+      { error: "HubSpot not connected. Connect in Settings." },
+      { status: 400 }
+    );
+  }
+
+  const res = await fetch(
+    "https://api.hubapi.com/crm/v3/objects/companies?limit=50",
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.text();
+    return NextResponse.json(
+      { error: `HubSpot API error: ${res.status}`, details: err },
+      { status: 502 }
+    );
+  }
+
+  const data = (await res.json()) as { results?: { id?: string; properties?: Record<string, string> }[] };
+  const companies = (data.results ?? []).map((c) => ({
+    id: c.id,
+    name: c.properties?.name,
+    domain: c.properties?.domain,
+    industry: c.properties?.industry,
+  })
+  );
+
+  return NextResponse.json({ companies });
+}
