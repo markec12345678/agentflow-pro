@@ -13,9 +13,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 
-const CORE_PATH =
-  process.env.AGENTFLOW_CORE_PATH ??
-  (process.platform === "win32" ? "C:\\Users\\admin\\AgentFlow_Pro_Core" : "/opt/AgentFlow_Pro_Core");
+// CORE_PATH is only used at runtime, not build time
+// Set AGENTFLOW_CORE_PATH in .env to your Core installation path
+const CORE_PATH = process.env.AGENTFLOW_CORE_PATH;
 
 type HotelData = {
   hotel_name: string;

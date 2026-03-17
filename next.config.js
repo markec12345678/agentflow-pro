@@ -5,10 +5,18 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
+// Temp directory configuration moved to .env file
+// Set TMPDIR=/path/to/temp in .env to avoid Windows permission issues
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  
+
+  // Disable Next.js TypeScript checking during build - we use type-check script
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
   // Disable Next.js ESLint during build to use custom ESLint 9
   eslint: {
     ignoreDuringBuilds: true,
@@ -71,6 +79,19 @@ const nextConfig = {
         tls: false,
       };
     }
+
+    // Ignore Windows system directories
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: [
+        '**/node_modules',
+        '**/.git',
+        '**/AppData',
+        '**/Application Data',
+        'C:/Users/*/AppData',
+        'C:/Users/*/Application Data',
+      ],
+    };
 
     return config;
   },

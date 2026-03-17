@@ -477,12 +477,7 @@ Room: ${context.roomType}
 Guests: ${context.guests}
 Check-out: ${context.checkOut} (by ${context.checkOutTime})
 
-${context.isVIP ? '🌟 As a VIP guest, we\'ve prepared special amenities for you!' : ''}
-${context.isReturning ? `🎉 Welcome back! We're honored to host you again (stay #${(context.previousStays || 0) + 1})!` : ''}
-
-${context.purpose === 'romantic' ? '💕 We've prepared a romantic setup in your room.' : ''}
-${context.purpose === 'family' ? '👨‍👩‍👧‍👦 We have special amenities for your children.' : ''}
-${context.purpose === 'business' ? '💼 High-speed WiFi and workspace ready in your room.' : ''}
+${context.isVIP ? '🌟 As a VIP guest, we\'ve prepared special amenities for you!' : ''}${context.isReturning ? `🎉 Welcome back! We're honored to host you again (stay #${(context.previousStays || 0) + 1})!` : ''}${context.purpose === 'romantic' ? '💕 We\'ve prepared a romantic setup in your room.' : ''}${context.purpose === 'family' ? '👨‍👩‍👧‍👦 We have special amenities for your children.' : ''}${context.purpose === 'business' ? '💼 High-speed WiFi and workspace ready in your room.' : ''}
 
 SPECIAL REQUESTS:
 ${context.specialRequests || 'None'}
