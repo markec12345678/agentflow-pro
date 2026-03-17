@@ -1,0 +1,50 @@
+// ============================================================================
+// PGVECTOR SEMANTIC MEMORY
+// Extension schema for vector similarity search
+// Migration: 20260317000000_add_pgvector_semantic_memory
+// ============================================================================
+
+// Note: This model uses raw SQL migration for pgvector extension
+// The embedding field uses vector(1536) type which requires special handling
+
+model SemanticMemory {
+  id                String   @id @default("sm_" + cuid())
+  sessionId         String
+  userId            String?
+  workflowId        String?
+  agentId           String?
+  collection        String   @default("general")
+  content           String
+  contentHash       String
+  // Note: embedding field is managed via raw SQL due to pgvector type
+  // In Prisma, we use Bytes to store the vector data
+  embedding         Bytes?
+  metadata          Json     @default("{}")
+  tags              String[]
+  accessCount       Int      @default(0)
+  lastAccessedAt    DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Indexes for efficient querying
+  @@index([collection])
+  @@index([sessionId])
+  @@index([contentHash])
+  @@index([createdAt])
+  @@index([collection, sessionId])
+
+  @@map("semantic_memories")
+}
+
+// View for memory statistics (read-only)
+model SemanticMemoryStats {
+  collection         String  @id
+  totalMemories      Int
+  uniqueSessions     Int
+  uniqueUsers        Int
+  avgAccessCount     Float?
+  lastCreated        DateTime?
+  totalEmbeddingSize Int?
+
+  @@map("semantic_memory_stats")
+}

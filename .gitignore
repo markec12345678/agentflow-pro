@@ -88,7 +88,6 @@ test-login-body.json
 
 # Large directories not needed for deployment
 pgsql/
-docs/
 *.chat
 *.pdf
 screenshots/
@@ -98,6 +97,66 @@ playwright-report/
 # Rust source (only need binaries)
 rust/*/src/
 rust/**/src/
+
+# Root cleanup - ignore common dev files
+*.tmp
+*.log
+*.txt
+!README.md
+!AGENTS.md
+!CHANGELOG.md
+!LICENSE
+!requirements.txt
+*.tsx
+*.ts
+!src/
+!tests/
+!e2e/
+*.html
+*.js
+!*.config.js
+!next.config.js
+!eslint.config.mjs
+!tailwind.config.ts
+!playwright.config.ts
+!vitest.config.ts
+!jest.config.js
+*.mjs
+*.cjs
+*.csv
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!components.json
+!vercel.json
+!openapi.yaml
+!opencode.json
+!qodana.yaml
+!docker-compose.yml
+!Dockerfile
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.webm
+*.svg
+*.ico
+*.primer
+*.txt
+!projekt_struktura.txt
+*.bat
+!start-*.bat
+*.ps1
+!start-*.ps1
+*.py
+!scripts/
+*.sh
+*.exe
+*.zip
+*.rar
+*.7z
 
 .vercel
 

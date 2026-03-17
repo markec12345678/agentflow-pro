@@ -1008,38 +1008,6 @@ model Payment {
   @@map("payments")
 }
 
-model Invoice {
-  id              String      @id @default(cuid())
-  reservationId   String
-  invoiceNumber   String      @unique // INV-2024-00001
-  propertyId      String
-  guestId         String?
-  issueDate       DateTime    @default(now())
-  dueDate         DateTime
-  status          String      @default("draft") // draft, sent, paid, overdue, cancelled
-  subtotal        Float
-  taxRate         Float       @default(0) // VAT percentage
-  taxAmount       Float
-  totalAmount     Float
-  paidAmount      Float       @default(0)
-  currency        String      @default("EUR")
-  items           Json        // Line items [{description, quantity, unitPrice, total}]
-  notes           String?
-  pdfUrl          String?     // URL to generated PDF
-  stripeInvoiceId String?     @unique // Stripe Invoice ID
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  reservation     Reservation @relation(fields: [reservationId], references: [id])
-  property        Property    @relation(fields: [propertyId], references: [id], name: "PropertyInvoices")
-  guest           Guest?      @relation(fields: [guestId], references: [id], name: "GuestInvoices")
-
-  @@index([reservationId])
-  @@index([invoiceNumber])
-  @@index([propertyId])
-  @@index([status])
-  @@map("invoices")
-}
-
 model Guest {
   id             String               @id @default(cuid())
   propertyId     String?
@@ -1918,6 +1886,7 @@ model Invoice {
   invoiceNumber   String   @unique
   reservationId   String
   guestId         String
+  propertyId      String
   
   // Dates
   invoiceDate     DateTime @default(now())
@@ -1949,10 +1918,12 @@ model Invoice {
   
   // Relations
   reservation     Reservation @relation(fields: [reservationId], references: [id])
-  guest           Guest       @relation(fields: [guestId], references: [id])
+  property        Property    @relation(fields: [propertyId], references: [id], name: "PropertyInvoices")
+  guest           Guest       @relation(fields: [guestId], references: [id], name: "GuestInvoices")
   
   @@index([reservationId])
   @@index([guestId])
+  @@index([propertyId])
   @@index([status])
   @@index([invoiceDate])
   @@index([dueDate])

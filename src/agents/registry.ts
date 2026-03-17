@@ -1,6 +1,7 @@
 import { Agent } from '../orchestrator/Orchestrator';
 import { getContextManager } from '../ai/context-manager';
 import { getWorkflowAdvisor } from '../ai/workflow-advisor';
+import { getVerifierAgent, VerifierAgent } from './verification/VerifierAgent';
 
 // Ensure Agent interface compatibility
 interface ExtendedAgent extends Agent {
@@ -12,11 +13,20 @@ export class AgentRegistry {
   private agents: Map<string, Agent> = new Map();
   private agentMetadata: Map<string, AgentMetadata> = new Map();
   private usageStats: Map<string, AgentUsageStats> = new Map();
+  private verifier?: VerifierAgent;
 
   constructor(
     private contextManager = getContextManager(),
     private workflowAdvisor = getWorkflowAdvisor()
   ) {}
+
+  setVerifier(verifier: VerifierAgent): void {
+    this.verifier = verifier;
+  }
+
+  getVerifier(): VerifierAgent | undefined {
+    return this.verifier;
+  }
 
   registerAgent(agent: Agent, metadata?: Partial<AgentMetadata>): void {
     if (this.agents.has(agent.id)) {
@@ -61,7 +71,25 @@ export class AgentRegistry {
       'Deploy': ['deployment', 'ci_cd', 'environment_management'],
       'Communication': ['email', 'messaging', 'notification'],
       'Optimization': ['performance_analysis', 'cost_optimization', 'resource_management'],
-      'Personalization': ['user_profiling', 'recommendation', 'preference_management']
+      'Personalization': ['user_profiling', 'recommendation', 'preference_management'],
+      'Verification': [
+        'plan_alignment_check',
+        'factual_verification',
+        'consistency_check',
+        'completeness_check',
+        'quality_assessment',
+        'hallucination_detection',
+        'confidence_scoring'
+      ],
+      'verification': [
+        'plan_alignment_check',
+        'factual_verification',
+        'consistency_check',
+        'completeness_check',
+        'quality_assessment',
+        'hallucination_detection',
+        'confidence_scoring'
+      ],
     };
 
     return typeCapabilities[agent.type] || ['general_purpose'];

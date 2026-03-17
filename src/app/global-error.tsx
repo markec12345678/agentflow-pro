@@ -1,22 +1,21 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
+// Sentry disabled temporarily to fix worker thread errors
+// import * as Sentry from "@sentry/nextjs";
 import NextError from "next/error";
-import { useEffect } from "react";
 
 export default function GlobalError({
   error,
 }: {
   error: Error & { digest?: string };
 }) {
-  useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
-
   return (
     <html>
       <body>
-        <NextError statusCode={0} />
+        <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
+          <h1>Error</h1>
+          <p>{error.message}</p>
+        </div>
       </body>
     </html>
   );

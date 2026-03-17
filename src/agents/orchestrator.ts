@@ -1,4 +1,5 @@
 import { Agent } from '../orchestrator/Orchestrator';
+import { VerifierAgent, VerificationPlan, VerificationExecution, VerificationResult, VerificationReport } from './verification/VerifierAgent';
 
 interface OrchestratorAgentError {
   agentId: string;
@@ -6,6 +7,11 @@ interface OrchestratorAgentError {
   message: string;
   stack?: string;
   timestamp: Date;
+}
+
+export interface WorkflowExecutionWithVerification extends WorkflowResult {
+  verificationReport?: VerificationReport;
+  requiresHumanReview: boolean;
 }
 
 export interface Workflow {
@@ -44,11 +50,30 @@ export interface AgentExecutionPlan {
 export class AgentOrchestrator {
   private maxRetries = 3;
   private parallelLimit = 4;
+  private verifier?: VerifierAgent;
+  private enableVerification = true;
 
-  constructor(private agents: Agent[] = []) {}
+  constructor(
+    private agents: Agent[] = [],
+    options?: {
+      verifier?: VerifierAgent;
+      enableVerification?: boolean;
+    }
+  ) {
+    if (options?.verifier) {
+      this.verifier = options.verifier;
+    }
+    if (options?.enableVerification !== undefined) {
+      this.enableVerification = options.enableVerification;
+    }
+  }
 
   addAgent(agent: Agent): void {
     this.agents.push(agent);
+  }
+
+  setVerifier(verifier: VerifierAgent): void {
+    this.verifier = verifier;
   }
 
   async executeWorkflow(workflow: Workflow): Promise<WorkflowResult> {
@@ -104,8 +129,62 @@ export class AgentOrchestrator {
         });
       }
 
-      return {
-        success: errors.length === 0,
+      // Verify results if verifier is available
+      let verificationReport: VerificationReport | undefined;
+      let requiresHumanReview = false;
+
+      if (this.enableVerification && this.verifier && Object.keys(results).length > 0) {
+        console.log('[Orchestrator] Running verification...');
+        
+        const workflowPlan: VerificationPlan = {
+          id: workflow.id,
+          goal: workflow.name,
+          requirements: workflow.config?.requirements || [],
+          successCriteria: workflow.config?.successCriteria || [],
+          constraints: workflow.config?.constraints || [],
+        };
+
+        // Create verification execution from workflow results
+        const verificationExecution: VerificationExecution = {
+          agentId: 'orchestrator',
+          agentType: 'workflow',
+          input: workflow,
+          output: results,
+          executionTime: Date.now() - startTime,
+          metrics: {
+            agentsExecuted: Object.keys(results).length,
+            parallelExecutions,
+            retries
+          }
+        };
+
+        const verificationResult: VerificationResult = {
+          success: errors.length === 0,
+          result: results,
+        };
+
+        verificationReport = await this.verifier.verify(
+          workflowPlan,
+          verificationExecution,
+          verificationResult
+        );
+
+        requiresHumanReview = verificationReport.requiresHumanReview;
+
+        // If verification failed badly, consider retry
+        if (!verificationReport.passed && verificationReport.recommendations.action === 'retry') {
+          console.log('[Orchestrator] Verification recommends retry');
+          retries++;
+          if (retries <= this.maxRetries) {
+            // Could implement retry logic here
+          }
+        }
+
+        console.log(`[Orchestrator] Verification complete: ${verificationReport.overallConfidence.toFixed(2)}`);
+      }
+
+      const workflowResult: WorkflowExecutionWithVerification = {
+        success: errors.length === 0 && (!this.enableVerification || !verificationReport || verificationReport.passed),
         results,
         errors,
         executionTime: Date.now() - startTime,
@@ -113,8 +192,12 @@ export class AgentOrchestrator {
           agentsExecuted: Object.keys(results).length,
           parallelExecutions,
           retries
-        }
+        },
+        verificationReport,
+        requiresHumanReview
       };
+
+      return workflowResult;
     } catch (error) {
       errors.push({
         agentId: 'ORCHESTRATOR',

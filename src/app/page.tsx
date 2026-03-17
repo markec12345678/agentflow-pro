@@ -6,10 +6,8 @@
 import HeroSection from '@/components/HeroSection';
 import FeaturesSection from '@/components/landing/FeaturesSection';
 import UseCasesSection from '@/components/landing/UseCasesSection';
-import TestimonialsSection from '@/components/landing/TestimonialsSection';
-import PricingSection from '@/components/landing/PricingSection';
-import FAQSection from '@/components/landing/FAQSection';
-import CTASection from '@/components/landing/CTASection';
+import TestimonialsSection from '@/components/landing/Sections'; // Default export
+import { PricingSection, FAQSection, CTASection } from '@/components/landing/Sections'; // Named exports
 import Footer from '@/components/Footer';
 
 export default function HomePage() {

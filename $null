@@ -1,4 +1,9 @@
-A subdirectory or file public\promo already exists.
-Error occurred while processing: public\promo.
-The filename, directory name, or volume label syntax is incorrect.
-Error occurred while processing: https://cdn-video.51sux.com/v3-tasks/2026/03/15/5085027002eb4b0397b763a0b3836b7d.mp4.
+Get-Content : Cannot bind argument to parameter 'Path' because it is null.
+At line:1 char:13
++ Get-Content (Get-ChildItem -Path . -Filter *.log -Recurse | Select-Ob ...
++             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidData: (:) [Get-Content], ParameterBinding 
+   ValidationException
+    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,M 
+   icrosoft.PowerShell.Commands.GetContentCommand
+ 

@@ -1,7 +1,15 @@
 /**
  * MemoryBackend - abstraction for knowledge graph storage
- * InMemoryBackend: in-app storage for dev/tests
- * McpMemoryBackend: (optional) uses Memory MCP server
+ * 
+ * Implementations:
+ * - InMemoryBackend: in-app storage for dev/tests
+ * - RedisMemoryBackend: Working memory with TTL (<1ms latency)
+ * - McpMemoryBackend: (optional) uses Memory MCP server
+ * - PostgresMemoryBackend: Persistent episodic memory
+ * - PgvectorMemoryBackend: Semantic memory with vector search
+ * 
+ * Based on research showing hybrid memory architecture improves
+ * token efficiency and context continuity vs pure RAG approaches.
  */
 
 import type { GraphSnapshot } from "./graph-schema";

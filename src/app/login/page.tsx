@@ -108,7 +108,12 @@ function LoginForm() {
       return;
     }
     setError("");
-    await signIn("google", { callbackUrl: "/dashboard" });
+    try {
+      await signIn("google", { redirectTo: "/dashboard" });
+    } catch (error) {
+      console.error("[Login] Google sign in error:", error);
+      setError("Google prijava ni uspela. Poskusi ponovno.");
+    }
   }
 
   let callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard";

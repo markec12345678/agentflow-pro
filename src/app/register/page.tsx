@@ -27,7 +27,12 @@ export default function RegisterPage() {
       return;
     }
     setError("");
-    await signIn("google", { callbackUrl: "/onboarding" });
+    try {
+      await signIn("google", { redirectTo: "/onboarding" });
+    } catch (error) {
+      console.error("[Register] Google sign in error:", error);
+      setError("Google prijava ni uspela. Poskusi ponovno.");
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
