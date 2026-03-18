@@ -2,7 +2,7 @@
  * Infrastructure: Adapter for IGuestRetrieval using lib/tourism/guest-retrieval
  */
 
-import { retrieveGuestContext } from '@/lib/tourism/guest-retrieval';
+import { retrieveGuestContext } from '@/infrastructure/tourism/GuestRetrievalAdapter';
 import type { MemoryBackend } from "@/memory/memory-backend";
 import type { IGuestRetrieval, RetrievalContext } from "@/domain/tourism/ports/guest-retrieval.port";
 
