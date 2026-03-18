@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: {
         email: normalizedEmail,
-        password: hashedPassword,
+        passwordHash: hashedPassword, // ✅ Use correct field name from schema
         name: name || null,
         trialEndsAt,
         emailVerified: null, // Require email verification
