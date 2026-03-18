@@ -1,0 +1,223 @@
+// prisma/schema/11-invoicing/billing.prisma
+
+// ============================================================================
+// BILLING & INVOICING MODULE
+// ============================================================================
+
+model Invoice {
+  id              String   @id @default(cuid())
+  invoiceNumber   String   @unique // Format: YYYY-XXXX (e.g., 2026-0001)
+  invoiceId       String   @unique // Internal CUID
+  
+  // Property & Guest
+  propertyId      String
+  property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guestId         String?
+  guest           Guest? @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  reservationId   String?
+  reservation     Reservation? @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  
+  // Stripe Integration
+  stripeCustomerId String?
+  stripeInvoiceId  String?
+  stripePaymentIntentId String?
+  
+  // Amounts
+  subtotal        Decimal   @db.Decimal(10, 2)
+  taxRate         Decimal   @default(22)
+  taxAmount       Decimal   @db.Decimal(10, 2)
+  total           Decimal   @db.Decimal(10, 2)
+  amountPaid      Decimal   @default(0) @db.Decimal(10, 2)
+  amountDue       Decimal   @db.Decimal(10, 2)
+  currency        String    @default("EUR")
+  
+  // Line Items
+  lineItems       InvoiceLineItem[]
+  
+  // Status
+  status          InvoiceStatus @default(DRAFT) // DRAFT, SENT, PAID, PARTIAL, OVERDUE, CANCELLED, REFUNDED
+  
+  // Dates
+  issueDate       DateTime @default(now())
+  dueDate         DateTime
+  paidAt          DateTime?
+  
+  // PDF
+  pdfUrl          String?
+  pdfGeneratedAt  DateTime?
+  
+  // Payment
+  paymentMethod   PaymentMethod? // CARD, BANK_TRANSFER, CASH, STRIPE
+  paymentDetails  Json?
+  
+  // Refunds
+  refunds         InvoiceRefund[]
+  
+  // Metadata
+  notes           String? @db.Text
+  metadata        Json?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Indexes
+  @@index([propertyId])
+  @@index([status])
+  @@index([guestId])
+  @@index([issueDate])
+  @@index([invoiceNumber])
+  @@map("invoices")
+}
+
+model InvoiceLineItem {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  // Item details
+  description String
+  quantity    Decimal  @default(1) @db.Decimal(10, 2)
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  amount      Decimal  @db.Decimal(10, 2)
+  taxRate     Decimal  @default(22)
+  
+  // Categorization
+  category    LineItemCategory // ACCOMMODATION, FOOD, SERVICE, AMENITY, OTHER
+  metadata    Json?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  // Indexes
+  @@index([invoiceId])
+  @@map("invoice_line_items")
+}
+
+model InvoiceRefund {
+  id              String   @id @default(cuid())
+  refundId        String   @unique
+  
+  invoiceId       String
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  // Stripe
+  stripeRefundId  String?
+  
+  // Amount
+  amount          Decimal  @db.Decimal(10, 2)
+  reason          String
+  
+  // Status
+  status          RefundStatus @default(PENDING) // PENDING, APPROVED, PROCESSING, COMPLETED, FAILED
+  
+  // Processing
+  processedBy     String?  // User ID
+  processedAt     DateTime?
+  approvedBy      String?  // User ID
+  approvedAt      DateTime?
+  
+  // Metadata
+  notes           String? @db.Text
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Indexes
+  @@index([invoiceId])
+  @@index([status])
+  @@map("invoice_refunds")
+}
+
+model Subscription {
+  id              String   @id @default(cuid())
+  subscriptionId  String   @unique
+  
+  // Customer
+  userId          String
+  // Note: User relation would be in core schema
+  
+  stripeCustomerId String
+  stripeSubscriptionId String
+  
+  // Plan
+  planId          String
+  planName        String
+  status          SubscriptionStatus @default(ACTIVE) // ACTIVE, PAUSED, CANCELED, EXPIRED
+  
+  // Billing
+  amount          Decimal   @db.Decimal(10, 2)
+  currency        String    @default("EUR")
+  interval        BillingInterval @default(MONTHLY)
+  
+  // Period
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean @default(false)
+  canceledAt      DateTime?
+  
+  // Usage tracking
+  usageRecords    Json?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Indexes
+  @@index([userId])
+  @@index([status])
+  @@index([stripeSubscriptionId])
+  @@map("subscriptions")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  PARTIAL
+  OVERDUE
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CARD
+  BANK_TRANSFER
+  CASH
+  STRIPE
+}
+
+enum LineItemCategory {
+  ACCOMMODATION
+  FOOD
+  SERVICE
+  AMENITY
+  OTHER
+}
+
+enum RefundStatus {
+  PENDING
+  APPROVED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELED
+  EXPIRED
+}
+
+enum BillingInterval {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}

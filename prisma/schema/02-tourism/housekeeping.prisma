@@ -1,0 +1,185 @@
+// prisma/schema/02-tourism/housekeeping.prisma
+
+// ============================================================================
+// HOUSEKEEPING MODULE
+// ============================================================================
+
+model HousekeepingTask {
+  id          String   @id @default(cuid())
+  taskId      String   @unique
+  type        TaskType @default(CLEANING) // CLEANING, MAINTENANCE, INSPECTION, TURNDOWN, DEEP_CLEAN
+  status      TaskStatus @default(PENDING) // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  priority    Priority @default(MEDIUM) // LOW, MEDIUM, HIGH, URGENT
+  
+  // Assignment
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  roomId      String?
+  room        Room? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  assignedTo  String?  // User ID
+  assignedBy  String?  // User ID
+  
+  // Scheduling
+  scheduledAt DateTime
+  dueBy       DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  
+  // Details
+  title       String
+  description String?  @db.Text
+  checklist   Json?    // Array of checklist items: [{item: "Change sheets", done: false}]
+  notes       String?  @db.Text
+  photos      String[] // Array of photo URLs
+  
+  // Time tracking
+  estimatedMinutes Int @default(30)
+  actualMinutes    Int?
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Indexes
+  @@index([propertyId])
+  @@index([status])
+  @@index([assignedTo])
+  @@index([scheduledAt])
+  @@index([type])
+  @@map("housekeeping_tasks")
+}
+
+model MaintenanceRequest {
+  id          String   @id @default(cuid())
+  requestId   String   @unique
+  
+  // Property & Room
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  roomId      String?
+  room        Room? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  
+  // Issue details
+  category    MaintenanceCategory // PLUMBING, ELECTRICAL, HVAC, APPLIANCE, FURNITURE, COSMETIC, SAFETY, OTHER
+  urgency     UrgencyLevel @default(MEDIUM)
+  status      MaintenanceStatus @default(OPEN) // OPEN, IN_PROGRESS, WAITING_PARTS, RESOLVED, CLOSED
+  
+  // Description
+  title       String
+  description String @db.Text
+  photos      String[]
+  
+  // Assignment
+  assignedTo  String?  // Staff ID or external contractor
+  assignedBy  String?
+  vendorId    String?  // External vendor
+  vendorName  String?
+  vendorContact String?
+  
+  // Timeline
+  reportedAt  DateTime @default(now())
+  dueBy       DateTime?
+  startedAt   DateTime?
+  resolvedAt  DateTime?
+  
+  // Resolution
+  resolution  String? @db.Text
+  cost        Decimal? @db.Decimal(10, 2)
+  warrantyInfo String? @db.Text
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Indexes
+  @@index([propertyId])
+  @@index([status])
+  @@index([category])
+  @@index([urgency])
+  @@map("maintenance_requests")
+}
+
+model StaffAssignment {
+  id          String   @id @default(cuid())
+  staffId     String   // User ID
+  // Note: User relation would be in core schema, using String for now
+  
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  // Schedule
+  date        DateTime @db.Date
+  shiftStart  DateTime
+  shiftEnd    DateTime
+  
+  // Task assignments
+  maxTasks    Int @default(10)
+  completedTasks Int @default(0)
+  
+  // Performance
+  rating      Int?     // 1-5
+  notes       String?  @db.Text
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Indexes
+  @@unique([staffId, date, shiftStart])
+  @@index([propertyId])
+  @@index([date])
+  @@index([staffId])
+  @@map("staff_assignments")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum TaskType {
+  CLEANING
+  MAINTENANCE
+  INSPECTION
+  TURNDOWN
+  DEEP_CLEAN
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MaintenanceCategory {
+  PLUMBING
+  ELECTRICAL
+  HVAC
+  APPLIANCE
+  FURNITURE
+  COSMETIC
+  SAFETY
+  OTHER
+}
+
+enum UrgencyLevel {
+  LOW
+  MEDIUM
+  HIGH
+  EMERGENCY
+}
+
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_PARTS
+  RESOLVED
+  CLOSED
+}

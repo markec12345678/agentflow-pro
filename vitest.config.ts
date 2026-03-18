@@ -23,7 +23,7 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'text-summary'],
       include: [
         'src/lib/**/*.{ts,tsx}',
         'src/core/**/*.{ts,tsx}',
@@ -33,6 +33,8 @@ export default defineConfig({
         'src/domain/**/*.{ts,tsx}',
         'src/agents/**/*.{ts,tsx}',
         'src/workflows/**/*.{ts,tsx}',
+        'src/middleware/**/*.{ts,tsx}',
+        'src/app/api/v1/**/*.{ts,tsx}',
       ],
       exclude: [
         'src/**/*.d.ts',
@@ -41,7 +43,8 @@ export default defineConfig({
         '**/types.ts',
         '**/*.test.{ts,tsx}',
         '**/*.spec.{ts,tsx}',
-        'src/app/api/**',  // Exclude API routes from coverage
+        'src/app/api/v1/admin/**',  // Keep admin API excluded (test separately)
+        'src/app/api/v1/system/**',  // Keep system API excluded
       ],
       threshold: {
         global: {
