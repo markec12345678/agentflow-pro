@@ -11,7 +11,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
+import { randomBytes, scrypt, timingSafeEqual } from 'crypto';
+
+/**
+ * Hash password using scrypt (Node.js crypto)
+ */
+async function hashPassword(password: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const salt = randomBytes(16).toString('hex');
+    scrypt(password, salt, 64, (err, derivedKey) => {
+      if (err) reject(err);
+      resolve(salt + ':' + derivedKey.toString('hex'));
+    });
+  });
+}
+
+/**
+ * Compare password with hash
+ */
+async function comparePassword(password: string, hash: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const [salt, key] = hash.split(':');
+    scrypt(password, salt, 64, (err, derivedKey) => {
+      if (err) reject(err);
+      resolve(timingSafeEqual(Buffer.from(key, 'hex'), Buffer.from(derivedKey)));
+    });
+  });
+}
 
 // ============================================
 // ZOD SCHEMAS
@@ -160,8 +186,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Hash password using Node.js crypto scrypt
+    const hashedPassword = await hashPassword(password);
 
     // Set trial period (7 days from now)
     const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
