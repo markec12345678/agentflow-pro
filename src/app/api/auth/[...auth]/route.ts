@@ -1,9 +1,9 @@
 /**
  * NextAuth v5 - Auth Route Handler
- * 
+ *
  * This is the main auth endpoint for NextAuth v5
  * All auth requests go through /api/auth/*
- * 
+ *
  * Routes:
  * - GET /api/auth/signin - Sign in page
  * - POST /api/auth/signin - Sign in action
@@ -14,6 +14,7 @@
  * - GET /api/auth/callback/:provider - OAuth callback
  */
 
+// Import from src/auth.ts (NextAuth v5 configuration)
 import { handlers } from '@/auth';
 
 // Export GET and POST handlers from NextAuth v5
