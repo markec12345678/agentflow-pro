@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { logger } from '@/infrastructure/observability/logger';
 import { toast } from "sonner";
-import { substitutePrompt } from "@/lib/tourism/substitute-prompt";
+import { substitutePrompt } from '@/core/domain/tourism/substitute-prompt';
 import { Skeleton, SkeletonText } from "@/web/components/Skeleton";
 
 const EMAIL_TEMPLATES = [

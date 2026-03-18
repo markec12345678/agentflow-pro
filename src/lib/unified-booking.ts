@@ -5,7 +5,7 @@
 
 import { getBookingComAPI, BookingComAPI, MockBookingComAPI } from '@/integrations/bookingCom';
 import { prisma } from '@/database/schema';
-import { calculatePrice } from '@/lib/tourism/pricing-engine-wrapper';
+import { calculatePrice } from '@/core/domain/tourism/services/pricing-engine-wrapper';
 
 // Airbnb API Integration
 export interface AirbnbProperty {

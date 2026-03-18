@@ -12,7 +12,7 @@ import {
   formatForBooking,
   formatForAirbnb,
   generateHashtags,
-} from "@/lib/tourism/publish-helpers";
+} from '@/core/domain/tourism/publish-helpers';
 
 const tourismPrompts = PROMPTS.filter((p) => p.category === "tourism");
 

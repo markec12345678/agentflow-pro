@@ -8,7 +8,7 @@ import { logger } from '@/infrastructure/observability/logger';
 import { Server as SocketIOServer } from 'socket.io';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserId } from '@/lib/auth-users';
-import { getPropertyForUser } from '@/lib/tourism/property-access';
+import { getPropertyForUser } from '@/core/domain/tourism/property-access';
 
 interface AuthenticatedSocket extends Socket {
   userId: string;

@@ -8,7 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
-import { getPropertyForUser } from '@/lib/tourism/property-access';
+import { getPropertyForUser } from '@/core/domain/tourism/property-access';
 import { createPropertySchema } from "@/lib/validations/property-schema";
 import { z } from "zod";
 

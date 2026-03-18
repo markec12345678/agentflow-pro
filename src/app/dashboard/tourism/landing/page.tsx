@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Skeleton, SkeletonText } from "@/web/components/Skeleton";
 import { PropertySelector } from "@/web/components/PropertySelector";
-import { generateFaqSchema } from "@/lib/tourism/faq-schema";
+import { generateFaqSchema } from '@/core/domain/tourism/faq-schema';
 import { DEFAULT_FAQS } from "@/data/tourism-faqs";
 
 const TEMPLATES = [

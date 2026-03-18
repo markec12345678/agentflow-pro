@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/infrastructure/database/prisma';
-import { calculateTouristTax, calculateVAT } from '@/lib/tourism/tax-rates';
+import { calculateTouristTax, calculateVAT } from '@/core/domain/tourism/tax-rates';
 
 /**
  * POST /api/tax-reports
