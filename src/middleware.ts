@@ -99,6 +99,7 @@ const PROTECTED_ROUTES = [
 // Public routes (no auth required)
 const PUBLIC_ROUTES = [
   '/api/auth',
+  '/api/v1/auth/auth',  // Legacy NextAuth route
   '/api/webhooks',
   '/api/health',
   '/api/public',
