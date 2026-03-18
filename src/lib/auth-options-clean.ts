@@ -1,6 +1,6 @@
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 import { logger } from '@/infrastructure/observability/logger';
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/infrastructure/database/prisma";
@@ -292,4 +292,4 @@ export const authOptions = {
   pages: {
     signIn: "/login",
   },
-} as NextAuthOptions;
+} satisfies NextAuthConfig;
