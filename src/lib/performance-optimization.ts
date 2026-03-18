@@ -132,21 +132,12 @@ const HeavyChart = dynamic(() => import('@/components/HeavyChart'), {
 
 /**
  * Use Tailwind's purge feature (already configured)
- * 
- * tailwind.config.js:
- * content: [
- *   './src/**/*.{js,ts,jsx,tsx,mdx}',
- * ],
+ *
+ * tailwind.config.js content setting purges unused CSS classes
  */
 
 /**
- * Avoid inline styles, use Tailwind classes:
- * 
- * BEFORE:
- * <div style={{ color: 'red', marginTop: '20px' }} />
- * 
- * AFTER:
- * <div className="text-red-600 mt-5" />
+ * Avoid inline styles, use Tailwind classes instead
  */
 
 // ============================================================================
