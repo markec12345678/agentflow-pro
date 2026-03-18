@@ -1,8 +1,8 @@
 /**
  * User Registration API
- * 
+ *
  * Handles user registration with email/password
- * 
+ *
  * Routes:
  * - POST /api/v1/auth/register - Create new user
  * - GET /api/v1/auth/register - Get registration info (prevents 404)
@@ -11,32 +11,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { randomBytes, scrypt, timingSafeEqual } from 'crypto';
 
 /**
- * Hash password using scrypt (Node.js crypto)
+ * Hash password using Web Crypto API (works in Edge runtime)
  */
 async function hashPassword(password: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const salt = randomBytes(16).toString('hex');
-    scrypt(password, salt, 64, (err, derivedKey) => {
-      if (err) reject(err);
-      resolve(salt + ':' + derivedKey.toString('hex'));
-    });
-  });
-}
-
-/**
- * Compare password with hash
- */
-async function comparePassword(password: string, hash: string): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    const [salt, key] = hash.split(':');
-    scrypt(password, salt, 64, (err, derivedKey) => {
-      if (err) reject(err);
-      resolve(timingSafeEqual(Buffer.from(key, 'hex'), Buffer.from(derivedKey)));
-    });
-  });
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    data,
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits']
+  );
+  
+  const keyBits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      hash: 'SHA-256',
+      salt: salt,
+      iterations: 100000,
+    },
+    keyMaterial,
+    256
+  );
+  
+  const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+  const hashHex = Array.from(new Uint8Array(keyBits)).map(b => b.toString(16).padStart(2, '0')).join('');
+  
+  return `${saltHex}:${hashHex}`;
 }
 
 // ============================================
