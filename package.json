@@ -66,8 +66,7 @@
     "load:100": "k6 run --vus 100 --duration 2m load-tests/load.js",
     "deploy": "npx vercel",
     "deploy:prod": "npx vercel --prod",
-    "prepare": "husky",
-    "preinstall": "node preinstall.js"
+    "prepare": "husky"
   },
   "dependencies": {
     "@ai-sdk/mcp": "^1.0.25",
