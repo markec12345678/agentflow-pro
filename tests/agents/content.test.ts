@@ -2,6 +2,7 @@
  * Content Agent tests
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { createContentAgent } from "../../src/agents/content/ContentAgent";
 
 describe("ContentAgent", () => {
@@ -13,7 +14,7 @@ describe("ContentAgent", () => {
 
   it("returns structured output for empty input", async () => {
     const agent = createContentAgent();
-    const result = await agent.execute({});
+    const result = (await agent.execute({})) as { blog?: string; social?: string; email?: string; keywords?: unknown[] };
     expect(result).toHaveProperty("blog");
     expect(result).toHaveProperty("social");
     expect(result).toHaveProperty("email");

@@ -12,6 +12,7 @@ export interface WebhookHandlers {
   "checkout.session.completed": WebhookHandler;
   "customer.subscription.updated": WebhookHandler;
   "customer.subscription.deleted": WebhookHandler;
+  "invoice.payment_failed": WebhookHandler;
 }
 
 export async function handleStripeWebhook(

@@ -8,6 +8,7 @@ import type { ConditionOperator } from "./nodes";
 import { validateWorkflow } from "./validator";
 import { evaluateCondition, getNextBranch } from "./conditions";
 import { wrapWithErrorHandler } from "./error-handler";
+import { verify } from "@/verifier/VerifierService";
 
 export interface StepResult {
   nodeId: string;
@@ -97,7 +98,20 @@ export async function executeWorkflow(
     executed.add(nodeId);
 
     const node = nodeMap.get(nodeId)!;
-    const result = await wrappedRun(nodeId, context);
+    let result = await wrappedRun(nodeId, context);
+
+    if (result.success && node.type === "Agent" && result.output != null) {
+      const agentType = node.data?.agentType as string;
+      const verifyResult = verify(agentType, result.output);
+      if (!verifyResult.valid && verifyResult.errors?.length) {
+        result = {
+          nodeId,
+          success: false,
+          error: `Verification failed: ${verifyResult.errors.join("; ")}`,
+        };
+      }
+    }
+
     steps.push(result);
 
     if (!result.success) break;

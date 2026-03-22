@@ -5,8 +5,11 @@
 import {
   evaluateCondition,
   getNextBranch,
+  executeParallel,
   type ExecutionContext,
 } from "@/workflows/conditions";
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+import type { ConditionOperator } from "@/workflows/nodes";
 import type { WorkflowNode, WorkflowEdge } from "@/workflows/types";
 
 describe("evaluateCondition", () => {
@@ -38,6 +41,18 @@ describe("evaluateCondition", () => {
   it("isEmpty works", () => {
     expect(evaluateCondition("isEmpty", "{{missing}}", "", {})).toBe(true);
     expect(evaluateCondition("isEmpty", "{{x}}", "", ctx)).toBe(false);
+    expect(evaluateCondition("isEmpty", "{{items}}", "", ctx)).toBe(false);
+    expect(evaluateCondition("isEmpty", "{{emptyArr}}", "", { emptyArr: [] })).toBe(true);
+    expect(evaluateCondition("isEmpty", "", "", {})).toBe(true);
+  });
+
+  it("gte/lte work", () => {
+    expect(evaluateCondition("gte", "5", "5", {})).toBe(true);
+    expect(evaluateCondition("lte", "3", "5", {})).toBe(true);
+  });
+
+  it("returns false for unknown operator", () => {
+    expect(evaluateCondition("unknown" as ConditionOperator, "a", "b", {})).toBe(false);
   });
 });
 
@@ -62,5 +77,21 @@ describe("getNextBranch", () => {
 
   it("returns empty when no edges", () => {
     expect(getNextBranch(true, node, [])).toEqual([]);
+  });
+
+  it("falls back to first edge when no handle match", () => {
+    const edges: WorkflowEdge[] = [{ id: "e1", source: "c1", target: "fallback" }];
+    expect(getNextBranch(true, node, edges)).toEqual(["fallback"]);
+  });
+});
+
+describe("executeParallel", () => {
+  it("runs all executors in parallel", async () => {
+    const results = await executeParallel(
+      ["a", "b"],
+      async (id) => id.toUpperCase(),
+      {}
+    );
+    expect(results).toEqual(["A", "B"]);
   });
 });

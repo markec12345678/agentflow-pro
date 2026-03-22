@@ -1,0 +1,29 @@
+---
+description: Core fullstack development standards - tech stack, universal conventions
+alwaysApply: true
+---
+
+# Fullstack Development - Core Standards
+
+## Key Principles
+
+- Write concise, technical responses with accurate examples.
+- Use functional, declarative programming. Avoid classes where possible.
+- Prefer iteration and modularization over duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasPermission).
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Favor named exports.
+- Prioritize error handling and edge cases with early returns and guard clauses.
+
+## References
+
+- [Cursor Rules Docs](https://cursor.com/docs/context/rules)
+- [AGENTS.md spec](https://agentsmd.io/)
+- [Awesome Cursor Rules](https://github.com/PatrickJS/awesome-cursorrules)
+
+## F:\d Toolkit (Bolt + Builder alternative)
+
+- **Bolt.diy** (F:\d\bolt-diy): Open-source Bolt.new, 19+ LLM – `pnpm run dev`
+- **Dyad** (F:\d\dyad): Lokalni AI app builder – https://dyad.sh
+- **shadcn-builder** (F:\d\shadcn-builder): Drag-and-drop form builder
+- **ui-builder** (F:\d\ui-builder): Vizualni UI builder s shadcn

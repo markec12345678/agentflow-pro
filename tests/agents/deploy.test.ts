@@ -2,13 +2,14 @@
  * Deploy Agent tests
  */
 
-jest.mock("../../src/agents/deploy/deploy-manager", () => ({
-  executeDeploy: jest.fn(),
-  getDeployStatus: jest.fn(),
-  executeRollback: jest.fn(),
-  manageEnv: jest.fn(),
+vi.mock("../../src/agents/deploy/deploy-manager", () => ({
+  executeDeploy: vi.fn(),
+  getDeployStatus: vi.fn(),
+  executeRollback: vi.fn(),
+  manageEnv: vi.fn(),
 }));
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { createDeployAgent } from "../../src/agents/deploy/DeployAgent";
 
 describe("DeployAgent", () => {

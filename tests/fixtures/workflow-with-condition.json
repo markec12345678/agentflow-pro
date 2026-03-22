@@ -1,0 +1,62 @@
+{
+  "nodes": [
+    {
+      "id": "t1",
+      "type": "workflowNode",
+      "data": {
+        "type": "Trigger",
+        "triggerType": "manual",
+        "label": "Start"
+      },
+      "position": {
+        "x": 100,
+        "y": 100
+      }
+    },
+    {
+      "id": "c1",
+      "type": "workflowNode",
+      "data": {
+        "type": "Condition",
+        "operator": "eq",
+        "operandA": "1",
+        "operandB": "1",
+        "label": "Condition"
+      },
+      "position": {
+        "x": 350,
+        "y": 100
+      }
+    },
+    {
+      "id": "a1",
+      "type": "workflowNode",
+      "data": {
+        "type": "Agent",
+        "agentType": "research",
+        "label": "Research Agent"
+      },
+      "position": {
+        "x": 600,
+        "y": 50
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "t1",
+      "target": "c1"
+    },
+    {
+      "id": "e2",
+      "source": "c1",
+      "target": "a1",
+      "sourceHandle": "true"
+    }
+  ],
+  "metadata": {
+    "name": "Trigger + Condition + Agent",
+    "exportedAt": ""
+  }
+}

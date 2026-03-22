@@ -1,0 +1,51 @@
+[mcp_servers.G]
+command = "npx"
+args = [
+  "-y",
+  "mcp-remote",
+  "https://backend.composio.dev/v3/mcp/531301e8-911c-4db7-b865-72f474390e14/mcp?user_id=833e18c8-219c-4327-a965-18c3ae88bce9&connected_account_id=ca_Pi2rGqfPkzq2"
+]
+
+[mcp_servers.gmail]
+command = "npx"
+args = [ "-y", "mcp-remote", "Gmail" ]
+
+[mcp_servers.googlecalendar]
+command = "npx"
+args = [ "-y", "mcp-remote", "Google Calendar" ]
+
+[mcp_servers.notion]
+command = "npx"
+args = [ "-y", "mcp-remote", "Notion" ]
+
+[mcp_servers.g]
+command = "npx"
+args = [ "-y", "mcp-remote", "Google Sheets" ]
+
+[mcp_servers.sub]
+command = "npx"
+args = [ "-y", "mcp-remote", "Supabase" ]
+
+[mcp_servers.airtable]
+command = "npx"
+args = [ "-y", "mcp-remote", "Airtable" ]
+
+[mcp_servers.youtube]
+command = "npx"
+args = [ "-y", "mcp-remote", "YouTube" ]
+
+[mcp_servers.K]
+command = "npx"
+args = [ "-y", "mcp-remote", "Slackbot" ]
+
+[mcp_servers.facebook]
+command = "npx"
+args = [ "-y", "mcp-remote", "Facebook" ]
+
+[mcp_servers.googledrive]
+command = "npx"
+args = [ "-y", "mcp-remote", "Google Drive" ]
+
+[mcp_servers.googledocs]
+command = "npx"
+args = [ "-y", "mcp-remote", "Google Docs" ]

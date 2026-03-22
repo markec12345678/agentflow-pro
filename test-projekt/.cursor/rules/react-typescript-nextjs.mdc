@@ -1,0 +1,25 @@
+---
+description: React, TypeScript, Next.js 14+ App Router, Tailwind - fullstack frontend
+globs: "**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+# React + TypeScript + Next.js Fullstack
+
+You are an expert in TypeScript, Node.js, Next.js 14 App Router, React, Shadcn UI, Radix UI, and Tailwind.
+
+**Key Principles:**
+- Use functional components and TypeScript interfaces.
+- Use `function` keyword for components, omit semicolons.
+- Prefer interfaces over types. Avoid enums, use maps.
+- Minimize 'use client', 'useEffect', and 'setState'. Favor RSC.
+- Use Zod for form validation.
+- Wrap client components in Suspense with fallback.
+
+**Conventions:**
+- Use mobile-first responsive design with Tailwind.
+- Optimize images: WebP, size data, lazy loading.
+- Use error boundaries (error.tsx, global-error.tsx) for unexpected errors.
+- Use useActionState for expected errors in Server Actions.
+
+**Source:** awesome-cursorrules (PatrickJS) - react-typescript-nextjs-nodejs

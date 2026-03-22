@@ -1,0 +1,551 @@
+openapi: 3.0.3
+info:
+  title: AgentFlow Pro - Tourism API
+  description: |
+    Comprehensive API for tourism and hospitality management.
+    
+    ## Features
+    - Property & Room Management
+    - Reservation System
+    - Guest Communication
+    - FAQ Chatbot
+    - Revenue Analytics
+    - Housekeeping Management
+    - Dynamic Pricing
+    - Channel Manager (Booking.com, Airbnb)
+    
+    ## Authentication
+    Most endpoints require authentication via NextAuth session cookies.
+    
+    ## Rate Limiting
+    - 60 requests per minute per IP
+    - 1000 requests per minute per API key
+  version: 1.0.0
+  contact:
+    name: AgentFlow Pro Support
+    email: support@agentflow.pro
+    url: https://agentflow.pro
+
+servers:
+  - url: http://localhost:3002/api/tourism
+    description: Development server
+  - url: https://agentflow-pro-seven.vercel.app/api/tourism
+    description: Production server (Vercel)
+
+tags:
+  - name: Properties
+    description: Property management endpoints
+  - name: Reservations
+    description: Reservation booking and management
+  - name: Guests
+    description: Guest information and communication
+  - name: FAQ
+    description: FAQ chatbot and knowledge base
+  - name: Revenue
+    description: Revenue analytics and reporting
+  - name: Housekeeping
+    description: Housekeeping task management
+  - name: Channel Manager
+    description: OTA integration (Booking.com, Airbnb)
+  - name: Payments
+    description: Payment processing and invoices
+
+paths:
+  /properties:
+    get:
+      tags:
+        - Properties
+      summary: List all properties
+      description: Retrieve a list of all properties for the authenticated user
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  properties:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Property'
+        '401':
+          description: Authentication required
+
+  /reservations:
+    get:
+      tags:
+        - Reservations
+      summary: List reservations
+      description: Get reservations with optional filters
+      parameters:
+        - name: propertyId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [confirmed, cancelled, pending, checked_in, checked_out]
+        - name: checkIn
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reservations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Reservation'
+    post:
+      tags:
+        - Reservations
+      summary: Create reservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationRequest'
+      responses:
+        '201':
+          description: Reservation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '400':
+          description: Invalid input
+        '401':
+          description: Authentication required
+
+  /faq:
+    get:
+      tags:
+        - FAQ
+      summary: Get FAQ list
+      description: Retrieve FAQ list, optionally filtered by category or as JSON-LD
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, jsonld]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FAQList'
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/FAQJSONLD'
+    post:
+      tags:
+        - FAQ
+      summary: Ask FAQ question (chatbot)
+      description: |
+        Ask a question to the FAQ chatbot.
+        
+        The chatbot will:
+        1. Search knowledge base
+        2. Check guest context
+        3. Apply property policies
+        4. Generate AI-powered answer
+        5. Cache high-confidence answers (5 min)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FAQQuestionRequest'
+      responses:
+        '200':
+          description: Answer generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FAQAnswer'
+        '400':
+          description: Invalid question
+        '429':
+          description: Rate limit exceeded
+
+  /revenue/analytics:
+    get:
+      tags:
+        - Revenue
+      summary: Get revenue analytics
+      description: Retrieve revenue metrics including ADR, RevPAR, occupancy
+      parameters:
+        - name: propertyId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevenueAnalytics'
+
+  /housekeeping/my-tasks:
+    get:
+      tags:
+        - Housekeeping
+      summary: Get housekeeping tasks
+      description: Get tasks assigned to the current employee
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HousekeepingTask'
+
+  /channel-manager/sync:
+    post:
+      tags:
+        - Channel Manager
+      summary: Sync with OTAs
+      description: Trigger full sync with Booking.com and Airbnb
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                propertyId:
+                  type: string
+                syncType:
+                  type: string
+                  enum: [availability, rates, reservations, full]
+      responses:
+        '200':
+          description: Sync completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelSyncResult'
+
+  /payments/create-intent:
+    post:
+      tags:
+        - Payments
+      summary: Create payment intent
+      description: Create Stripe payment intent for guest payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reservationId
+                - amount
+                - type
+              properties:
+                reservationId:
+                  type: string
+                amount:
+                  type: number
+                type:
+                  type: string
+                  enum: [deposit, full_payment, incidental]
+      responses:
+        '200':
+          description: Payment intent created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clientSecret:
+                    type: string
+                  paymentIntentId:
+                    type: string
+
+components:
+  schemas:
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        type:
+          type: string
+        basePrice:
+          type: number
+        currency:
+          type: string
+          default: EUR
+
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: string
+        propertyId:
+          type: string
+        guestId:
+          type: string
+        roomId:
+          type: string
+        checkIn:
+          type: string
+          format: date-time
+        checkOut:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [confirmed, cancelled, pending, checked_in, checked_out]
+        totalPrice:
+          type: number
+        channel:
+          type: string
+
+    CreateReservationRequest:
+      type: object
+      required:
+        - propertyId
+        - checkIn
+        - checkOut
+      properties:
+        propertyId:
+          type: string
+        roomId:
+          type: string
+        checkIn:
+          type: string
+          format: date
+        checkOut:
+          type: string
+          format: date
+        guests:
+          type: integer
+        guestName:
+          type: string
+        guestEmail:
+          type: string
+
+    FAQList:
+      type: object
+      properties:
+        faqs:
+          type: array
+          items:
+            $ref: '#/components/schemas/FAQ'
+        categories:
+          type: array
+          items:
+            type: string
+
+    FAQ:
+      type: object
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+        category:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+
+    FAQJSONLD:
+      type: object
+      properties:
+        '@context':
+          type: string
+          enum: ['https://schema.org']
+        '@type':
+          type: string
+          enum: ['FAQPage']
+        mainEntity:
+          type: array
+          items:
+            $ref: '#/components/schemas/FAQQuestionJSONLD'
+
+    FAQQuestionJSONLD:
+      type: object
+      properties:
+        '@type':
+          type: string
+          enum: ['Question']
+        name:
+          type: string
+        acceptedAnswer:
+          $ref: '#/components/schemas/FAQAnswerJSONLD'
+
+    FAQAnswerJSONLD:
+      type: object
+      properties:
+        '@type':
+          type: string
+          enum: ['Answer']
+        text:
+          type: string
+
+    FAQQuestionRequest:
+      type: object
+      required:
+        - question
+      properties:
+        question:
+          type: string
+        propertyId:
+          type: string
+        guestId:
+          type: string
+        customFaqs:
+          type: array
+          items:
+            $ref: '#/components/schemas/FAQ'
+        useMultiAgent:
+          type: boolean
+          default: false
+
+    FAQAnswer:
+      type: object
+      properties:
+        answer:
+          type: string
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        sources:
+          type: array
+          items:
+            type: string
+        faqLogId:
+          type: string
+        escalated:
+          type: boolean
+
+    RevenueAnalytics:
+      type: object
+      properties:
+        revenue:
+          type: object
+          properties:
+            totalRevenue:
+              type: number
+            totalNights:
+              type: integer
+            occupiedRoomNights:
+              type: integer
+        kpis:
+          type: object
+          properties:
+            occupancyRate:
+              type: number
+            adr:
+              type: number
+            revpar:
+              type: number
+        revenueByChannel:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              revenue:
+                type: number
+              bookings:
+                type: integer
+
+    HousekeepingTask:
+      type: object
+      properties:
+        id:
+          type: string
+        roomName:
+          type: string
+        taskType:
+          type: string
+          enum: [check_out_clean, stayover_clean, deep_clean, maintenance]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        status:
+          type: string
+          enum: [pending, in_progress, completed, delayed]
+        estimatedTime:
+          type: integer
+        scheduledDate:
+          type: string
+          format: date-time
+
+    ChannelSyncResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        syncType:
+          type: string
+        results:
+          type: object
+          properties:
+            booking:
+              type: object
+            airbnb:
+              type: object
+        errors:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: next-auth.session-token
+
+security:
+  - cookieAuth: []

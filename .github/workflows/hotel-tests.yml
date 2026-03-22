@@ -1,0 +1,175 @@
+name: Hotel Management Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run unit tests
+      run: npm run test:unit
+      
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run integration tests
+      run: npm run test:integration
+      
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: integration-test-results
+        path: test-results/
+
+  e2e-hotel-tests:
+    name: E2E Hotel Management Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install Playwright
+      run: npm run playwright:install
+      
+    - name: Run E2E hotel tests
+      run: npm run test:e2e:hotel
+      
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-hotel-test-results
+        path: |
+          test-results/
+          screenshots/
+          videos/
+          
+    - name: Upload test report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: hotel-test-report
+        path: test-results/hotel_management_summary_*.json
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-hotel-tests]
+    if: always()
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      
+    - name: Comment PR
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          // Read test results if available
+          let unitResults = { passed: 0, failed: 0 };
+          let integrationResults = { passed: 0, failed: 0 };
+          let e2eResults = { passed: 0, failed: 0 };
+          
+          try {
+            unitResults = JSON.parse(fs.readFileSync('test-results/unit-results.json', 'utf8'));
+          } catch (e) {}
+          
+          try {
+            integrationResults = JSON.parse(fs.readFileSync('test-results/integration-results.json', 'utf8'));
+          } catch (e) {}
+          
+          try {
+            e2eResults = JSON.parse(fs.readFileSync('test-results/hotel_management_summary.json', 'utf8'));
+          } catch (e) {}
+          
+          const totalPassed = unitResults.passed + integrationResults.passed + e2eResults.passed;
+          const totalFailed = unitResults.failed + integrationResults.failed + e2eResults.failed;
+          const totalTests = totalPassed + totalFailed;
+          const passRate = totalTests > 0 ? ((totalPassed / totalTests) * 100).toFixed(1) : 0;
+          
+          const comment = `
+          ## 🧪 Hotel Management Test Results
+          
+          ### 📊 Summary
+          - **Total Tests**: ${totalTests}
+          - **Passed**: ${totalPassed} ✅
+          - **Failed**: ${totalFailed} ❌
+          - **Pass Rate**: ${passRate}%
+          
+          ### 🏨 Hotel Management Coverage
+          - **Unit Tests**: ${unitResults.passed}/${unitResults.passed + unitResults.failed}
+          - **Integration Tests**: ${integrationResults.passed}/${integrationResults.passed + integrationResults.failed}
+          - **E2E Tests**: ${e2eResults.passed}/${e2eResults.passed + e2eResults.failed}
+          
+          ${passRate >= 90 ? '✅ **Excellent**' : passRate >= 75 ? '✅ **Good**' : '⚠️ **Needs Improvement**'}
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });

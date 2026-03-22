@@ -14,3 +14,9 @@ Link: [tasks.md](../../tasks.md) (full WBS)
 ## Blocked
 
 - None currently
+
+## Hotel Core – Backlog (končano)
+
+- **TranslationJob**: implementirano – shranjevanje v results ob save
+- **PropertySelector v Hotel Core**: implementirano
+- **Gumb "Generiraj z Core" na landing strani**: implementirano

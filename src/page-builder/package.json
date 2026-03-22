@@ -1,0 +1,29 @@
+{
+  "name": "page-builder",
+  "version": "1.0.0",
+  "description": "Professional page builder with plugin system",
+  "main": "index.tsx",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dnd": "^16.0.0",
+    "react-dnd-html5-backend": "^16.0.0",
+    "@testing-library/react": "^13.0.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dnd": "^16.0.0",
+    "@types/react-dnd-html5-backend": "^16.0.0",
+    "typescript": "^5.0.0"
+  }
+}

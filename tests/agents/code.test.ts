@@ -2,13 +2,14 @@
  * Code Agent tests
  */
 
-jest.mock("../../src/agents/code/github-client", () => ({
-  getFileContents: jest.fn(),
-  getDefaultBranchSha: jest.fn(),
-  pushFiles: jest.fn(),
-  createPullRequest: jest.fn(),
+vi.mock("../../src/agents/code/github-client", () => ({
+  getFileContents: vi.fn(),
+  getDefaultBranchSha: vi.fn(),
+  pushFiles: vi.fn(),
+  createPullRequest: vi.fn(),
 }));
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { createCodeAgent } from "../../src/agents/code/CodeAgent";
 
 describe("CodeAgent", () => {
@@ -20,7 +21,7 @@ describe("CodeAgent", () => {
 
   it("returns structured output with files and suggestions", async () => {
     const agent = createCodeAgent();
-    const result = await agent.execute({});
+    const result = (await agent.execute({})) as { files?: unknown[]; suggestions?: unknown[] };
     expect(result).toHaveProperty("files");
     expect(result).toHaveProperty("suggestions");
     expect(Array.isArray(result.files)).toBe(true);

@@ -1,3 +1,5 @@
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+
 /**
  * Stripe webhook tests
  */
@@ -8,10 +10,10 @@ import {
   extractSubscriptionMetadata,
 } from "@/stripe/webhooks";
 
-jest.mock("@/stripe/config", () => ({
+vi.mock("@/stripe/config", () => ({
   getStripe: () => ({
     webhooks: {
-      constructEvent: jest.fn((payload: string, sig: string, _secret: string) => {
+      constructEvent: vi.fn((payload: string, sig: string, _secret: string) => {
         if (!payload || !sig) throw new Error("Invalid");
         return {
           id: "evt_test",
@@ -27,7 +29,7 @@ describe("extractCheckoutMetadata", () => {
   it("returns userId and planId when present", () => {
     const session = {
       metadata: { userId: "u1", planId: "pro" },
-    } as Parameters<typeof extractCheckoutMetadata>[0];
+    } as unknown as Parameters<typeof extractCheckoutMetadata>[0];
     expect(extractCheckoutMetadata(session)).toEqual({
       userId: "u1",
       planId: "pro",
@@ -44,7 +46,7 @@ describe("extractSubscriptionMetadata", () => {
   it("returns userId and planId when present", () => {
     const sub = {
       metadata: { userId: "u1", planId: "enterprise" },
-    } as Parameters<typeof extractSubscriptionMetadata>[0];
+    } as unknown as Parameters<typeof extractSubscriptionMetadata>[0];
     expect(extractSubscriptionMetadata(sub)).toEqual({
       userId: "u1",
       planId: "enterprise",
@@ -68,7 +70,7 @@ describe("handleStripeWebhook", () => {
   });
 
   it("calls handler when provided", async () => {
-    const handler = jest.fn().mockResolvedValue(undefined);
+    const handler = vi.fn().mockResolvedValue(undefined);
     await handleStripeWebhook("payload", "sig", {
       "checkout.session.completed": handler,
     });

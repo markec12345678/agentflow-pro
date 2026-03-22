@@ -9,6 +9,11 @@ export const ENTITY_TYPES = [
   "Task",
   "User",
   "Deploy",
+  "Property",
+  "Guest",
+  "Reservation",
+  "Amenity",
+  "Policy",
 ] as const;
 
 export type EntityType = (typeof ENTITY_TYPES)[number];
@@ -18,6 +23,12 @@ export const RELATION_TYPES = [
   "owns",
   "triggers",
   "partOf",
+  "hasGuest",
+  "hasReservation",
+  "locatedAt",
+  "belongsTo",
+  "hasAmenity",
+  "hasPolicy",
 ] as const;
 
 export type RelationType = (typeof RELATION_TYPES)[number];

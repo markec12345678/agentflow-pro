@@ -1,0 +1,27 @@
+---
+inclusion: fileMatch
+fileMatchPattern: ['docker/**/*', '.vercel/**/*', '.github/workflows/**/*']
+---
+
+# AgentFlow Deploy Rules
+
+## Vercel Deploy
+
+- Frontend deploy na Vercel
+- Environment variables from .env
+- Preview deployments za PR-je
+- Production deploy ob merge na main
+
+## Docker Containers
+
+- Agenti v Docker containers
+- Health checks za vsak container
+- Resource limits configured
+- Logging to stdout
+
+## CI/CD
+
+- GitHub Actions za CI/CD
+- Auto-test ob push
+- Auto-deploy ob merge na main
+- Rollback capability

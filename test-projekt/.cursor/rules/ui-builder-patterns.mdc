@@ -1,0 +1,10 @@
+---
+description: ui-builder (olliethedev) - vizualni UI builder
+globs: "ui-builder/**/*"
+alwaysApply: false
+---
+
+# ui-builder (olliethedev)
+
+Vizualni UI builder s shadcn komponentami. Zagon: `npm run dev` v F:\d\ui-builder.
+Demo: https://www.uibuilder.app. Zod schema validacija, Layer renderer za produkcijo.

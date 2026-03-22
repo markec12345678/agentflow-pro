@@ -1,0 +1,27 @@
+---
+description: REST API conventions and guidelines
+globs: "**/{api,routes,services}/**/*.{ts,tsx,py}"
+alwaysApply: false
+---
+
+# API Guidelines
+
+## REST Conventions
+
+- Use consistent HTTP verbs: GET (read), POST (create), PUT/PATCH (update), DELETE.
+- Return appropriate status codes: 200, 201, 400, 401, 404, 500.
+- Validate input with Zod (TS) or Pydantic (Python).
+
+## Response Format
+
+Prefer consistent JSON structure:
+```json
+{ "success": true, "data": {...} }
+{ "success": false, "error": "message" }
+```
+
+## Error Handling
+
+- Handle errors at the beginning of functions with early returns.
+- Use user-friendly error messages.
+- Log server-side errors, return sanitized messages to client.

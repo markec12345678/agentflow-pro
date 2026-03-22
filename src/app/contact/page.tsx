@@ -13,12 +13,31 @@ export default function ContactPage() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual form submission to API
-    console.log("Form submitted:", formData);
-    setSubmitted(true);
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const err = data.error;
+        setError(typeof err === "object" && err?.message ? err.message : (typeof err === "string" ? err : "Failed to submit"));
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setError("Failed to submit. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (
@@ -35,7 +54,7 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 px-4 py-20">
+      <section className="bg-linear-to-br from-blue-900 via-purple-900 to-indigo-900 px-4 py-20">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="mb-6 text-5xl font-bold text-white">Get in Touch</h1>
           <p className="text-xl text-gray-300">
@@ -78,7 +97,7 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                       placeholder="John Doe"
                     />
                   </div>
@@ -93,7 +112,7 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                       placeholder="john@company.com"
                     />
                   </div>
@@ -107,7 +126,7 @@ export default function ContactPage() {
                       name="company"
                       value={formData.company}
                       onChange={handleChange}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                       placeholder="Your Company"
                     />
                   </div>
@@ -120,7 +139,8 @@ export default function ContactPage() {
                       name="plan"
                       value={formData.plan}
                       onChange={handleChange}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      title="Select interested plan"
                     >
                       <option value="Starter">Starter ($29/mo)</option>
                       <option value="Pro">Pro ($99/mo)</option>
@@ -138,16 +158,20 @@ export default function ContactPage() {
                       onChange={handleChange}
                       required
                       rows={4}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-blue-500 focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                       placeholder="Tell us about your needs..."
                     />
                   </div>
 
+                  {error && (
+                    <p className="text-red-500">{error}</p>
+                  )}
                   <button
                     type="submit"
-                    className="w-full rounded-lg bg-blue-600 py-4 font-semibold text-white transition-all hover:bg-blue-700"
+                    disabled={loading}
+                    className="w-full rounded-lg bg-blue-600 py-4 font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50"
                   >
-                    Send Message
+                    {loading ? "Sending..." : "Send Message"}
                   </button>
 
                   <p className="text-center text-xs text-gray-500 dark:text-gray-400">
@@ -265,7 +289,7 @@ export default function ContactPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-r from-blue-900 to-purple-900 px-4 py-20">
+      <section className="bg-linear-to-r from-blue-900 to-purple-900 px-4 py-20">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="mb-6 text-4xl font-bold text-white">
             Ready to Transform Your Business?

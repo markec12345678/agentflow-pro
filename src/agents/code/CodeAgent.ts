@@ -4,6 +4,8 @@
  */
 
 import type { Agent } from "../../orchestrator/Orchestrator";
+import { getLlmApiKey } from "@/config/env";
+import { isMockMode } from "@/lib/mock-mode";
 import {
   getFileContents,
   getDefaultBranchSha,
@@ -41,8 +43,14 @@ function captureSentry(err: unknown): void {
 
 export function createCodeAgent(config?: {
   githubToken?: string;
+  openaiKey?: string;
+  openaiBaseURL?: string;
+  openaiModel?: string;
 }): Agent {
   const token = config?.githubToken ?? process.env.GITHUB_TOKEN ?? "";
+  const llm = config?.openaiKey
+    ? { apiKey: config.openaiKey, baseURL: config.openaiBaseURL, model: config.openaiModel ?? "gpt-4o-mini" }
+    : getLlmApiKey();
 
   return {
     id: "code-agent",
@@ -51,6 +59,17 @@ export function createCodeAgent(config?: {
     execute: async (input: unknown): Promise<CodeOutput> => {
       const { task = "", owner, repo, createPr = false, contextFilePath, context } = (input as CodeInput) ?? {};
       const output: CodeOutput = {};
+
+      if (isMockMode()) {
+        return {
+          files: [
+            { path: "generated/mock-output.ts", content: `// Mock: ${task || "placeholder"}\nexport function mock() { return "dev"; }` },
+          ],
+          suggestions: [{ path: "generated/mock-output.ts", message: "Mock suggestion", severity: "info" }],
+          pullRequest: createPr ? { url: "https://github.com/mock/pr", number: 1 } : undefined,
+        };
+      }
+
       let enrichedContext = { ...context };
 
       if (token && owner && repo && contextFilePath) {
@@ -63,7 +82,7 @@ export function createCodeAgent(config?: {
       }
 
       try {
-        const generated = await generateCode(task, enrichedContext);
+        const generated = await generateCode(task, enrichedContext, llm);
         output.files = generated.files;
         const review = reviewCode(generated.files);
         output.suggestions = review.suggestions;

@@ -1,9 +1,14 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Deploy Vercel", () => {
-  test.skip(!!process.env.CI)(
-    "deploy to Vercel flow",
-    async ({ auth: _auth, request }) => {
+  test(!!process.env.CI ? "skip in CI" : "deploy to Vercel flow", async ({
+    auth: _auth,
+    request,
+  }: {
+    auth: unknown;
+    request: import("@playwright/test").APIRequestContext;
+  }) => {
+    if (process.env.CI) return;
       const workflow = {
         id: `wf_deploy_${Date.now()}`,
         name: "E2E Deploy Test",
@@ -29,6 +34,5 @@ test.describe("Deploy Vercel", () => {
       expect(execRes.ok()).toBeTruthy();
       const data = await execRes.json();
       expect(data.execution?.success).toBe(true);
-    }
-  );
+  });
 });

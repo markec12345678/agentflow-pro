@@ -11,7 +11,8 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Application error:", error);
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    console.error("Application error:", msg);
   }, [error]);
 
   return (
@@ -25,7 +26,7 @@ export default function Error({
         <div className="flex justify-center gap-4">
           <button
             type="button"
-            onClick={reset}
+            onClick={() => reset()}
             className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
           >
             Try Again

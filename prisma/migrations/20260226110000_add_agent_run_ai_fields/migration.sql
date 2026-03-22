@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "AgentRun" ADD COLUMN "model" TEXT,
+ADD COLUMN "inputTokens" INTEGER,
+ADD COLUMN "outputTokens" INTEGER,
+ADD COLUMN "costEst" DOUBLE PRECISION,
+ADD COLUMN "latencyMs" INTEGER;

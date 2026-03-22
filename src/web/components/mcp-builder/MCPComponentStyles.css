@@ -1,0 +1,153 @@
+.mcp-component {
+  position: absolute;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  padding: 8px;
+  min-width: 120px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: move;
+  transition: all 0.2s ease;
+}
+
+.mcp-component.positioned {
+  position: absolute;
+  /* CSS custom properties for dynamic positioning */
+  left: var(--component-x, 0px);
+  top: var(--component-y, 0px);
+}
+
+.mcp-component.selected {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.mcp-component.not-selected {
+  opacity: 0.7;
+}
+
+.mcp-component.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+/* Button Styles */
+.mcp-button {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #3b82f6;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mcp-button:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.mcp-button.primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.mcp-button.secondary {
+  background: #6b7280;
+  border-color: #6b7280;
+}
+
+.mcp-button.danger {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+/* Input Styles */
+.mcp-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.mcp-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Text Styles */
+.mcp-text {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  min-width: 100px;
+  word-break: break-word;
+}
+
+/* Image Styles */
+.mcp-image {
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  text-align: center;
+}
+
+.mcp-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* Container Styles */
+.mcp-container {
+  padding: 16px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  min-width: 200px;
+  text-align: center;
+}
+
+/* DataGrid Styles */
+.mcp-datagrid {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  min-width: 200px;
+  text-align: center;
+}
+
+/* Default Styles */
+.mcp-default {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #6b7280;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Connection Indicator */
+.mcp-connection-indicator {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  background: #10b981;
+  border: 2px solid white;
+  border-radius: 50%;
+  font-size: 10px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

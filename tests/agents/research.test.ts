@@ -2,6 +2,7 @@
  * Research Agent tests
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { createResearchAgent } from "../../src/agents/research/ResearchAgent";
 
 describe("ResearchAgent", () => {
@@ -13,7 +14,7 @@ describe("ResearchAgent", () => {
 
   it("returns structured JSON output for empty input", async () => {
     const agent = createResearchAgent();
-    const result = await agent.execute({});
+    const result = (await agent.execute({})) as { urls?: unknown[]; scrapedData?: unknown[]; searchResults?: unknown[] };
     expect(result).toHaveProperty("urls");
     expect(result).toHaveProperty("scrapedData");
     expect(result).toHaveProperty("searchResults");

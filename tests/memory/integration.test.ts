@@ -2,6 +2,7 @@
  * Integration tests - full flow
  */
 
+import { describe, it, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
 import { InMemoryBackend } from "@/memory/memory-backend";
 import { GraphManager } from "@/memory/graph-manager";
 import { SessionManager } from "@/memory/session-manager";

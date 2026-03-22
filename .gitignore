@@ -17,12 +17,15 @@ env/
 .env
 .env.local
 .env.*.local
+*.pem
+*.key
 
 # Build
 dist/
 build/
 .next/
 out/
+tsconfig.tsbuildinfo
 
 # Logs
 *.log
@@ -45,7 +48,52 @@ coverage/
 .nyc_output/
 *.lcov
 test-results/
+playwright-report/
+screenshots/
+
+# Rust binaries
+*.node
+rust/target/
+rust/*/target/
+
+# Rust
+rust/target/
+rust/**/target/
+*.rlib
+*.pdb
+*.so
+*.dll
+*.dylib
+Cargo.lock
+playwright-*.txt
+
+# Prisma generated
+prisma/generated/
+
+# Chat logs and docs (not for repo)
+*.chat
+gpt4all-*.chat
+*.pdf
 
 # Misc
 *.tgz
 .cache
+cookies.txt
+test-login-body.json
+.vercel
+.env*.local
+
+# Large directories not needed for deployment
+pgsql/
+docs/
+*.chat
+*.pdf
+screenshots/
+test-results/
+playwright-report/
+
+# Rust source (only need binaries)
+rust/*/src/
+rust/**/src/
+
+.vercel

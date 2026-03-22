@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cleanup Service Workers - AgentFlow Pro</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #e11d48; }
+    h2 { color: #333; margin-top: 0; }
+    button {
+      background: #e11d48;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 5px 10px 0;
+    }
+    button:hover { background: #be123c; }
+    button.secondary {
+      background: #6b7280;
+    }
+    button.secondary:hover { background: #4b5563; }
+    pre {
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    .status {
+      padding: 12px;
+      border-radius: 6px;
+      margin: 10px 0;
+    }
+    .status.success { background: #d1fae5; color: #065f46; }
+    .status.error { background: #fee2e2; color: #991b1b; }
+    .status.info { background: #dbeafe; color: #1e40af; }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🧹 Service Worker Cleanup Tool</h1>
+    <p><strong>AgentFlow Pro</strong> - Unregister all Service Workers and clear caches</p>
+    
+    <div id="status"></div>
+    
+    <h2>Step 1: Unregister Service Workers</h2>
+    <p>This will remove all registered Service Workers from localhost:3002</p>
+    <button onclick="unregisterSW()">🗑️ Unregister All Service Workers</button>
+    
+    <h2>Step 2: Clear All Caches</h2>
+    <p>This will delete all cached data</p>
+    <button onclick="clearCaches()">🗑️ Clear All Caches</button>
+    
+    <h2>Step 3: Clear Storage</h2>
+    <p>This will clear all storage including cookies, localStorage, etc.</p>
+    <button class="secondary" onclick="clearStorage()">🗑️ Clear All Storage</button>
+    
+    <h2>Step 4: Restart</h2>
+    <p>After cleanup, restart the application</p>
+    <button onclick="restart()">🔄 Restart Application</button>
+    <button class="secondary" onclick="window.open('http://localhost:3002', '_blank')">🌐 Open App</button>
+  </div>
+
+  <div class="card">
+    <h2>Manual Method (Browser Console)</h2>
+    <p>Alternatively, open DevTools (F12) → Console and paste:</p>
+    <pre><code>// Unregister all Service Workers
+navigator.serviceWorker.getRegistrations().then(registrations => {
+  registrations.forEach(reg => reg.unregister());
+  console.log('✅ Service Workers unregistered:', registrations.length);
+});
+
+// Clear all caches
+caches.keys().then(names => {
+  names.forEach(name => caches.delete(name));
+  console.log('✅ Caches cleared:', names.length);
+});
+
+// Clear all storage
+navigator.storage.estimate().then(estimate => {
+  console.log('📊 Storage usage:', estimate.usage, 'bytes');
+});
+
+console.log('✅ Cleanup complete! Refresh the page.');</code></pre>
+  </div>
+
+  <script>
+    function showStatus(message, type = 'info') {
+      const status = document.getElementById('status');
+      status.innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    async function unregisterSW() {
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          console.log('Found', registrations.length, 'service worker registrations');
+          
+          for (const registration of registrations) {
+            await registration.unregister();
+            console.log('✅ Unregistered:', registration.scope);
+          }
+          
+          showStatus(`✅ Successfully unregistered ${registrations.length} Service Worker(s)!`, 'success');
+        } else {
+          showStatus('❌ Service Workers not supported in this browser', 'error');
+        }
+      } catch (error) {
+        console.error('Error unregistering SW:', error);
+        showStatus('❌ Error: ' + error.message, 'error');
+      }
+    }
+
+    async function clearCaches() {
+      try {
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          console.log('Found', cacheNames.length, 'caches');
+          
+          for (const cacheName of cacheNames) {
+            await caches.delete(cacheName);
+            console.log('✅ Deleted cache:', cacheName);
+          }
+          
+          showStatus(`✅ Successfully cleared ${cacheNames.length} Cache(s)!`, 'success');
+        } else {
+          showStatus('❌ Cache API not supported', 'error');
+        }
+      } catch (error) {
+        console.error('Error clearing caches:', error);
+        showStatus('❌ Error: ' + error.message, 'error');
+      }
+    }
+
+    async function clearStorage() {
+      try {
+        // Clear localStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Clear cookies
+        document.cookie.split(";").forEach(c => {
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        
+        // Clear storage manager
+        if (navigator.storage && navigator.storage.persist) {
+          await navigator.storage.persist(false);
+        }
+        
+        showStatus('✅ Successfully cleared all storage!', 'success');
+      } catch (error) {
+        console.error('Error clearing storage:', error);
+        showStatus('❌ Error: ' + error.message, 'error');
+      }
+    }
+
+    function restart() {
+      showStatus('🔄 Restarting application...', 'info');
+      setTimeout(() => {
+        window.location.href = 'http://localhost:3002';
+      }, 2000);
+    }
+
+    // Auto-run cleanup on page load
+    window.addEventListener('load', async () => {
+      console.log('🧹 Auto-cleanup starting...');
+      showStatus('🔄 Starting automatic cleanup...', 'info');
+      
+      try {
+        // Unregister service workers
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const reg of regs) {
+            await reg.unregister();
+          }
+          console.log('✅ Unregistered', regs.length, 'SWs');
+        }
+        
+        // Clear caches
+        if ('caches' in window) {
+          const names = await caches.keys();
+          for (const name of names) {
+            await caches.delete(name);
+          }
+          console.log('✅ Cleared', names.length, 'caches');
+        }
+        
+        showStatus('✅ Automatic cleanup complete! You can now close this tab and open http://localhost:3002', 'success');
+      } catch (error) {
+        console.error('Cleanup error:', error);
+        showStatus('⚠️ Partial cleanup complete. Click buttons above for manual cleanup.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -4,7 +4,8 @@
  */
 
 import { generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { getLlmApiKey } from "@/config/env";
 
 export interface GeneratedFile {
   path: string;
@@ -94,10 +95,11 @@ export function placeholder() {
 
 export async function generateCode(
   task: string,
-  context?: CodeGeneratorContext
+  context?: CodeGeneratorContext,
+  llmOverride?: { apiKey: string; baseURL?: string; model: string }
 ): Promise<GenerateCodeResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey || !task.trim()) {
+  const llm = llmOverride ?? getLlmApiKey();
+  if (!llm.apiKey || !task.trim()) {
     return templateFallback(task, context);
   }
 
@@ -121,8 +123,12 @@ content
 Use TypeScript. Keep it concise and production-ready.`;
 
   try {
+    const openai = createOpenAI({
+      apiKey: llm.apiKey,
+      ...(llm.baseURL && { baseURL: llm.baseURL }),
+    });
     const { text } = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: openai(llm.model),
       prompt,
     });
     const parsed = parseLlmResponse(text);

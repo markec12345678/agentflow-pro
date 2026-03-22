@@ -1,11 +1,26 @@
 /**
- * AgentFlow Pro - User API Keys (BYOK)
- * Store and retrieve per-user API keys for Firecrawl, Context7, etc.
+ * User API keys - stored in UserApiKey model
  */
 
 import { prisma } from "@/database/schema";
 
-const _PROVIDERS = [
+export type ApiKeyProvider =
+  | "firecrawl"
+  | "context7"
+  | "serpapi"
+  | "openai"
+  | "gemini"
+  | "github"
+  | "vercel"
+  | "netlify"
+  | "wordpress"
+  | "medium"
+  | "linkedin"
+  | "twitter"
+  | "mailchimp"
+  | "hubspot";
+
+const EXECUTION_PROVIDERS: ApiKeyProvider[] = [
   "firecrawl",
   "context7",
   "serpapi",
@@ -13,87 +28,97 @@ const _PROVIDERS = [
   "github",
   "vercel",
   "netlify",
-  "wordpress",
-  "medium",
-  "linkedin",
-  "twitter",
-  "mailchimp",
-  "hubspot",
-  "google_search_console",
-  "meta",
-  "booking_affiliate",
-] as const;
+];
 
-export type ApiKeyProvider = (typeof _PROVIDERS)[number];
-
-function maskKey(value: string): string {
-  if (value.length <= 8) return "***";
-  return `${value.slice(0, 4)}***${value.slice(-4)}`;
+async function findUserApiKeys(
+  where: { userId: string; provider?: { in: string[] } }
+): Promise<Array<{ provider: string; value: string }>> {
+  try {
+    return await prisma.userApiKey.findMany({
+      where,
+      select: { provider: true, value: true },
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("does not exist")) {
+      console.warn("[user-keys] UserApiKey table missing, run: npx prisma migrate deploy");
+      return [];
+    }
+    throw err;
+  }
 }
 
-/**
- * Get user API keys - returns masked values for display (GET)
- * or full values when needed for execution (internal use).
- */
 export async function getUserApiKeys(
   userId: string,
   options?: { masked?: boolean }
 ): Promise<Record<string, string>> {
-  const masked = options?.masked ?? true;
-
-  try {
-    const keys = await prisma.userApiKey.findMany({
-      where: { userId },
-    });
-
-    const result: Record<string, string> = {};
-    for (const k of keys) {
-      result[k.provider] = masked ? maskKey(k.value) : k.value;
-    }
-    return result;
-  } catch {
-    return {};
+  const keys = await findUserApiKeys({ userId });
+  const out: Record<string, string> = {};
+  for (const k of keys) {
+    out[k.provider] = options?.masked ? maskValue(k.value) : k.value;
   }
+  return out;
 }
 
-/**
- * Get full user API keys for workflow execution (internal only).
- */
 export async function getUserApiKeysForExecution(
   userId: string
 ): Promise<Record<string, string>> {
-  return getUserApiKeys(userId, { masked: false });
+  const keys = await findUserApiKeys({
+    userId,
+    provider: { in: EXECUTION_PROVIDERS },
+  });
+  const out: Record<string, string> = {};
+  for (const k of keys) {
+    out[k.provider] = k.value;
+  }
+  return out;
 }
 
-/**
- * Set a single user API key (upsert by userId + provider).
- */
 export async function setUserApiKey(
   userId: string,
   provider: string,
   value: string
 ): Promise<void> {
-  if (!value.trim()) return;
-
-  await prisma.userApiKey.upsert({
-    where: {
-      userId_provider: { userId, provider },
-    },
-    create: { userId, provider, value: value.trim() },
-    update: { value: value.trim() },
-  });
+  try {
+    await prisma.userApiKey.upsert({
+      where: {
+        userId_provider: { userId, provider },
+      },
+      create: { userId, provider, value },
+      update: { value },
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("does not exist")) {
+      throw new Error(
+        "Tabela UserApiKey manjka. Zaženi: npx prisma migrate deploy. Ali dodaj ključ v .env (npr. GEMINI_API_KEY=...) – ta ostane trajno."
+      );
+    }
+    throw err;
+  }
 }
 
-/**
- * Set multiple user API keys from a record.
- */
 export async function setUserApiKeys(
   userId: string,
   keys: Record<string, string>
 ): Promise<void> {
   for (const [provider, value] of Object.entries(keys)) {
-    if (value?.trim()) {
-      await setUserApiKey(userId, provider, value.trim());
+    if (value.trim()) {
+      await setUserApiKey(userId, provider, value);
+    } else {
+      try {
+        await prisma.userApiKey.deleteMany({
+          where: { userId, provider },
+        });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (!msg.includes("does not exist")) throw err;
+      }
     }
   }
+}
+
+function maskValue(val: string): string {
+  if (!val || val.length < 8) return "****";
+  return val.slice(0, 4) + "****" + val.slice(-4);
 }

@@ -5,6 +5,14 @@ alwaysApply: true
 
 # AgentFlow Orchestrator Rules
 
+## MCP Layers (avtomatsko)
+
+- **Database:** Neon MCP – run_sql, describe_table_schema (če je dostopen)
+- **HTTP:** Cursor built-in mcp_web_fetch
+- **Memory:** mcp_memory_search_nodes, add_observations, create_entities
+- **Repo:** GitHub MCP, Git MCP
+- **Sandbox:** Docker MCP za containere
+
 ## Agent Coordination
 
 - Vedno uporabi Sequential Thinking MCP za kompleksne odločitve
@@ -26,6 +34,13 @@ alwaysApply: true
 - Max 100 vrstic kode na commit
 - Vedno run teste pred commitom
 - Git commit po vsaki večji spremembi
+
+## Test Before Commit (avtomatsko)
+
+- **Pred commitom:** Vedno zaženi `npm run precommit` (lint + test)
+- **Če testi padejo:** Popravi kodo na podlagi error outputa, nato ponovno zaženi `npm run precommit`
+- **Ne committaj** dokler `npm run precommit` ne uspe
+- Husky pre-commit hook: ob `git commit` avtomatsko zažene precommit; če pade, commit se ustavi
 
 ## Error Handling
 

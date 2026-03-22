@@ -10,11 +10,22 @@
 
 ## KORAK 3: Preveri mcp.json
 
-Reference format (env placeholders za varno uporabo):
+**Projekt:** `.cursor/mcp.json` vsebuje vse layerje (database, memory, repo, sandbox). Če Cursor podpira project-level MCP, se naloži avtomatsko.
+
+**Neon (database) – hitra aktivacija:**
+```bash
+npx add-mcp https://mcp.neon.tech/mcp
+```
+
+Reference format (env placeholders):
 
 ```json
 {
   "mcpServers": {
+    "neon": {
+      "type": "http",
+      "url": "https://mcp.neon.tech/mcp"
+    },
     "memory": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-memory"]
@@ -129,20 +140,36 @@ Globalna `~/.cursor/mcp.json` vsebuje vse zahtevane MCP serverje:
 
 ---
 
+## MCP Layer Checklist (avtomatsko preveri)
+
+| Layer | MCP | Tool/Action | Status |
+|-------|-----|-------------|--------|
+| **Database** | Neon | run_sql, describe_table_schema, migrations | `.cursor/mcp.json` |
+| **HTTP** | Cursor built-in | mcp_web_fetch | Vgrajeno ✓ |
+| **Memory** | Memory | search_nodes, create_entities, add_observations | `.cursor/mcp.json` |
+| **Repo** | GitHub | search_repositories, push, create_pr | `.cursor/mcp.json` |
+| **Repo** | Git | git_status, commit | `.cursor/mcp.json` |
+| **Sandbox** | Docker | containers, images | `.cursor/mcp.json` |
+| **E2E** | Playwright | browser_navigate, browser_click | `.cursor/mcp.json` |
+| **Scraping** | Firecrawl | firecrawl_scrape | `.cursor/mcp.json` |
+| **Docs** | Context7 | query_docs | `.cursor/mcp.json` |
+| **Deploy** | Vercel | deployments | `.cursor/mcp.json` |
+| **Decisions** | Sequential Thinking | sequentialthinking | `.cursor/mcp.json` |
+
 ## Required MCP Servers (from project-brief.md)
 
-| MCP | Purpose | Global Config |
-|-----|---------|---------------|
-| Memory | Knowledge Graph | `~/.cursor/mcp.json` |
-| GitHub | Repo Management | `~/.cursor/mcp.json` |
-| Git | Version Control | `~/.cursor/mcp.json` |
-| Playwright | E2E Testing | `~/.cursor/mcp.json` |
-| Firecrawl | Web Scraping | `~/.cursor/mcp.json` |
-| Context7 | API Documentation | `~/.cursor/mcp.json` |
-| Vercel | Frontend Deploy | `~/.cursor/mcp.json` |
-| Docker | Agent Containers | `~/.cursor/mcp.json` |
-| Sentry | Error Monitoring | `~/.cursor/mcp.json` |
-| Sequential Thinking | Agent Decisions | `~/.cursor/mcp.json` |
+| MCP | Purpose | Config |
+|-----|---------|--------|
+| **Neon** | Database – SQL, schema, migrations | `.cursor/mcp.json` – OAuth ali NEON_API_KEY |
+| Memory | Knowledge Graph | `.cursor/mcp.json` |
+| GitHub | Repo Management | `.cursor/mcp.json` + GITHUB_TOKEN |
+| Git | Version Control | `.cursor/mcp.json` |
+| Playwright | E2E Testing | `.cursor/mcp.json` |
+| Firecrawl | Web Scraping | `.cursor/mcp.json` + FIRECRAWL_API_KEY |
+| Context7 | API Documentation | `.cursor/mcp.json` + CONTEXT7_API_KEY |
+| Vercel | Frontend Deploy | `.cursor/mcp.json` |
+| Docker | Sandbox / Containers | `.cursor/mcp.json` |
+| Sequential Thinking | Agent Decisions | `.cursor/mcp.json` |
 
 ## Optional
 
@@ -150,6 +177,8 @@ Globalna `~/.cursor/mcp.json` vsebuje vse zahtevane MCP serverje:
 |-----|---------|
 | Brave Search | Web Research |
 | Netlify | Alternative Deploy |
+| Fetch | HTTP fetch (Cursor ima že web_fetch) |
+| Sentry | Error monitoring |
 
 ## Verification (2026-02-16)
 
@@ -163,3 +192,27 @@ Globalna `~/.cursor/mcp.json` vsebuje vse zahtevane MCP serverje:
 ## Environment Variables
 
 See `.env.example` in project root.
+
+**Pravilo varnosti:** Tokeni in API ključi morajo biti izključno v `.env` (ki ni v repo) ali v sistemskih env spremenljivkah. Nikoli ne hardcodiraj tokenov v `mcp.json` – uporabi placeholdere `${GITHUB_TOKEN}`, `${FIRECRAWL_API_KEY}`, `${CONTEXT7_API_KEY}`.
+
+---
+
+## GITHUB_TOKEN za GitHub MCP
+
+**Trenutno:** Projektna `.cursor/mcp.json` ne vsebuje GitHub bloka – uporablja se **globalna** konfiguracija iz `~/.cursor/mcp.json` (s tokenom). GitHub MCP deluje brez dodatne nastavitve.
+
+**Če želiš project-level GitHub MCP:** Dodaj v `.env`:
+```
+GITHUB_TOKEN=ghp_tvojPersonalAccessToken
+```
+(ustvari token: GitHub → Settings → Developer settings → Personal access tokens; scope: `repo`). Nato v projektno `mcp.json` dodaj blok z `"env": {"GITHUB_TOKEN": "${GITHUB_TOKEN}"}`.
+
+**Alternativa:** Sistemska spremenljivka `GITHUB_TOKEN` (npr. Windows: `setx GITHUB_TOKEN "ghp_xxx"`). Cursor razreši `${GITHUB_TOKEN}` iz okolja ali `.env`.
+
+## Troubleshooting
+
+| Simptom | Rešitev |
+|---------|---------|
+| GitHub MCP: "Tool not found" | Preveri Cursor Settings → MCP, ali se `github` naloži. Restart Cursorja. Če project mcp.json nima GitHub: uporabi globalno (`~/.cursor/mcp.json` z tokenom). |
+| Strežnik se ne zagnje (Windows) | Če `npx` direktno odpove, v globalni `~/.cursor/mcp.json` uporabi `"command": "cmd"` z `"args": ["/c", "npx", "-y", "@modelcontextprotocol/server-github"]`. |
+| Env placeholder se ne razreši | Cursor bere `.env` iz project root. Zagotovi, da je `GITHUB_TOKEN=` v `.env` (ali sistemska spremenljivka). |

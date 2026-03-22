@@ -1,60 +1,78 @@
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { getUserApiKeys } from "@/lib/user-keys";
+import { getUserId } from "@/lib/auth-users";
 import { prisma } from "@/database/schema";
-
-function getUserId(session: unknown): string | null {
-  const s = session as { user?: { userId?: string; email?: string | null } } | null;
-  if (!s?.user) return null;
-  return s.user.userId ?? (typeof s.user.email === "string" ? s.user.email : null);
-}
+import { getUserApiKeys } from "@/lib/user-keys";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const userId = getUserId(session);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const keys = await getUserApiKeys(userId, { masked: true });
-  const linkedin = !!(keys.linkedin?.trim());
-  const twitter = !!(keys.twitter?.trim());
-  const hubspot = !!(keys.hubspot?.trim());
-  const google_search_console = !!(keys.google_search_console?.trim());
-  const meta = !!(keys.meta?.trim());
-  const booking_affiliate = !!(keys.booking_affiliate?.trim());
+  const [apiKeys, salesforceIntegration] = await Promise.all([
+    getUserApiKeys(userId, { masked: false }),
+    prisma.integration.findUnique({
+      where: { userId_provider: { userId, provider: "salesforce" } },
+    }),
+  ]);
+
+  const providers = new Set(
+    ["linkedin", "twitter", "hubspot"].filter((p) => apiKeys[p]?.trim())
+  );
 
   return NextResponse.json({
-    linkedin,
-    twitter,
-    hubspot,
-    google_search_console,
-    meta,
-    booking_affiliate,
+    linkedin: providers.has("linkedin"),
+    twitter: providers.has("twitter"),
+    hubspot: providers.has("hubspot"),
+    salesforce: !!salesforceIntegration?.accessToken,
+    google_search_console: !!(apiKeys.google_search_console?.trim()),
+    meta: !!(apiKeys.meta?.trim()),
+    booking_affiliate: !!(apiKeys.booking_affiliate?.trim()),
   });
 }
 
 export async function DELETE(request: NextRequest) {
   const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const userId = getUserId(session);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const provider = searchParams.get("provider");
-  const allowed = ["linkedin", "twitter", "hubspot", "google_search_console", "meta", "booking_affiliate"];
-  if (!provider || !allowed.includes(provider)) {
-    return NextResponse.json(
-      { error: `provider must be one of: ${allowed.join(", ")}` },
-      { status: 400 }
-    );
+  const provider = request.nextUrl.searchParams.get("provider");
+  if (!provider) {
+    return NextResponse.json({ error: "Missing provider" }, { status: 400 });
   }
 
-  await prisma.userApiKey.deleteMany({
-    where: { userId, provider },
-  });
+  const validProviders = ["linkedin", "twitter", "hubspot", "salesforce", "google_search_console", "meta", "booking_affiliate"];
+  if (!validProviders.includes(provider)) {
+    return NextResponse.json({ error: "Unknown provider" }, { status: 400 });
+  }
 
+  try {
+    if (provider === "salesforce") {
+      await prisma.integration.deleteMany({
+        where: { userId, provider: "salesforce" },
+      });
+    } else {
+      await prisma.userApiKey.deleteMany({
+        where: { userId, provider },
+      });
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("does not exist")) {
+      return NextResponse.json({ ok: true });
+    }
+    throw err;
+  }
   return NextResponse.json({ ok: true });
 }

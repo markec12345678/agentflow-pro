@@ -5,12 +5,18 @@
 import { Orchestrator } from "@/orchestrator/Orchestrator";
 import { getOrchestrator } from "@/lib/orchestrator-factory";
 import { evaluateCondition as evaluateConditionFromLib, getNextBranch } from "./conditions";
+import { retryWithBackoff } from "./error-handler";
+import { verify } from "@/verifier/VerifierService";
 import type { ConditionOperator } from "./nodes";
+import { sendSlackMessage } from "@/lib/publish/slack";
+import { sendWorkflowNotificationEmail } from "@/lib/publish/email";
+import type { Workflow } from "../../prisma/generated/prisma/client";
+import { prisma } from "@/database/schema";
 
 export interface WorkflowNode {
   id: string;
-  type: string;
-  data: {
+  type?: string;
+  data?: {
     label?: string;
     type?: string;
     agentType?: string;
@@ -42,12 +48,13 @@ export interface ExecutionResult {
 
 export interface ExecutionProgress {
   workflowId: string;
-  status: "idle" | "running" | "completed" | "error";
+  status: "idle" | "running" | "completed" | "error" | "pending_approval";
   currentStep: number;
   totalSteps: number;
   currentAgent: string | null;
   results: ExecutionResult[];
   errors: Array<{ agent: string; message: string }>;
+  checkpointId?: string;
 }
 
 export class WorkflowExecutor {
@@ -71,10 +78,13 @@ export class WorkflowExecutor {
   async execute(
     nodes: WorkflowNode[],
     edges: WorkflowEdge[],
-    initialContext: Record<string, unknown> = {}
+    initialContext: Record<string, unknown> = {},
+    workflowId?: string,
+    userId?: string,
+    options?: { startFromNodeId?: string; initialContext?: Record<string, unknown> },
   ): Promise<ExecutionProgress> {
     const progress: ExecutionProgress = {
-      workflowId: `wf-${Date.now()}`,
+      workflowId: workflowId ?? `wf-${Date.now()}`,
       status: "running",
       currentStep: 0,
       totalSteps: nodes.length,
@@ -83,24 +93,53 @@ export class WorkflowExecutor {
       errors: [],
     };
 
-    try {
-      const triggerNode = nodes.find(
-        (n) => getNodeType(n) === "Trigger"
-      );
-      if (!triggerNode) {
-        throw new Error("No trigger node found");
-      }
+    let workflow: Workflow | null = null;
+    if (workflowId) {
+      workflow = await prisma.workflow.findUnique({ where: { id: workflowId } });
+    }
 
-      let currentNode: WorkflowNode | undefined = triggerNode;
+    try {
+      const context: Record<string, unknown> = options?.initialContext
+        ? { ...options.initialContext }
+        : { ...initialContext };
       const visited = new Set<string>();
-      const context: Record<string, unknown> = { ...initialContext };
       let lastOutput: unknown = null;
+
+      let currentNode: WorkflowNode | undefined;
+      if (options?.startFromNodeId) {
+        currentNode = nodes.find((n) => n.id === options.startFromNodeId);
+        if (!currentNode) throw new Error(`Start node ${options.startFromNodeId} not found`);
+      } else {
+        const triggerNode = nodes.find(
+          (n) => getNodeType(n) === "Trigger"
+        );
+        if (!triggerNode) throw new Error("No trigger node found");
+        currentNode = triggerNode;
+      }
 
       while (currentNode && !visited.has(currentNode.id)) {
         visited.add(currentNode.id);
         progress.currentStep++;
         progress.currentAgent =
           (currentNode.data?.label as string) ?? currentNode.data?.type ?? currentNode.id;
+
+        const nodeType = getNodeType(currentNode);
+        if (nodeType === "Agent" && currentNode.data?.requiresApproval === true && workflowId && userId) {
+          const edge = edges.find((e) => e.source === currentNode!.id);
+          const _nextNodeId = edge?.target;
+          const checkpoint = await prisma.workflowCheckpoint.create({
+            data: {
+              workflowId,
+              nodeId: currentNode.id,
+              nodeLabel: progress.currentAgent ?? undefined,
+              contextSnapshot: context as object,
+              status: "pending_approval",
+            },
+          });
+          progress.status = "pending_approval";
+          progress.checkpointId = checkpoint.id;
+          return progress;
+        }
 
         const result = await this.executeNode(currentNode, lastOutput, context);
         progress.results.push(result);
@@ -119,7 +158,6 @@ export class WorkflowExecutor {
           context[`${currentNode.id}_output`] = result.output;
         }
 
-        const nodeType = getNodeType(currentNode);
         let nextNodeId: string | undefined;
 
         if (nodeType === "Condition") {
@@ -156,7 +194,83 @@ export class WorkflowExecutor {
       });
     }
 
+    if (workflow?.slackWebhookUrl) {
+      let message = ``;
+      if (progress.status === "completed") {
+        message = `✅ Workflow \"${workflow.name}\" completed successfully.`
+      } else if (progress.status === "error") {
+        message = `❌ Workflow \"${workflow.name}\" failed. Error: ${progress.errors[progress.errors.length - 1]?.message}`
+      }
+      if (message) {
+        await sendSlackMessage(workflow.slackWebhookUrl, message);
+      }
+    }
+
+    const meta = workflow?.metadata as { notificationEmail?: string } | undefined;
+    const notificationEmail = meta?.notificationEmail;
+    if (notificationEmail) {
+      try {
+        if (progress.status === "completed") {
+          await sendWorkflowNotificationEmail(
+            notificationEmail,
+            `Workflow "${workflow!.name}" completed`,
+            `Workflow "${workflow!.name}" completed successfully.`
+          );
+        } else if (progress.status === "error") {
+          await sendWorkflowNotificationEmail(
+            notificationEmail,
+            `Workflow "${workflow!.name}" failed`,
+            `Workflow "${workflow!.name}" failed. Error: ${progress.errors[progress.errors.length - 1]?.message ?? "Unknown"}`
+          );
+        }
+      } catch (e) {
+        console.error("Workflow notification email failed:", e);
+      }
+    }
+
     return progress;
+  }
+
+  /** Runs a single Agent node; used when resuming from HITL checkpoint. */
+  async executeAgentNode(
+    node: WorkflowNode,
+    context: Record<string, unknown>
+  ): Promise<unknown> {
+    const type = getNodeType(node);
+    if (type !== "Agent") throw new Error("Node is not an Agent");
+    const agentType = node.data?.agentType;
+    const normalizedAgent = String(agentType ?? "")
+      .toLowerCase() as "research" | "content" | "code" | "deploy";
+    if (!["research", "content", "code", "deploy"].includes(normalizedAgent)) {
+      throw new Error(`Unknown agent type: ${agentType}`);
+    }
+    const agentInput =
+      (node.data?.input as Record<string, unknown>) ??
+      context;
+    const runAgent = async (): Promise<unknown> => {
+      const taskId = await this.orchestrator.queueTask(
+        normalizedAgent,
+        agentInput
+      );
+      const maxWait = 30000;
+      const start = Date.now();
+      while (Date.now() - start < maxWait) {
+        const t = this.orchestrator.getTask(taskId);
+        if (t?.status === "completed") return t.result;
+        if (t?.status === "failed") throw new Error(t.error ?? "Agent failed");
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      throw new Error("Agent execution timeout");
+    };
+    const output = await retryWithBackoff(runAgent, {
+      maxRetries: 3,
+      initialDelayMs: 1000,
+    });
+    const verifyResult = verify(normalizedAgent, output);
+    if (!verifyResult.valid && verifyResult.errors?.length) {
+      throw new Error(`Verification failed: ${verifyResult.errors.join("; ")}`);
+    }
+    return output;
   }
 
   private async executeNode(
@@ -165,7 +279,7 @@ export class WorkflowExecutor {
     context: Record<string, unknown>
   ): Promise<ExecutionResult> {
     const type = getNodeType(node);
-    const { agentType } = node.data;
+    const agentType = node.data?.agentType;
 
     try {
       switch (type) {
@@ -181,32 +295,52 @@ export class WorkflowExecutor {
           const agentInput =
             (node.data?.input as Record<string, unknown>) ??
             (input != null && typeof input === "object" ? input : { input });
-          const taskId = await this.orchestrator.queueTask(
-            normalizedAgent,
-            agentInput
-          );
-          const maxWait = 30000;
-          const start = Date.now();
-          while (Date.now() - start < maxWait) {
-            const t = this.orchestrator.getTask(taskId);
-            if (t?.status === "completed") {
-              return {
-                nodeId: node.id,
-                status: "success",
-                output: t.result,
-                timestamp: new Date().toISOString(),
-              };
+
+          const runAgent = async (): Promise<unknown> => {
+            const taskId = await this.orchestrator.queueTask(
+              normalizedAgent,
+              agentInput
+            );
+            const maxWait = 30000;
+            const start = Date.now();
+            while (Date.now() - start < maxWait) {
+              const t = this.orchestrator.getTask(taskId);
+              if (t?.status === "completed") {
+                return t.result;
+              }
+              if (t?.status === "failed") {
+                throw new Error(t.error ?? "Agent failed");
+              }
+              await new Promise((r) => setTimeout(r, 100));
             }
-            if (t?.status === "failed") {
-              throw new Error(t.error ?? "Agent failed");
-            }
-            await new Promise((r) => setTimeout(r, 100));
+            throw new Error("Agent execution timeout");
+          };
+
+          const output = await retryWithBackoff(runAgent, {
+            maxRetries: 3,
+            initialDelayMs: 1000,
+          });
+
+          const verifyResult = verify(normalizedAgent, output);
+          if (!verifyResult.valid && verifyResult.errors?.length) {
+            return {
+              nodeId: node.id,
+              status: "error",
+              error: `Verification failed: ${verifyResult.errors.join("; ")}`,
+              timestamp: new Date().toISOString(),
+            };
           }
-          throw new Error("Agent execution timeout");
+
+          return {
+            nodeId: node.id,
+            status: "success",
+            output,
+            timestamp: new Date().toISOString(),
+          };
         }
 
         case "Condition": {
-          const conditionMet = this.evaluateCondition(node.data, context);
+          const conditionMet = this.evaluateCondition(node.data ?? {}, context);
           return {
             nodeId: node.id,
             status: "success",

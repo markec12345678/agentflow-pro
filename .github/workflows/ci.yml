@@ -1,14 +1,30 @@
-name: CI
+name: AgentFlow CI
 
 on:
   push:
-    branches: ["**"]
+    branches: [main, master]
   pull_request:
-    branches: ["**"]
+    branches: [main, master]
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test
+          POSTGRES_DB: agentflow_test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -16,22 +32,63 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/agentflow_test
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/agentflow_test
+
+      - name: Verify production env
+        run: npm run verify:production-env
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/agentflow_test
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          STRIPE_PRICE_PRO: price_placeholder
+          STRIPE_PRICE_BUSINESS: price_business_placeholder
+          STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
+          NEXTAUTH_SECRET: ci-secret-key
+          NEXTAUTH_URL: http://localhost:3002
+          FIRECRAWL_API_KEY: fc_test_placeholder
+          SERPAPI_API_KEY: serp_test_placeholder
+
+      - name: Check doc links
+        run: npm run check-links
 
       - name: Lint
         run: npm run lint
 
       - name: Test
         run: npm run test
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/agentflow_test
+          NEXTAUTH_SECRET: ci-secret-key
+          NEXTAUTH_URL: http://localhost:3002
+          MOCK_MODE: "true"
+          FIRECRAWL_API_KEY: fc_test_placeholder
+          SERPAPI_API_KEY: serp_test_placeholder
 
       - name: Build
         run: npm run build
         env:
-          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          DATABASE_URL: postgresql://test:test@localhost:5432/agentflow_test
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          STRIPE_PRICE_PRO: price_placeholder
+          STRIPE_PRICE_BUSINESS: price_business_placeholder
+          STRIPE_PRICE_ENTERPRISE: price_enterprise_placeholder
           NEXTAUTH_SECRET: ci-secret-key
-          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_URL: http://localhost:3002
+          FIRECRAWL_API_KEY: fc_test_placeholder
+          SERPAPI_API_KEY: serp_test_placeholder

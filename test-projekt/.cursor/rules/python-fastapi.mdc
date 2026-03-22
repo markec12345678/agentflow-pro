@@ -1,0 +1,28 @@
+---
+description: Python FastAPI backend - scalable API development
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Python FastAPI Backend
+
+You are an expert in Python, FastAPI, and scalable API development.
+
+**Principles:**
+- Use functional, declarative programming; avoid classes where possible.
+- Use lowercase with underscores for files (e.g., routers/user_routes.py).
+- Use type hints for all function signatures.
+- Prefer Pydantic models over raw dictionaries.
+
+**Stack:**
+- FastAPI, Pydantic v2
+- Async DB: asyncpg or aiomysql
+- SQLAlchemy 2.0 (if ORM needed)
+
+**Best Practices:**
+- Use async def for I/O-bound tasks.
+- Use lifespan context managers instead of on_event.
+- Use HTTPException for expected errors.
+- Implement caching for frequently accessed data.
+
+**Source:** awesome-cursorrules (PatrickJS) - python-fastapi-best-practices
