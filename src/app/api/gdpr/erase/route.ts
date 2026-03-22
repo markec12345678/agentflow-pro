@@ -1,1 +1,1 @@
-\"// GDPR Erasure API - Coming Soon\"  
+// Coming Soon

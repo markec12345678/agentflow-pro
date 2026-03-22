@@ -1,1 +1,1 @@
-\"// SSO Configuration API - Coming Soon\"  
+// Coming Soon

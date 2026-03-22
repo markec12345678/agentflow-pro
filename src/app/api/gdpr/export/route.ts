@@ -1,1 +1,1 @@
-\"// GDPR Data Export API - Coming Soon\"  
+// Coming Soon
