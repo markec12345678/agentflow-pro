@@ -31,6 +31,9 @@ export async function GET() {
     twitter: providers.has("twitter"),
     hubspot: providers.has("hubspot"),
     salesforce: !!salesforceIntegration?.accessToken,
+    google_search_console: !!(apiKeys.google_search_console?.trim()),
+    meta: !!(apiKeys.meta?.trim()),
+    booking_affiliate: !!(apiKeys.booking_affiliate?.trim()),
   });
 }
 
@@ -49,7 +52,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Missing provider" }, { status: 400 });
   }
 
-  const validProviders = ["linkedin", "twitter", "hubspot", "salesforce"];
+  const validProviders = ["linkedin", "twitter", "hubspot", "salesforce", "google_search_console", "meta", "booking_affiliate"];
   if (!validProviders.includes(provider)) {
     return NextResponse.json({ error: "Unknown provider" }, { status: 400 });
   }
