@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update timeout settings (in real implementation)
-    console.log('Updated agent timeout settings:', settings);
+    // console.log('Updated agent timeout settings:', settings);
 
     // Log activity
     await logActivity(userId, "Agent Timeout Settings Updated", `Updated agent timeout settings`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -168,7 +168,7 @@ function validateTimeoutSettings(settings: any): { valid: boolean; message?: str
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

@@ -156,7 +156,7 @@ async function handleNewReservation(channel: string, data: any) {
       },
     });
 
-    console.log(`[Channel Manager] New ${channel} reservation: ${reservation.id}`);
+    // console.log(`[Channel Manager] New ${channel} reservation: ${reservation.id}`);
 
     return NextResponse.json({
       success: true,
@@ -189,7 +189,7 @@ async function handleModifyReservation(channel: string, data: any) {
       },
     });
 
-    console.log(`[Channel Manager] Modified ${channel} reservation: ${reservation.id}`);
+    // console.log(`[Channel Manager] Modified ${channel} reservation: ${reservation.id}`);
 
     return NextResponse.json({
       success: true,
@@ -240,7 +240,7 @@ async function handleCancelReservation(channel: string, data: any) {
       }
     }
 
-    console.log(`[Channel Manager] Cancelled ${channel} reservation: ${reservation.id}`);
+    // console.log(`[Channel Manager] Cancelled ${channel} reservation: ${reservation.id}`);
 
     return NextResponse.json({
       success: true,
@@ -285,7 +285,7 @@ async function handleAvailabilityUpdate(channel: string, data: any) {
       });
     }
 
-    console.log(`[Channel Manager] Updated availability for ${propertyId}`);
+    // console.log(`[Channel Manager] Updated availability for ${propertyId}`);
 
     return NextResponse.json({
       success: true,

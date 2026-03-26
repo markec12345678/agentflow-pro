@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
       template
     };
 
-    console.log('Created invoice template:', newTemplate);
+    // console.log('Created invoice template:', newTemplate);
 
     // Log activity
     await logActivity(userId, "Invoice Template Created", `Created template: ${name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -248,7 +248,7 @@ function validateTemplate(template: any): { valid: boolean; message?: string } {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

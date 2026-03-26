@@ -123,7 +123,7 @@ async function downloadInvoicePDF(invoice: any, format: string) {
   // 3. Return PDF buffer or download URL
   // 4. Track download statistics
   
-  console.log('Downloading invoice:', {
+  // console.log('Downloading invoice:', {
     invoiceId: invoice.id,
     invoiceNumber: invoice.invoiceNumber,
     format
@@ -145,13 +145,13 @@ async function downloadInvoicePDF(invoice: any, format: string) {
     pdfBuffer: null // In real implementation, this would be the actual PDF buffer
   };
 
-  console.log('Invoice download ready:', downloadResult);
+  // console.log('Invoice download ready:', downloadResult);
   return downloadResult;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

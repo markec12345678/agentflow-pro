@@ -262,7 +262,7 @@ export async function POST(request: NextRequest) {
       status: 'held'
     };
 
-    console.log('Created booking hold:', bookingHold);
+    // console.log('Created booking hold:', bookingHold);
 
     return NextResponse.json({
       success: true,

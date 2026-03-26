@@ -198,7 +198,7 @@ export async function POST(
     }
 
     // Send notification (placeholder for actual notification system)
-    console.log(`Guest ${reservation.guest?.name || "Unknown"} checked out from room ${reservation.room?.name || "Unassigned"}`);
+    // console.log(`Guest ${reservation.guest?.name || "Unknown"} checked out from room ${reservation.room?.name || "Unassigned"}`);
 
     return NextResponse.json({
       success: true,

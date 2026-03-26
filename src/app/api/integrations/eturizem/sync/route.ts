@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       const duration = Date.now() - startTime;
       
       // Store sync log (in real implementation, this would be stored in database)
-      console.log(`eTurizem sync completed:`, {
+      // console.log(`eTurizem sync completed:`, {
         type,
         duration,
         ...syncResult

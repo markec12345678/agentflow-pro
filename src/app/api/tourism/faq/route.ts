@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (cachedAnswer) {
-      console.log('[FAQ] Cache hit for question:', question.slice(0, 50));
+      // console.log('[FAQ] Cache hit for question:', question.slice(0, 50));
       return NextResponse.json(cachedAnswer);
     }
 
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
         propertyId: propertyId || 'global',
         useMultiAgent: useMultiAgent || false 
       }, result, { ttl: 300 });
-      console.log('[FAQ] Cached answer with confidence:', result.confidence);
+      // console.log('[FAQ] Cached answer with confidence:', result.confidence);
     }
 
     // FAQ escalation: low confidence -> create Inquiry for director inbox

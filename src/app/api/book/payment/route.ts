@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
 
 async function processCreditCardPayment(bookingId: string, amount: number, currency: string, cardDetails: any, billingAddress: any): Promise<PaymentResponse> {
   // In real implementation, this would integrate with a payment gateway like Stripe, Adyen, etc.
-  console.log('Processing credit card payment:', { bookingId, amount, currency });
+  // console.log('Processing credit card payment:', { bookingId, amount, currency });
   
   // Validate card details
   const cardNumber = cardDetails.number.replace(/\s/g, '');
@@ -228,7 +228,7 @@ async function processCreditCardPayment(bookingId: string, amount: number, curre
 
 async function processPayPalPayment(bookingId: string, amount: number, currency: string, billingAddress: any, language: string): Promise<PaymentResponse> {
   // In real implementation, this would integrate with PayPal API
-  console.log('Processing PayPal payment:', { bookingId, amount, currency, language });
+  // console.log('Processing PayPal payment:', { bookingId, amount, currency, language });
   
   // Create PayPal payment
   const paymentId = `paypal_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
@@ -250,7 +250,7 @@ async function processPayPalPayment(bookingId: string, amount: number, currency:
 
 async function processBankTransferPayment(bookingId: string, amount: number, currency: string, billingAddress: any): Promise<PaymentResponse> {
   // In real implementation, this would generate bank transfer instructions
-  console.log('Processing bank transfer payment:', { bookingId, amount, currency });
+  // console.log('Processing bank transfer payment:', { bookingId, amount, currency });
   
   const paymentId = `bank_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
   
@@ -267,7 +267,7 @@ async function processBankTransferPayment(bookingId: string, amount: number, cur
 
 async function logPaymentAttempt(bookingId: string, paymentMethod: string, amount: number, currency: string, success: boolean, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Payment attempt logged:', {
+  // console.log('Payment attempt logged:', {
     bookingId,
     paymentMethod,
     amount,

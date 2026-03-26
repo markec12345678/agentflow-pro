@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update cron jobs (in real implementation)
-    console.log('Updated cron jobs:', cronJobs);
+    // console.log('Updated cron jobs:', cronJobs);
 
     // Log activity
     await logActivity(userId, "Cron Jobs Updated", `Updated ${cronJobs.length} cron jobs`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -254,7 +254,7 @@ function isValidCronField(field: string, min: number, max: number): boolean {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

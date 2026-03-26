@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
       permissions: getPermissionsForRole(user.role)
     };
 
-    console.log('Created new user:', newUser);
+    // console.log('Created new user:', newUser);
 
     // Log activity
     await logActivity(userId, "User Created", `Created new user: ${user.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -234,7 +234,7 @@ function getPermissionsForRole(role: string): string[] {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

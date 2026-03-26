@@ -122,7 +122,7 @@ async function generateInvoicePDF(invoice: any, template: string, generatedBy: s
   // 6. Store PDF securely
   // 7. Return download URL
   
-  console.log('Generating PDF for invoice:', {
+  // console.log('Generating PDF for invoice:', {
     invoiceId: invoice.id,
     invoiceNumber: invoice.invoiceNumber,
     template,
@@ -137,7 +137,7 @@ async function generateInvoicePDF(invoice: any, template: string, generatedBy: s
   const downloadUrl = `/api/invoices/${invoice.id}/download`;
 
   // Store PDF (in real implementation)
-  console.log('PDF stored at:', pdfUrl);
+  // console.log('PDF stored at:', pdfUrl);
 
   const pdfResult = {
     pdfUrl,
@@ -148,7 +148,7 @@ async function generateInvoicePDF(invoice: any, template: string, generatedBy: s
     template: template || invoice.template
   };
 
-  console.log('PDF generated successfully:', pdfResult);
+  // console.log('PDF generated successfully:', pdfResult);
   return pdfResult;
 }
 
@@ -190,13 +190,13 @@ function generatePDFContent(invoice: any, template: string) {
     paymentTerms: invoice.paymentTerms
   };
 
-  console.log('PDF content generated:', pdfData);
+  // console.log('PDF content generated:', pdfData);
   return pdfData;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

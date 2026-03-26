@@ -82,7 +82,7 @@ export async function POST(
       notes: notes
     };
 
-    console.log('Resolved alert:', resolvedAlert);
+    // console.log('Resolved alert:', resolvedAlert);
 
     // Log activity
     await logActivity(userId, "Alert Resolved", `Resolved alert: ${mockAlert.title}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
@@ -105,7 +105,7 @@ export async function POST(
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

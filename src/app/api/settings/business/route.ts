@@ -203,8 +203,8 @@ export async function POST(request: NextRequest) {
 
     // In a real implementation, this would be stored in database
     // For now, we'll just log the settings
-    console.log('Updating business settings for user:', userId);
-    console.log('Settings:', JSON.stringify(settings, null, 2));
+    // console.log('Updating business settings for user:', userId);
+    // console.log('Settings:', JSON.stringify(settings, null, 2));
 
     // Update user's business settings in database
     // await prisma.user.update({

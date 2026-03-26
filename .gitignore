@@ -17,6 +17,8 @@ env/
 .env
 .env.local
 .env.*.local
+.env.production
+.env.backup
 *.pem
 *.key
 
@@ -82,6 +84,16 @@ cookies.txt
 test-login-body.json
 .vercel
 .env*.local
+
+# Windows binaries/scripts
+*.exe
+*.ps1
+
+# Temporary files
+commit_message.txt
+.git-commit-msg.tmp
+test.txt
+test final.txt
 
 # Large directories not needed for deployment
 pgsql/

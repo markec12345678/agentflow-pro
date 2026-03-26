@@ -360,7 +360,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString()
     };
 
-    console.log('Created/updated test schedule:', schedule);
+    // console.log('Created/updated test schedule:', schedule);
 
     // Log activity
     await logActivity(userId, body.id ? "Test Schedule Updated" : "Test Schedule Created", `${body.id ? 'Updated' : 'Created'} schedule: ${name}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
@@ -416,7 +416,7 @@ function calculateNextRun(frequency: string, cronExpression?: string): string {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

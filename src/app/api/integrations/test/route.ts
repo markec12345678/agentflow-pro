@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
   testResult.responseTime = Date.now() - startTime;
 
   // Log test result (in real implementation, this would be stored in database)
-  console.log(`Integration test result for ${integrationId}:`, testResult);
+  // console.log(`Integration test result for ${integrationId}:`, testResult);
 
   return NextResponse.json({
     success: true,

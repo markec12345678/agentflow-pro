@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
 
 async function verifyPayment(paymentId: string, expectedAmount: number, expectedCurrency: string) {
   // In real implementation, this would verify payment with payment gateway
-  console.log('Verifying payment:', { paymentId, expectedAmount, expectedCurrency });
+  // console.log('Verifying payment:', { paymentId, expectedAmount, expectedCurrency });
   
   // Simulate payment verification
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -196,7 +196,7 @@ async function verifyPayment(paymentId: string, expectedAmount: number, expected
 
 async function checkRoomAvailability(roomType: string, checkIn: string, checkOut: string, guests: number) {
   // In real implementation, this would check actual database availability
-  console.log('Checking room availability:', { roomType, checkIn, checkOut, guests });
+  // console.log('Checking room availability:', { roomType, checkIn, checkOut, guests });
   
   // Simulate availability check
   const roomAvailability = {
@@ -254,7 +254,7 @@ function generateCancellationPolicy(checkIn: string, language: string) {
 
 async function saveBooking(booking: BookingConfirmation) {
   // In real implementation, this would save to database
-  console.log('Saving booking:', booking);
+  // console.log('Saving booking:', booking);
   
   // Simulate database save
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -262,14 +262,14 @@ async function saveBooking(booking: BookingConfirmation) {
 
 async function sendConfirmationEmail(booking: BookingConfirmation, language: string) {
   // In real implementation, this would send actual email
-  console.log('Sending confirmation email:', { bookingId: booking.id, email: booking.guestInfo.email, language });
+  // console.log('Sending confirmation email:', { bookingId: booking.id, email: booking.guestInfo.email, language });
   
   // Simulate email sending
   await new Promise(resolve => setTimeout(resolve, 2000));
   
   // Generate email content based on language
   const emailContent = generateEmailContent(booking, language);
-  console.log('Email content generated:', emailContent);
+  // console.log('Email content generated:', emailContent);
 }
 
 function generateEmailContent(booking: BookingConfirmation, language: string) {
@@ -316,7 +316,7 @@ function generateEmailContent(booking: BookingConfirmation, language: string) {
 
 async function logBookingConfirmation(booking: BookingConfirmation, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Booking confirmation logged:', {
+  // console.log('Booking confirmation logged:', {
     bookingId: booking.id,
     bookingNumber: booking.bookingNumber,
     guestEmail: booking.guestInfo.email,

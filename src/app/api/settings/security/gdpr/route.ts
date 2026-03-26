@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update consent (in real implementation)
-    console.log('Updating GDPR consent:', consentId, consentGiven);
+    // console.log('Updating GDPR consent:', consentId, consentGiven);
 
     // Log activity
     await logActivity(userId, "GDPR Consent Updated", `Updated consent for ID: ${consentId}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

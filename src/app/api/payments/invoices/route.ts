@@ -285,7 +285,7 @@ export async function POST(request: NextRequest) {
       items
     };
 
-    console.log('Created invoice:', newInvoice);
+    // console.log('Created invoice:', newInvoice);
 
     // Log activity
     await logActivity(userId, "Invoice Created", `Created invoice ${invoiceNumber} for reservation: ${reservationId}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -308,7 +308,7 @@ export async function POST(request: NextRequest) {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

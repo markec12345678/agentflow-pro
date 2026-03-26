@@ -83,7 +83,7 @@ export async function POST(
       acknowledgedAt: new Date().toISOString()
     };
 
-    console.log('Acknowledged alert:', acknowledgedAlert);
+    // console.log('Acknowledged alert:', acknowledgedAlert);
 
     // Log activity
     await logActivity(userId, "Alert Acknowledged", `Acknowledged alert: ${mockAlert.title}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
@@ -106,7 +106,7 @@ export async function POST(
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

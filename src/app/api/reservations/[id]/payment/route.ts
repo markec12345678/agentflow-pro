@@ -116,7 +116,7 @@ export async function POST(
     }
 
     // Send notification (placeholder for actual notification system)
-    console.log(`Payment of €${validatedData.amount} added to reservation ${id}`);
+    // console.log(`Payment of €${validatedData.amount} added to reservation ${id}`);
 
     return NextResponse.json({
       success: true,

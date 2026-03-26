@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        console.log(`Payment succeeded: ${payment.id}`);
+        // console.log(`Payment succeeded: ${payment.id}`);
       }
       break;
     }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        console.log(`Payment failed: ${payment.id}`);
+        // console.log(`Payment failed: ${payment.id}`);
       }
       break;
     }
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
             },
           });
 
-          console.log(`Refund processed: ${payment.id}`);
+          // console.log(`Refund processed: ${payment.id}`);
         }
       }
       break;
@@ -131,12 +131,12 @@ export async function POST(request: NextRequest) {
       const customer = event.data.object as Stripe.Customer;
       
       // Could save customer ID to guest record if needed
-      console.log(`Customer created: ${customer.id}`);
+      // console.log(`Customer created: ${customer.id}`);
       break;
     }
 
     default:
-      console.log(`Unhandled event type: ${event.type}`);
+      // console.log(`Unhandled event type: ${event.type}`);
   }
 
   return NextResponse.json({ received: true });

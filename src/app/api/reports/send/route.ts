@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Log the send action
-    console.log('Report sent:', {
+    // console.log('Report sent:', {
       reportId,
       reportName: report.name,
       recipients,
@@ -143,7 +143,7 @@ async function sendReportEmail(params: {
   // In a real implementation, this would use an email service like SendGrid, Resend, etc.
   // For now, we'll simulate the email sending
   
-  console.log('Sending email with params:', {
+  // console.log('Sending email with params:', {
     recipients: params.recipients,
     subject: params.subject,
     message: params.message,

@@ -157,7 +157,7 @@ export async function POST(
       }
     };
 
-    console.log('Created review:', newReview);
+    // console.log('Created review:', newReview);
 
     // Send notification to management (in real implementation)
     await notifyManagement(newReview);
@@ -185,7 +185,7 @@ async function checkReviewEligibility(bookingId: string): Promise<boolean> {
   // 3. Existing review (guest hasn't already reviewed)
   // 4. Time since check-out (e.g., must be at least 24 hours after check-out)
   
-  console.log('Checking review eligibility for booking:', bookingId);
+  // console.log('Checking review eligibility for booking:', bookingId);
   
   // Simulate eligibility check
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -196,7 +196,7 @@ async function checkReviewEligibility(bookingId: string): Promise<boolean> {
 
 async function notifyManagement(review: Review) {
   // In real implementation, this would send notification to hotel management
-  console.log('Notifying management about new review:', {
+  // console.log('Notifying management about new review:', {
     reviewId: review.id,
     bookingId: review.bookingId,
     rating: review.rating,

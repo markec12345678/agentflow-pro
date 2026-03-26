@@ -222,7 +222,7 @@ export async function POST(request: NextRequest) {
       details: log.details
     };
 
-    console.log('New eTurizem sync log:', newLog);
+    // console.log('New eTurizem sync log:', newLog);
 
     return NextResponse.json({
       success: true,
