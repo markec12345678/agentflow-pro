@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date()
     };
 
-    console.log('Created new report template:', newTemplate);
+    // console.log('Created new report template:', newTemplate);
 
     return NextResponse.json({
       success: true,

@@ -476,7 +476,7 @@ async function triggerPipeline(branch: string, commit?: string | undefined, envi
   // 3. Start the build process
   // 4. Return pipeline run ID and status
   
-  console.log('Triggering pipeline:', { branch, commit, environment, triggeredBy });
+  // console.log('Triggering pipeline:', { branch, commit, environment, triggeredBy });
   
   // Simulate pipeline trigger
   const pipelineRun: PipelineStatus = {
@@ -513,13 +513,13 @@ async function triggerPipeline(branch: string, commit?: string | undefined, envi
     repository: "agentflow-pro"
   };
   
-  console.log('Pipeline triggered successfully:', pipelineRun);
+  // console.log('Pipeline triggered successfully:', pipelineRun);
   return pipelineRun;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

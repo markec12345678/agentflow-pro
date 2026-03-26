@@ -286,7 +286,7 @@ export async function POST(request: NextRequest) {
       metadata: metadata || {}
     };
 
-    console.log('Created health alert:', newAlert);
+    // console.log('Created health alert:', newAlert);
 
     // Log activity
     await logActivity(userId, "Health Alert Created", `Created alert: ${title}`, request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || "unknown");
@@ -309,7 +309,7 @@ export async function POST(request: NextRequest) {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

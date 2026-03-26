@@ -218,7 +218,7 @@ async function checkCheckInEligibility(bookingId: string) {
   // 3. Payment status (must be paid)
   // 4. Previous check-in (must not be already checked in)
   
-  console.log('Checking check-in eligibility for booking:', bookingId);
+  // console.log('Checking check-in eligibility for booking:', bookingId);
   
   // Simulate eligibility check
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -237,7 +237,7 @@ async function processCheckIn(bookingId: string, data: CheckInData): Promise<Che
   // 3. Update booking status
   // 4. Send notifications
   
-  console.log('Processing check-in for booking:', bookingId);
+  // console.log('Processing check-in for booking:', bookingId);
   
   // Simulate check-in processing
   await new Promise(resolve => setTimeout(resolve, 2000));
@@ -260,7 +260,7 @@ async function processCheckIn(bookingId: string, data: CheckInData): Promise<Che
 
 async function sendCheckInConfirmation(bookingId: string, guestEmail: string, checkInResponse: CheckInResponse) {
   // In real implementation, this would send email confirmation
-  console.log('Sending check-in confirmation:', {
+  // console.log('Sending check-in confirmation:', {
     bookingId,
     guestEmail,
     checkInId: checkInResponse.checkInId,
@@ -271,7 +271,7 @@ async function sendCheckInConfirmation(bookingId: string, guestEmail: string, ch
 
 async function notifyFrontDesk(bookingId: string, checkInResponse: CheckInResponse) {
   // In real implementation, this would notify front desk staff
-  console.log('Notifying front desk about check-in:', {
+  // console.log('Notifying front desk about check-in:', {
     bookingId,
     checkInId: checkInResponse.checkInId,
     status: checkInResponse.status,

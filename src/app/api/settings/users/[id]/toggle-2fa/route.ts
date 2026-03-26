@@ -72,13 +72,13 @@ export async function POST(
     }
 
     // Update 2FA status (in real implementation)
-    console.log(`${enabled ? 'Enabling' : 'Disabling'} 2FA for user:`, targetUserId);
+    // console.log(`${enabled ? 'Enabling' : 'Disabling'} 2FA for user:`, targetUserId);
 
     // If enabling 2FA, generate setup link (in real implementation)
     let setupLink = null;
     if (enabled) {
       setupLink = generate2FASetupLink(targetUser.email);
-      console.log('2FA setup link for', targetUser.email, ':', setupLink);
+      // console.log('2FA setup link for', targetUser.email, ':', setupLink);
     }
 
     // Log activity
@@ -107,7 +107,7 @@ function generate2FASetupLink(email: string): string {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

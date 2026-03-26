@@ -64,7 +64,7 @@ export async function POST(
     }
 
     // Revoke API key (in real implementation)
-    console.log('Revoked API key:', keyId);
+    // console.log('Revoked API key:', keyId);
 
     // Log activity
     await logActivity(userId, "API Key Revoked", `Revoked API key: ${mockAPIKey.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -88,7 +88,7 @@ export async function POST(
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

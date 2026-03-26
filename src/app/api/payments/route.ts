@@ -324,7 +324,7 @@ export async function POST(request: NextRequest) {
       metadata
     };
 
-    console.log('Created payment:', newPayment);
+    // console.log('Created payment:', newPayment);
 
     // Log activity
     await logActivity(userId, "Payment Created", `Created payment for reservation: ${reservationId}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -347,7 +347,7 @@ export async function POST(request: NextRequest) {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

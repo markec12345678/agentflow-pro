@@ -263,7 +263,7 @@ export async function POST(
 
 async function handleModifyBooking(bookingId: string, data: any) {
   // In real implementation, this would update the booking in database
-  console.log('Modifying booking:', { bookingId, data });
+  // console.log('Modifying booking:', { bookingId, data });
   
   // Validate modification data
   const { newCheckIn, newCheckOut, newGuests, reason } = data;
@@ -298,7 +298,7 @@ async function handleModifyBooking(bookingId: string, data: any) {
 
 async function handleCancelBooking(bookingId: string, data: any) {
   // In real implementation, this would cancel the booking in database
-  console.log('Cancelling booking:', { bookingId, data });
+  // console.log('Cancelling booking:', { bookingId, data });
   
   // Validate cancellation
   const { reason } = data;
@@ -328,7 +328,7 @@ async function handleCancelBooking(bookingId: string, data: any) {
 
 async function handleSpecialRequest(bookingId: string, data: any) {
   // In real implementation, this would create a special request in database
-  console.log('Creating special request:', { bookingId, data });
+  // console.log('Creating special request:', { bookingId, data });
   
   // Validate request data
   const { type, title, description } = data;
@@ -349,7 +349,7 @@ async function handleSpecialRequest(bookingId: string, data: any) {
 
 async function handleReview(bookingId: string, data: any) {
   // In real implementation, this would create a review in database
-  console.log('Creating review:', { bookingId, data });
+  // console.log('Creating review:', { bookingId, data });
   
   // Validate review data
   const { rating, title, content } = data;
@@ -374,7 +374,7 @@ async function handleReview(bookingId: string, data: any) {
 
 async function handleOnlineCheckIn(bookingId: string, data: any) {
   // In real implementation, this would start the online check-in process
-  console.log('Starting online check-in:', { bookingId, data });
+  // console.log('Starting online check-in:', { bookingId, data });
   
   // Simulate check-in process
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -389,7 +389,7 @@ async function handleOnlineCheckIn(bookingId: string, data: any) {
 
 async function logPortalAccess(bookingId: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Portal access logged:', {
+  // console.log('Portal access logged:', {
     bookingId,
     ipAddress,
     timestamp: new Date().toISOString()
@@ -398,7 +398,7 @@ async function logPortalAccess(bookingId: string, ipAddress: string) {
 
 async function logPortalAction(bookingId: string, action: string, data: any, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Portal action logged:', {
+  // console.log('Portal action logged:', {
     bookingId,
     action,
     data,

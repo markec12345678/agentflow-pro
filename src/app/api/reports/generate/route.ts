@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       format: reportRequest.format
     };
 
-    console.log('Generated report:', report);
+    // console.log('Generated report:', report);
 
     return NextResponse.json({
       success: true,

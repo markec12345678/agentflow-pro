@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { scenario, action, data, hookId } = body;
 
-    console.log('Make.com webhook received:', { scenario, action, hookId });
+    // console.log('Make.com webhook received:', { scenario, action, hookId });
 
     // Route to appropriate action
     switch (action) {

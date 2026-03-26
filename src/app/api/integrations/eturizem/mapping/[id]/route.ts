@@ -50,7 +50,7 @@ export async function PUT(
     }
 
     // Update mapping (in real implementation)
-    console.log('Updating mapping:', { id, eturizemId, eturizemName });
+    // console.log('Updating mapping:', { id, eturizemId, eturizemName });
 
     return NextResponse.json({
       success: true,
@@ -100,7 +100,7 @@ export async function DELETE(
     }
 
     // Remove mapping (in real implementation)
-    console.log('Removing mapping:', { id });
+    // console.log('Removing mapping:', { id });
 
     return NextResponse.json({
       success: true,

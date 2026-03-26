@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
       billingAddress
     };
 
-    console.log('Created payment method:', newPaymentMethod);
+    // console.log('Created payment method:', newPaymentMethod);
 
     // Log activity
     await logActivity(userId, "Payment Method Added", `Added ${type} payment method`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -304,7 +304,7 @@ function validatePaymentMethodDetails(type: string, details: any): { valid: bool
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

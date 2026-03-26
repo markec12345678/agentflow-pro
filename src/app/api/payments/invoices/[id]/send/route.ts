@@ -86,7 +86,7 @@ export async function POST(
     const sendResult = await sendInvoiceEmail(mockInvoice, recipientEmail, subject, message, currentUser.name || undefined);
 
     // Update invoice status to "sent"
-    console.log(`Invoice ${invoiceId} marked as sent`);
+    // console.log(`Invoice ${invoiceId} marked as sent`);
 
     // Log activity
     await logActivity(userId, "Invoice Sent", `Sent invoice ${mockInvoice.invoiceNumber} to ${recipientEmail}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -117,7 +117,7 @@ async function sendInvoiceEmail(invoice: any, recipientEmail: string, subject?: 
   // 3. Track email delivery
   // 4. Update invoice status in database
   
-  console.log('Sending invoice email:', {
+  // console.log('Sending invoice email:', {
     invoiceId: invoice.id,
     invoiceNumber: invoice.invoiceNumber,
     recipientEmail,
@@ -159,7 +159,7 @@ async function sendInvoiceEmail(invoice: any, recipientEmail: string, subject?: 
     ]
   };
 
-  console.log('Email content prepared:', emailContent);
+  // console.log('Email content prepared:', emailContent);
 
   // Simulate email sending
   await new Promise(resolve => setTimeout(resolve, 2000));
@@ -171,7 +171,7 @@ async function sendInvoiceEmail(invoice: any, recipientEmail: string, subject?: 
     pdfUrl
   };
 
-  console.log('Invoice sent successfully:', sendResult);
+  // console.log('Invoice sent successfully:', sendResult);
   return sendResult;
 }
 
@@ -183,20 +183,20 @@ async function generateInvoicePDF(invoice: any): Promise<string> {
   // 4. Store PDF securely
   // 5. Return secure URL
   
-  console.log('Generating PDF for invoice:', invoice.invoiceNumber);
+  // console.log('Generating PDF for invoice:', invoice.invoiceNumber);
   
   // Simulate PDF generation
   await new Promise(resolve => setTimeout(resolve, 1000));
   
   const pdfUrl = `https://storage.example.com/invoices/${invoice.invoiceNumber}.pdf`;
-  console.log('PDF generated:', pdfUrl);
+  // console.log('PDF generated:', pdfUrl);
   
   return pdfUrl;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

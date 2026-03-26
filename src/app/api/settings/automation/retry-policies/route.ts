@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update fallback rules (in real implementation)
-    console.log('Updated fallback rules:', rules);
+    // console.log('Updated fallback rules:', rules);
 
     // Log activity
     await logActivity(userId, "Fallback Rules Updated", `Updated ${rules.length} fallback rules`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -237,7 +237,7 @@ function validateFallbackRules(rules: any[]): { valid: boolean; message?: string
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

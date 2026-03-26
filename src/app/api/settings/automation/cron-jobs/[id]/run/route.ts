@@ -88,7 +88,7 @@ export async function POST(
   }
 
 async function executeCronJob(job: any): Promise<any> {
-  console.log(`Executing cron job: ${job.name} (${job.agent})`);
+  // console.log(`Executing cron job: ${job.name} (${job.agent})`);
   
   // Simulate job execution
   await new Promise(resolve => setTimeout(resolve, 2000));
@@ -112,13 +112,13 @@ async function executeCronJob(job: any): Promise<any> {
     }
   };
 
-  console.log('Cron job result:', jobResult);
+  // console.log('Cron job result:', jobResult);
   return jobResult;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

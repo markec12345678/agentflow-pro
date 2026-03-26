@@ -124,7 +124,7 @@ async function handleNewReservation(
   });
 
   if (existing) {
-    console.log("[Booking.com Webhook] Reservation already exists:", reservation.reservation_id);
+    // console.log("[Booking.com Webhook] Reservation already exists:", reservation.reservation_id);
     return;
   }
 
@@ -195,7 +195,7 @@ async function handleCancelledReservation(
   });
 
   if (!existing) {
-    console.log("[Booking.com Webhook] Cancelled reservation not found:", reservation.reservation_id);
+    // console.log("[Booking.com Webhook] Cancelled reservation not found:", reservation.reservation_id);
     return;
   }
 

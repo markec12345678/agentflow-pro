@@ -261,7 +261,7 @@ export async function POST(request: NextRequest) {
       userAgent: request.headers.get('user-agent') || "unknown"
     };
 
-    console.log('Audit log created:', auditLog);
+    // console.log('Audit log created:', auditLog);
 
     return NextResponse.json({
       success: true,

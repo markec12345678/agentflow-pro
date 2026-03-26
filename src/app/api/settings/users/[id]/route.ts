@@ -94,7 +94,7 @@ export async function PUT(
     }
 
     // Update user (in real implementation)
-    console.log('Updating user:', targetUserId, updates);
+    // console.log('Updating user:', targetUserId, updates);
 
     // Log activity
     await logActivity(userId, "User Updated", `Updated user: ${targetUser.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -169,7 +169,7 @@ export async function DELETE(
     }
 
     // Deactivate user (in real implementation)
-    console.log('Deactivating user:', targetUserId);
+    // console.log('Deactivating user:', targetUserId);
 
     // Log activity
     await logActivity(userId, "User Deactivated", `Deactivated user: ${targetUser.name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -189,7 +189,7 @@ export async function DELETE(
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

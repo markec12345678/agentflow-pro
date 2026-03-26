@@ -132,7 +132,7 @@ async function processRefund(payment: any, amount: number, reason: string, proce
   // 4. Send notification to guest
   // 5. Update accounting records
   
-  console.log('Processing refund:', {
+  // console.log('Processing refund:', {
     paymentId: payment.id,
     amount,
     reason,
@@ -160,14 +160,14 @@ async function processRefund(payment: any, amount: number, reason: string, proce
 
   // Update payment status based on refund amount
   const isFullRefund = amount === payment.amount;
-  console.log(`Payment ${payment.id} ${isFullRefund ? 'fully' : 'partially'} refunded`);
+  // console.log(`Payment ${payment.id} ${isFullRefund ? 'fully' : 'partially'} refunded`);
 
   return refundResult;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

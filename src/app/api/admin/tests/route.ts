@@ -341,7 +341,7 @@ async function runTests(suiteId?: string, category?: string, force = false) {
   // 4. Generate coverage reports
   // 5. Store results in database
   
-  console.log('Running tests:', { suiteId, category, force });
+  // console.log('Running tests:', { suiteId, category, force });
   
   // Simulate test execution
   await new Promise(resolve => setTimeout(resolve, 5000 + Math.random() * 10000));
@@ -367,13 +367,13 @@ async function runTests(suiteId?: string, category?: string, force = false) {
     commit: "abc123def"
   };
   
-  console.log('Test execution completed:', testResult);
+  // console.log('Test execution completed:', testResult);
   return testResult;
 }
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

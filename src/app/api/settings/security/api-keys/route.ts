@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
       isActive: true
     };
 
-    console.log('Generated new API key:', { id: newAPIKey.id, name, permissions });
+    // console.log('Generated new API key:', { id: newAPIKey.id, name, permissions });
 
     // Log activity
     await logActivity(userId, "API Key Generated", `Generated API key: ${name}`, request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || "unknown");
@@ -195,7 +195,7 @@ function generateAPIKey(): string {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,

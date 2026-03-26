@@ -141,7 +141,7 @@ export async function POST(
       submittedAt: new Date().toISOString()
     };
 
-    console.log('Created special request:', newRequest);
+    // console.log('Created special request:', newRequest);
 
     // Send notification to staff (in real implementation)
     await notifyStaff(newRequest);
@@ -164,7 +164,7 @@ export async function POST(
 
 async function notifyStaff(request: SpecialRequest) {
   // In real implementation, this would send notification to hotel staff
-  console.log('Notifying staff about new request:', {
+  // console.log('Notifying staff about new request:', {
     requestId: request.id,
     bookingId: request.bookingId,
     type: request.type,

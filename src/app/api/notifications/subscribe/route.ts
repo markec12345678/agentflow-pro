@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     // Store subscription
     subscriptions.set(subscription.id, subscription);
 
-    console.log(`📱 User ${userId} subscribed to notifications for property ${propertyId}`);
+    // console.log(`📱 User ${userId} subscribed to notifications for property ${propertyId}`);
 
     return NextResponse.json({
       success: true,
@@ -192,7 +192,7 @@ export async function DELETE(request: NextRequest) {
     subscription.isActive = false;
     subscription.updatedAt = new Date();
 
-    console.log(`📱 User ${subscription.userId} unsubscribed from notifications`);
+    // console.log(`📱 User ${subscription.userId} unsubscribed from notifications`);
 
     return NextResponse.json({
       success: true,

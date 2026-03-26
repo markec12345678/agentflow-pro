@@ -58,7 +58,7 @@ export async function POST(
     const resetLink = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
 
     // Send password reset email (in real implementation, use email service)
-    console.log('Password reset link for', targetUser.email, ':', resetLink);
+    // console.log('Password reset link for', targetUser.email, ':', resetLink);
 
     // Store reset token in database (in real implementation)
     // await prisma.passwordReset.create({
@@ -95,7 +95,7 @@ function generateResetToken(): string {
 
 async function logActivity(userId: string, action: string, details: string, ipAddress: string) {
   // In real implementation, this would be stored in database
-  console.log('Activity log:', {
+  // console.log('Activity log:', {
     userId,
     action,
     details,
